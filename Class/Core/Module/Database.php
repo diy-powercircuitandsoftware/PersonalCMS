@@ -90,6 +90,15 @@ class Module_Database extends SQLite3 {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function SearchModule($name) {
+        $data = array();
+        $results = $this->ud->query('SELECT * FROM module WHERE classname LIKE "' . $name . '"   ');
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+
     public function Install() {
         $install = array();
         $install[0] = ('
