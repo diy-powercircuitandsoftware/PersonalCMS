@@ -2,7 +2,6 @@
 session_start();
 include_once '../../../../Class/Core/Config/Config.php';
 include_once '../../../../Class/Core/UI/NAV.php';
-include_once '../../../../Class/Interpreter/GetClassNameFromFile.php';
 $config = new Config();
 $uinav = new UINAV();
 if ($config->HasRootAuth(session_id())) {
@@ -50,10 +49,10 @@ if ($config->HasRootAuth(session_id())) {
                     tablelist.Import(document.getElementById("TableField"));
                     /*
                      var lastid = 0;
-                     
-                     
+                         
+                         
                      userlist.Import(document.getElementById("UserList"));
-                     
+                         
                      ajaxsb.AddScrollEvent(function (data) {
                      try {
                      data = JSON.parse(data);
@@ -86,7 +85,7 @@ if ($config->HasRootAuth(session_id())) {
                      ajaxsb.Param("id", lastid);
                      ajaxsb.LoadAjax();
                      d.Close();
-                     
+                         
                      });
                      }, "Cancel": function () {
                      d.Close();
@@ -95,7 +94,7 @@ if ($config->HasRootAuth(session_id())) {
                      });
                      }
                      });
-                     
+                         
                      ss.S("#BNAddUser").Click(function () {
                      var d = dialog.Import("Add", "#AddTable", {"OK": function () {
                      ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
@@ -108,7 +107,7 @@ if ($config->HasRootAuth(session_id())) {
                      ss.S(".AddUser").Val("");
                      }});
                      });
-                     
+                         
                      ss.S("#BNDeleteUser").Click(function () {
                      dialog.Confirm("are you sure want to delete select user", function () {
                      var v = ss.S(".UserSelect").Val();
@@ -121,6 +120,12 @@ if ($config->HasRootAuth(session_id())) {
                      }).ZIndex(999);
                      });
                      */
+
+                    ss.S("#BNDiscardConfig").Click(function (e) {
+
+                    });
+
+
                     ss.S(".BNInstall").Click(function (e) {
                         var modulefile = (this.getAttribute("data-id"));
                         ajax.Post("Action/GetConstantLayout.php", {}, function (l) {
@@ -150,7 +155,9 @@ if ($config->HasRootAuth(session_id())) {
                     ss.S(".BNModuleTab").Click(function (e) {
                         tab.Show(this.getAttribute("data-id"));
                     });
+                    ss.S("#BNSaveAllConfig").Click(function (e) {
 
+                    });
                     ss.S("#BNTableViewModManager").Click(function (e) {
                         ajax.Post("Action/GetTableListManager.php", {}, function (s) {
                             s = JSON.parse(s);
@@ -194,15 +201,24 @@ if ($config->HasRootAuth(session_id())) {
                             tablemodmanager.DeleteRowAfter(0);
                             data = JSON.parse(data);
                             for (var i in data) {
-                                
+
                                 tablemodmanager.InsertRow();
                                 tablemodmanager.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="UserSelect" value="' + data[i]["id"] + '" /></div>');
                                 tablemodmanager.InsertCellLastRow(data[i]["filename"]);
                                 tablemodmanager.InsertCellLastRow(data[i]["classname"]);
-                                tablemodmanager.InsertCellLastRow('<input type="checkbox" name="" value="1" checked="'+data[i]["public"]+'" />');
+                                if (data[i]["public"] == "1") {
+                                    tablemodmanager.InsertCellLastRow('<input type="checkbox" data-id="' + data[i]["id"] + '"   checked="checked" />');
+                                } else {
+                                    tablemodmanager.InsertCellLastRow('<input type="checkbox" data-id="' + data[i]["id"] + '" />');
+                                }
                                 tablemodmanager.InsertCellLastRow(data[i]["layout"]);
-                                tablemodmanager.InsertCellLastRow(data[i]["priority"]);
-                                tablemodmanager.InsertCellLastRow(data[i]["enable"]);
+                                tablemodmanager.InsertCellLastRow('<input type="number" name="" value="' + data[i]["priority"] + '" />');
+                                if (data[i]["enable"] == "1") {
+                                    tablemodmanager.InsertCellLastRow('<input type="checkbox" data-id="' + data[i]["id"] + '"   checked="checked" />');
+                                } else {
+                                    tablemodmanager.InsertCellLastRow('<input type="checkbox" data-id="' + data[i]["id"] + '" />');
+                                }
+
                                 tablemodmanager.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
                             }
 
@@ -227,7 +243,7 @@ if ($config->HasRootAuth(session_id())) {
                         });
 
                     });
-
+                    ss.S("#SearchBox").Input();
                 });
 
             </script>
@@ -258,6 +274,7 @@ if ($config->HasRootAuth(session_id())) {
                 <div id="Tab">
 
                 </div>
+
                 <div>
                     <aside>
                         <div class="BorderBlock">
@@ -306,30 +323,14 @@ if ($config->HasRootAuth(session_id())) {
                             <th>layout</th>
                             <th>priority</th>
                             <th>enable</th>
-                              <th>config</th>
+                            <th>config</th> 
                         </tr>
                     </table>
+                    <button id="BNSaveAllConfig">Save</button>
+                    <button id="BNDiscardConfig">Discard</button>
                 </div>
                 <div id="ModuleList" >
-                    <table id="ModuleFilesList" style="width: 100%;">
-                        <tr> 
-                            <th>Filename</th>
-                            <th>Module Name</th>
-                            <th>Install</th>
-                            <th>UnInstall</th>
-                        </tr>
-                        <?php
-                        $modpath = "../../../../Class/Module/";
-                        foreach ($uinav->GetFilesList($modpath) as $value) {
-                            echo '<tr>';
-                            printf('<td>%s</td>', $value);
-                            printf('<td>%s</td>', GetClassNameFromFile($modpath . $value));
-                            printf('<td><button class="BNInstall" data-id="%s">Install</button></td>', $value);
-                            printf('<td><button class="BNUnInstall" data-id="%s">UnInstall</button></td>', $value);
-                            echo '</tr>';
-                        }
-                        ?>
-                    </table>
+                     
 
                 </div> 
             </div>

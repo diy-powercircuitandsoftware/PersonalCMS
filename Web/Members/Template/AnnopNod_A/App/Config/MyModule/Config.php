@@ -4,7 +4,6 @@ include_once '../../../../../../Class/DB/Config/DB/Config.php';
 include_once '../../../../../../Class/DB/Config/DB/Software.php';
 include_once '../../../../../../Class/DB/Com/User/SessionManager.php';
 include_once '../../../../../../Class/DB/Com/User/Profile.php';
-include_once '../../../../../../Class/Interpreter/GetClassNameFromFile.php';
 include_once '../../../../../../Class/DB/Com/User/LoadModule.php';
 include_once '../../../../../../Class/DB/Com/User/ConfigModule.php';
 $DBConfig = new Config_DB_Config();
