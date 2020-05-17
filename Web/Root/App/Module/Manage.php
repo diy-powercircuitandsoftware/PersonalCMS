@@ -50,10 +50,10 @@ if ($config->HasRootAuth(session_id())) {
                     tablelist.Import(document.getElementById("TableField"));
                     /*
                      var lastid = 0;
-                         
-                         
+                     
+                     
                      userlist.Import(document.getElementById("UserList"));
-                         
+                     
                      ajaxsb.AddScrollEvent(function (data) {
                      try {
                      data = JSON.parse(data);
@@ -86,7 +86,7 @@ if ($config->HasRootAuth(session_id())) {
                      ajaxsb.Param("id", lastid);
                      ajaxsb.LoadAjax();
                      d.Close();
-                         
+                     
                      });
                      }, "Cancel": function () {
                      d.Close();
@@ -95,7 +95,7 @@ if ($config->HasRootAuth(session_id())) {
                      });
                      }
                      });
-                         
+                     
                      ss.S("#BNAddUser").Click(function () {
                      var d = dialog.Import("Add", "#AddTable", {"OK": function () {
                      ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
@@ -108,7 +108,7 @@ if ($config->HasRootAuth(session_id())) {
                      ss.S(".AddUser").Val("");
                      }});
                      });
-                         
+                     
                      ss.S("#BNDeleteUser").Click(function () {
                      dialog.Confirm("are you sure want to delete select user", function () {
                      var v = ss.S(".UserSelect").Val();
@@ -174,11 +174,9 @@ if ($config->HasRootAuth(session_id())) {
                         var u = dialog.UnLock(function (v) {
                             ajax.Post(ref, {"password": v}, function (s) {
                                 if (s == "1") {
-
                                     tablemodmanager.DeleteRowAfter(0);
-
+                                    dialog.Alert("UnInstall Complete");
                                     u.Close();
-
                                 } else {
                                     dialog.Alert(s);
                                     u.Close();
@@ -190,25 +188,25 @@ if ($config->HasRootAuth(session_id())) {
 
                     });
                     ss.S("#SearchBox").Input(function (e) {
-                        
-                            ajax.Post("Action/SearchUser.php", {"data": this.value, "field": ss.S("#SearchOption").Val()}, function (data) {
-                                 
-                                userlist.DeleteRowAfter(0);
-                                data = JSON.parse(data);
-                                for (var i in data) {
-                                    userlist.InsertRow();
-                                    userlist.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="UserSelect" value="' + data[i]["id"] + '" /></div>');
-                                    userlist.InsertCellLastRow(data[i]["id"]);
-                                    userlist.InsertCellLastRow(data[i]["alias"]);
-                                    userlist.InsertCellLastRow(data[i]["writable"]);
-                                    userlist.InsertCellLastRow(data[i]["enable"]);
-                                    userlist.InsertCellLastRow(data[i]["email"]);
-                                    userlist.InsertCellLastRow(data[i]["phone"]);
-                                    userlist.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
-                                }
 
-                            });
-                        
+                        ajax.Post("Action/SearchModule.php", {"name": this.value}, function (data) {
+
+                            tablemodmanager.DeleteRowAfter(0);
+                            data = JSON.parse(data);
+                            for (var i in data) {
+                                tablemodmanager.InsertRow();
+                                tablemodmanager.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="UserSelect" value="' + data[i]["id"] + '" /></div>');
+                                tablemodmanager.InsertCellLastRow(data[i]["id"]);
+                                tablemodmanager.InsertCellLastRow(data[i]["alias"]);
+                                tablemodmanager.InsertCellLastRow(data[i]["writable"]);
+                                tablemodmanager.InsertCellLastRow(data[i]["enable"]);
+                                tablemodmanager.InsertCellLastRow(data[i]["email"]);
+                                tablemodmanager.InsertCellLastRow(data[i]["phone"]);
+                                tablemodmanager.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
+                            }
+
+                        });
+
                     });
 
                     ss.S("#TableList").Change(function (e) {
@@ -307,6 +305,7 @@ if ($config->HasRootAuth(session_id())) {
                             <th>layout</th>
                             <th>priority</th>
                             <th>enable</th>
+                              <th>config</th>
                         </tr>
                     </table>
                 </div>

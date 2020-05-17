@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of Database
  *
@@ -92,7 +86,13 @@ class Module_Database extends SQLite3 {
 
     public function SearchModule($name) {
         $data = array();
-        $results = $this->ud->query('SELECT * FROM module WHERE classname LIKE "' . $name . '"   ');
+        $results = null;
+        if ($name !== "") {
+            $results = $this->query('SELECT * FROM module WHERE classname LIKE "' . $name . '"  ; ');
+        } else {
+            $results = $this->query('SELECT * FROM module;');
+        }
+
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             $data[] = $row;
         }
@@ -110,6 +110,13 @@ class Module_Database extends SQLite3 {
     layout INTEGER,
     priority INTEGER,
     enable   BOOLEAN);');
+        $install[1] = ('
+    CREATE TABLE config (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    mod_id       INTEGER NOT NULL,
+    mod_key      VARCHAR (256) NOT NULL,
+    mod_val     VARCHAR (256) NOT NULL
+    );');
         try {
             foreach ($install as $value) {
                 $this->exec($value);
@@ -123,7 +130,7 @@ class Module_Database extends SQLite3 {
     public function Uninstall() {
         try {
             $this->exec("DROP TABLE module;");
-
+            $this->exec("DROP TABLE config;");
             $this->exec("VACUUM;");
             return $this->close();
         } catch (Exception $e) {

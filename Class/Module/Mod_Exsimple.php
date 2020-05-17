@@ -11,6 +11,10 @@ class Mod_Exsimple {
         $this->pdo = $mod->GetPDO();
     }
 
+    public function ConfigForm() {
+        return "";
+    }
+
     public function Execute() {
         if ($this->UserID == NULL) {
             return "Welcome Guest";
