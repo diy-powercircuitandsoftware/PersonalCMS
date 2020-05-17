@@ -194,14 +194,15 @@ if ($config->HasRootAuth(session_id())) {
                             tablemodmanager.DeleteRowAfter(0);
                             data = JSON.parse(data);
                             for (var i in data) {
+                                
                                 tablemodmanager.InsertRow();
                                 tablemodmanager.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="UserSelect" value="' + data[i]["id"] + '" /></div>');
-                                tablemodmanager.InsertCellLastRow(data[i]["id"]);
-                                tablemodmanager.InsertCellLastRow(data[i]["alias"]);
-                                tablemodmanager.InsertCellLastRow(data[i]["writable"]);
+                                tablemodmanager.InsertCellLastRow(data[i]["filename"]);
+                                tablemodmanager.InsertCellLastRow(data[i]["classname"]);
+                                tablemodmanager.InsertCellLastRow('<input type="checkbox" name="" value="1" checked="'+data[i]["public"]+'" />');
+                                tablemodmanager.InsertCellLastRow(data[i]["layout"]);
+                                tablemodmanager.InsertCellLastRow(data[i]["priority"]);
                                 tablemodmanager.InsertCellLastRow(data[i]["enable"]);
-                                tablemodmanager.InsertCellLastRow(data[i]["email"]);
-                                tablemodmanager.InsertCellLastRow(data[i]["phone"]);
                                 tablemodmanager.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
                             }
 
