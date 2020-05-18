@@ -16,7 +16,7 @@ if ($config->HasRootAuth(session_id())) {
             <script src="../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../js/dom/SuperDialog.js"></script>
             <script src="../../../js/dom/TableTools.js"></script>
-            <script src="../../../js/dom/Tab.js"></script>
+
             <style>
                 #UserList{
                     width: 100%;
@@ -35,16 +35,9 @@ if ($config->HasRootAuth(session_id())) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
-
                     var dialog = new SuperDialog();
                     var tablemodmanager = new TableTools();
                     var tablelist = new TableTools();
-                    var tab = new Tab(document.getElementById("Tab"));
-
-
-                    tab.Add("1", document.getElementById("ModuleList"));
-                    tab.Add("2", document.getElementById("ModuleManager"));
-
                     tablemodmanager.Import(document.getElementById("TableModuleManager"));
                     tablelist.Import(document.getElementById("TableField"));
                     /*
@@ -271,17 +264,30 @@ if ($config->HasRootAuth(session_id())) {
                         ?>
                     </nav>
                 </div> 
-                <div id="Tab">
-
+                <div>
+                    <div style="display: flex;flex-direction: row;   ">
+                        <input   style="flex-grow: 1;" type="text" id="SearchBox" value="" />
+                    </div>
+                    <table id="TableModuleManager" style="text-align: center;width: 100%;box-sizing: border-box;">
+                        <tr>
+                            <th>id</th>
+                            <th>filename</th>
+                            <th>classname</th>
+                            <th>public</th>
+                            <th>layout</th>
+                            <th>priority</th>
+                            <th>enable</th>
+                            <th>config</th> 
+                        </tr>
+                    </table>
+                    <button id="BNSaveAllConfig">Save</button>
+                    <button id="BNDiscardConfig">Discard</button>
                 </div>
 
                 <div>
                     <aside>
                         <div class="BorderBlock">
                             <div class="TitleCenter">Module</div>
-                            <a class="BNModuleTab" data-id="1" style="display: block;"  href="#">Module List</a>
-                            <a class="BNModuleTab" data-id="2" style="display: block;"  href="#">Module Manager</a>
-
                             <a id="BNInstallModManager"  style="display: block;" href="Action/InstallManager.php">Install Manager</a>
                             <a  id="BNUnInstallModManager" style="display: block;" href="Action/UnInstallManager.php">UnInstall Manager</a>
                             <a  id="BNTableViewModManager" style="display: block;" href="#">Table View</a>
@@ -309,31 +315,7 @@ if ($config->HasRootAuth(session_id())) {
                 </div>
             </div>
 
-            <div id="TabEditor">
-                <div id="ModuleManager">
-                    <div style="display: flex;flex-direction: row;   ">
-                        <input   style="flex-grow: 1;" type="text" id="SearchBox" value="" />
-                    </div>
-                    <table id="TableModuleManager" style="text-align: center;width: 100%;box-sizing: border-box;">
-                        <tr>
-                            <th>id</th>
-                            <th>filename</th>
-                            <th>classname</th>
-                            <th>public</th>
-                            <th>layout</th>
-                            <th>priority</th>
-                            <th>enable</th>
-                            <th>config</th> 
-                        </tr>
-                    </table>
-                    <button id="BNSaveAllConfig">Save</button>
-                    <button id="BNDiscardConfig">Discard</button>
-                </div>
-                <div id="ModuleList" >
-                     
 
-                </div> 
-            </div>
 
         </body>
     </html>
