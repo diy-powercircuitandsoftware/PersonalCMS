@@ -108,48 +108,7 @@ if ($config->HasRootAuth(session_id())) {
                             });
                         }).ZIndex(999);
                     });
-                    ss.S("#BNInstall").Click(function (e) {
-                        e.preventDefault();
-                        dialog.Load(this.href);
-
-                    });
-
-
-                    ss.S("#BNTableView").Click(function (e) {
-                        ajax.Post("Action/GetTableList.php", {}, function (s) {
-                            s = JSON.parse(s);
-                            ss.S("#TableList").Empty();
-                            for (var i in s) {
-                                ss.S("#TableList").Append(s[i], s[i]);
-                            }
-                            dialog.Import("TableFields", "#TableViewer");
-                            ss.S("#TableList").Change();
-                        });
-
-                    });
-
-
-                    ss.S("#BNUnInstall").Click(function (e) {
-                        e.preventDefault();
-                        var ref = this.href;
-                        var u = dialog.UnLock(function (v) {
-                            ajax.Post(ref, {"password": v}, function (s) {
-                                if (s == "1") {
-                                    lastid = 0;
-                                    userlist.DeleteRowAfter(0);
-                                    ajaxsb.Param("id", lastid);
-                                    u.Close();
-
-                                } else {
-                                    dialog.Alert(s);
-                                    u.Close();
-                                }
-
-                            });
-
-                        }).ZIndex(999);
-
-                    });
+                    
                     ss.S("#SearchBox").Input(function (e) {
                         if (this.value !== "") {
                             ajax.Post("Action/SearchUser.php", {"data": this.value, "field": ss.S("#SearchOption").Val()}, function (data) {
@@ -176,26 +135,7 @@ if ($config->HasRootAuth(session_id())) {
                             ajaxsb.Param("id", lastid);
                             ajaxsb.LoadAjax();
                         }
-                    });
-
-                    ss.S("#TableList").Change(function (e) {
-                        ajax.Post("Action/GetTableFields.php", {"name": this.value}, function (data) {
-                            data = JSON.parse(data);
-                            tablelist.DeleteRowAfter(0);
-                            for (var i in data) {
-                                tablelist.InsertRow();
-                                tablelist.InsertCellLastRow(data[i]["cid"]);
-                                tablelist.InsertCellLastRow(data[i]["name"]);
-                                tablelist.InsertCellLastRow(data[i]["type"]);
-                                tablelist.InsertCellLastRow(data[i]["notnull"]);
-                                tablelist.InsertCellLastRow(data[i]["dflt_value"]);
-                                tablelist.InsertCellLastRow(data[i]["pk"]);
-                            }
-
-                        });
-
-                    });
-
+                    });       
                 });
 
             </script>
@@ -250,10 +190,7 @@ if ($config->HasRootAuth(session_id())) {
                         <div class="BorderBlock">
                             <div class="TitleCenter">User</div>
                             <a id="BNAddUser" style="display: block;" href="#">Add New User</a>
-                            <a id="BNDeleteUser" style="display: block;" href="#">Delete User</a>
-                            <a id="BNInstall"  style="display: block;" href="Action/Install.php">Install</a>
-                            <a  id="BNUnInstall" style="display: block;" href="Action/UnInstall.php">UnInstall</a>
-                            <a  id="BNTableView" style="display: block;" href="#">Table View</a>
+                            <a id="BNDeleteUser" style="display: block;" href="#">Delete User</a>                             
                         </div>
                     </aside>
                 </div>
@@ -321,19 +258,7 @@ if ($config->HasRootAuth(session_id())) {
                         </td>
                     </tr>
                 </table>
-                <div id="TableViewer">
-                    <select id="TableList" style="width: 100%;box-sizing: border-box;"></select>
-                    <table id="TableField">
-                        <tr>
-                            <th>cid</th>
-                            <th>name</th>
-                            <th>type</th>
-                            <th>notnull</th>
-                            <th>dflt_value</th>
-                            <th>pk</th>
-                        </tr>
-                    </table>
-                </div>
+                
             </div>
         </body>
 

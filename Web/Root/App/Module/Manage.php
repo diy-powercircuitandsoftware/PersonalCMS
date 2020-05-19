@@ -118,62 +118,16 @@ if ($config->HasRootAuth(session_id())) {
 
                     });
  
-
-                    ss.S("#BNInstallMod").Click(function (e) {
-                        //TableInstaller
-
-                    });
-                    ss.S("#BNInstallModManager").Click(function (e) {
-                        e.preventDefault();
-                        dialog.Load(this.href);
-                    });
-
-
-
-
-
-                    ss.S(".BNModuleTab").Click(function (e) {
-                        tab.Show(this.getAttribute("data-id"));
-                    });
+ 
                     ss.S("#BNSaveAllConfig").Click(function (e) {
 
                     });
-                    ss.S("#BNTableViewModManager").Click(function (e) {
-                        ajax.Post("Action/GetTableListManager.php", {}, function (s) {
-                            s = JSON.parse(s);
-                            ss.S("#TableList").Empty();
-                            for (var i in s) {
-                                ss.S("#TableList").Append(s[i], s[i]);
-                            }
-                            dialog.Import("TableFields", "#TableViewer");
-                            ss.S("#TableList").Change();
-                        });
-
-                    });
-
+                    
                     ss.S(".BNUnInstall").Click(function (e) {
                         alert(this.getAttribute("data-id"));
 
                     });
-                    ss.S("#BNUnInstallModManager").Click(function (e) {
-                        e.preventDefault();
-                        var ref = this.href;
-                        var u = dialog.UnLock(function (v) {
-                            ajax.Post(ref, {"password": v}, function (s) {
-                                if (s == "1") {
-                                    tablemodmanager.DeleteRowAfter(0);
-                                    dialog.Alert("UnInstall Complete");
-                                    u.Close();
-                                } else {
-                                    dialog.Alert(s);
-                                    u.Close();
-                                }
-
-                            });
-
-                        }).ZIndex(999);
-
-                    });
+                    
                     ss.S("#SearchBox").Input(function (e) {
 
                         ajax.Post("Action/SearchModule.php", {"name": this.value}, function (data) {
@@ -206,23 +160,7 @@ if ($config->HasRootAuth(session_id())) {
 
                     });
 
-                    ss.S("#TableList").Change(function (e) {
-                        ajax.Post("Action/GetTableFieldsManager.php", {"name": this.value}, function (data) {
-                            data = JSON.parse(data);
-                            tablelist.DeleteRowAfter(0);
-                            for (var i in data) {
-                                tablelist.InsertRow();
-                                tablelist.InsertCellLastRow(data[i]["cid"]);
-                                tablelist.InsertCellLastRow(data[i]["name"]);
-                                tablelist.InsertCellLastRow(data[i]["type"]);
-                                tablelist.InsertCellLastRow(data[i]["notnull"]);
-                                tablelist.InsertCellLastRow(data[i]["dflt_value"]);
-                                tablelist.InsertCellLastRow(data[i]["pk"]);
-                            }
-
-                        });
-
-                    });
+                    
                     ss.S("#SearchBox").Input();
                 });
 
@@ -276,14 +214,11 @@ if ($config->HasRootAuth(session_id())) {
                         <div class="BorderBlock">
                             <div class="TitleCenter">Module</div>
                              <a id="BNInstallMod"  style="display: block;">Install</a>
-                            <a id="BNInstallModManager"  style="display: block;" href="Action/InstallManager.php">Install Manager</a>
-                            <a  id="BNUnInstallModManager" style="display: block;" href="Action/UnInstallManager.php">UnInstall Manager</a>
-                            <a  id="BNTableViewModManager" style="display: block;" href="#">Table View</a>
+                           
                         </div>
                     </aside>
                 </div>
             </div>
-
 
             <div id="AllDialog" style="display: none;">
                 <table id="TableInstaller">
@@ -291,24 +226,8 @@ if ($config->HasRootAuth(session_id())) {
                         <td>File</td>
                     </tr>
                 </table>
-
-                <div id="TableViewer">
-                    <select id="TableList" style="width: 100%;box-sizing: border-box;"></select>
-                    <table id="TableField">
-                        <tr>
-                            <th>cid</th>
-                            <th>name</th>
-                            <th>type</th>
-                            <th>notnull</th>
-                            <th>dflt_value</th>
-                            <th>pk</th>
-                        </tr>
-                    </table>
-                </div>
+ 
             </div>
-
-
-
         </body>
     </html>
     <?php

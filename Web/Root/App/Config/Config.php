@@ -160,8 +160,3 @@ if ($config->HasRootAuth(session_id())) {
 } else {
     header('Location: ../../Auth/index.php');
 }
-
-
-
-
-
