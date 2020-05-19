@@ -37,9 +37,9 @@ if ($config->HasRootAuth(session_id())) {
                     var ajax = new Ajax();
                     var dialog = new SuperDialog();
                     var tablemodmanager = new TableTools();
-                    var tablelist = new TableTools();
+               
                     tablemodmanager.Import(document.getElementById("TableModuleManager"));
-                    tablelist.Import(document.getElementById("TableField"));
+                    
                     /*
                      var lastid = 0;
                          

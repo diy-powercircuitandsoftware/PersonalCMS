@@ -72,7 +72,7 @@ class User_Database extends SQLite3 {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     userid INTEGER,
     k VARCHAR (256)   NOT NULL,
-    v VARCHAR (1000)  (1000) NOT NULL);');
+    v VARCHAR (1000)  NOT NULL);');
         try {
             foreach ($install as $value) {
                 $this->exec($value);

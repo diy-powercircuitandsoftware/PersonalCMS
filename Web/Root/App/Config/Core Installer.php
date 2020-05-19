@@ -35,21 +35,21 @@ if ($config->HasRootAuth(session_id())) {
                 ss.DocumentReady(function () {
                     var dialog = new SuperDialog();
                     var ajax = new Ajax();
-                    ss.S("#BNInstall").Click(function (e) {
+                    var tablelist = new TableTools();
+                     tablelist.Import(document.getElementById("TableField"));
+                    ss.S(".BNInstall").Click(function (e) {
                         e.preventDefault();
                         dialog.Load(this.href);
 
                     });
 
-                    ss.S("#BNUnInstall").Click(function (e) {
+                    ss.S(".BNUnInstall").Click(function (e) {
                         e.preventDefault();
                         var ref = this.href;
                         var u = dialog.UnLock(function (v) {
                             ajax.Post(ref, {"password": v}, function (s) {
                                 if (s == "1") {
-                                    lastid = 0;
-                                    userlist.DeleteRowAfter(0);
-                                    ajaxsb.Param("id", lastid);
+                                   
                                     u.Close();
 
                                 } else {
@@ -144,8 +144,8 @@ if ($config->HasRootAuth(session_id())) {
                                     printf('<td>%s</td>', $first);
                                     printf('<td><button class="BNTableView" data-id="%s">Table View</button></td>', $first);
                                     printf('<td><button class="BNDataView" data-id="%s">Data View</button></td>', $first);
-                                    printf('<td><button class="BNInstall" data-id="%s">Install</button></td>'
-                                            . '<td><button class="BNUnInstall" data-id="%s">UnInstall</button></td>', $first, $first);
+                                    printf('<td><a class="BNInstall" href="Action/CoreInstall.php?dir=%s"><button>Install</button></a></td>'
+                                            . '<td><a class="BNUnInstall" href="Action/CoreUnInstall.php?dir=%s"><button>UnInstall</button></a></td>', $first, $first);
                                     echo '</tr>';
                                 }
                             }
@@ -158,7 +158,7 @@ if ($config->HasRootAuth(session_id())) {
 
                 </div>
             </div>
-            <div id="TableViewer">
+            <div id="TableViewer" style="display: none;">
                     <select id="TableList" style="width: 100%;box-sizing: border-box;"></select>
                     <table id="TableField">
                         <tr>

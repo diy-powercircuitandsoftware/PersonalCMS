@@ -2,13 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/software/diy/PersonalCMS/Web/Root/App/Config/Config.php</file>
-            <file>file:/software/diy/PersonalCMS/Web/Root/App/Config/Core.php</file>
-            <file>file:/software/diy/PersonalCMS/Class/Core/Module/SDK.php</file>
-            <file>file:/software/diy/PersonalCMS/Module/Exsimple/init.php</file>
-            <file>file:/software/diy/PersonalCMS/Web/Root/App/Module/Manage.php</file>
-            <file>file:/software/diy/PersonalCMS/Class/Core/Module/Database.php</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

@@ -37,11 +37,8 @@ if ($config->HasRootAuth(session_id())) {
                     var ajaxsb = new AjaxScrollBar("Action/GetUserList.php", {"id": 0});
                     var dialog = new SuperDialog();
                     var userlist = new TableTools();
-                    var tablelist = new TableTools();
                     var lastid = 0;
-
-                    userlist.Import(document.getElementById("UserList"));
-                    tablelist.Import(document.getElementById("TableField"));
+                    userlist.Import(document.getElementById("UserList"));                  
                     ajaxsb.AddScrollEvent(function (data) {
                         try {
                             data = JSON.parse(data);
