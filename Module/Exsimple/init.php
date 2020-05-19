@@ -1,21 +1,9 @@
 <?php
 
-class Module_Exsimple {
+class Module_Exsimple extends PersonalCMS_MOD_SDK {
+    
 
-    private $pdo;
-    private $ModuleID = NULL;
-  
-    private $UserID = NULL;
-
-    public function __construct(Com_Module_LoadModule $mod) {
-        $this->pdo = $mod->GetPDO();
-    }
-
-    public function ConfigForm() {
-        return "";
-    }
-
-    public function Execute() {
+    public function Execute($Layout) {
         if ($this->UserID == NULL) {
             return "Welcome Guest";
         } else {
@@ -25,14 +13,6 @@ class Module_Exsimple {
 
     public function GetTitle() {
         return "Exsimple";
-    }
-
-    public function SetModuleID($ModuleID) {
-        $this->ModuleID = $ModuleID;
-    }
- 
-    public function SetUserID($UserID) {
-        $this->UserID = $UserID;
     }
 
 }

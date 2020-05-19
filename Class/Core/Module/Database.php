@@ -7,19 +7,7 @@
  */
 class Module_Database extends SQLite3 {
 
-    public const Layout_None = 0;
-    public const Layout_Header = 1;
-    public const Layout_Nav = 2;
-    public const Layout_Article = 3;
-    public const Layout_Aside = 4;
-    public const Layout_Footer = 5;
-
-    /* const Layout_Section_Header = 6;
-      const Layout_Section_Nav = 7;
-      const Layout_Section_Section = 8;
-      const Layout_Section_Aside = 9;
-      const Layout_Section_Footer = 10;
-     */
+    
 
     public $ModulePath = "";
 
@@ -103,11 +91,9 @@ class Module_Database extends SQLite3 {
         $install = array();
         $install[0] = ('
     CREATE TABLE module (
-    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    classname      VARCHAR (256) PRIMARY KEY,
     filename       VARCHAR (256) NOT NULL,
-    classname      VARCHAR (256) NOT NULL,
     public     BOOLEAN,
-    layout INTEGER,
     priority INTEGER,
     enable   BOOLEAN);');
         try {
@@ -123,7 +109,7 @@ class Module_Database extends SQLite3 {
     public function Uninstall() {
         try {
             $this->exec("DROP TABLE module;");
-            
+
             $this->exec("VACUUM;");
             return $this->close();
         } catch (Exception $e) {

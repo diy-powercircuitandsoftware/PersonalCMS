@@ -117,23 +117,10 @@ if ($config->HasRootAuth(session_id())) {
                     ss.S("#BNDiscardConfig").Click(function (e) {
 
                     });
+ 
 
-
-                    ss.S(".BNInstall").Click(function (e) {
-                        var modulefile = (this.getAttribute("data-id"));
-                        ajax.Post("Action/GetConstantLayout.php", {}, function (l) {
-                            var u = dialog.DropDown(function (v) {
-                                ajax.Post("Action/InstallModule.php", {"FileName": modulefile, "Layout": v}, function (s) {
-
-                                });
-
-                            }).ZIndex(999).Title("Layout");
-                            l = JSON.parse(l);
-                            for (var k in l) {
-                                u.Add(l[k], k);
-                            }
-
-                        });
+                    ss.S("#BNInstallMod").Click(function (e) {
+                        //TableInstaller
 
                     });
                     ss.S("#BNInstallModManager").Click(function (e) {
@@ -288,6 +275,7 @@ if ($config->HasRootAuth(session_id())) {
                     <aside>
                         <div class="BorderBlock">
                             <div class="TitleCenter">Module</div>
+                             <a id="BNInstallMod"  style="display: block;">Install</a>
                             <a id="BNInstallModManager"  style="display: block;" href="Action/InstallManager.php">Install Manager</a>
                             <a  id="BNUnInstallModManager" style="display: block;" href="Action/UnInstallManager.php">UnInstall Manager</a>
                             <a  id="BNTableViewModManager" style="display: block;" href="#">Table View</a>
@@ -298,7 +286,11 @@ if ($config->HasRootAuth(session_id())) {
 
 
             <div id="AllDialog" style="display: none;">
-
+                <table id="TableInstaller">
+                    <tr>
+                        <td>File</td>
+                    </tr>
+                </table>
 
                 <div id="TableViewer">
                     <select id="TableList" style="width: 100%;box-sizing: border-box;"></select>
