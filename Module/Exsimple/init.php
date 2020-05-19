@@ -1,10 +1,10 @@
 <?php
 
-class Mod_Exsimple {
+class Module_Exsimple {
 
     private $pdo;
     private $ModuleID = NULL;
-    private $ModulePage = NULL;
+  
     private $UserID = NULL;
 
     public function __construct(Com_Module_LoadModule $mod) {
@@ -30,11 +30,7 @@ class Mod_Exsimple {
     public function SetModuleID($ModuleID) {
         $this->ModuleID = $ModuleID;
     }
-
-    public function SetModulePage($ModulePage) {
-        $this->ModulePage = $ModulePage;
-    }
-
+ 
     public function SetUserID($UserID) {
         $this->UserID = $UserID;
     }
