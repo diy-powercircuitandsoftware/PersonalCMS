@@ -4,11 +4,9 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/software/diy/PersonalCMS/Web/Root/App/Config/Core%20Installer.php</file>
+            <file>file:/software/diy/PersonalCMS/Web/Root/App/Config/Action/GetTableFields.php</file>
             <file>file:/software/diy/PersonalCMS/Class/Core/User/Database.php</file>
-            <file>file:/software/diy/PersonalCMS/Class/SDK/Module/Basic.php</file>
-            <file>file:/software/diy/PersonalCMS/Web/Root/App/Config/Action/CoreUnInstall.php</file>
-            <file>file:/software/diy/PersonalCMS/Web/Root/App/Config/Action/CoreInstall.php</file>
-            <file>file:/software/diy/PersonalCMS/Class/SDK/Module/Layout.php</file>
+            <file>file:/software/diy/PersonalCMS/Web/Root/App/Config/Action/GetTableList.php</file>
         </group>
     </open-files>
 </project-private>

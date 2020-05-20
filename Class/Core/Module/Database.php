@@ -17,7 +17,7 @@ class Module_Database extends SQLite3 {
             mkdir($this->ModulePath);
         }
 
-        $this->open($this->ModulePath . "Blog.db");
+        $this->open($this->ModulePath . "Module.db");
     }
 
     public function GetTableFields($table) {

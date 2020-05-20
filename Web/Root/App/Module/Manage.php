@@ -37,15 +37,15 @@ if ($config->HasRootAuth(session_id())) {
                     var ajax = new Ajax();
                     var dialog = new SuperDialog();
                     var tablemodmanager = new TableTools();
-               
+
                     tablemodmanager.Import(document.getElementById("TableModuleManager"));
-                    
+
                     /*
                      var lastid = 0;
-                         
-                         
+                     
+                     
                      userlist.Import(document.getElementById("UserList"));
-                         
+                     
                      ajaxsb.AddScrollEvent(function (data) {
                      try {
                      data = JSON.parse(data);
@@ -78,7 +78,7 @@ if ($config->HasRootAuth(session_id())) {
                      ajaxsb.Param("id", lastid);
                      ajaxsb.LoadAjax();
                      d.Close();
-                         
+                     
                      });
                      }, "Cancel": function () {
                      d.Close();
@@ -87,7 +87,7 @@ if ($config->HasRootAuth(session_id())) {
                      });
                      }
                      });
-                         
+                     
                      ss.S("#BNAddUser").Click(function () {
                      var d = dialog.Import("Add", "#AddTable", {"OK": function () {
                      ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
@@ -100,7 +100,7 @@ if ($config->HasRootAuth(session_id())) {
                      ss.S(".AddUser").Val("");
                      }});
                      });
-                         
+                     
                      ss.S("#BNDeleteUser").Click(function () {
                      dialog.Confirm("are you sure want to delete select user", function () {
                      var v = ss.S(".UserSelect").Val();
@@ -117,17 +117,17 @@ if ($config->HasRootAuth(session_id())) {
                     ss.S("#BNDiscardConfig").Click(function (e) {
 
                     });
- 
- 
+
+
                     ss.S("#BNSaveAllConfig").Click(function (e) {
 
                     });
-                    
+
                     ss.S(".BNUnInstall").Click(function (e) {
                         alert(this.getAttribute("data-id"));
 
                     });
-                    
+
                     ss.S("#SearchBox").Input(function (e) {
 
                         ajax.Post("Action/SearchModule.php", {"name": this.value}, function (data) {
@@ -160,7 +160,7 @@ if ($config->HasRootAuth(session_id())) {
 
                     });
 
-                    
+
                     ss.S("#SearchBox").Input();
                 });
 
@@ -213,21 +213,25 @@ if ($config->HasRootAuth(session_id())) {
                     <aside>
                         <div class="BorderBlock">
                             <div class="TitleCenter">Module</div>
-                             <a id="BNInstallMod"  style="display: block;">Install</a>
-                           
+                            <a id="BNInstallMod"  style="display: block;">Install</a>
+
                         </div>
                     </aside>
                 </div>
             </div>
 
-            <div id="AllDialog" style="display: none;">
-                <table id="TableInstaller">
-                    <tr>
-                        <td>File</td>
-                    </tr>
-                </table>
- 
-            </div>
+            <table id="TableInstaller" style="display: none;">
+                <tr>
+                    <td>File:</td>
+                    <td><input type="file" name="" /></td>
+                </tr>
+                <tr>
+                    <td>ClassName</td>
+                    <td></td>
+                </tr>
+                 
+            </table>
+
         </body>
     </html>
     <?php

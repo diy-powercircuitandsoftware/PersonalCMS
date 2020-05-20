@@ -40,7 +40,6 @@ if ($config->HasRootAuth(session_id())) {
                     ss.S(".BNInstall").Click(function (e) {
                         e.preventDefault();
                         dialog.Load(this.href);
-
                     });
 
                     ss.S(".BNUnInstall").Click(function (e) {
@@ -49,9 +48,7 @@ if ($config->HasRootAuth(session_id())) {
                         var u = dialog.UnLock(function (v) {
                             ajax.Post(ref, {"password": v}, function (s) {
                                 if (s == "1") {
-                                   
                                     u.Close();
-
                                 } else {
                                     dialog.Alert(s);
                                     u.Close();
@@ -83,12 +80,13 @@ if ($config->HasRootAuth(session_id())) {
                     });
 
 
-                    ss.S("#BNTableView").Click(function (e) {
-                        ajax.Post("Action/GetTableList.php", {}, function (s) {
+                    ss.S(".BNTableView").Click(function (e) {
+                        var dbname=this.getAttribute("data-id");
+                        ajax.Post("Action/GetTableList.php", {"dir":dbname}, function (s) {
                             s = JSON.parse(s);
                             ss.S("#TableList").Empty();
                             for (var i in s) {
-                                ss.S("#TableList").Append(s[i], s[i]);
+                                ss.S("#TableList").Append(dbname+"/"+s[i], s[i]);
                             }
                             dialog.Import("TableFields", "#TableViewer");
                             ss.S("#TableList").Change();

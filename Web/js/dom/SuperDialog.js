@@ -173,6 +173,9 @@ class SuperDialog {
         sd.Title(title);
         sd.BeforeClose(function () {
             parrent.appendChild(node);
+            if (node.normalhide) {
+                node.style.display = "none";
+            }
             return true;
         });
         if (args.length === 3) {
@@ -182,7 +185,12 @@ class SuperDialog {
 
         sd.Content(node);
         sd.DestroyAfterClose();
+        node.normalhide = (node.style.display === "none");
+        if (node.normalhide) {
+            node.style.display = "block";
+        }
         sd.Show();
+
         return sd;
     }
 
