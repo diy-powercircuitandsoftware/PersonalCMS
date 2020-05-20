@@ -90,7 +90,7 @@ class Module_Database extends SQLite3 {
     public function Install() {
         $install = array();
         $install[0] = ('
-    CREATE TABLE module (
+    CREATE TABLE IF NOT EXISTS module (
     classname      VARCHAR (256) PRIMARY KEY,
     filename       VARCHAR (256) NOT NULL,
     public     BOOLEAN,

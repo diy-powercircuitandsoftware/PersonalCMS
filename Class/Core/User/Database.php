@@ -43,7 +43,7 @@ class User_Database extends SQLite3 {
     public function Install() {
         $install = array();
         $install[0] = ('
-    CREATE TABLE user (
+    CREATE TABLE IF NOT EXISTS user (
     id       INTEGER PRIMARY KEY AUTOINCREMENT,
     alias    VARCHAR (50),
     password VARCHAR (1000),
@@ -55,20 +55,20 @@ class User_Database extends SQLite3 {
     writable BOOLEAN,
     enable   BOOLEAN);');
         $install[1] = ('
-    CREATE TABLE session (
+    CREATE TABLE IF NOT EXISTS session (
     sessionid  VARCHAR (255)  NOT NULL PRIMARY KEY,
     ipaddress  VARCHAR (1000) NOT NULL,
     accesstime DATE           NOT NULL,
     useragent  VARCHAR (1000) NOT NULL,
     userid     INTEGER        NOT NULL);');
         $install[2] = ('
-    CREATE TABLE register (
+    CREATE TABLE IF NOT EXISTS register (
     phone  VARCHAR (255)    NOT NULL PRIMARY KEY,
     email  VARCHAR (1000)   NOT NULL,
     alias  VARCHAR (1000)   NOT NULL,
     password VARCHAR (1000) NOT NULL);');
         $install[3] = ('
-    CREATE TABLE config (
+    CREATE TABLE IF NOT EXISTS config (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     userid INTEGER,
     k VARCHAR (256)   NOT NULL,

@@ -11,29 +11,19 @@
  *
  * @author annopnod
  */
-class PersonalCMS_MOD_SDK {
+class Module_SDK_Basic {
 
-    public const Layout_None = 0;
-    public const Layout_Header = 1;
-    public const Layout_Nav = 2;
-    public const Layout_Article = 3;
-    public const Layout_Aside = 4;
-    public const Layout_Footer = 5;
+    
 
     private $UserID = NULL;
 
-    /* const Layout_Section_Header = 6;
-      const Layout_Section_Nav = 7;
-      const Layout_Section_Section = 8;
-      const Layout_Section_Aside = 9;
-      const Layout_Section_Footer = 10;
-     */
+   
 
     public function ConfigForm() {
         return "";
     }
 
-    public function Execute($Layout = PersonalCMS_MOD_SDK::Layout_None) {
+    public function Execute(Module_SDK_Layout $Layout = Module_SDK_Layout::Layout_None) {
         return true;
     }
 

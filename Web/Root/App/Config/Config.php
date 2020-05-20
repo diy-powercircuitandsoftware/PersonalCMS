@@ -38,7 +38,7 @@ if ($config->HasRootAuth(session_id())) {
                     ss.S("#BNSave").Click(function () {
                         var u = dialog.UnLock(function (v) {
                             var json = ss.S(".AjaxChangeValue").ValByName();
-                            ajax.Post("Action/savebasicconfig.php", {"password": v, "data": json}, function (data) {
+                            ajax.Post("Action/SaveBasicConfig.php", {"password": v, "data": json}, function (data) {
                                 if (data === "1") {
                                     u.Close();
                                 }
@@ -48,10 +48,10 @@ if ($config->HasRootAuth(session_id())) {
                     });
 
                     ss.S("#BNCHPW").Click(function () {
-                        //BNCHPW
+                         
                         var tl = dialog.ChangePassword(function (v) {
                             console.log(v);
-                            ajax.Post("Action/chpw.php", v, function (data) {
+                            ajax.Post("Action/ChangePassword.php", v, function (data) {
                                 if (data === "1") {
                                     tl.Close();
                                 }
@@ -63,7 +63,7 @@ if ($config->HasRootAuth(session_id())) {
 
                     ss.S("#TXTUserDIR").KeyUp(function (e) {
 
-                        ajax.Post("Action/simulationdatapath.php", {"path": this.value}, function (data) {
+                        ajax.Post("Action/SimulationDataPath.php", {"path": this.value}, function (data) {
                             ss.S("#PathPreview").Html(data);
                         });
 
