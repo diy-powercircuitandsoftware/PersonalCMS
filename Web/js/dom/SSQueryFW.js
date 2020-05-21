@@ -242,6 +242,8 @@ class SSQueryFW {
                     var name = el.getAttribute("name");
                     if (el.tagName === "INPUT" && arrchk.indexOf(el.type) >= 0 && el.checked) {
                         output[name] = (el.checked);
+                    } else if (el.tagName === "INPUT" && el.type == "file") {
+                        output[name] = el.files;
                     } else if (el.tagName === "SELECT" && el.getAttribute("multiple") == "multiple") {
                         output[name] = [];
                         for (var i = 0; i < el.options.length; i++) {
