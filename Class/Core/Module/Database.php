@@ -38,10 +38,10 @@ class Module_Database extends SQLite3 {
         return $out;
     }
 
-    public function InstallModule($filename, $classname, $layout) {
+    public function InstallModule($dirname, $classname, $layout) {
         try {
-            $stmt = $this->prepare("INSERT INTO module (filename,classname,layout) VALUES ( :filename,:classname,:layout)");
-            $stmt->bindValue(':filename', $filename, SQLITE3_TEXT);
+            $stmt = $this->prepare("INSERT INTO module (dirname,classname,layout) VALUES ( :dirname,:classname,:layout)");
+            $stmt->bindValue(':dirname', $dirname, SQLITE3_TEXT);
             $stmt->bindValue(':classname', $classname, SQLITE3_TEXT);
             $stmt->bindValue(':layout', $layout, SQLITE3_INTEGER);
             $stmt->execute();
@@ -53,7 +53,7 @@ class Module_Database extends SQLite3 {
 
     public function LoadModule($Layout = self::Layout_None) {
         $pointer = $this->pdo->GetPointer();
-        $sql = "SELECT  id,filename,classname FROM module "
+        $sql = "SELECT  dirname,classname FROM module "
                 . "WHERE enable=1 AND public=1 "
                 . "AND layout =:layout  ORDER BY priority ASC ";
         $stmt = $pointer->prepare($sql);
@@ -64,7 +64,7 @@ class Module_Database extends SQLite3 {
 
     public function LoadModuleMember($Layout = self::Layout_None) {
         $pointer = $this->pdo->GetPointer();
-        $sql = "SELECT  id,filename,classname   FROM module "
+        $sql = "SELECT  dirname,classname   FROM module "
                 . "WHERE enable=1 AND layout =:layout  ORDER BY priority ASC ";
         $stmt = $pointer->prepare($sql);
         $stmt->bindParam(':layout', $Layout);
@@ -92,10 +92,9 @@ class Module_Database extends SQLite3 {
         $install[0] = ('
     CREATE TABLE IF NOT EXISTS module (
     classname      VARCHAR (256) PRIMARY KEY,
-    filename       VARCHAR (256) NOT NULL,
+    dirname       VARCHAR (256) NOT NULL,
     public     BOOLEAN,
-    priority INTEGER,
-    enable   BOOLEAN);');
+    priority INTEGER);');
         try {
             foreach ($install as $value) {
                 $this->exec($value);

@@ -13,11 +13,11 @@
  */
 class Module_SDK_Basic {
 
-    
-
     private $UserID = NULL;
 
-   
+    public function Config($cfg = array()) {
+        return true;
+    }
 
     public function ConfigForm() {
         return "";

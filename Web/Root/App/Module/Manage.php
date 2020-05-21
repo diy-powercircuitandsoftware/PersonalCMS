@@ -37,9 +37,9 @@ if ($config->HasRootAuth(session_id())) {
                     var ajax = new Ajax();
                     var dialog = new SuperDialog();
                     var tablemodmanager = new TableTools();
-
+                    var tablemodview = new TableTools();
                     tablemodmanager.Import(document.getElementById("TableModuleManager"));
-
+                    tablemodview.Import(document.getElementById("TableModView"));
                     /*
                      var lastid = 0;
                      
@@ -114,31 +114,54 @@ if ($config->HasRootAuth(session_id())) {
                      });
                      */
 
-                    ss.S("#BNDiscardConfig").Click(function (e) {
 
+
+
+                    ss.S("#BNInstallMod").Click(function (e) {
+                        var d = dialog.Import("Install", "#TableInstaller", {"OK": function () {
+                                d.Close();
+                            }, "Cancel": function () {
+                                d.Close();
+                            }});
                     });
-
 
                     ss.S("#BNSaveAllConfig").Click(function (e) {
 
                     });
 
-                    ss.S(".BNUnInstall").Click(function (e) {
-                        alert(this.getAttribute("data-id"));
+                    ss.S("#BNViewModFile").Click(function (e) {
+
+                        ajax.Get("Action/ViewModuleFiles.php", function (data) {
+                            tablemodview.DeleteRowAfter(0);
+                            data = JSON.parse(data);
+                            for (var i in data) {
+                                tablemodview.InsertRow();
+                                tablemodview.InsertCellLastRow(data[i]);
+                                tablemodview.InsertCellLastRow('<button class="BNView" data-value="' + data[i]+ '">View</button>');
+                                tablemodview.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i] + '">Delete</button>');
+                            }
+                            var d = dialog.Import("View Module File", "#TableModView", {"OK": function () {
+                                    d.Close();
+                                }, "Cancel": function () {
+                                    d.Close();
+                                }});
+
+                        });
+
+
+
+
 
                     });
 
                     ss.S("#SearchBox").Input(function (e) {
-
                         ajax.Post("Action/SearchModule.php", {"name": this.value}, function (data) {
-
                             tablemodmanager.DeleteRowAfter(0);
                             data = JSON.parse(data);
                             for (var i in data) {
-
                                 tablemodmanager.InsertRow();
                                 tablemodmanager.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="UserSelect" value="' + data[i]["id"] + '" /></div>');
-                                tablemodmanager.InsertCellLastRow(data[i]["filename"]);
+                                tablemodmanager.InsertCellLastRow(data[i]["dirname"]);
                                 tablemodmanager.InsertCellLastRow(data[i]["classname"]);
                                 if (data[i]["public"] == "1") {
                                     tablemodmanager.InsertCellLastRow('<input type="checkbox" data-id="' + data[i]["id"] + '"   checked="checked" />');
@@ -147,12 +170,6 @@ if ($config->HasRootAuth(session_id())) {
                                 }
                                 tablemodmanager.InsertCellLastRow(data[i]["layout"]);
                                 tablemodmanager.InsertCellLastRow('<input type="number" name="" value="' + data[i]["priority"] + '" />');
-                                if (data[i]["enable"] == "1") {
-                                    tablemodmanager.InsertCellLastRow('<input type="checkbox" data-id="' + data[i]["id"] + '"   checked="checked" />');
-                                } else {
-                                    tablemodmanager.InsertCellLastRow('<input type="checkbox" data-id="' + data[i]["id"] + '" />');
-                                }
-
                                 tablemodmanager.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
                             }
 
@@ -195,26 +212,22 @@ if ($config->HasRootAuth(session_id())) {
                     </div>
                     <table id="TableModuleManager" style="text-align: center;width: 100%;box-sizing: border-box;">
                         <tr>
-                            <th>id</th>
-                            <th>filename</th>
                             <th>classname</th>
+                            <th>dirname</th>
                             <th>public</th>
-                            <th>layout</th>
                             <th>priority</th>
-                            <th>enable</th>
                             <th>config</th> 
                         </tr>
                     </table>
-                    <button id="BNSaveAllConfig">Save</button>
-                    <button id="BNDiscardConfig">Discard</button>
+
                 </div>
 
                 <div>
                     <aside>
                         <div class="BorderBlock">
                             <div class="TitleCenter">Module</div>
-                            <a id="BNInstallMod"  style="display: block;">Install</a>
-
+                            <a id="BNInstallMod" href="#"  style="display: block;">Install</a>
+                            <a id="BNViewModFile" href="#"  style="display: block;">View Module File</a>
                         </div>
                     </aside>
                 </div>
@@ -223,15 +236,31 @@ if ($config->HasRootAuth(session_id())) {
             <table id="TableInstaller" style="display: none;">
                 <tr>
                     <td>File:</td>
-                    <td><input type="file" name="" /></td>
+                    <td><input type="file" style="width: 100%;box-sizing: border-box;" /></td>
                 </tr>
                 <tr>
-                    <td>ClassName</td>
-                    <td></td>
+                    <td>Class Name:</td>
+                    <td><input type="text" style="width: 100%;box-sizing: border-box;"  /></td>
                 </tr>
-                 
+                <tr>
+                    <td>Public:</td>
+                    <td>
+                        <input type="checkbox" name="" value="1" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Priority:</td>
+                    <td><input type="number" style="width: 100%;box-sizing: border-box;"  /></td>
+                </tr>
             </table>
+            <table id="TableModView" style="display: none;width: 100%;">
+                <tr>
+                    <th>DirName</th>
+                    <th>View</th>
+                    <th>Action</th>
+                </tr>
 
+            </table>
         </body>
     </html>
     <?php

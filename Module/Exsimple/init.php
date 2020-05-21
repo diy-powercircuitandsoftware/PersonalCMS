@@ -1,6 +1,7 @@
 <?php
-
-class Module_Exsimple extends PersonalCMS_MOD_SDK {
+include_once '../../Class/SDK/Module/Basic.php';
+include_once '../../Class/SDK/Module/Layout.php';
+class Module_Exsimple extends Module_SDK_Basic {
     
 
     public function Execute($Layout) {
