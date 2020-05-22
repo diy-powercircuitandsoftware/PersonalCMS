@@ -40,6 +40,30 @@ if ($config->HasRootAuth(session_id())) {
                     var tablemodview = new TableTools();
                     tablemodmanager.Import(document.getElementById("TableModuleManager"));
                     tablemodview.Import(document.getElementById("TableModView"));
+
+                    tablemodview.AddEventListener("click", function (e) {
+
+                    });
+                    // 
+                    ss.S("#BNSelectInstall").Change(function (e) {
+                        if (this.value == "1") {
+                            ss.S("#TRFileUpload").Show();
+                            ss.S("#TRDIRUpload").Hide();
+                        } else {
+                            ajax.Get("Action/ViewModuleFiles.php", function (data) {
+                                data = JSON.parse(data);
+                                ss.S("#TRDIRUpload").Show();
+                                ss.S("#TRFileUpload").Hide();
+                                ss.S("#DIRUpload").Empty();
+                                ss.S("#FileUpload").Val("");
+                                for (var i in data) {
+                                    ss.S("#DIRUpload").Append(data[i], data[i]);
+                                }
+
+                            });
+                        }
+                    }).Change();
+
                     /*
                      var lastid = 0;
                          
@@ -114,27 +138,21 @@ if ($config->HasRootAuth(session_id())) {
                      });
                      */
 
-
-
-
                     ss.S("#BNInstallMod").Click(function (e) {
                         var d = dialog.Import("Install", "#TableInstaller", {"OK": function () {
-                               
-            
-            ajax.Post("Action/InstallModule.php",  ss.S(".Installer").ValByName(), function (data) {
-                                   d.Close();
+                                ajax.Post("Action/InstallModule.php", ss.S(".Installer").ValByName(), function (data) {
+                                    d.Close();
+                                    ss.S(".Installer").Val("");
                                 });
                             }, "Cancel": function () {
                                 d.Close();
+                                ss.S(".Installer").Val("");
                             }});
                     });
-
                     ss.S("#BNSaveAllConfig").Click(function (e) {
 
                     });
-
                     ss.S("#BNViewModFile").Click(function (e) {
-
                         ajax.Get("Action/ViewModuleFiles.php", function (data) {
                             tablemodview.DeleteRowAfter(0);
                             data = JSON.parse(data);
@@ -151,13 +169,7 @@ if ($config->HasRootAuth(session_id())) {
                                 }});
 
                         });
-
-
-
-
-
                     });
-
                     ss.S("#SearchBox").Input(function (e) {
                         ajax.Post("Action/SearchModule.php", {"name": this.value}, function (data) {
                             tablemodmanager.DeleteRowAfter(0);
@@ -176,12 +188,8 @@ if ($config->HasRootAuth(session_id())) {
                                 tablemodmanager.InsertCellLastRow('<input type="number" name="" value="' + data[i]["priority"] + '" />');
                                 tablemodmanager.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
                             }
-
                         });
-
                     });
-
-
                     ss.S("#SearchBox").Input();
                 });
 
@@ -239,13 +247,27 @@ if ($config->HasRootAuth(session_id())) {
 
             <table id="TableInstaller" style="display: none;">
                 <tr>
+                    <td>Install:</td>
+                    <td>
+                        <select id="BNSelectInstall" style="width: 100%;box-sizing: border-box;">
+                            <option value="1">Upload</option>
+                            <option value="2">Select DIR</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr id="TRFileUpload">
                     <td>File:</td>
-                    <td><input name="file"  type="file"  class="Installer" style="width: 100%;box-sizing: border-box;" /></td>
+                    <td><input id="FileUpload" name="file"  type="file"  class="Installer" style="width: 100%;box-sizing: border-box;" /></td>
+                </tr>
+                <tr id="TRDIRUpload">
+                    <td>Dir Name:</td>
+                    <td><select id="DIRUpload" name="dirname"  type="text" class="Installer" style="width: 100%;box-sizing: border-box;"></select></td>
                 </tr>
                 <tr>
                     <td>Class Name:</td>
                     <td><input name="classname"  type="text" class="Installer" style="width: 100%;box-sizing: border-box;"  /></td>
                 </tr>
+
                 <tr>
                     <td>Public:</td>
                     <td>

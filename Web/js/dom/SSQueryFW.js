@@ -97,7 +97,11 @@ class SSQueryFW {
             }
         }
     }
-
+    Hide() {
+        this.ForEach(this.element, function (el) {
+            el.style.display = "none";
+        });
+    }
     Html(...args) {
         if (args.length === 0) {
             var html = "";
@@ -154,7 +158,36 @@ class SSQueryFW {
             xhttp.send( );
         }
     }
-
+    Show() {
+        var block = ["html", "address", "blockquote", "body", "dd", "div", "dl", "dt", "fieldset", "form", "frame", "frameset", "h1", "h2", " h3", " h4", "h5", " h6", "noframes", "ol", "p", "ul", "center", "dir", "hr", "menu", "pre"];
+        var other = {
+            "li": "list-item",
+            "head": "none",
+            "table": "table",
+            "tr": "table-row",
+            "thead": "table-header-group",
+            "tbody": "table-row-group",
+            "tfoot": "table-footer-group",
+            "col": "table-column",
+            "colgroup": "table-column-group",
+            "td": "table-cell",
+            "th": "table-cell",
+            "caption": "table-caption"
+        };
+        this.ForEach(this.element, function (el) {
+            if (window.getComputedStyle(el).getPropertyValue("display") == "none") {
+                var tagname = el.tagName.toLowerCase();
+                if (block.indexOf(tagname) >= 0) {
+                    el.style.display = "block";
+                } else if (other.hasOwnProperty(tagname)) {
+                    el.style.display = other[tagname];
+                }
+            } else {
+                el.style.display = "";
+            }
+        });
+        return this;
+    }
     Sprintf(...args) {
         if (args.length === 1) {
             return args[0];
