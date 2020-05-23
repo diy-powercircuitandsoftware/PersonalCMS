@@ -2,8 +2,8 @@
 
 class Module_Exsimple extends Module_SDK_Basic {
 
-    public function Execute(  $Layout = Module_SDK_Basic::Layout_None) {
-        if ($Layout == Module_SDK_Basic::Layout_Nav||$Layout == Module_SDK_Basic::Layout_Aside ) {
+    public function Execute($Layout = Module_SDK_Basic::Layout_None) {
+        if ($this->SupportLayout($Layout)) {
             if ($this->UserID == NULL) {
                 return "Welcome Guest";
             } else {
@@ -14,6 +14,10 @@ class Module_Exsimple extends Module_SDK_Basic {
 
     public function GetTitle() {
         return "Exsimple";
+    }
+
+    public function SupportLayout($Layout = Module_SDK_Basic::Layout_None) {
+        return ($Layout == Module_SDK_Basic::Layout_Nav || $Layout == Module_SDK_Basic::Layout_Aside );
     }
 
 }

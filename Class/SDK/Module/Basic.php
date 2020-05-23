@@ -39,5 +39,8 @@ class Module_SDK_Basic {
     public function SetUserID($UserID) {
         $this->UserID = $UserID;
     }
+     public function SupportLayout($Layout = Module_SDK_Basic::Layout_None) {
+        return true;
+    }
 
 }
