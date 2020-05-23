@@ -52,14 +52,15 @@ if ($config->IsOnline()) {
                             
                         foreach ($module->LoadModule() as $value) {
                             try {
-                                echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                                include_once '../../../../Class/DB/Module/' . $value["filename"];
-                                $mod = new $value["classname"]($Module);
+                             //   echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
+                                include_once $module->ModulePath . $value["dirname"]."/init.php";
+                                
+                                /*$mod = new $value["classname"]($Module);
                                 printf('<label class="Title">%s</label>', $mod->GetTitle());
                                 $mod->SetModulePage("Module/Page.php");
                                 $mod->SetModuleID($value["id"]);
                                 echo $mod->Execute();
-                                echo '</div>';
+                                echo '</div>';*/
                             } catch (Exception $ex) {
                                  
                             }

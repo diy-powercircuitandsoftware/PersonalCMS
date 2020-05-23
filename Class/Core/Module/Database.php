@@ -7,8 +7,6 @@
  */
 class Module_Database extends SQLite3 {
 
-    
-
     public $ModulePath = "";
 
     public function __construct(Config $cfg) {
@@ -38,13 +36,13 @@ class Module_Database extends SQLite3 {
         return $out;
     }
 
-    public function AddModule($dirname, $classname, $public,$priority) {
+    public function AddModule($dirname, $classname, $public, $priority) {
         try {
-            $stmt = $this->prepare("INSERT INTO module (dirname,classname,public,priority) VALUES ( :dirname,:classname,:layout)");
+            $stmt = $this->prepare("INSERT INTO module (dirname,classname,public,priority) VALUES ( :dirname,:classname,:public,:priority)");
             $stmt->bindValue(':dirname', $dirname, SQLITE3_TEXT);
             $stmt->bindValue(':classname', $classname, SQLITE3_TEXT);
             $stmt->bindValue(':public', $public, SQLITE3_INTEGER);
-             $stmt->bindValue(':priority', $priority, SQLITE3_INTEGER);
+            $stmt->bindValue(':priority', $priority, SQLITE3_INTEGER);
             $stmt->execute();
             return true;
         } catch (Exception $e) {
@@ -52,21 +50,21 @@ class Module_Database extends SQLite3 {
         }
     }
 
-    public function LoadModule($Layout = self::Layout_None) {
-        $pointer = $this->pdo->GetPointer();
-        $sql = "SELECT  dirname,classname FROM module "
-                . "WHERE enable=1 AND public=1 "
-                . "AND layout =:layout  ORDER BY priority ASC ";
-        $stmt = $pointer->prepare($sql);
-        $stmt->bindParam(':layout', $Layout);
-
-        return $stmt->execute()->fetchAll(PDO::FETCH_ASSOC);
+    public function LoadModule() {
+        $out = array();
+        $sql = "SELECT  * FROM module "
+                . "WHERE public=1 ORDER BY priority ASC ";
+        $results = $this->query($sql);
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            $out[] = $row;
+        }
+        return $out;
     }
 
-    public function LoadModuleMember($Layout = self::Layout_None) {
+    public function LoadModuleMember() {
         $pointer = $this->pdo->GetPointer();
         $sql = "SELECT  dirname,classname   FROM module "
-                . "WHERE enable=1 AND layout =:layout  ORDER BY priority ASC ";
+                . "WHERE enable=1  ORDER BY priority ASC ";
         $stmt = $pointer->prepare($sql);
         $stmt->bindParam(':layout', $Layout);
         $stmt->execute();

@@ -23,27 +23,24 @@ if ($config->IsME(session_id(), $_POST["password"])) {
         }
     } else {
         $addlist[] = $_POST["dirname"];
-    }//public
-     
+    }
+    $public = isset($_POST["public"]) &&( $_POST["public"] == "true"||$_POST["public"] == "1");
+   $priority= intval($_POST["priority"]);
     foreach (array_values(array_diff($addlist, array(""), array(" "))) as $value) {
-         $fullpath = $modpath . $value . "/init.php";
+        $fullpath = $modpath . $value . "/init.php";
         if (file_exists($fullpath)) {
             $tokens = token_get_all(file_get_contents($fullpath));
             for ($i = 2; $i < count($tokens); $i++) {
                 if ($tokens[$i - 2][0] == T_CLASS && $tokens[$i - 1][0] == T_WHITESPACE && $tokens[$i][0] == T_STRING
                 ) {
-                    $class_name = $tokens[$i][1];
-                    echo $class_name;
+                     $module->AddModule($value, $tokens[$i][1], $public, $priority);
                 }
             }
         }
-        //  $module->AddModule($value, $classname, $public, $priority);
+        
     }
-
-    /*
-
-      if ( $module->InstallModule( $_POST["FileName"], GetClassNameFromFile($modpath), $_POST["Layout"])){
-      echo 'Install Complete';
-      } */
+    echo '1';
+}else{
+    echo 'Permission denied';
 }
 $module->close();

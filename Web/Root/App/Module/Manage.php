@@ -183,7 +183,7 @@ if ($config->HasRootAuth(session_id())) {
                                 } else {
                                     tablemodmanager.InsertCellLastRow('<input type="checkbox" data-id="' + data[i]["id"] + '" />');
                                 }
-                                tablemodmanager.InsertCellLastRow(data[i]["layout"]);
+                                
                                 tablemodmanager.InsertCellLastRow('<input type="number" name="" value="' + data[i]["priority"] + '" />');
                                 tablemodmanager.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
                             }
@@ -223,6 +223,7 @@ if ($config->HasRootAuth(session_id())) {
                     </div>
                     <table id="TableModuleManager" style="text-align: center;width: 100%;box-sizing: border-box;">
                         <tr>
+                              <th>select</th>
                             <th>classname</th>
                             <th>dirname</th>
                             <th>public</th>
