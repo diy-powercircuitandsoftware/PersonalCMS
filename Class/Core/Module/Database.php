@@ -38,12 +38,13 @@ class Module_Database extends SQLite3 {
         return $out;
     }
 
-    public function InstallModule($dirname, $classname, $layout) {
+    public function AddModule($dirname, $classname, $public,$priority) {
         try {
-            $stmt = $this->prepare("INSERT INTO module (dirname,classname,layout) VALUES ( :dirname,:classname,:layout)");
+            $stmt = $this->prepare("INSERT INTO module (dirname,classname,public,priority) VALUES ( :dirname,:classname,:layout)");
             $stmt->bindValue(':dirname', $dirname, SQLITE3_TEXT);
             $stmt->bindValue(':classname', $classname, SQLITE3_TEXT);
-            $stmt->bindValue(':layout', $layout, SQLITE3_INTEGER);
+            $stmt->bindValue(':public', $public, SQLITE3_INTEGER);
+             $stmt->bindValue(':priority', $priority, SQLITE3_INTEGER);
             $stmt->execute();
             return true;
         } catch (Exception $e) {

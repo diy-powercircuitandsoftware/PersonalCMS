@@ -49,6 +49,7 @@ if ($config->HasRootAuth(session_id())) {
                         if (this.value == "1") {
                             ss.S("#TRFileUpload").Show();
                             ss.S("#TRDIRUpload").Hide();
+                            ss.S("#DIRUpload").Empty();
                         } else {
                             ajax.Get("Action/ViewModuleFiles.php", function (data) {
                                 data = JSON.parse(data);
@@ -149,9 +150,7 @@ if ($config->HasRootAuth(session_id())) {
                                 ss.S(".Installer").Val("");
                             }});
                     });
-                    ss.S("#BNSaveAllConfig").Click(function (e) {
-
-                    });
+                   
                     ss.S("#BNViewModFile").Click(function (e) {
                         ajax.Get("Action/ViewModuleFiles.php", function (data) {
                             tablemodview.DeleteRowAfter(0);
@@ -262,12 +261,7 @@ if ($config->HasRootAuth(session_id())) {
                 <tr id="TRDIRUpload">
                     <td>Dir Name:</td>
                     <td><select id="DIRUpload" name="dirname"  type="text" class="Installer" style="width: 100%;box-sizing: border-box;"></select></td>
-                </tr>
-                <tr>
-                    <td>Class Name:</td>
-                    <td><input name="classname"  type="text" class="Installer" style="width: 100%;box-sizing: border-box;"  /></td>
-                </tr>
-
+                </tr>           
                 <tr>
                     <td>Public:</td>
                     <td>
@@ -277,6 +271,10 @@ if ($config->HasRootAuth(session_id())) {
                 <tr>
                     <td>Priority:</td>
                     <td><input name="priority"  type="number" class="Installer"  style="width: 100%;box-sizing: border-box;"  /></td>
+                </tr>
+                <tr>
+                    <td>Password:</td>
+                    <td><input name="password"  type="password" class="Installer" style="width: 100%;box-sizing: border-box;"  /></td>
                 </tr>
             </table>
             <table id="TableModView" style="display: none;width: 100%;">
