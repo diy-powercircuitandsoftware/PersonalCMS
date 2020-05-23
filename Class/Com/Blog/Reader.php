@@ -12,5 +12,9 @@
  * @author annopnod
  */
 class Blog_Reader {
-    //put your code here
+    private $bd;
+    public function __construct(Blog_Database $bd) {
+        $this->bd=$bd;
+    }
+    
 }

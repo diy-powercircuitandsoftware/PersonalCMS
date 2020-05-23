@@ -1,19 +1,24 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/**
- * Description of SDK
- *
- * @author annopnod
- */
 class Module_SDK_Basic {
 
-    private $UserID = NULL;
+    public const Layout_None = 0;
+    public const Layout_Head = 1;
+    public const Layout_Body = 2;
+    public const Layout_Header = 3;
+    public const Layout_Nav = 4;
+    public const Layout_Article = 5;
+    public const Layout_Aside = 6;
+    public const Layout_Footer = 7;
+
+    /* const Layout_Section_Header = 6;
+      const Layout_Section_Nav = 7;
+      const Layout_Section_Section = 8;
+      const Layout_Section_Aside = 9;
+      const Layout_Section_Footer = 10;
+     */
+
+    public $UserID = NULL;
 
     public function Config($cfg = array()) {
         return true;
@@ -23,7 +28,7 @@ class Module_SDK_Basic {
         return "";
     }
 
-    public function Execute(Module_SDK_Layout $Layout = Module_SDK_Layout::Layout_None) {
+    public function Execute($Layout = Module_SDK_Basic::Layout_None) {
         return true;
     }
 

@@ -2,8 +2,11 @@
 session_start();
 include_once '../../../../Class/Core/Config/Config.php';
 include_once '../../../../Class/Core/UI/NAV.php';
+include_once '../../../../Class/Core/Module/Database.php';
+include_once '../../../../Class/SDK/Module/Basic.php';
 $config = new Config();
 $uinav = new UINAV();
+$module = new Module_Database($config);
 $hasauth = false;
 if (isset($_SESSION["User"])) {
     if ($_SESSION["User"]["session_count"] == 0) {
@@ -21,12 +24,20 @@ if (isset($_SESSION["User"])) {
 }
  
 if ($config->IsOnline() && $hasauth) {
+    $modlist = array();
+    foreach ($module->LoadModule() as $value) {
+
+        include_once $module->ModulePath . $value["dirname"] . "/init.php";
+        $cn= new $value["classname"]();
+         $cn->SetUserID($_SESSION["User"]["id"]);
+        $modlist[] =$cn;
+    }
     ?>
     <!DOCTYPE html>
     <html>
         <head>
             <meta charset="UTF-8">
-            <title>Root->MainPage</title>
+            <title><?php echo basename(__FILE__, ".php"); ?></title>
             <link rel="stylesheet" href="App/css/Page.css">
         </head>
         <body> 
@@ -52,8 +63,15 @@ if ($config->IsOnline() && $hasauth) {
                             }
                             echo '</div>';
                         }
+                         foreach ($modlist as $value) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
+                            echo '</div>';
+                        }
                         ?>     
                     </nav>
+                    
                 </div>
                 <div><h1>Main Page</h1></div>
                 <div></div>

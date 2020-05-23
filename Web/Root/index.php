@@ -12,7 +12,7 @@ if (!$config->Installed()) {
     <html>
         <head>
             <meta charset="UTF-8">
-            <title>Root->MainPage</title>
+            <title><?php echo basename(__FILE__, ".php"); ?></title>
             <link rel="stylesheet" href="App/css/Page.css">
         </head>
         <body> 

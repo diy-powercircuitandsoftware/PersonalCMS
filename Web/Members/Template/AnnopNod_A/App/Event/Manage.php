@@ -1,33 +1,42 @@
 <?php
 session_start();
-include_once '../../../../../Class/DB/Config/DB/Config.php';
-include_once '../../../../../Class/DB/Config/DB/Software.php';
-include_once '../../../../../Class/DB/Config/Api/Place.php';
-include_once '../../../../../Class/DB/Com/User/SessionManager.php';
-include_once '../../../../../Class/DB/Com/User/Profile.php';
-include_once '../../../../../Class/DB/Com/Module/LoadModule.php';
-include_once '../../../../../Class/DB/Com/User/LoadModule.php';
-include_once '../../../../../Class/DB/Com/Events/Viewer.php';
-include_once '../../../../../Class/DB/Com/Category/Viewer.php';
-include_once '../../../../../Class/DB/Com/User/Permission.php';
-$DBConfig = new Config_DB_Config();
-$SC = new Config_DB_Software($DBConfig);
-$PConfig = new Config_Api_Place($DBConfig);
-$Sess = new Com_User_SessionManager($DBConfig);
-$User = new Com_User_Profile($DBConfig);
-$Module = new Com_Module_LoadModule($DBConfig);
-$UModule = new Com_User_LoadModule($DBConfig);
-$Event = new Com_Events_Viewer($DBConfig);
-$Category = new Com_Category_Viewer($DBConfig);
-$Permission = new Com_User_Permission($DBConfig);
-$DBConfig->Open();
-if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id())) {
+include_once '../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../Class/Core/UI/NAV.php';
+include_once '../../../../../../Class/Core/Module/Database.php';
+include_once '../../../../../../Class/SDK/Module/Basic.php';
+$config = new Config();
+$uinav = new UINAV();
+$module = new Module_Database($config);
+$hasauth = false;
+if (isset($_SESSION["User"])) {
+    if ($_SESSION["User"]["session_count"] == 0) {
+        include_once '../../../../Class/Core/User/Database.php';
+        include_once '../../../../Class/Core/User/Session.php';
+        $session = new User_Session(new User_Database($config));
+        if ($session->Registered(session_id())) {
+            $_SESSION["User"]["session_count"] = 1;
+            $hasauth = true;
+        }
+    } else {
+        $_SESSION["User"]["session_count"] = ($_SESSION["User"]["session_count"] + 1) % 12;
+        $hasauth = true;
+    }
+}
+
+if ($config->IsOnline() && $hasauth) {
+    $modlist = array();
+    foreach ($module->LoadModule() as $value) {
+        include_once $module->ModulePath . $value["dirname"] . "/init.php";
+        $cn = new $value["classname"]();
+        $cn->SetUserID($_SESSION["User"]["id"]);
+        $modlist[] = $cn;
+    }
     ?>
     <!DOCTYPE html>
     <html>
         <head>
             <meta charset="UTF-8">
-            <title><?php echo $SC->GetName(); ?></title>
+            <title><?php echo basename(__FILE__, ".php"); ?></title>
             <link rel="stylesheet" href="../css/Page.css">
             <style>
                 .EventAjaxSend{
@@ -458,6 +467,6 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
     </html>
     <?php
 } else {
-     header("location: ../../../Session/AuthUserID.php");
+    header("location: ../../../Session/AuthUserID.php");
     session_destroy();
 }

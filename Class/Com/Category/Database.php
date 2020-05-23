@@ -11,15 +11,15 @@
  *
  * @author annopnod
  */
-class Blog_Database {
+class Category_Database {
 
     public function __construct(Config $cfg) {
-        $path = $cfg->GetDataPath() . "/Blog/";
+        $path = $cfg->GetDataPath() . "/Category/";
         if (!is_dir($path)) {
             mkdir($path);
         }
 
-        $this->open($path . "Blog.db");
+        $this->open($path . "Category.db");
     }
 
     public function Install() {
@@ -58,7 +58,7 @@ class Blog_Database {
         try {
             $this->exec("DROP TABLE blog;");
             $this->exec("DROP TABLE blogcategory;");
-            
+            $this->exec("DROP TABLE register;");
             $this->exec("VACUUM;");
             return $this->close();
         } catch (Exception $e) {

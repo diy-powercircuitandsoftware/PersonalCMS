@@ -4,6 +4,7 @@ include_once '../../../../Class/Core/UI/NAV.php';
 include_once '../../../../Class/Com/Blog/Database.php';
 include_once '../../../../Class/Com/Blog/Reader.php';
 include_once '../../../../Class/Core/Module/Database.php';
+include_once '../../../../Class/SDK/Module/Basic.php';
 //include_once '../../../../Class/DB/Com/Events/Viewer.php';
 
 $config = new Config();
@@ -11,9 +12,14 @@ $uinav = new UINAV();
 $module = new Module_Database($config);
 //$Blog = new Com_Blog_Viewer($DBConfig);
 //$Event = new Com_Events_Viewer($DBConfig);
-//$Module = new Com_Module_LoadModule($DBConfig);
 
 if ($config->IsOnline()) {
+    $modlist = array();
+    foreach ($module->LoadModule() as $value) {
+
+        include_once $module->ModulePath . $value["dirname"] . "/init.php";
+        $modlist[] = new $value["classname"]();
+    }
     ?>
     <!DOCTYPE html>
     <html>
@@ -23,6 +29,13 @@ if ($config->IsOnline()) {
             <link rel="stylesheet" type="text/css" href="App/css/Page.css">
         </head>
         <body>
+            <?php
+            foreach ($modlist as $value) {
+                 
+                echo $value->Execute(Module_SDK_Basic::Layout_Body);
+                
+            }
+            ?>
             <header> 
                 <h1 style="width: 100%;text-align: center;"><?php echo $config->GetName(); ?> Website</h1>
             </header>
@@ -49,21 +62,11 @@ if ($config->IsOnline()) {
                             ?>
                         </div>
                         <?php
-                            
-                        foreach ($module->LoadModule() as $value) {
-                            try {
-                             //   echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                                include_once $module->ModulePath . $value["dirname"]."/init.php";
-                                
-                                /*$mod = new $value["classname"]($Module);
-                                printf('<label class="Title">%s</label>', $mod->GetTitle());
-                                $mod->SetModulePage("Module/Page.php");
-                                $mod->SetModuleID($value["id"]);
-                                echo $mod->Execute();
-                                echo '</div>';*/
-                            } catch (Exception $ex) {
-                                 
-                            }
+                        foreach ($modlist as $value) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
+                            echo '</div>';
                         }
                         ?>
                     </nav>
@@ -93,21 +96,21 @@ if ($config->IsOnline()) {
                 <div style="margin-top: 1px;">
                     <div style="width: 33%;border-style: solid;border-width: thin;">
                         <span  style="text-align: left;" class="Title">Last Blog</span>
-                        <?php
-                        $blog = $Blog->GetSimpleLastBlogList(Config_DB_Config::Access_Mode_Public);
+    <?php
+    $blog = $Blog->GetSimpleLastBlogList(Config_DB_Config::Access_Mode_Public);
 
-                        foreach ($blog as $value) {
-                            if (intval($value["haspassword"]) == 0) {
-                                echo '<div style="border-style: solid;border-width: thin;margin-top: 1px;">';
-                                printf('<h2><a href="Blog/index.php?id=%d">%s</a></h2>', intval($value["id"]), $value["title"]);
-                                echo $value["description"];
-                                echo '</div>';
-                            }
-                        }
-                        if ($blog) {
-                            echo '<div style="text-align: center;border-style: solid;border-width: thin;margin-top: 1px;"><a href="Blog/index.php">See More</a></div>';
-                        }
-                        ?>
+    foreach ($blog as $value) {
+        if (intval($value["haspassword"]) == 0) {
+            echo '<div style="border-style: solid;border-width: thin;margin-top: 1px;">';
+            printf('<h2><a href="Blog/index.php?id=%d">%s</a></h2>', intval($value["id"]), $value["title"]);
+            echo $value["description"];
+            echo '</div>';
+        }
+    }
+    if ($blog) {
+        echo '<div style="text-align: center;border-style: solid;border-width: thin;margin-top: 1px;"><a href="Blog/index.php">See More</a></div>';
+    }
+    ?>
                     </div>
                 </div>
 
@@ -116,39 +119,39 @@ if ($config->IsOnline()) {
             <div class="Aside" >
                 <div class="BorderBlock">
                     <span  class="Title">Event</span>
+    <?php
+    foreach ($Event->GetCurrentEvent(Config_DB_Config::Access_Mode_Public) as $value) {
+        echo '<div  >';
+        printf('<a href="Event/index.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+        printf('<div style="color: black;" >%s</div></a>', $value["description"]);
+        echo '</div><hr>';
+    }
+    ?>
+                </div>
                     <?php
-                    foreach ($Event->GetCurrentEvent(Config_DB_Config::Access_Mode_Public) as $value) {
-                        echo '<div  >';
-                        printf('<a href="Event/index.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                        printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                        echo '</div><hr>';
+                    foreach ($Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Public) as $value) {
+                        try {
+                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
+                            include_once '../../../../Class/DB/Module/' . $value["filename"];
+                            $mod = new $value["classname"]($Module);
+                            printf('<label class="Title">%s</label>', $mod->GetTitle());
+                            $mod->SetModulePage("Module/Page.php");
+                            $mod->SetModuleID($value["id"]);
+                            echo $mod->Execute();
+                            echo '</div>';
+                        } catch (Exception $ex) {
+                            
+                        }
                     }
                     ?>
-                </div>
-                <?php
-                foreach ($Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Public) as $value) {
-                    try {
-                        echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                        include_once '../../../../Class/DB/Module/' . $value["filename"];
-                        $mod = new $value["classname"]($Module);
-                        printf('<label class="Title">%s</label>', $mod->GetTitle());
-                        $mod->SetModulePage("Module/Page.php");
-                        $mod->SetModuleID($value["id"]);
-                        echo $mod->Execute();
-                        echo '</div>';
-                    } catch (Exception $ex) {
-                        
-                    }
-                }
-                ?>
 
             </div>
 
             <footer>
                 <span style="font-weight: bold;display: block;">
-                    <?php
-                    echo "&COPY;" . date("Y") . " " . $SC->GetName();
-                    ?>
+    <?php
+    echo "&COPY;" . date("Y") . " " . $SC->GetName();
+    ?>
                 </span>  
                 <a href="../../../Root/index.php">Root</a>
             </footer>
