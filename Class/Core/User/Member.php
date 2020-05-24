@@ -28,7 +28,7 @@ class User_Member {
     }
 
     public function GetProfileData($userid) {
-        $stmt = $this->ud->prepare('SELECT id,alias FROM user WHERE id=:id; ');
+        $stmt = $this->ud->prepare('SELECT id,alias,writable FROM user WHERE id=:id; ');
         $stmt->bindValue(':id', $userid, SQLITE3_INTEGER);
         $results = $stmt->execute();
         return $results->fetchArray(SQLITE3_ASSOC);

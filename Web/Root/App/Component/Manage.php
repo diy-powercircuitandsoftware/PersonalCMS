@@ -15,9 +15,10 @@ if ($config->HasRootAuth(session_id())) {
             <script src="../../../js/io/Ajax.js"></script>
             <script src="../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../js/dom/SuperDialog.js"></script>
-            <script src="../../../js/dom/TableTools.js"></script>
+
 
             <style>
+
                 table button{
                     width: 100%;
                     box-sizing: border-box;
@@ -29,14 +30,7 @@ if ($config->HasRootAuth(session_id())) {
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
                     var dialog = new SuperDialog();
-                    var tablemodmanager = new TableTools();
-                    var tablemodview = new TableTools();
-                    tablemodmanager.Import(document.getElementById("TableModuleManager"));
-                    tablemodview.Import(document.getElementById("TableModView"));
 
-                    tablemodview.AddEventListener("click", function (e) {
-
-                    });
                     // 
                     ss.S("#BNSelectInstall").Change(function (e) {
                         if (this.value == "1") {
@@ -60,10 +54,10 @@ if ($config->HasRootAuth(session_id())) {
 
                     /*
                      var lastid = 0;
-                         
-                         
+                     
+                     
                      userlist.Import(document.getElementById("UserList"));
-                         
+                     
                      ajaxsb.AddScrollEvent(function (data) {
                      try {
                      data = JSON.parse(data);
@@ -96,7 +90,7 @@ if ($config->HasRootAuth(session_id())) {
                      ajaxsb.Param("id", lastid);
                      ajaxsb.LoadAjax();
                      d.Close();
-                         
+                     
                      });
                      }, "Cancel": function () {
                      d.Close();
@@ -105,7 +99,7 @@ if ($config->HasRootAuth(session_id())) {
                      });
                      }
                      });
-                         
+                     
                      ss.S("#BNAddUser").Click(function () {
                      var d = dialog.Import("Add", "#AddTable", {"OK": function () {
                      ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
@@ -118,7 +112,7 @@ if ($config->HasRootAuth(session_id())) {
                      ss.S(".AddUser").Val("");
                      }});
                      });
-                         
+                     
                      ss.S("#BNDeleteUser").Click(function () {
                      dialog.Confirm("are you sure want to delete select user", function () {
                      var v = ss.S(".UserSelect").Val();
@@ -143,7 +137,7 @@ if ($config->HasRootAuth(session_id())) {
                                 ss.S(".Installer").Val("");
                             }});
                     });
-                   
+
                     ss.S("#BNViewModFile").Click(function (e) {
                         ajax.Get("Action/ViewModuleFiles.php", function (data) {
                             tablemodview.DeleteRowAfter(0);
@@ -176,7 +170,7 @@ if ($config->HasRootAuth(session_id())) {
                                 } else {
                                     tablemodmanager.InsertCellLastRow('<input type="checkbox" data-id="' + data[i]["id"] + '" />');
                                 }
-                                
+
                                 tablemodmanager.InsertCellLastRow('<input type="number" name="" value="' + data[i]["priority"] + '" />');
                                 tablemodmanager.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
                             }
@@ -211,74 +205,33 @@ if ($config->HasRootAuth(session_id())) {
                     </nav>
                 </div> 
                 <div>
-                    <div style="display: flex;flex-direction: row;   ">
-                        <input   style="flex-grow: 1;" type="text" id="SearchBox" value="" />
-                    </div>
-                    <table id="TableModuleManager" style="text-align: center;width: 100%;box-sizing: border-box;">
-                        <tr>
-                              <th>select</th>
-                            <th>classname</th>
-                            <th>dirname</th>
-                            <th>public</th>
-                            <th>priority</th>
-                            <th>config</th> 
+                    
+                    <table style="text-align: center;width: 100%;box-sizing: border-box;">
+                        <tr>                              
+                            <th>Class Name</th>
+                            <th>View</th> 
+                            <th>Install</th> 
+                            <th>UnInstall</th> 
                         </tr>
+                        <?php
+                        foreach ($uinav->GetFilesList("../../../../Class/Com/") as $value) {
+                            echo '<tr>';
+                            printf('<td>%s</td>', $value);
+                            printf('<td><button class="" data-id="%s">View</button></td>', $value);
+                            printf('<td><button   class="" data-id="%s">Install</button></td><td><button   class="" data-id="%s">Uninstall</button></td>', $value, $value);
+                            echo '</tr>';
+                        }
+                        ?>
                     </table>
 
                 </div>
 
-                <div>
-                    <aside>
-                        <div class="BorderBlock">
-                            <div class="TitleCenter">Module</div>
-                            <a id="BNInstallMod" href="#"  style="display: block;">Install</a>
-                            <a id="BNViewModFile" href="#"  style="display: block;">View Module File</a>
-                        </div>
-                    </aside>
+                <div >
+
                 </div>
             </div>
 
-            <table id="TableInstaller" style="display: none;">
-                <tr>
-                    <td>Install:</td>
-                    <td>
-                        <select id="BNSelectInstall" style="width: 100%;box-sizing: border-box;">
-                            <option value="1">Upload</option>
-                            <option value="2">Select DIR</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr id="TRFileUpload">
-                    <td>File:</td>
-                    <td><input id="FileUpload" name="file"  type="file"  class="Installer" style="width: 100%;box-sizing: border-box;" /></td>
-                </tr>
-                <tr id="TRDIRUpload">
-                    <td>Dir Name:</td>
-                    <td><select id="DIRUpload" name="dirname"  type="text" class="Installer" style="width: 100%;box-sizing: border-box;"></select></td>
-                </tr>           
-                <tr>
-                    <td>Public:</td>
-                    <td>
-                        <input name="public"  type="checkbox" class="Installer" value="1" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>Priority:</td>
-                    <td><input name="priority"  type="number" class="Installer"  style="width: 100%;box-sizing: border-box;"  /></td>
-                </tr>
-                <tr>
-                    <td>Password:</td>
-                    <td><input name="password"  type="password" class="Installer" style="width: 100%;box-sizing: border-box;"  /></td>
-                </tr>
-            </table>
-            <table id="TableModView" style="display: none;width: 100%;">
-                <tr>
-                    <th>DirName</th>
-                    <th>View</th>
-                    <th>Action</th>
-                </tr>
 
-            </table>
         </body>
     </html>
     <?php

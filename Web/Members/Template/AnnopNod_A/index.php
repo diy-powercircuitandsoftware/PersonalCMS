@@ -22,15 +22,15 @@ if (isset($_SESSION["User"])) {
         $hasauth = true;
     }
 }
- 
+
 if ($config->IsOnline() && $hasauth) {
     $modlist = array();
     foreach ($module->LoadModule() as $value) {
 
         include_once $module->ModulePath . $value["dirname"] . "/init.php";
-        $cn= new $value["classname"]();
-         $cn->SetUserID($_SESSION["User"]["id"]);
-        $modlist[] =$cn;
+        $cn = new $value["classname"]();
+        $cn->SetUserID($_SESSION["User"]["id"]);
+        $modlist[] = $cn;
     }
     ?>
     <!DOCTYPE html>
@@ -39,14 +39,19 @@ if ($config->IsOnline() && $hasauth) {
             <meta charset="UTF-8">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
             <link rel="stylesheet" href="App/css/Page.css">
+            <?php
+            foreach ($modlist as $value) {
+                echo $value->Execute(Module_SDK_Basic::Layout_Head);
+            }
+            ?>
         </head>
         <body> 
             <header id="mainheader">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <?php
-                        printf('<img src="../../Api/Action/Profile/GetUserIcon.php?id=%s"/>',$_SESSION["User"]["id"]);
-                        printf('<span style="font-weight: bold;cursor: default;">%s</span>',$_SESSION["User"]["alias"]);
+                    printf('<img src="../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
+                    printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
                     <a style="font-weight: bold;" href="../../Auth/Action/Logout.php">Login</a>
                 </div>
@@ -63,15 +68,17 @@ if ($config->IsOnline() && $hasauth) {
                             }
                             echo '</div>';
                         }
-                         foreach ($modlist as $value) {
-                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
-                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
-                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
-                            echo '</div>';
+                        foreach ($modlist as $value) {
+                            if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                                echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                                printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                                echo $value->Execute(Module_SDK_Basic::Layout_Nav);
+                                echo '</div>';
+                            }
                         }
                         ?>     
                     </nav>
-                    
+
                 </div>
                 <div><h1>Main Page</h1></div>
                 <div></div>
