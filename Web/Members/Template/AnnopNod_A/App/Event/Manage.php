@@ -4,27 +4,17 @@ include_once '../../../../../../Class/Core/Config/Config.php';
 include_once '../../../../../../Class/Core/UI/NAV.php';
 include_once '../../../../../../Class/Core/Module/Database.php';
 include_once '../../../../../../Class/Com/Event/Database.php';
+include_once '../../../../../../Class/Com/Event/Database.php';
+include_once '../../../../../../Class/Com/Event/Manager.php';
+include_once '../../../../../../Class/Com/Category/Database.php';
 include_once '../../../../../../Class/SDK/Module/Basic.php';
+include_once '../../../../Auth/Action/VerifySession.php';
 $config = new Config();
 $uinav = new UINAV();
 $module = new Module_Database($config);
-$hasauth = false;
-if (isset($_SESSION["User"])) {
-    if ($_SESSION["User"]["session_count"] == 0) {
-        include_once '../../../../Class/Core/User/Database.php';
-        include_once '../../../../Class/Core/User/Session.php';
-        $session = new User_Session(new User_Database($config));
-        if ($session->Registered(session_id())) {
-            $_SESSION["User"]["session_count"] = 1;
-            $hasauth = true;
-        }
-    } else {
-        $_SESSION["User"]["session_count"] = ($_SESSION["User"]["session_count"] + 1) % 12;
-        $hasauth = true;
-    }
-}
-
-if ($config->IsOnline() && $hasauth) {
+$category=new Category_Database($config);
+ $event=new Event_Manager(new Event_Database($config));
+if ($config->IsOnline() && isset($_SESSION["User"])) {
     $modlist = array();
     foreach ($module->LoadModule() as $value) {
         include_once $module->ModulePath . $value["dirname"] . "/init.php";
@@ -54,17 +44,17 @@ if ($config->IsOnline() && $hasauth) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
             }
             ?>
-            <script src="../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../js/dom/SuperDialog.js"></script>
-            <script src="../../../../js/file/FilesList.js"></script>
-            <script src="../../../../js/dom/TableTools.js"></script>
+            <script src="../../../../../js/dom/SSQueryFW.js"></script>
+            <script src="../../../../../js/dom/SuperDialog.js"></script>
+            
+            <script src="../../../../../js/dom/TableTools.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var sd = new SuperDialog();
                     var tabletool = new TableTools();
                     tabletool.Import(document.getElementById("TableOutput"));
-                    var wsl = ss.WindowScrollLoad();
+                   /* var wsl = ss.WindowScrollLoad();
                     wsl.URL = "../../../Api/Ajax/EventManager/GetEventList.php";
                     wsl.Param["StartID"] = 0;
                     wsl.Done = (function (data) {
@@ -81,8 +71,8 @@ if ($config->IsOnline() && $hasauth) {
                             wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
                         }
                         wsl.Lock = false;
-                    });
-                    tabletool.addEventListener("click", function (e) {
+                    });*/
+                    tabletool.AddEventListener("click", function (e) {
                         if (e.target.getAttribute("class") == "SelectID") {
                             if (!e.target.checked) {
                                 ss.S("#CBoxSelectAll").Val(false);
@@ -100,61 +90,19 @@ if ($config->IsOnline() && $hasauth) {
                             });
                         }
                     });
-                    wsl.AddEventListener();
-                    wsl.LoadData();
+                 //   wsl.AddEventListener();
+                   // wsl.LoadData();
 
                     ss.S("#BNAddEvent").Click(function () {
                         ss.S(".EventAjaxSend").Val("");
-                        sd.Import("#EventDialog", function () {
+                        sd.Import("Add","#EventDialog",{"OK": function () {
                             ss.Post("../../../Api/Ajax/EventManager/InsertEventList.php", ss.S(".EventAjaxSend").SerializeToJson(), function () {
                                 location.reload();
                             });
 
-                        }).ZIndex(999).Title("Add");
+                        }}).ZIndex(999).Title("Add");
                     });
-                    ss.S("#BNAddPlace").Click(function () {
-                        ss.S(".PlaceAjaxSend").Val("");
-                        ss.S("#BNPlaceDelete,#TRSelectPlace").Hide();
-                        sd.Import("#PlaceDialog", function () {
-                            ss.Post("../../../Api/Ajax/EventManager/AddPlace.php", ss.S(".PlaceAjaxSend").SerializeToJson(), function () {
-
-                            });
-                        }).ZIndex(999).Title("Add");
-                    });
-                    ss.S("#BNEditPlace").Click(function () {
-                        ss.Post("../../../Api/Ajax/EventManager/GetAllPlaceList.php", "", function (data) {
-                            ss.S("#BNPlaceDelete,#TRSelectPlace").Show();
-                            data = JSON.parse(data);
-                            ss.S("#OPTSelectPlace").Empty();
-                            for (var i = 0; i < data.length; i++) {
-                                ss.S("#OPTSelectPlace").Append("<option></option>").Val(data[i]["id"]).Html(data[i]["name"]);
-                            }
-                            ss.S("#OPTSelectPlace").Change();
-                            sd.Import("#PlaceDialog", function () {
-                                var json = ss.S(".PlaceAjaxSend").SerializeToJson();
-                                json["id"] = ss.S("#OPTSelectPlace").Val();
-                                ss.Post("../../../Api/Ajax/EventManager/EditPlace.php", json, function () {
-
-                                });
-                            }).ZIndex(999).Title("Edit");
-                        });
-                    });
-                    ss.S("#BNPlaceDelete").Click(function () {
-                        sd.Confirm("Do You Delect It", function () {
-                            var v = ss.S("#OPTSelectPlace").Val();
-                            ss.Post("../../../Api/Ajax/EventManager/DeletePlace.php", {"ID": v}, function () {
-                                ss.S(".PlaceAjaxSend").Val("");
-                                ss.Post("../../../Api/Ajax/EventManager/GetAllPlaceList.php", "", function (data) {
-                                    ss.S("#OPTSelectPlace").Empty();
-                                    data = JSON.parse(data);
-                                    for (var i = 0; i < data.length; i++) {
-                                        ss.S("#OPTSelectPlace").Append("<option></option>").Val(data[i]["id"]).Html(data[i]["name"]);
-                                    }
-                                    ss.S("#OPTSelectPlace").Change();
-                                });
-                            });
-                        }).ZIndex(999);
-                    });
+                    
 
                     ss.S("#BNRemoveEvent").Click(function () {
                         sd.Confirm("Do You Delect It", function () {
@@ -170,12 +118,7 @@ if ($config->IsOnline() && $hasauth) {
                     ss.S("#CBoxSelectAll").Click(function () {
                         ss.S(".SelectID").Val(this.checked);
                     });
-                    ss.S("#OPTSelectPlace").Change(function () {
-                        ss.Post("../../../Api/Ajax/EventManager/GetPlaceForEdit.php", {"ID": this.value}, function (data) {
-                            ss.S(".PlaceAjaxSend").ValByName(JSON.parse(data));
-
-                        });
-                    });
+                     
 
                 });
             </script>
@@ -188,7 +131,7 @@ if ($config->IsOnline() && $hasauth) {
                     printf('<img src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
-                    <a style="font-weight: bold;" href="../../../../Auth/Action/Logout.php">Login</a>
+                    <a style="font-weight: bold;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
 
@@ -238,24 +181,71 @@ if ($config->IsOnline() && $hasauth) {
                               <a id="BNAddEvent" class="MenuLink" href="#">Add</a>
                                <a id="BNRemoveEvent" class="MenuLink" href="#">Remove</a>
                              
-                        </div>
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <div class="TitleCenter">Place</div>
-                               <a id="BNAddPlace" class="MenuLink" href="#">Add</a>
-                                  <a id="BNEditPlace" class="MenuLink" href="#">Edit</a>
-                             
                         </div>';
                     }
                     ?> 
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                         <div class="TitleCenter">My Event</div>
+                         <?php
+                         
+                         ?>
+                    </div>
                 </div>
             </div>
-            <div class="Container">
-
-                <div class="Section">
-
-                    <?php
-                    ?>
-                </div>
+           
+            <table id="EventDialog" style="display: none;width: 100%;box-sizing: border-box;">
+                <tr>
+                    <td>Name:</td>
+                    <td><input class="EventAjaxSend" type="text" name="name" value="" /></td>
+                </tr>
+                <tr>
+                    <td>Access:</td>
+                    <td>
+                        <input type="checkbox" name="" value="ON" />
+                        <label>public</label>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>Html Code:</td>
+                    <td><textarea class="EventAjaxSend" name="htmlcode"></textarea></td>
+                </tr>
+                <tr>
+                    <td>Category:</td>
+                    <td>
+                        <select class="EventAjaxSend" name="categoryid">
+                            <option value="0">-</option>
+                            <?php
+                            foreach ($category->GetAllCategory() as $value) {
+                                printf('<option value="%s">%s</option>', $value["id"], $value["name"]);
+                            }
+                            ?>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Latitude:</td>
+                    <td><input class="PlaceAjaxSend" type="text" name="latitude" value="" /></td>
+                </tr>
+                <tr>
+                    <td>Longitude:</td>
+                    <td><input class="PlaceAjaxSend" type="text" name="longitude" value="" /></td>
+                </tr>
+                <tr>
+                    <td>Start Date:</td>
+                    <td><input class="EventAjaxSend" type="date" name="startdate" value="" /></td>
+                </tr>
+                <tr>
+                    <td>Stop Date:</td>
+                    <td><input class="EventAjaxSend" type="date" name="stopdate" value="" /></td>
+                </tr>
+                <tr>
+                    <td>Description:</td>
+                    <td><textarea class="EventAjaxSend" name="description" ></textarea></td>
+                </tr>
+            </table>
+             <div class="Container">
+ 
                 <div class="Aside">
 
                     <div class="BorderBlock" style="margin-top: 1px;">
@@ -301,105 +291,6 @@ if ($config->IsOnline() && $hasauth) {
                     ?>
                 </div>
             </div>
-            <table id="EventDialog" style="display: none;width: 100%;box-sizing: border-box;">
-                <tr>
-                    <td>Name:</td>
-                    <td><input class="EventAjaxSend" type="text" name="name" value="" /></td>
-                </tr>
-                <tr>
-                    <td>Access:</td>
-                    <td>
-                        <select class="EventAjaxSend" name="accessmode">
-                            <?php
-                            foreach ($DBConfig->GetAccessMode() as $value) {
-                                printf('<option value="%s">%s</option>', $value["value"], $value["name"]);
-                            }
-                            ?>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>UserName:</td>
-                    <td><input class="EventAjaxSend" type="text" name="authname" value="" /></td>
-                </tr>
-                <tr>
-                    <td>Password:</td>
-                    <td><input class="EventAjaxSend" type="text" name="password" value="" /></td>
-                </tr>
-                <tr>
-                    <td>Html Code:</td>
-                    <td><textarea class="EventAjaxSend" name="htmlcode"></textarea></td>
-                </tr>
-                <tr>
-                    <td>Category:</td>
-                    <td>
-                        <select class="EventAjaxSend" name="categoryid">
-                            <option value="0">-</option>
-                            <?php
-                            foreach ($Category->GetAllCategory() as $value) {
-                                printf('<option value="%s">%s</option>', $value["id"], $value["name"]);
-                            }
-                            ?>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Place:</td>
-                    <td><select class="EventAjaxSend" name="placeid">
-                            <option value="0">-</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Start Date:</td>
-                    <td><input class="EventAjaxSend" type="date" name="startdate" value="" /></td>
-                </tr>
-                <tr>
-                    <td>Stop Date:</td>
-                    <td><input class="EventAjaxSend" type="date" name="stopdate" value="" /></td>
-                </tr>
-                <tr>
-                    <td>Description:</td>
-                    <td><textarea class="EventAjaxSend" name="description" ></textarea></td>
-                </tr>
-            </table>
-            <table id="PlaceDialog" style="display: none;width: 100%;box-sizing: border-box;">
-                <tr id="TRSelectPlace">
-                    <td>Select:</td>
-                    <td>
-                        <select id="OPTSelectPlace" style="width: 100%;box-sizing: border-box;">
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Name:</td>
-                    <td><input class="PlaceAjaxSend" type="text" name="name" value="" /></td>
-                </tr>
-                <tr>
-                    <td>Latitude:</td>
-                    <td><input class="PlaceAjaxSend" type="text" name="latitude" value="" /></td>
-                </tr>
-                <tr>
-                    <td>Longitude:</td>
-                    <td><input class="PlaceAjaxSend" type="text" name="longitude" value="" /></td>
-                </tr>
-                <tr>
-                    <td>Api:</td>
-                    <td>
-                        <select class="PlaceAjaxSend" name="config_api_id">
-                            <option value="0">none</option>
-                            <?php
-                            foreach ($PConfig->GetApiPlaceAll() as $value) {
-                                printf('<option value="%s">%s</option>', $value["id"], $value["name"]);
-                            }
-                            ?>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2"><button id="BNPlaceDelete" style="width: 100%;box-sizing: border-box;" >Delete</button></td>
-                </tr>
-            </table>
         </body>
     </html>
     <?php

@@ -6,7 +6,7 @@ include_once '../../../../../Class/Core/Module/Database.php';
 $config = new Config();
 $module = new Module_Database($config);
 if ($config->IsME(session_id(), $_POST["password"])) {
-    $modpath = '../../../../../Module/';
+    $modpath = $module->ModulePath;
     $addlist = array();
     if (isset($_FILES["file"])) {
         $count = 0;

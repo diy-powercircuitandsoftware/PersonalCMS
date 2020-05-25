@@ -11,14 +11,10 @@
  *
  * @author annopnod
  */
-class Event_Manager {
-     private $ed;
+class Event_Reader {
+    private $ed;
     public function __construct(Event_Database $ed) {
         $this->ed=$ed;
     }
     
-    public function GetMyComingEvent($userid){
-        
-    }
-
 }

@@ -11,7 +11,7 @@
  *
  * @author annopnod
  */
-class Event_Database {
+class Event_Database extends SQLite3 {
 
     public function __construct(Config $cfg) {
         $path = $cfg->GetDataPath() . "/Event/";
@@ -26,15 +26,18 @@ class Event_Database {
         $install = array();
         $install[0] = ('
     CREATE TABLE event (
-       id          INTEGER       PRIMARY KEY,
+    id          INTEGER       PRIMARY KEY,
     userid      INTEGER,
     name        VARCHAR (256),
     htmlcode    TEXT,
+    latitude    TEXT,
+    longitude    TEXT,
     startdate   DATE,
     stopdate    DATE,
     public      BOOLEAN,
     description TEXT
     createdatetime DATE,
+    category      INTEGER,
     enable   BOOLEAN);');
         try {
             foreach ($install as $value) {

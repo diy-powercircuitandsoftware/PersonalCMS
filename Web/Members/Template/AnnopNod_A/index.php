@@ -3,27 +3,15 @@ session_start();
 include_once '../../../../Class/Core/Config/Config.php';
 include_once '../../../../Class/Core/UI/NAV.php';
 include_once '../../../../Class/Core/Module/Database.php';
+include_once '../../../../Class/Com/Event/Database.php';
+include_once '../../../../Class/Com/Event/Manager.php';
 include_once '../../../../Class/SDK/Module/Basic.php';
+include_once '../../Auth/Action/VerifySession.php';
 $config = new Config();
 $uinav = new UINAV();
 $module = new Module_Database($config);
-$hasauth = false;
-if (isset($_SESSION["User"])) {
-    if ($_SESSION["User"]["session_count"] == 0) {
-        include_once '../../../../Class/Core/User/Database.php';
-        include_once '../../../../Class/Core/User/Session.php';
-        $session = new User_Session(new User_Database($config));
-        if ($session->Registered(session_id())) {
-            $_SESSION["User"]["session_count"] = 1;
-            $hasauth = true;
-        }
-    } else {
-        $_SESSION["User"]["session_count"] = ($_SESSION["User"]["session_count"] + 1) % 12;
-        $hasauth = true;
-    }
-}
-
-if ($config->IsOnline() && $hasauth) {
+ 
+if ($config->IsOnline() && isset($_SESSION["User"])) {
     $modlist = array();
     foreach ($module->LoadModule() as $value) {
 
@@ -53,7 +41,7 @@ if ($config->IsOnline() && $hasauth) {
                     printf('<img src="../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
-                    <a style="font-weight: bold;" href="../../Auth/Action/Logout.php">Login</a>
+                    <a style="font-weight: bold;" href="../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
             <div class="LMR157015">
@@ -87,5 +75,5 @@ if ($config->IsOnline() && $hasauth) {
     </html>
     <?php
 } else {
-    // header("location: Auth/index.php");
+    header("location: ../../Auth/Login.php");
 }

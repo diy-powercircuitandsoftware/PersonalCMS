@@ -54,10 +54,10 @@ if ($config->HasRootAuth(session_id())) {
 
                     /*
                      var lastid = 0;
-                     
-                     
+                         
+                         
                      userlist.Import(document.getElementById("UserList"));
-                     
+                         
                      ajaxsb.AddScrollEvent(function (data) {
                      try {
                      data = JSON.parse(data);
@@ -90,7 +90,7 @@ if ($config->HasRootAuth(session_id())) {
                      ajaxsb.Param("id", lastid);
                      ajaxsb.LoadAjax();
                      d.Close();
-                     
+                         
                      });
                      }, "Cancel": function () {
                      d.Close();
@@ -99,7 +99,7 @@ if ($config->HasRootAuth(session_id())) {
                      });
                      }
                      });
-                     
+                         
                      ss.S("#BNAddUser").Click(function () {
                      var d = dialog.Import("Add", "#AddTable", {"OK": function () {
                      ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
@@ -112,7 +112,7 @@ if ($config->HasRootAuth(session_id())) {
                      ss.S(".AddUser").Val("");
                      }});
                      });
-                     
+                         
                      ss.S("#BNDeleteUser").Click(function () {
                      dialog.Confirm("are you sure want to delete select user", function () {
                      var v = ss.S(".UserSelect").Val();
@@ -126,8 +126,17 @@ if ($config->HasRootAuth(session_id())) {
                      });
                      */
 
-                    ss.S("#BNInstallMod").Click(function (e) {
-                        var d = dialog.Import("Install", "#TableInstaller", {"OK": function () {
+                    ss.S(".BNInstall").Click(function (e) {
+                         ajax.Post("Action/InstallComponent.php", {"DIR":this.getAttribute("data-id")}, function (data) {
+                                    
+                                });
+                    });
+                    ss.S(".BNUnInstall").Click(function (e) {
+                        
+                        
+                        
+                        
+                      /*  var d = dialog.Import("Install", "#TableInstaller", {"OK": function () {
                                 ajax.Post("Action/InstallModule.php", ss.S(".Installer").ValByName(), function (data) {
                                     d.Close();
                                     ss.S(".Installer").Val("");
@@ -135,9 +144,8 @@ if ($config->HasRootAuth(session_id())) {
                             }, "Cancel": function () {
                                 d.Close();
                                 ss.S(".Installer").Val("");
-                            }});
+                            }});*/
                     });
-
                     ss.S("#BNViewModFile").Click(function (e) {
                         ajax.Get("Action/ViewModuleFiles.php", function (data) {
                             tablemodview.DeleteRowAfter(0);
@@ -156,27 +164,7 @@ if ($config->HasRootAuth(session_id())) {
 
                         });
                     });
-                    ss.S("#SearchBox").Input(function (e) {
-                        ajax.Post("Action/SearchModule.php", {"name": this.value}, function (data) {
-                            tablemodmanager.DeleteRowAfter(0);
-                            data = JSON.parse(data);
-                            for (var i in data) {
-                                tablemodmanager.InsertRow();
-                                tablemodmanager.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="UserSelect" value="' + data[i]["id"] + '" /></div>');
-                                tablemodmanager.InsertCellLastRow(data[i]["dirname"]);
-                                tablemodmanager.InsertCellLastRow(data[i]["classname"]);
-                                if (data[i]["public"] == "1") {
-                                    tablemodmanager.InsertCellLastRow('<input type="checkbox" data-id="' + data[i]["id"] + '"   checked="checked" />');
-                                } else {
-                                    tablemodmanager.InsertCellLastRow('<input type="checkbox" data-id="' + data[i]["id"] + '" />');
-                                }
 
-                                tablemodmanager.InsertCellLastRow('<input type="number" name="" value="' + data[i]["priority"] + '" />');
-                                tablemodmanager.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
-                            }
-                        });
-                    });
-                    ss.S("#SearchBox").Input();
                 });
 
             </script>
@@ -205,7 +193,7 @@ if ($config->HasRootAuth(session_id())) {
                     </nav>
                 </div> 
                 <div>
-                    
+
                     <table style="text-align: center;width: 100%;box-sizing: border-box;">
                         <tr>                              
                             <th>Class Name</th>
@@ -218,7 +206,7 @@ if ($config->HasRootAuth(session_id())) {
                             echo '<tr>';
                             printf('<td>%s</td>', $value);
                             printf('<td><button class="" data-id="%s">View</button></td>', $value);
-                            printf('<td><button   class="" data-id="%s">Install</button></td><td><button   class="" data-id="%s">Uninstall</button></td>', $value, $value);
+                            printf('<td><button   class="BNInstall" data-id="%s">Install</button></td><td><button   class="BNUnInstall" data-id="%s">Uninstall</button></td>', $value, $value);
                             echo '</tr>';
                         }
                         ?>

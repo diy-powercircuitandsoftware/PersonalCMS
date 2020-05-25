@@ -11,7 +11,7 @@
  *
  * @author annopnod
  */
-class Category_Database {
+class Category_Database extends SQLite3 {
 
     public function __construct(Config $cfg) {
         $path = $cfg->GetDataPath() . "/Category/";
@@ -22,28 +22,26 @@ class Category_Database {
         $this->open($path . "Category.db");
     }
 
+    public function GetAllCategory() {
+        $data = array();
+
+        $results = $this->query("SELECT * FROM category;");
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+
     public function Install() {
         $install = array();
-        $install[0] = ('
-    CREATE TABLE blog (
-    id             INTEGER PRIMARY KEY AUTOINCREMENT,
-    title          VARCHAR (256) NOT NULL,
-    userid         INTEGER NOT NULL,
-    htmlfilepath   VARCHAR (512),  
-    description    TEXT ,
-    public     BOOLEAN,
-    createdatetime DATE,
-   
-    enable   BOOLEAN);');
-        $install[1] = ('
-    CREATE TABLE blogcategory (
-    id  INTEGER  NOT NULL PRIMARY KEY,
-    blogid     INTEGER NOT NULL,
-    categoryid INTEGER,
-    keywordid  INTEGER,
-    hashtag    INTEGER);');
-       
-
+        $install[0] = ('CREATE TABLE category (
+    id   INTEGER       PRIMARY KEY,
+    name VARCHAR (256) 
+);');
+        $install[1] = ('CREATE TABLE hashtag (
+    id   INTEGER       PRIMARY KEY,
+    name VARCHAR (256) 
+);');
         try {
             foreach ($install as $value) {
                 $this->exec($value);
@@ -56,9 +54,8 @@ class Category_Database {
 
     public function Uninstall() {
         try {
-            $this->exec("DROP TABLE blog;");
-            $this->exec("DROP TABLE blogcategory;");
-            $this->exec("DROP TABLE register;");
+            $this->exec("DROP TABLE category;");
+            $this->exec("DROP TABLE hashtag;");
             $this->exec("VACUUM;");
             return $this->close();
         } catch (Exception $e) {
