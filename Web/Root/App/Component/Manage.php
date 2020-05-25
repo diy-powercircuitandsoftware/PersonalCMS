@@ -54,10 +54,10 @@ if ($config->HasRootAuth(session_id())) {
 
                     /*
                      var lastid = 0;
-                         
-                         
+                     
+                     
                      userlist.Import(document.getElementById("UserList"));
-                         
+                     
                      ajaxsb.AddScrollEvent(function (data) {
                      try {
                      data = JSON.parse(data);
@@ -90,7 +90,7 @@ if ($config->HasRootAuth(session_id())) {
                      ajaxsb.Param("id", lastid);
                      ajaxsb.LoadAjax();
                      d.Close();
-                         
+                     
                      });
                      }, "Cancel": function () {
                      d.Close();
@@ -99,7 +99,7 @@ if ($config->HasRootAuth(session_id())) {
                      });
                      }
                      });
-                         
+                     
                      ss.S("#BNAddUser").Click(function () {
                      var d = dialog.Import("Add", "#AddTable", {"OK": function () {
                      ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
@@ -112,7 +112,7 @@ if ($config->HasRootAuth(session_id())) {
                      ss.S(".AddUser").Val("");
                      }});
                      });
-                         
+                     
                      ss.S("#BNDeleteUser").Click(function () {
                      dialog.Confirm("are you sure want to delete select user", function () {
                      var v = ss.S(".UserSelect").Val();
@@ -127,24 +127,25 @@ if ($config->HasRootAuth(session_id())) {
                      */
 
                     ss.S(".BNInstall").Click(function (e) {
-                         ajax.Post("Action/InstallComponent.php", {"DIR":this.getAttribute("data-id")}, function (data) {
-                                    
-                                });
+                        ajax.Post("Action/InstallComponent.php", {"DIR": this.getAttribute("data-id")}, function (data) {
+                            if (data !== "1") {
+                                dialog.Alert(data);
+                            }
+                        });
                     });
                     ss.S(".BNUnInstall").Click(function (e) {
-                        
-                        
-                        
-                        
-                      /*  var d = dialog.Import("Install", "#TableInstaller", {"OK": function () {
-                                ajax.Post("Action/InstallModule.php", ss.S(".Installer").ValByName(), function (data) {
-                                    d.Close();
-                                    ss.S(".Installer").Val("");
-                                });
-                            }, "Cancel": function () {
-                                d.Close();
-                                ss.S(".Installer").Val("");
-                            }});*/
+                        var dir = this.getAttribute("data-id");
+                        var dia = dialog.UnLock(function (v) {
+                            ajax.Post("Action/UnInstallComponent.php", {"password": v, "DIR": dir}, function (data) {
+                                if (data == "1") {
+                                    dia.Close();
+                                } else {
+                                    dia.Close();
+                                    dialog.Alert(data);
+                                }
+                            });
+                        });
+
                     });
                     ss.S("#BNViewModFile").Click(function (e) {
                         ajax.Get("Action/ViewModuleFiles.php", function (data) {
