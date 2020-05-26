@@ -34,11 +34,11 @@ class Category_Database extends SQLite3 {
 
     public function Install() {
         $install = array();
-        $install[0] = ('CREATE TABLE category (
+        $install[0] = ('CREATE TABLE IF NOT EXISTS category (
     id   INTEGER       PRIMARY KEY,
     name VARCHAR (256) 
 );');
-        $install[1] = ('CREATE TABLE hashtag (
+        $install[1] = ('CREATE TABLE IF NOT EXISTS hashtag (
     id   INTEGER       PRIMARY KEY,
     name VARCHAR (256) 
 );');

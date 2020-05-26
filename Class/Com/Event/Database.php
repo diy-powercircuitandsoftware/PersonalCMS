@@ -25,7 +25,7 @@ class Event_Database extends SQLite3 {
     public function Install() {
         $install = array();
         $install[0] = ('
-    CREATE TABLE event (
+    CREATE TABLE IF NOT EXISTS event (
     id          INTEGER       PRIMARY KEY,
     userid      INTEGER,
     name        VARCHAR (256),

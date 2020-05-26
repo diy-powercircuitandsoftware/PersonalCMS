@@ -97,6 +97,16 @@ class SSQueryFW {
             }
         }
     }
+    GeoLocation(callback) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                callback({
+                    "latitude": position.coords.latitude,
+                    "longitude": position.coords.longitude
+                });
+            });
+        }
+    }
     Hide() {
         this.ForEach(this.element, function (el) {
             el.style.display = "none";
@@ -253,9 +263,14 @@ class SSQueryFW {
             }
             return output;
         } else {
+
             this.ForEach(this.element, function (el) {
                 if (el.tagName === "INPUT" && arrchk.indexOf(el.type) >= 0 && typeof (args[0]) === "boolean") {
                     el.checked = args[0];
+                } else if (el.tagName === "INPUT" && el.type == "date") {
+                    if (args[0] instanceof Date) {
+                        el.valueAsDate = args[0];
+                    }
                 } else if (hassrc.indexOf(el.tagName) >= 0) {
                     el.src = args[0];
                 } else {

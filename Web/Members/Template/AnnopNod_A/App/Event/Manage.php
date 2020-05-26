@@ -45,8 +45,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             }
             ?>
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../js/dom/SuperDialog.js"></script>
-            
+            <script src="../../../../../js/dom/SuperDialog.js"></script>          
             <script src="../../../../../js/dom/TableTools.js"></script>
             <script>
                 var ss = new SSQueryFW();
@@ -95,12 +94,20 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S("#BNAddEvent").Click(function () {
                         ss.S(".EventAjaxSend").Val("");
-                        sd.Import("Add","#EventDialog",{"OK": function () {
+                        ss.GeoLocation(function(v){
+                        ss.S("#txtlatitude").Val(v.latitude);
+                          ss.S("#txtlongitude").Val(v.longitude);
+                     });
+                      ss.S("#txtstartday,#txtstopday").Val( new Date());
+                      
+                       var i=sd.Import("Add","#EventDialog",{"OK": function () {
                             ss.Post("../../../Api/Ajax/EventManager/InsertEventList.php", ss.S(".EventAjaxSend").SerializeToJson(), function () {
                                 location.reload();
                             });
 
-                        }}).ZIndex(999).Title("Add");
+                        },"Cancel":function(){
+                            i.Close();
+                        }}).ZIndex(999);
                     });
                     
 
@@ -223,21 +230,21 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         </select>
                     </td>
                 </tr>
-                <tr>
+                <tr> 
                     <td>Latitude:</td>
-                    <td><input class="PlaceAjaxSend" type="text" name="latitude" value="" /></td>
+                    <td><input id="txtlatitude" class="PlaceAjaxSend" type="text" name="latitude" value="" /></td>
                 </tr>
                 <tr>
                     <td>Longitude:</td>
-                    <td><input class="PlaceAjaxSend" type="text" name="longitude" value="" /></td>
+                    <td><input  id="txtlongitude"  class="PlaceAjaxSend" type="text" name="longitude" value="" /></td>
                 </tr>
                 <tr>
                     <td>Start Date:</td>
-                    <td><input class="EventAjaxSend" type="date" name="startdate" value="" /></td>
+                    <td><input id="txtstartday" class="EventAjaxSend" type="date" name="startdate" value="" /></td>
                 </tr>
                 <tr>
                     <td>Stop Date:</td>
-                    <td><input class="EventAjaxSend" type="date" name="stopdate" value="" /></td>
+                    <td><input id="txtstopday" class="EventAjaxSend" type="date" name="stopdate" value="" /></td>
                 </tr>
                 <tr>
                     <td>Description:</td>

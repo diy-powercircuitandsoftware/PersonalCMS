@@ -36,7 +36,7 @@ if ($config->HasRootAuth(session_id())) {
                     var dialog = new SuperDialog();
                     var ajax = new Ajax();
                     var tablelist = new TableTools();
-                     tablelist.Import(document.getElementById("TableField"));
+                    tablelist.Import(document.getElementById("TableField"));
                     ss.S(".BNInstall").Click(function (e) {
                         e.preventDefault();
                         dialog.Load(this.href);
@@ -78,15 +78,27 @@ if ($config->HasRootAuth(session_id())) {
                         });
 
                     });
-
-
-                    ss.S(".BNTableView").Click(function (e) {
-                        var dbname=this.getAttribute("data-id");
-                        ajax.Post("Action/GetTableList.php", {"dir":dbname}, function (s) {
+    
+                    ss.S(".BNDataView").Click(function (e) {
+                        var dbname = this.getAttribute("data-id");
+                        ajax.Post("Action/GetTableList.php", {"dir": dbname}, function (s) {
                             s = JSON.parse(s);
                             ss.S("#TableList").Empty();
                             for (var i in s) {
-                                ss.S("#TableList").Append(dbname+"/"+s[i], s[i]);
+                                ss.S("#TableList").Append(dbname + "/" + s[i], s[i]);
+                            }
+                            dialog.Import("TableFields", "#TableViewer");
+                            ss.S("#TableList").Change();
+                        });
+
+                    });
+                    ss.S(".BNTableView").Click(function (e) {
+                        var dbname = this.getAttribute("data-id");
+                        ajax.Post("Action/GetTableList.php", {"dir": dbname}, function (s) {
+                            s = JSON.parse(s);
+                            ss.S("#TableList").Empty();
+                            for (var i in s) {
+                                ss.S("#TableList").Append(dbname + "/" + s[i], s[i]);
                             }
                             dialog.Import("TableFields", "#TableViewer");
                             ss.S("#TableList").Change();
@@ -157,18 +169,18 @@ if ($config->HasRootAuth(session_id())) {
                 </div>
             </div>
             <div id="TableViewer" style="display: none;">
-                    <select id="TableList" style="width: 100%;box-sizing: border-box;"></select>
-                    <table id="TableField">
-                        <tr>
-                            <th>cid</th>
-                            <th>name</th>
-                            <th>type</th>
-                            <th>notnull</th>
-                            <th>dflt_value</th>
-                            <th>pk</th>
-                        </tr>
-                    </table>
-                </div>
+                <select id="TableList" style="width: 100%;box-sizing: border-box;"></select>
+                <table id="TableField">
+                    <tr>
+                        <th>cid</th>
+                        <th>name</th>
+                        <th>type</th>
+                        <th>notnull</th>
+                        <th>dflt_value</th>
+                        <th>pk</th>
+                    </tr>
+                </table>
+            </div>
         </body>
     </html>
     <?php

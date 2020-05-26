@@ -25,7 +25,7 @@ class Blog_Database {
     public function Install() {
         $install = array();
         $install[0] = ('
-    CREATE TABLE blog (
+    CREATE TABLE IF NOT EXISTS blog (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
     title          VARCHAR (256) NOT NULL,
     userid         INTEGER NOT NULL,
@@ -36,7 +36,7 @@ class Blog_Database {
    
     enable   BOOLEAN);');
         $install[1] = ('
-    CREATE TABLE blogcategory (
+    CREATE TABLE IF NOT EXISTS blogcategory (
     id  INTEGER  NOT NULL PRIMARY KEY,
     blogid     INTEGER NOT NULL,
     categoryid INTEGER,
