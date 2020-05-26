@@ -195,7 +195,7 @@ if ($config->HasRootAuth(session_id())) {
                 </div> 
                 <div>
 
-                    <table style="text-align: center;width: 100%;box-sizing: border-box;">
+                    <table style="text-align: center;">
                         <tr>                              
                             <th>Class Name</th>
                             <th>View</th> 
@@ -206,7 +206,7 @@ if ($config->HasRootAuth(session_id())) {
                         foreach ($uinav->GetFilesList("../../../../Class/Com/") as $value) {
                             echo '<tr>';
                             printf('<td>%s</td>', $value);
-                            printf('<td><button class="" data-id="%s">View</button></td>', $value);
+                            printf('<td><button class="BNTableView"  class="" data-id="%s">View</button></td>', $value);
                             printf('<td><button   class="BNInstall" data-id="%s">Install</button></td><td><button   class="BNUnInstall" data-id="%s">Uninstall</button></td>', $value, $value);
                             echo '</tr>';
                         }

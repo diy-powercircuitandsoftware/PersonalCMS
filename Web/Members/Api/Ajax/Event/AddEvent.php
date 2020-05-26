@@ -1,18 +1,12 @@
 <?php
-
 session_start();
-include_once '../../../../../Class/DB/Config/DB/Config.php';
-include_once '../../../../../Class/DB/Config/DB/Software.php';
-include_once '../../../../../Class/DB/Com/User/SessionManager.php';
-include_once '../../../../../Class/DB/Com/Events/Manager.php';
-include_once '../../../../../Class/DB/Com/User/Permission.php';
-$DBConfig = new Config_DB_Config();
-$Sess = new Com_User_SessionManager($DBConfig);
-$SC = new Config_DB_Software($DBConfig);
-$Event = new Com_Events_Manager($DBConfig);
-$UserPermission = new Com_User_Permission($DBConfig);
-$DBConfig->Open();
-if ($SC->Online()&& $UserPermission->Writable($_SESSION["UserID"]) && isset($_SESSION["UserID"]) && $Sess->Registered(session_id())) {
-      echo $Event->InsertEventList($_SESSION["UserID"], $_POST["name"], $_POST["htmlcode"], $_POST["categoryid"], $_POST["placeid"], $_POST["startdate"], $_POST["stopdate"], $_POST["description"], $_POST["authname"], $_POST["password"], $_POST["accessmode"]);
+include_once '../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../Class/Com/Event/Database.php';
+include_once '../../../../../Class/Com/Event/Manager.php';
+$config = new Config();
+$event = new Event_Manager(new Event_Database($config));
+if ($config->IsOnline() && isset($_SESSION["User"])) {
+    echo json_encode(  $event->PrepareArrayForInsert($_POST));
 }
+ 
  

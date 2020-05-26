@@ -4,7 +4,6 @@ include_once '../../../../../../Class/Core/Config/Config.php';
 include_once '../../../../../../Class/Core/UI/NAV.php';
 include_once '../../../../../../Class/Core/Module/Database.php';
 include_once '../../../../../../Class/Com/Event/Database.php';
-include_once '../../../../../../Class/Com/Event/Database.php';
 include_once '../../../../../../Class/Com/Event/Manager.php';
 include_once '../../../../../../Class/Com/Category/Database.php';
 include_once '../../../../../../Class/SDK/Module/Basic.php';
@@ -12,8 +11,8 @@ include_once '../../../../Auth/Action/VerifySession.php';
 $config = new Config();
 $uinav = new UINAV();
 $module = new Module_Database($config);
-$category=new Category_Database($config);
- $event=new Event_Manager(new Event_Database($config));
+$category = new Category_Database($config);
+$event = new Event_Manager(new Event_Database($config));
 if ($config->IsOnline() && isset($_SESSION["User"])) {
     $modlist = array();
     foreach ($module->LoadModule() as $value) {
@@ -44,6 +43,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
             }
             ?>
+            <script src="../../../../../js/io/Ajax.js"></script>
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../js/dom/SuperDialog.js"></script>          
             <script src="../../../../../js/dom/TableTools.js"></script>
@@ -52,25 +52,26 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 ss.DocumentReady(function () {
                     var sd = new SuperDialog();
                     var tabletool = new TableTools();
+                    var ajax=new Ajax();
                     tabletool.Import(document.getElementById("TableOutput"));
-                   /* var wsl = ss.WindowScrollLoad();
-                    wsl.URL = "../../../Api/Ajax/EventManager/GetEventList.php";
-                    wsl.Param["StartID"] = 0;
-                    wsl.Done = (function (data) {
-                        data = JSON.parse(data);
-                        for (var i = 0; i < data.length; i++) {
-                            tabletool.InsertRow();
-                            tabletool.InsertCellLastRow('<input type="checkbox" class="SelectID" value="' + data[i]["id"] + '" />');
-                            tabletool.InsertCellLastRow(data[i]["name"]);
-                            tabletool.InsertCellLastRow(data[i]["startdate"]);
-                            tabletool.InsertCellLastRow(data[i]["stopdate"]);
-
-                            tabletool.InsertCellLastRow(data[i]["description"]);
-                            tabletool.InsertCellLastRow('<button class="BNEdit" data-id="' + data[i]["id"] + '">Edit</button>');
-                            wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
-                        }
-                        wsl.Lock = false;
-                    });*/
+                    /* var wsl = ss.WindowScrollLoad();
+                     wsl.URL = "../../../Api/Ajax/EventManager/GetEventList.php";
+                     wsl.Param["StartID"] = 0;
+                     wsl.Done = (function (data) {
+                     data = JSON.parse(data);
+                     for (var i = 0; i < data.length; i++) {
+                     tabletool.InsertRow();
+                     tabletool.InsertCellLastRow('<input type="checkbox" class="SelectID" value="' + data[i]["id"] + '" />');
+                     tabletool.InsertCellLastRow(data[i]["name"]);
+                     tabletool.InsertCellLastRow(data[i]["startdate"]);
+                     tabletool.InsertCellLastRow(data[i]["stopdate"]);
+                         
+                     tabletool.InsertCellLastRow(data[i]["description"]);
+                     tabletool.InsertCellLastRow('<button class="BNEdit" data-id="' + data[i]["id"] + '">Edit</button>');
+                     wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
+                     }
+                     wsl.Lock = false;
+                     });*/
                     tabletool.AddEventListener("click", function (e) {
                         if (e.target.getAttribute("class") == "SelectID") {
                             if (!e.target.checked) {
@@ -89,27 +90,27 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         }
                     });
-                 //   wsl.AddEventListener();
-                   // wsl.LoadData();
+                    //   wsl.AddEventListener();
+                    // wsl.LoadData();
 
                     ss.S("#BNAddEvent").Click(function () {
                         ss.S(".EventAjaxSend").Val("");
-                        ss.GeoLocation(function(v){
-                        ss.S("#txtlatitude").Val(v.latitude);
-                          ss.S("#txtlongitude").Val(v.longitude);
-                     });
-                      ss.S("#txtstartday,#txtstopday").Val( new Date());
-                      
-                       var i=sd.Import("Add","#EventDialog",{"OK": function () {
-                            ss.Post("../../../Api/Ajax/EventManager/InsertEventList.php", ss.S(".EventAjaxSend").SerializeToJson(), function () {
-                                location.reload();
-                            });
+                        ss.GeoLocation(function (v) {
+                            ss.S("#txtlatitude").Val(v.latitude);
+                            ss.S("#txtlongitude").Val(v.longitude);
+                        });
+                        ss.S("#txtstartday,#txtstopday").Val(new Date());
 
-                        },"Cancel":function(){
-                            i.Close();
-                        }}).ZIndex(999);
+                        var i = sd.Import("Add", "#EventDialog", {"OK": function () {
+                                ajax.Post("../../../../Api/Ajax/Event/AddEvent.php", ss.S(".EventAjaxSend").ValByName(), function () {
+                                    //location.reload();
+                                });
+
+                            }, "Cancel": function () {
+                                i.Close();
+                            }}).ZIndex(999);
                     });
-                    
+
 
                     ss.S("#BNRemoveEvent").Click(function () {
                         sd.Confirm("Do You Delect It", function () {
@@ -125,7 +126,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#CBoxSelectAll").Click(function () {
                         ss.S(".SelectID").Val(this.checked);
                     });
-                     
+
 
                 });
             </script>
@@ -192,14 +193,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     }
                     ?> 
                     <div class="BorderBlock" style="margin-top: 1px;">
-                         <div class="TitleCenter">My Event</div>
-                         <?php
-                         
-                         ?>
+                        <div class="TitleCenter">My Event</div>
+                        <?php
+                        ?>
                     </div>
                 </div>
             </div>
-           
+
             <table id="EventDialog" style="display: none;width: 100%;box-sizing: border-box;">
                 <tr>
                     <td>Name:</td>
@@ -212,7 +212,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <label>public</label>
                     </td>
                 </tr>
-                
+
                 <tr>
                     <td>Html Code:</td>
                     <td><textarea class="EventAjaxSend" name="htmlcode"></textarea></td>
@@ -251,8 +251,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <td><textarea class="EventAjaxSend" name="description" ></textarea></td>
                 </tr>
             </table>
-             <div class="Container">
- 
+            <div class="Container">
+
                 <div class="Aside">
 
                     <div class="BorderBlock" style="margin-top: 1px;">

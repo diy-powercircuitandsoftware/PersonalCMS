@@ -79,19 +79,7 @@ if ($config->HasRootAuth(session_id())) {
 
                     });
     
-                    ss.S(".BNDataView").Click(function (e) {
-                        var dbname = this.getAttribute("data-id");
-                        ajax.Post("Action/GetTableList.php", {"dir": dbname}, function (s) {
-                            s = JSON.parse(s);
-                            ss.S("#TableList").Empty();
-                            for (var i in s) {
-                                ss.S("#TableList").Append(dbname + "/" + s[i], s[i]);
-                            }
-                            dialog.Import("TableFields", "#TableViewer");
-                            ss.S("#TableList").Change();
-                        });
-
-                    });
+                  
                     ss.S(".BNTableView").Click(function (e) {
                         var dbname = this.getAttribute("data-id");
                         ajax.Post("Action/GetTableList.php", {"dir": dbname}, function (s) {
@@ -141,7 +129,7 @@ if ($config->HasRootAuth(session_id())) {
                         <tr>
                             <th>Core</th>
                             <th>Table View</th>
-                            <th>Data View</th>
+                           
                             <th>Install</th>
                             <th>UnInstall</th>
                         </tr>
@@ -152,8 +140,7 @@ if ($config->HasRootAuth(session_id())) {
                                 if ($sec == "Database.php") {
                                     echo '<tr>';
                                     printf('<td>%s</td>', $first);
-                                    printf('<td><button class="BNTableView" data-id="%s">Table View</button></td>', $first);
-                                    printf('<td><button class="BNDataView" data-id="%s">Data View</button></td>', $first);
+                                    printf('<td><button class="BNTableView" data-id="%s">Table View</button></td>', $first);                                  
                                     printf('<td><a class="BNInstall" href="Action/CoreInstall.php?dir=%s"><button>Install</button></a></td>'
                                             . '<td><a class="BNUnInstall" href="Action/CoreUnInstall.php?dir=%s"><button>UnInstall</button></a></td>', $first, $first);
                                     echo '</tr>';

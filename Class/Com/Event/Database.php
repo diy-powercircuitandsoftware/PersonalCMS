@@ -27,16 +27,16 @@ class Event_Database extends SQLite3 {
         $install[0] = ('
     CREATE TABLE IF NOT EXISTS event (
     id          INTEGER       PRIMARY KEY,
-    userid      INTEGER,
-    name        VARCHAR (256),
-    htmlcode    TEXT,
+    userid      INTEGER       NOT NULL   ,
+    name        VARCHAR (256) NOT NULL ,
+    htmlcode    TEXT          NOT NULL ,
     latitude    TEXT,
     longitude    TEXT,
-    startdate   DATE,
-    stopdate    DATE,
+    startdate   DATE          NOT NULL ,
+    stopdate    DATE          NOT NULL ,
     public      BOOLEAN,
     description TEXT
-    createdatetime DATE,
+    createdatetime DATE       NOT NULL ,
     category      INTEGER,
     enable   BOOLEAN);');
         try {
