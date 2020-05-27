@@ -26,7 +26,7 @@ class Event_Database extends SQLite3 {
         $install = array();
         $install[0] = ('
     CREATE TABLE IF NOT EXISTS event (
-    id          INTEGER       PRIMARY KEY,
+    id          INTEGER       PRIMARY KEY AUTOINCREMENT,
     userid      INTEGER       NOT NULL   ,
     name        VARCHAR (256) NOT NULL ,
     htmlcode    TEXT          NOT NULL ,
@@ -35,10 +35,10 @@ class Event_Database extends SQLite3 {
     startdate   DATE          NOT NULL ,
     stopdate    DATE          NOT NULL ,
     public      BOOLEAN,
-    description TEXT
-    createdatetime DATE       NOT NULL ,
+    description TEXT,
+    createdatetime DATE       DEFAULT current_timestamp ,
     category      INTEGER,
-    enable   BOOLEAN);');
+    enable   BOOLEAN          DEFAULT (1) );');
         try {
             foreach ($install as $value) {
                 $this->exec($value);

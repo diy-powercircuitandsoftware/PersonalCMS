@@ -19,20 +19,18 @@ class Event_Manager {
         $this->ed = $ed;
     }
 
-    public function AddEvent($array) {
+    public function AddEvent($userid, $array) {
         try {
-            
-            $stmt = $this->ed->prepare("INSERT INTO event (id,userid,name,htmlcode,latitude,longitude,startdate,stopdate,public,description,createdatetime,category,enable) "
-                    . "VALUES (null,:userid,:name,:htmlcode,:latitude,:longitude,:startdate,:stopdate,:public,:description,:createdatetime,:category,1)");
-            $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
-            $stmt->bindValue(':name', $name, SQLITE3_TEXT);
-             $stmt->bindValue(':htmlcode', $htmlcode, SQLITE3_TEXT);
-             
-             
-              $stmt->bindValue(':latitude', $latitude, SQLITE3_TEXT);
-               $stmt->bindValue(':longitude', $longitude, SQLITE3_TEXT);
-                $stmt->bindValue(':startdate', $startdate);
-                 $stmt->bindValue(':stopdate', $stopdate);
+            unset($array["id"]);
+            $Prepare = $this->DataFilter($array);
+              $q = ("INSERT INTO event (id,userid," . implode(",", array_keys($Prepare)) . ") "
+            . "VALUES (null,:userid," . rtrim(str_pad("", count(array_keys($Prepare)) * 2, "?,"), ",") . ")"); 
+            $stmt = $this->ed->prepare($q);
+            $stmt->bindParam(':userid', $userid, SQLITE3_INTEGER);
+            $val = array_values($Prepare);
+            for ($i = 0; $i < count($val); $i++) {
+                $stmt->bindParam($i + 2, $val[$i]);
+            }
             $stmt->execute();
             return true;
         } catch (Exception $e) {
@@ -40,11 +38,7 @@ class Event_Manager {
         }
     }
 
-    public function GetMyComingEvent($userid) {
-        
-    }
-    
-     public function PrepareArrayForInsert($param) {
+    public function DataFilter($param) {
         $out = array();
         $results = $this->ed->query("PRAGMA table_info('event')");
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
@@ -66,31 +60,12 @@ class Event_Manager {
                 $out[$name] = $v;
             }
         }
+
         return $out;
     }
-     public function PrepareArrayForUpdate($param) {
-        $out = array();
-        $results = $this->ud->query("PRAGMA table_info('user')");
-        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-            $name = $row["name"];
-            if (isset($param[$name]) && $param[$name] !== "") {
-                $v = null;
-                if ($row["type"] == "INTEGER") {
-                    $v = intval($param[$name]);
-                } else if ($row["type"] == "BOOLEAN") {
-                    if (( strtolower($param[$name]) == "true") || (strtolower($param[$name]) == "1") || ($param[$name] === true)) {
-                        $v = 1;
-                    } else {
-                        $v = 0;
-                    }
-                } else {
-                    $v = $param[$name];
-                }
 
-                $out[$name . "=:" . $name] = $v;
-            }
-        }
-        return $out;
+    public function GetMyComingEvent($userid) {
+        
     }
 
 }

@@ -54,18 +54,18 @@ class User_Member {
 
     public function EditUserData($userid, $param) {
         unset($param["id"]);
-        $Prepare = $this->PrepareArrayForUpdate($param);
-        $sql = 'UPDATE user SET ' . implode(",", array_keys($Prepare)) . ' WHERE id=:id; ';
+        $Prepare = $this->DataFilter($param);
+        $sql = 'UPDATE user SET ' . implode("=?,", array_keys($Prepare)) . '=? WHERE id=:id; ';
         $stmt = $this->ud->prepare($sql);
-        $stmt->bindValue(':id', $userid, SQLITE3_INTEGER);
-        foreach ($Prepare as $key => $value) {
-            $k = (explode("=", $key))[1];
-            $stmt->bindValue($k, $value);
+        $stmt->bindParam(':id', $userid, SQLITE3_INTEGER);
+        $val = array_values($Prepare);
+        for ($i = 0; $i < count($val); $i++) {
+            $stmt->bindParam($i + 1, $val[$i]);
         }
         $stmt->execute();
     }
 
-    public function PrepareArrayForUpdate($param) {
+    public function DataFilter($param) {
         $out = array();
         $results = $this->ud->query("PRAGMA table_info('user')");
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
@@ -84,7 +84,7 @@ class User_Member {
                     $v = $param[$name];
                 }
 
-                $out[$name . "=:" . $name] = $v;
+                $out[$name] = $v;
             }
         }
         return $out;
@@ -94,7 +94,7 @@ class User_Member {
         $data = array();
         $results = $this->ud->query('SELECT id,alias,enable,writable,email,phone FROM user WHERE ' . $field . ' LIKE "' . $searchdata . '"   ');
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-           $data[] = $row;
+            $data[] = $row;
         }
         return $data;
     }

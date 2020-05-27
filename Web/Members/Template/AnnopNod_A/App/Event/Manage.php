@@ -208,7 +208,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <tr>
                     <td>Access:</td>
                     <td>
-                        <input type="checkbox" name="" value="ON" />
+                        <input type="checkbox" style="width: auto;" class="EventAjaxSend" name="public" value="1" />
                         <label>public</label>
                     </td>
                 </tr>
@@ -220,7 +220,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <tr>
                     <td>Category:</td>
                     <td>
-                        <select class="EventAjaxSend" name="categoryid">
+                        <select class="EventAjaxSend" name="category">
                             <option value="0">-</option>
                             <?php
                             foreach ($category->GetAllCategory() as $value) {
@@ -232,11 +232,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 </tr>
                 <tr> 
                     <td>Latitude:</td>
-                    <td><input id="txtlatitude" class="PlaceAjaxSend" type="text" name="latitude" value="" /></td>
+                    <td><input id="txtlatitude" class="EventAjaxSend" type="text" name="latitude" value="" /></td>
                 </tr>
                 <tr>
                     <td>Longitude:</td>
-                    <td><input  id="txtlongitude"  class="PlaceAjaxSend" type="text" name="longitude" value="" /></td>
+                    <td><input  id="txtlongitude"  class="EventAjaxSend" type="text" name="longitude" value="" /></td>
                 </tr>
                 <tr>
                     <td>Start Date:</td>
