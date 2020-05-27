@@ -16,5 +16,14 @@ class Event_Reader {
     public function __construct(Event_Database $ed) {
         $this->ed=$ed;
     }
-    
+    public function GetComingEvent() {
+        $data = array();
+        $stmt = $this->ed->prepare('SELECT id,name,description,latitude,longitude,startdate,stopdate FROM event WHERE  date("now")>=startdate AND date("now")<=stopdate AND enable=1 LIMIT 30; ');
+      
+        $results = $stmt->execute();
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+        return $data;
+    }
 }

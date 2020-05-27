@@ -5,6 +5,7 @@ include_once '../../../../../../Class/Core/UI/NAV.php';
 include_once '../../../../../../Class/Core/Module/Database.php';
 include_once '../../../../../../Class/Com/Event/Database.php';
 include_once '../../../../../../Class/Com/Event/Manager.php';
+include_once '../../../../../../Class/Com/Event/Reader.php';
 include_once '../../../../../../Class/Com/Category/Database.php';
 include_once '../../../../../../Class/SDK/Module/Basic.php';
 include_once '../../../../Auth/Action/VerifySession.php';
@@ -12,7 +13,9 @@ $config = new Config();
 $uinav = new UINAV();
 $module = new Module_Database($config);
 $category = new Category_Database($config);
-$event = new Event_Manager(new Event_Database($config));
+$eventdb=new Event_Database($config);
+$event = new Event_Manager($eventdb);
+$eventreader=new Event_Reader($eventdb);
 if ($config->IsOnline() && isset($_SESSION["User"])) {
     $modlist = array();
     foreach ($module->LoadModule() as $value) {
@@ -52,7 +55,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 ss.DocumentReady(function () {
                     var sd = new SuperDialog();
                     var tabletool = new TableTools();
-                    var ajax=new Ajax();
+                    var ajax = new Ajax();
                     tabletool.Import(document.getElementById("TableOutput"));
                     /* var wsl = ss.WindowScrollLoad();
                      wsl.URL = "../../../Api/Ajax/EventManager/GetEventList.php";
@@ -65,7 +68,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      tabletool.InsertCellLastRow(data[i]["name"]);
                      tabletool.InsertCellLastRow(data[i]["startdate"]);
                      tabletool.InsertCellLastRow(data[i]["stopdate"]);
-                         
+                     
                      tabletool.InsertCellLastRow(data[i]["description"]);
                      tabletool.InsertCellLastRow('<button class="BNEdit" data-id="' + data[i]["id"] + '">Edit</button>');
                      wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
@@ -193,8 +196,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     }
                     ?> 
                     <div class="BorderBlock" style="margin-top: 1px;">
-                        <div class="TitleCenter">My Event</div>
+                        <div class="TitleCenter">Event</div>
                         <?php
+                        foreach ($eventreader->GetComingEvent() as $value) {
+                           echo '<div>';
+                            printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
+                            echo '</div><hr>';
+                        }
                         ?>
                     </div>
                 </div>
@@ -251,53 +260,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <td><textarea class="EventAjaxSend" name="description" ></textarea></td>
                 </tr>
             </table>
-            <div class="Container">
-
-                <div class="Aside">
-
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">My Event</label>
-                        <?php
-                        foreach ($Event->GetCurrentMyEvent($_SESSION["UserID"]) as $value) {
-                            echo '<div  >';
-                            printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                            echo '</div><hr>';
-                        }
-                        ?>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Other Event</label>
-                        <?php
-                        $Dat = array_merge($Event->GetCurrentEventNotUserID(Config_DB_Config::Access_Mode_Members, $_SESSION["UserID"]), $Event->GetCurrentEventNotUserID(Config_DB_Config::Access_Mode_Public, $_SESSION["UserID"]));
-                        foreach ($Dat as $value) {
-                            echo '<div  >';
-                            printf('<a href="../Share/EventViewer.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                            echo '</div><hr>';
-                        }
-                        ?>
-                    </div>
-                    <?php
-                    $Dat = array_merge($Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Members), $Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Public));
-                    foreach ($Dat as $value) {
-                        try {
-                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                            include_once '../../../../../Class/DB/Module/' . $value["filename"];
-                            $mod = new $value["classname"]($Module);
-                            printf('<label class="Title">%s</label>', $mod->GetTitle());
-                            $mod->SetModuleID($value["id"]);
-                            $mod->SetModulePage("../Module/Page.php");
-                            $mod->SetUserID($_SESSION["UserID"]);
-                            echo $mod->Execute();
-                            echo '</div>';
-                        } catch (Exception $ex) {
-                            
-                        }
-                    }
-                    ?>
-                </div>
-            </div>
+             
         </body>
     </html>
     <?php

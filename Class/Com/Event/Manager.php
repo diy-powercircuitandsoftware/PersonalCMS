@@ -23,8 +23,8 @@ class Event_Manager {
         try {
             unset($array["id"]);
             $Prepare = $this->DataFilter($array);
-              $q = ("INSERT INTO event (id,userid," . implode(",", array_keys($Prepare)) . ") "
-            . "VALUES (null,:userid," . rtrim(str_pad("", count(array_keys($Prepare)) * 2, "?,"), ",") . ")"); 
+            $q = ("INSERT INTO event (id,userid," . implode(",", array_keys($Prepare)) . ") "
+                    . "VALUES (null,:userid," . rtrim(str_pad("", count(array_keys($Prepare)) * 2, "?,"), ",") . ")");
             $stmt = $this->ed->prepare($q);
             $stmt->bindParam(':userid', $userid, SQLITE3_INTEGER);
             $val = array_values($Prepare);
@@ -64,8 +64,15 @@ class Event_Manager {
         return $out;
     }
 
-    public function GetMyComingEvent($userid) {
-        
+    public function GetEventList($userid,$startlist) {
+        $data = array();
+        $stmt = $this->ed->prepare('SELECT * FROM event WHERE userid=:userid   LIMIT 30; ');
+        $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
+        $results = $stmt->execute();
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+        return $data;
     }
 
 }
