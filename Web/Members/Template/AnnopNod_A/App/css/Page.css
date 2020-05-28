@@ -14,10 +14,10 @@ body{
     border-width: thin;
     width: 98%;
     word-wrap: break-word;
-      margin-top: 1px;
+    margin-top: 1px;
 }
 .TitleCenter{
-   font-weight: bold;
+    font-weight: bold;
     background-color: burlywood;
     text-align: center;
 }

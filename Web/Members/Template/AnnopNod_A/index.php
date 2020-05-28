@@ -13,7 +13,7 @@ $module = new Module_Database($config);
  
 if ($config->IsOnline() && isset($_SESSION["User"])) {
     $modlist = array();
-    foreach ($module->LoadModule() as $value) {
+    foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
 
         include_once $module->ModulePath . $value["dirname"] . "/init.php";
         $cn = new $value["classname"]();
@@ -69,7 +69,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                 </div>
                 <div><h1>Main Page</h1></div>
-                <div></div>
+                <div>
+                    <?php
+                    foreach ($modlist as $value) {
+                            if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                                echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                                printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                                echo $value->Execute(Module_SDK_Basic::Layout_Aside);
+                                echo '</div>';
+                            }
+                        }
+                    ?>
+                </div>
             </div>
         </body>
     </html>

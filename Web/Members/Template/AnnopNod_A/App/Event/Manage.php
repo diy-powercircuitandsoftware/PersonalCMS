@@ -18,7 +18,7 @@ $event = new Event_Manager($eventdb);
 $eventreader=new Event_Reader($eventdb);
 if ($config->IsOnline() && isset($_SESSION["User"])) {
     $modlist = array();
-    foreach ($module->LoadModule() as $value) {
+    foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
         include_once $module->ModulePath . $value["dirname"] . "/init.php";
         $cn = new $value["classname"]();
         $cn->SetUserID($_SESSION["User"]["id"]);
@@ -134,7 +134,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 });
             </script>
         </head>
-        <body >
+        <body>
             <header id="mainheader">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
@@ -198,7 +198,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">Event</div>
                         <?php
-                        foreach ($eventreader->GetComingEvent() as $value) {
+                        foreach ($eventreader->GetComingEvent(Event_Database::Access_Member) as $value) {
                            echo '<div>';
                             printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
                             printf('<div style="color: black;" >%s</div></a>', $value["description"]);
@@ -206,6 +206,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                         ?>
                     </div>
+                    <?php
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Aside);
+                            echo '</div>';
+                        }
+                    }
+                    ?>
                 </div>
             </div>
 

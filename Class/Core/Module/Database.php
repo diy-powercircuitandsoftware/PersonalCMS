@@ -9,6 +9,9 @@ class Module_Database extends SQLite3 {
 
     public $ModulePath = "";
 
+    public const Access_Public = 0;
+    public const Access_Member = 1;
+
     public function __construct(Config $cfg) {
         $this->ModulePath = $cfg->GetDataPath() . "/Module/";
         if (!is_dir($this->ModulePath)) {
@@ -50,25 +53,19 @@ class Module_Database extends SQLite3 {
         }
     }
 
-    public function LoadModule() {
+    public function LoadModule($mode) {
         $out = array();
-        $sql = "SELECT  * FROM module "
-                . "WHERE public=1 ORDER BY priority ASC ";
-        $results = $this->query($sql);
+        $results = null;
+        if ($mode==Module_Database::Access_Member){
+              $results = $this->query("SELECT  * FROM module ORDER BY priority ASC ");
+        }
+        else{
+              $results = $this->query("SELECT  * FROM module WHERE public=1 ORDER BY priority ASC ");
+        }
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             $out[] = $row;
         }
         return $out;
-    }
-
-    public function LoadModuleMember() {
-        $pointer = $this->pdo->GetPointer();
-        $sql = "SELECT  dirname,classname   FROM module "
-                . "WHERE enable=1  ORDER BY priority ASC ";
-        $stmt = $pointer->prepare($sql);
-        $stmt->bindParam(':layout', $Layout);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function SearchModule($name) {

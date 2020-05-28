@@ -1,17 +1,14 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of Database
  *
  * @author annopnod
  */
 class Event_Database extends SQLite3 {
+
+    public const Access_Public = 0;
+    public const Access_Member = 1;
 
     public function __construct(Config $cfg) {
         $path = $cfg->GetDataPath() . "/Event/";
@@ -52,7 +49,7 @@ class Event_Database extends SQLite3 {
     public function Uninstall() {
         try {
             $this->exec("DROP TABLE event;");
-            
+
             $this->exec("VACUUM;");
             return $this->close();
         } catch (Exception $e) {
