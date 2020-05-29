@@ -60,10 +60,10 @@ if ($config->HasRootAuth(session_id())) {
 
                     /*
                      var lastid = 0;
-                         
-                         
+                     
+                     
                      userlist.Import(document.getElementById("UserList"));
-                         
+                     
                      ajaxsb.AddScrollEvent(function (data) {
                      try {
                      data = JSON.parse(data);
@@ -96,7 +96,7 @@ if ($config->HasRootAuth(session_id())) {
                      ajaxsb.Param("id", lastid);
                      ajaxsb.LoadAjax();
                      d.Close();
-                         
+                     
                      });
                      }, "Cancel": function () {
                      d.Close();
@@ -105,7 +105,7 @@ if ($config->HasRootAuth(session_id())) {
                      });
                      }
                      });
-                         
+                     
                      ss.S("#BNAddUser").Click(function () {
                      var d = dialog.Import("Add", "#AddTable", {"OK": function () {
                      ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
@@ -118,7 +118,7 @@ if ($config->HasRootAuth(session_id())) {
                      ss.S(".AddUser").Val("");
                      }});
                      });
-                         
+                     
                      ss.S("#BNDeleteUser").Click(function () {
                      dialog.Confirm("are you sure want to delete select user", function () {
                      var v = ss.S(".UserSelect").Val();
@@ -133,17 +133,14 @@ if ($config->HasRootAuth(session_id())) {
                      */
 
                     ss.S("#BNInstallMod").Click(function (e) {
-                        var d = dialog.Import("Install", "#TableInstaller", {"OK": function () {
-                                ajax.Post("Action/InstallModule.php", ss.S(".Installer").ValByName(), function (data) {
-                                    d.Close();
-                                    ss.S(".Installer").Val("");
-                                });
-                            }, "Cancel": function () {
+                        var d = dialog.ImportOkCancel("Install", "#TableInstaller", function () {
+                            ajax.Post("Action/InstallModule.php", ss.S(".Installer").ValByName(), function (data) {
                                 d.Close();
                                 ss.S(".Installer").Val("");
-                            }});
+                            });
+                        });
                     });
-                   
+
                     ss.S("#BNViewModFile").Click(function (e) {
                         ajax.Get("Action/ViewModuleFiles.php", function (data) {
                             tablemodview.DeleteRowAfter(0);
@@ -154,11 +151,7 @@ if ($config->HasRootAuth(session_id())) {
                                 tablemodview.InsertCellLastRow('<button class="BNView" data-value="' + data[i] + '">View</button>');
                                 tablemodview.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i] + '">Delete</button>');
                             }
-                            var d = dialog.Import("View Module File", "#TableModView", {"OK": function () {
-                                    d.Close();
-                                }, "Cancel": function () {
-                                    d.Close();
-                                }});
+                            dialog.Import("View Module File", "#TableModView");
 
                         });
                     });
@@ -176,7 +169,7 @@ if ($config->HasRootAuth(session_id())) {
                                 } else {
                                     tablemodmanager.InsertCellLastRow('<input type="checkbox" data-id="' + data[i]["id"] + '" />');
                                 }
-                                
+
                                 tablemodmanager.InsertCellLastRow('<input type="number" name="" value="' + data[i]["priority"] + '" />');
                                 tablemodmanager.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
                             }
@@ -216,7 +209,7 @@ if ($config->HasRootAuth(session_id())) {
                     </div>
                     <table id="TableModuleManager" style="text-align: center;width: 100%;box-sizing: border-box;">
                         <tr>
-                              <th>select</th>
+                            <th>select</th>
                             <th>classname</th>
                             <th>dirname</th>
                             <th>public</th>

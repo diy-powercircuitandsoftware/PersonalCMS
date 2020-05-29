@@ -162,6 +162,6 @@ if ($config->IsOnline()) {
     </html>
     <?php
 } else {
-    header("location: Error/Offline.php");
+    header("location: ../../../../DefaultPages/Offline.php");
 }
         

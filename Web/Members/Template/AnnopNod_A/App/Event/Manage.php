@@ -56,34 +56,38 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var sd = new SuperDialog();
                     var tabletool = new TableTools();
                     var ajax = new Ajax();
+                        var lastid=0;
+                     var ajaxsb = new AjaxScrollBar("../../../../Api/Ajax/Event/GetEvent.php", {"id": 0});
                     tabletool.Import(document.getElementById("TableOutput"));
-                    /* var wsl = ss.WindowScrollLoad();
-                     wsl.URL = "../../../Api/Ajax/EventManager/GetEventList.php";
-                     wsl.Param["StartID"] = 0;
-                     wsl.Done = (function (data) {
-                     data = JSON.parse(data);
-                     for (var i = 0; i < data.length; i++) {
-                     tabletool.InsertRow();
-                     tabletool.InsertCellLastRow('<input type="checkbox" class="SelectID" value="' + data[i]["id"] + '" />');
-                     tabletool.InsertCellLastRow(data[i]["name"]);
-                     tabletool.InsertCellLastRow(data[i]["startdate"]);
-                     tabletool.InsertCellLastRow(data[i]["stopdate"]);
-                     
-                     tabletool.InsertCellLastRow(data[i]["description"]);
-                     tabletool.InsertCellLastRow('<button class="BNEdit" data-id="' + data[i]["id"] + '">Edit</button>');
-                     wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
-                     }
-                     wsl.Lock = false;
-                     });*/
+                    ajaxsb.AddScrollEvent(function (data) {
+                        try {
+                            data = JSON.parse(data);
+                            for (var i in data) {
+                                tabletool.InsertRow();
+                                tabletool.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="UserSelect" value="' + data[i]["id"] + '" /></div>');
+                                tabletool.InsertCellLastRow(data[i]["name"]);
+                                tabletool.InsertCellLastRow(data[i]["startdate"]);
+                                tabletool.InsertCellLastRow(data[i]["stopdate"]);
+                                tabletool.InsertCellLastRow(data[i]["description"]);
+                                tabletool.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
+                                lastid = Math.max(lastid, data[i]["id"]);
+                            }
+                            ajaxsb.Param("id", lastid);
+                        } catch (e) {
+                            sd.Alert(data);
+                        }
+                    });
+                    
+                    
                     tabletool.AddEventListener("click", function (e) {
                         if (e.target.getAttribute("class") == "SelectID") {
                             if (!e.target.checked) {
                                 ss.S("#CBoxSelectAll").Val(false);
                             }
                         } else if (e.target.getAttribute("class") == "BNEdit") {
-                            ss.Post("../../../Api/Ajax/EventManager/GetEventForEdit.php", {"ID": e.target.getAttribute("data-id")}, function (data) {
+                            ajax.Post("../../../../Api/Ajax/Event/GetEventForEdit.php", {"id": e.target.getAttribute("data-value")}, function (data) {
                                 ss.S(".EventAjaxSend").ValByName(JSON.parse(data));
-                                sd.Import("#EventDialog", function () {
+                                sd.Import("Edit","#EventDialog", function () {
                                     var json = ss.S(".EventAjaxSend").SerializeToJson();
                                     json["id"] = e.target.getAttribute("data-id");
                                     ss.Post("../../../Api/Ajax/EventManager/UpdateEventList.php", json, function () {
@@ -93,8 +97,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         }
                     });
-                    //   wsl.AddEventListener();
-                    // wsl.LoadData();
+                    
 
                     ss.S("#BNAddEvent").Click(function () {
                         ss.S(".EventAjaxSend").Val("");
@@ -106,7 +109,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         var i = sd.Import("Add", "#EventDialog", {"OK": function () {
                                 ajax.Post("../../../../Api/Ajax/Event/AddEvent.php", ss.S(".EventAjaxSend").ValByName(), function () {
-                                    //location.reload();
+                                    location.reload();
                                 });
 
                             }, "Cancel": function () {

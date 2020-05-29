@@ -64,7 +64,7 @@ class Event_Manager {
         return $out;
     }
 
-    public function GetEventList($userid,$startlist) {
+    public function GetEventList($userid, $startlist) {
         $data = array();
         $stmt = $this->ed->prepare('SELECT * FROM event WHERE userid=:userid   LIMIT 30; ');
         $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
@@ -73,6 +73,14 @@ class Event_Manager {
             $data[] = $row;
         }
         return $data;
+    }
+
+    public function GetEventForEdit($id, $userid) {
+        $stmt = $this->ed->prepare('SELECT * FROM event WHERE id=:id AND userid=:userid ; ');
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+        $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
+        $results = $stmt->execute();
+        return $results->fetchArray(SQLITE3_ASSOC);
     }
 
 }

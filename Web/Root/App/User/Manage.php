@@ -64,7 +64,7 @@ if ($config->HasRootAuth(session_id())) {
                             var v = e.target.getAttribute("data-value");
                             ajax.Post("Action/GetUserData.php", {"id": v}, function (v) {
                                 ss.S(".EditUser").ValByName(JSON.parse(v));
-                                var d = dialog.Import("Edit", "#EditTable", {"OK": function () {
+                                var d = dialog.ImportOkCancel("Edit", "#EditTable", function () {
                                         ajax.Post("Action/EditUserData.php", ss.S(".EditUser").ValByName(), function () {
                                             lastid = 0;
                                             userlist.DeleteRowAfter(0);
@@ -73,25 +73,19 @@ if ($config->HasRootAuth(session_id())) {
                                             d.Close();
 
                                         });
-                                    }, "Cancel": function () {
-                                        d.Close();
-                                        ss.S(".AddUser").Val("");
-                                    }});
+                                    });
                             });
                         }
                     });
 
                     ss.S("#BNAddUser").Click(function () {
-                        var d = dialog.Import("Add", "#AddTable", {"OK": function () {
+                        var d = dialog.ImportOkCancel("Add", "#AddTable",  function () {
                                 ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
                                     ajaxsb.LoadAjax();
                                     d.Close();
                                     ss.S(".AddUser").Val("");
                                 });
-                            }, "Cancel": function () {
-                                d.Close();
-                                ss.S(".AddUser").Val("");
-                            }});
+                            });
                     });
 
                     ss.S("#BNDeleteUser").Click(function () {

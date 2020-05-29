@@ -6,7 +6,7 @@ include_once '../../../../../Class/Com/Event/Manager.php';
 $config = new Config();
 $event = new Event_Manager(new Event_Database($config));
 if ($config->IsOnline() && isset($_SESSION["User"])) {
- echo   json_encode  (  $event->GetEventList($_SESSION["User"]["id"],$_POST["id"]));
+ echo   json_encode  (  $event->GetEventForEdit($_POST["id"],$_SESSION["User"]["id"]));
 }
  
  

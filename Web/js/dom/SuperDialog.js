@@ -182,7 +182,6 @@ class SuperDialog {
             var button = args[2];
             sd.Button(button);
         }
-
         sd.Content(node);
         sd.DestroyAfterClose();
         node.normalhide = (node.style.display === "none");
@@ -190,8 +189,20 @@ class SuperDialog {
             node.style.display = "block";
         }
         sd.Show();
-
         return sd;
+    }
+    ImportOkCancel(...args) {
+        var d = this.Import(args[0], args[1], {"OK": function () {
+                if (typeof args[2] === "function" && args[2]()) {
+                    d.Close();
+                } else if (typeof args[2] !== "function" ) {
+                    d.Close();
+                }
+            }, "Cancel": function () {
+                d.Close();
+
+            }});
+        return d;
     }
 
     Load(...args) {

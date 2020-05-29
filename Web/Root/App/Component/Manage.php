@@ -147,7 +147,7 @@ if ($config->HasRootAuth(session_id())) {
                         });
 
                     });
-                    ss.S("#BNViewModFile").Click(function (e) {
+                    ss.S("#####").Click(function (e) {
                         ajax.Get("Action/ViewModuleFiles.php", function (data) {
                             tablemodview.DeleteRowAfter(0);
                             data = JSON.parse(data);
@@ -157,11 +157,7 @@ if ($config->HasRootAuth(session_id())) {
                                 tablemodview.InsertCellLastRow('<button class="BNView" data-value="' + data[i] + '">View</button>');
                                 tablemodview.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i] + '">Delete</button>');
                             }
-                            var d = dialog.Import("View Module File", "#TableModView", {"OK": function () {
-                                    d.Close();
-                                }, "Cancel": function () {
-                                    d.Close();
-                                }});
+                            
 
                         });
                     });

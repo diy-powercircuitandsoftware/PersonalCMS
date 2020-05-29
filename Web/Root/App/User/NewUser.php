@@ -57,7 +57,7 @@ if ($config->HasRootAuth(session_id())) {
                     });
 
                     ss.S("#BNAddUser").Click(function () {
-                        var d = dialog.Import("Add", "#AddTable", {"OK": function () {
+                        var d = dialog.ImportOkCancel("Add", "#AddTable", {"OK"sss: function () {
                                 ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
                                     ajaxsb.LoadAjax();
                                     d.Close();
