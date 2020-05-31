@@ -108,8 +108,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S("#txtstartday,#txtstopday").Val(new Date());
 
                         var i = sd.Import("Add", "#EventDialog", {"OK": function () {
-                                ajax.Post("../../../../Api/Ajax/Event/AddEvent.php", ss.S(".EventAjaxSend").ValByName(), function () {
-                                    location.reload();
+                                ajax.Post("../../../../Api/Ajax/Event/AddEvent.php", ss.S(".EventAjaxSend").ValByName(), function (data) {
+                                    if (data=="1"){
+                                         location.reload();
+                                    }
+                                   
                                 });
 
                             }, "Cancel": function () {

@@ -99,4 +99,12 @@ class User_Member {
         return $data;
     }
 
+    public function CanWritable($userid) {
+        $stmt = $this->ud->prepare('SELECT COUNT(id) AS n  FROM user WHERE id=:id AND writable=1 AND enable=1; ');
+        $stmt->bindValue(':id', $userid, SQLITE3_INTEGER);
+        $results = $stmt->execute();
+        $rs = $results->fetchArray(SQLITE3_ASSOC);
+        return $rs["n"] == 1;
+    }
+
 }

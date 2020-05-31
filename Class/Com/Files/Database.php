@@ -11,41 +11,38 @@
  *
  * @author annopnod
  */
-class Blog_Database extends SQLite3 {
+class Files_Database extends SQLite3 {
 
     public const Access_Public = 0;
     public const Access_Member = 1;
 
-    public function __construct(Config $cfg) {
-        $path = $cfg->GetDataPath() . "/Blog/";
-        if (!is_dir($path)) {
-            mkdir($path);
-        }
+    private $path = "";
 
-        $this->open($path . "Blog.db");
+    public function __construct(Config $cfg) {
+        $this->path = $cfg->GetDataPath() . "/Files/";
+        if (!is_dir($this->path)) {
+            mkdir($this->path);
+        }
+        $this->open($this->path . "Files.db");
+    }
+
+    public function GetUserDIR($userid) {
+      $p=  $this->path.$userid."/";
+      if (!is_dir($p)){
+          mkdir($p);
+      }
+        return $p;
     }
 
     public function Install() {
         $install = array();
         $install[0] = ('
-    CREATE TABLE IF NOT EXISTS blog (
-    id             INTEGER PRIMARY KEY AUTOINCREMENT,
-    title          VARCHAR (256) NOT NULL,
-    userid         INTEGER NOT NULL,
-    htmlfilepath   VARCHAR (512),  
-    description    TEXT ,
-    public     BOOLEAN,
-    createdatetime DATE,
-   
-    enable   BOOLEAN);');
-        $install[1] = ('
-    CREATE TABLE IF NOT EXISTS blogcategory (
-    id  INTEGER  NOT NULL PRIMARY KEY,
-    blogid     INTEGER NOT NULL,
-    categoryid INTEGER,
-    keywordid  INTEGER,
-    hashtag    INTEGER);');
-
+    CREATE TABLE IF NOT EXISTS Files (
+    id       INTEGER        PRIMARY KEY,
+    userid   INTEGER,
+    public   BOOLEAN,
+    fullpath VARCHAR (1024) 
+);');
 
         try {
             foreach ($install as $value) {
@@ -59,9 +56,7 @@ class Blog_Database extends SQLite3 {
 
     public function Uninstall() {
         try {
-            $this->exec("DROP TABLE blog;");
-            $this->exec("DROP TABLE blogcategory;");
-
+            $this->exec("DROP TABLE Files;");
             $this->exec("VACUUM;");
             return $this->close();
         } catch (Exception $e) {
