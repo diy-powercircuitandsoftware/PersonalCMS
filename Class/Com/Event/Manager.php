@@ -60,14 +60,14 @@ class Event_Manager {
                 $out[$name] = $v;
             }
         }
-
         return $out;
     }
 
     public function GetEventList($userid, $startlist) {
         $data = array();
-        $stmt = $this->ed->prepare('SELECT * FROM event WHERE userid=:userid   LIMIT 30; ');
+        $stmt = $this->ed->prepare('SELECT * FROM event WHERE userid=:userid AND id>:id  LIMIT 30; ');
         $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
+         $stmt->bindValue(':id', $startlist, SQLITE3_INTEGER);
         $results = $stmt->execute();
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             $data[] = $row;

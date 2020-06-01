@@ -85,8 +85,11 @@ if ($config->IsOnline()) {
                             <a  href="#">Visit the Help Center</a>
                         </div>
                     </div>
+                    
                 </div>
-                <div></div>
+                <div>
+                    
+                </div>
             </div>
             <div class="Container">
 

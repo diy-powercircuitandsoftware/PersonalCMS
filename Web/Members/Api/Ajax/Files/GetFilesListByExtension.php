@@ -6,7 +6,8 @@ include_once '../../../../../Class/Com/Files/Database.php';
 $config = new Config();
 $fd=new Files_Database($config);
 if ($config->IsOnline() && isset($_SESSION["User"])) {
-echo   $fd->GetUserDIR($_SESSION["User"]["id"]);
+//echo   $fd->GetUserDIR($_SESSION["User"]["id"]);
+    echo json_encode("");
 }
 $fd->close();
  

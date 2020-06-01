@@ -36,7 +36,7 @@ class Blog_Database extends SQLite3 {
     description    TEXT ,
     public     BOOLEAN,
     createdatetime DATE,
-   
+  
     enable   BOOLEAN);');
         $install[1] = ('
     CREATE TABLE IF NOT EXISTS blogcategory (

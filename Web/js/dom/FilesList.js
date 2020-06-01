@@ -15,6 +15,11 @@ class FilesList {
                 "<th>Size</th>" +
                 "<th>Modified</th>" +
                 "<th>Manage</th></tr>";
+        this.list.addEventListener("click", function (e) {
+            alert(e.target);
+        });
+
+
     }
     AddFile(name, path, icon, size, date) {
 

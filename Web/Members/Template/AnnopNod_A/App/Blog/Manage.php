@@ -47,7 +47,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
-                    var ajax=new Ajax();
+                    var ajax = new Ajax();
                     var sd = new SuperDialog();
                     var tabletool = new TableTools();
 
@@ -70,29 +70,21 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
 
-                    FL.OpenDir("/");
-                    return 0;
-                    EKeyword.Input = function (v) {
-                        var ref = this;
-                        ss.Get("../../../Api/Ajax/Keyword/SearchKeyword.php", {"Keyword": v}, function (data) {
-                            data = JSON.parse(data);
-                            for (var i = 0; i < data.length; i++) {
-                                ref.AddList(data[i]["id"], data[i]["name"]);
-                            }
-                        });
-                    };
-                    EKeyword.Enter = function (v) {
-                        var ref = this;
-                        ss.Get("../../../Api/Ajax/Keyword/InsertKeyword.php", {"Keyword": v}, function (data) {
-                            ref.Clear();
-                            data = JSON.parse(data);
-                            for (var i = 0; i < data.length; i++) {
-                                ref.AddList(data[i]["id"], data[i]["name"]);
-                            }
-                        });
-                    };
+                   
 
-                    tabletool.addEventListener("click", function (e) {
+                    EKeyword.Input (function (v) {
+                         
+                        var ref = this;
+                        ajax.Post("../../../../Api/Ajax/Category/SearchKeyword.php", {"Keyword": v}, function (data) {
+                            data = JSON.parse(data);
+                            for (var i = 0; i < data.length; i++) {
+                                ref.AddList(data[i]["id"], data[i]["name"]);
+                            }
+                        });
+                    });
+
+
+                    tabletool.AddEventListener("click", function (e) {
                         if (e.target.getAttribute("class") == "SelectID") {
                             if (!e.target.checked) {
                                 ss.S("#CBoxSelectAll").Val(false);
@@ -136,39 +128,41 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         }
                     });
+                    ;
+                    /*       var wsl = ss.WindowScrollLoad();
+                     wsl.URL = "../../../Api/Ajax/BlogManager/GetBlogList.php";
+                     wsl.Param["StartID"] = 0;
+                     wsl.Done = (function (data) {
+                     data = JSON.parse(data);
+                     for (var i = 0; i < data.length; i++) {
+                         
+                     tabletool.InsertRow();
+                     tabletool.InsertCellLastRow('<input type="checkbox" class="SelectID" value="' + data[i]["id"] + '" />');
+                     tabletool.InsertCellLastRow(data[i]["title"]);
+                     tabletool.InsertCellLastRow(data[i]["categoryid"]);
+                     tabletool.InsertCellLastRow('<a href="#" class="fullpathfile" data-id="' + data[i]["htmlfilepath"] + '" >' + data[i]["filename"] + '</a>');
+                         
+                     tabletool.InsertCellLastRow('<button class="BNEdit" data-id="' + data[i]["id"] + '">Edit</button>');
+                     wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
+                     }
+                     wsl.Lock = false;
+                     });*/
 
-                    var wsl = ss.WindowScrollLoad();
-                    wsl.URL = "../../../Api/Ajax/BlogManager/GetBlogList.php";
-                    wsl.Param["StartID"] = 0;
-                    wsl.Done = (function (data) {
-                        data = JSON.parse(data);
-                        for (var i = 0; i < data.length; i++) {
-
-                            tabletool.InsertRow();
-                            tabletool.InsertCellLastRow('<input type="checkbox" class="SelectID" value="' + data[i]["id"] + '" />');
-                            tabletool.InsertCellLastRow(data[i]["title"]);
-                            tabletool.InsertCellLastRow(data[i]["categoryid"]);
-                            tabletool.InsertCellLastRow('<a href="#" class="fullpathfile" data-id="' + data[i]["htmlfilepath"] + '" >' + data[i]["filename"] + '</a>');
-
-                            tabletool.InsertCellLastRow('<button class="BNEdit" data-id="' + data[i]["id"] + '">Edit</button>');
-                            wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
-                        }
-                        wsl.Lock = false;
-                    });
 
 
-                    wsl.AddEventListener();
-                    wsl.LoadData();
                     ss.S("#BNAdd").Click(function () {
+
                         ss.S(".AjaxSendEdit").Val("");
                         ss.S("#EFilePath").Html("");
                         EKeyword.Empty();
-                        sd.Import("#Dialog", function () {
-                            var senddata = ss.S(".AjaxSendEdit").SerializeToJson();
-                            senddata["filepath"] = FL.GetSelectFiles(0);
-                            senddata["keyword"] = EKeyword.GetList();
+                          FL.OpenDir("/");
+                        sd.ImportOkCancel("Add", "#Dialog", function () {
+                             
+                            var senddata = ss.S(".AjaxSendEdit").ValByName();
+                           // senddata["filepath"] = FL.GetSelectFiles(0);
+                            //senddata["keyword"] = EKeyword.GetList();
 
-                            ss.Post("../../../Api/Ajax/BlogManager/InsertBlog.php", senddata, function (d) {
+                            ajax.Post("../../../../Api/Ajax/Blog/AddBlog.php", senddata, function (d) {
                                 tabletool.DeleteRowAfter(0);
                                 wsl.Param["StartID"] = 0;
                                 wsl.Lock = false;
@@ -232,6 +226,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ?>     
                 </div>
                 <div>
+
                     <?php
                     if ($_SESSION["User"]["writable"] == 1) {
                         echo '<table style="width: 100%;text-align: center;" id="TableOutput">
@@ -253,8 +248,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo ' <div class="BorderBlock">
                             <div class="TitleCenter">Manage</div>
                              <span style="display: block;"><input type="checkbox" id="CBoxSelectAll"  /> Select All</span>
-                              <a id="BNAddEvent" class="MenuLink" href="#">Add</a>
-                               <a id="BNRemoveEvent" class="MenuLink" href="#">Remove</a>
+                              <a id="BNAdd" class="MenuLink" href="#">Add</a>
+                               <a id="BNRemove" class="MenuLink" href="#">Remove</a>
                              
                         </div>';
                     }
@@ -287,6 +282,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <tr>
                         <td>Title:</td>
                         <td><input type="text" name="title" class="AjaxSendEdit"  style="width: 99%;"></td>
+                    </tr>
+                    <tr>
                         <td>Category:</td>
                         <td>
                             <select class="AjaxSendEdit" name="categoryid"  style="width: 100%;">
@@ -301,11 +298,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         </td>
                     </tr>
                     <tr>
-                        <td>Keyword</td>
+                         <td>Keyword</td>
                         <td id="EKeyword"></td>
                     </tr>
                     <tr>
-                        <td>Access:</td>
+                       <td>Access:</td>
                         <td>
                             <select class="AjaxSendEdit" name="accessmode"  style="width: 100%;">
                                 <?php
@@ -314,30 +311,25 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 ?>
                             </select>
                         </td>
-
                     </tr>
+                     
+                     
                     <tr>
                         <td>Description:</td>
                         <td>
-                            <textarea style="min-width:100%; " class="AjaxSendEdit" name="description" rows="4" cols="20"></textarea>
+                            <textarea style="min-width:100%;resize: vertical; " class="AjaxSendEdit" name="description" rows="4" cols="20"></textarea>
                         </td>
-                        <td>Keyword:</td>
-                        <td id="test">
-
-                        </td>
+                        
                     </tr>
-                    <tr>
-                        <td>FilePath:</td>
-                        <td colspan="3">
-                            <div id="EFilePath"></div>
-                        </td>
-                    </tr>
+                     
                 </table>
+                <div>
 
-                <div id="FilesList">
-                    <div id="CHDIRList"></div>
+                    <div id="FilesList">
+                        <div id="CHDIRList"></div>
+                    </div>
+
                 </div>
-            </div>
 
 
         </body>

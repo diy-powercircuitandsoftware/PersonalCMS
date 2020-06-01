@@ -72,6 +72,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 tabletool.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
                                 lastid = Math.max(lastid, data[i]["id"]);
                             }
+                            
                             ajaxsb.Param("id", lastid);
                         } catch (e) {
                             sd.Alert(data);
