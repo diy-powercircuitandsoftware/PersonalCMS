@@ -78,7 +78,7 @@ if (isset($_SESSION["UserID"]) && $config->IsOnline()) {
                             </tr>
 
                             <tr>
-                                <td style="width: 50%;"><a style="width: 99%;display: block;text-decoration: none;"  href="../Template/index.php">
+                                <td style="width: 50%;"><a style="width: 99%;display: block;text-decoration: none;"  href="../../index.php">
                                         <input style="width: 100%;display: block;"  type="button" value="Back!"  />
                                     </a>
                                 </td>

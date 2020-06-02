@@ -3,15 +3,15 @@ include_once '../../../../Class/Core/Config/Config.php';
 include_once '../../../../Class/Core/UI/NAV.php';
 include_once '../../../../Class/Com/Blog/Database.php';
 include_once '../../../../Class/Com/Blog/Reader.php';
+include_once '../../../../Class/Com/Event/Database.php';
+include_once '../../../../Class/Com/Event/Reader.php';
 include_once '../../../../Class/Core/Module/Database.php';
 include_once '../../../../Class/SDK/Module/Basic.php';
-//include_once '../../../../Class/DB/Com/Events/Viewer.php';
-
 $config = new Config();
 $uinav = new UINAV();
 $module = new Module_Database($config);
-//$Blog = new Com_Blog_Viewer($DBConfig);
-//$Event = new Com_Events_Viewer($DBConfig);
+$blog = new Blog_Reader(new Blog_Database($config));
+$event = new Event_Reader(new Event_Database($config));
 
 if ($config->IsOnline()) {
     $modlist = array();
@@ -34,7 +34,7 @@ if ($config->IsOnline()) {
             ?>
         </head>
         <body>
-            
+
             <header> 
                 <h1 style="width: 100%;text-align: center;"><?php echo $config->GetName(); ?> Website</h1>
             </header>
@@ -85,79 +85,56 @@ if ($config->IsOnline()) {
                             <a  href="#">Visit the Help Center</a>
                         </div>
                     </div>
-                    
-                </div>
-                <div>
-                    
-                </div>
-            </div>
-            <div class="Container">
-
-
-            </div>
-            <div class="Section">
-
-                <div style="margin-top: 1px;">
-                    <div style="width: 33%;border-style: solid;border-width: thin;">
-                        <span  style="text-align: left;" class="Title">Last Blog</span>
-                        <?php
-                        $blog = $Blog->GetSimpleLastBlogList(Config_DB_Config::Access_Mode_Public);
-
-                        foreach ($blog as $value) {
-                            if (intval($value["haspassword"]) == 0) {
+                    <div style="display: flex;flex-direction: row;">
+                        <div style="width: 33%;">
+                            <div  style="text-align: left;" class="TitleCenter">Last Blog</div>
+                            <?php
+                            foreach ($blog->GetLastBlogList(Blog_Database::Access_Public) as $value) {
                                 echo '<div style="border-style: solid;border-width: thin;margin-top: 1px;">';
                                 printf('<h2><a href="Blog/index.php?id=%d">%s</a></h2>', intval($value["id"]), $value["title"]);
                                 echo $value["description"];
                                 echo '</div>';
                             }
-                        }
-                        if ($blog) {
-                            echo '<div style="text-align: center;border-style: solid;border-width: thin;margin-top: 1px;"><a href="Blog/index.php">See More</a></div>';
-                        }
-                        ?>
+                            ?>
+                        </div>
+                        <div style="width: 33%;margin-left: 1px;">
+                            <div  style="text-align: left;" class="TitleCenter">Last Files</div>
+                        </div>
+                        <div style="width: 33%;margin-left: 1px;">
+                            <div  style="text-align: left;" class="TitleCenter">Welcome</div>
+                        </div>
                     </div>
                 </div>
-
-
-            </div>
-            <div class="Aside" >
-                <div class="BorderBlock">
-                    <span  class="Title">Event</span>
+                <div>
                     <?php
-                    foreach ($Event->GetCurrentEvent(Config_DB_Config::Access_Mode_Public) as $value) {
-                        echo '<div  >';
+                    echo '<div class="BorderBlock" style="margin-top: 1px;">';
+                    echo '  <div class="TitleCenter">Event</div>';
+                    foreach ($event->GetComingEvent(Event_Database::Access_Public) as $value) {
+                        echo '<div>';
                         printf('<a href="Event/index.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
                         printf('<div style="color: black;" >%s</div></a>', $value["description"]);
                         echo '</div><hr>';
                     }
+                    echo '</div>';
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Aside);
+                            echo '</div>';
+                        }
+                    }
                     ?>
                 </div>
-                <?php
-                foreach ($Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Public) as $value) {
-                    try {
-                        echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                        include_once '../../../../Class/DB/Module/' . $value["filename"];
-                        $mod = new $value["classname"]($Module);
-                        printf('<label class="Title">%s</label>', $mod->GetTitle());
-                        $mod->SetModulePage("Module/Page.php");
-                        $mod->SetModuleID($value["id"]);
-                        echo $mod->Execute();
-                        echo '</div>';
-                    } catch (Exception $ex) {
-                        
-                    }
-                }
-                ?>
-
             </div>
 
             <footer>
                 <span style="font-weight: bold;display: block;">
                     <?php
-                    echo "&COPY;" . date("Y") . " " . $SC->GetName();
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
                     ?>
                 </span>  
-                <a href="../../../Root/index.php">Root</a>
+
             </footer>
 
 

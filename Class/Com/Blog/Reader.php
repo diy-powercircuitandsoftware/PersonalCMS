@@ -1,10 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
  * Description of GetBlog
@@ -15,6 +10,20 @@ class Blog_Reader {
     private $bd;
     public function __construct(Blog_Database $bd) {
         $this->bd=$bd;
+    }
+    public function GetLastBlogList($mode=Blog_Database::Access_Public){
+        $data = array();
+        $stmt = null;
+        if ($mode == Blog_Database::Access_Member) {
+            $stmt = $this->bd->prepare('SELECT * FROM blog WHERE  enable=1 ORDER BY id DESC LIMIT 30; ');
+        } else {
+            $stmt = $this->bd->prepare('SELECT* FROM blog WHERE enable=1 AND public=1 ORDER BY id DESC LIMIT 30; ');
+        }
+        $results = $stmt->execute();
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+        return $data;
     }
     
 }
