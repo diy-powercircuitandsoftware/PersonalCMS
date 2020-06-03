@@ -61,7 +61,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
-                                FL.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"], data[i]["type"]);
+                                //type
+                                FL.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"]);
                             }
                             ss.S("#CHDIRList").Html(decodeURIComponent(v));
                         });
@@ -168,7 +169,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             var senddata = ss.S(".AjaxSendEdit").ValByName();
                             // senddata["filepath"] = FL.GetSelectFiles(0);
                             senddata["keyword"] = EKeyword.GetItems();
-
+     
                             ajax.Post("../../../../Api/Ajax/Blog/AddBlog.php", senddata, function (d) {
                                 tabletool.DeleteRowAfter(0);
                                 wsl.Param["StartID"] = 0;

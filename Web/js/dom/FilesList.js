@@ -22,9 +22,13 @@ class FilesList {
 
     }
     AddFile(name, path, icon, size, date) {
+        var lastrow = this.list.insertRow(-1);
+        lastrow.setAttribute("data-path", path);
+        lastrow.innerHTML = this.StringFormat('<td><input type="checkbox" /></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>',name,size,date,"edit");
 
     }
     AddDir(name, path, icon, date) {
+        var lastrow = this.list.insertRow(-1);
 
     }
     Clear() {
@@ -33,11 +37,7 @@ class FilesList {
         }
     }
     Multiple(bool) {
-        if (bool) {
-
-        } else {
-
-        }
+        this.multiple = bool;
     }
     OpenDir(v) {
         if (typeof v === "function") {
@@ -49,6 +49,14 @@ class FilesList {
     OpenFile() {
 
     }
+    StringFormat(...args) {
+        var str = args[0];
+        for (var i = 1; i < args.length; i++) {
+            str = str.replace("%s", args[i]);
+        }
+        return str;
+    }
+
 }
 
 
@@ -96,7 +104,7 @@ class FilesList {
  }
  });
  Method.AddFile = function (name, path, icon, size, date, type) {
- var lastrow = this.insertRow(-1);
+ 
  lastrow.setAttribute("data-filetype", type);
  lastrow.setAttribute("data-path", path);
  lastrow.setAttribute("data-name", name);

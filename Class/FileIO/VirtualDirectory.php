@@ -10,9 +10,7 @@ class VirtualDirectory {
     }
 
     public function Copy($s, $d) {
-        $src = $this->DiskDirPath . $this->Normalize($s);
-        $dest = $this->DiskDirPath . $this->Normalize($d);
-        return copy($src, $dest);
+        return copy($this->DiskPath($s), $this->DiskPath($d));
     }
 
     public function DeleteFile($s) {

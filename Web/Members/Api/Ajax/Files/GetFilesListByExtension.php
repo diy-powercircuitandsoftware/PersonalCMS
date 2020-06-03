@@ -6,8 +6,8 @@ include_once '../../../../../Class/Com/Files/Database.php';
 $config = new Config();
 $fd=new Files_Database($config);
 if ($config->IsOnline() && isset($_SESSION["User"])) {
-//echo   $fd->GetUserDIR($_SESSION["User"]["id"]);
-    echo json_encode("");
+ $vd=new VirtualDirectory( $fd->GetUserDIR($_SESSION["User"]["id"])) ;
+ echo json_encode($vd->GetFilesInformation($_POST["Location"]));
 }
 $fd->close();
  
