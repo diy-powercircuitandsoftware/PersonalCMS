@@ -22,24 +22,6 @@ class User_Database extends SQLite3 {
         $this->open($this->path . "User.db");
     }
 
-    public function GetTableFields($table) {
-        $out = array();
-        $results = $this->query("PRAGMA table_info('" . $table . "')");
-        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-            $out[] = $row;
-        }
-        return $out;
-    }
-
-    public function GetTableList() {
-        $out = array();
-        $results = $this->query(" SELECT name FROM sqlite_master WHERE type='table';");
-        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-            $out[] = $row["name"];
-        }
-        return $out;
-    }
-
     public function Install() {
         $install = array();
         $install[0] = ('

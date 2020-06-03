@@ -24,8 +24,19 @@ class Category_Database extends SQLite3 {
 
     public function GetAllCategory() {
         $data = array();
-
         $results = $this->query("SELECT * FROM category;");
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+
+    public function SearchKeyword($k) {
+       
+        $data = array();
+        $stmt = $this->prepare("SELECT * FROM keyword WHERE name LIKE :kw;");
+        $stmt->bindValue(':kw', $k . "%", SQLITE3_TEXT);
+        $results = $stmt->execute();
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             $data[] = $row;
         }
@@ -35,11 +46,15 @@ class Category_Database extends SQLite3 {
     public function Install() {
         $install = array();
         $install[0] = ('CREATE TABLE IF NOT EXISTS category (
-    id   INTEGER       PRIMARY KEY,
+    id   INTEGER       PRIMARY KEY AUTOINCREMENT,
     name VARCHAR (256) 
 );');
         $install[1] = ('CREATE TABLE IF NOT EXISTS hashtag (
-    id   INTEGER       PRIMARY KEY,
+    id   INTEGER       PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR (256) 
+);');
+        $install[1] = ('CREATE TABLE IF NOT EXISTS keyword (
+    id   INTEGER       PRIMARY KEY AUTOINCREMENT,
     name VARCHAR (256) 
 );');
         try {
@@ -56,6 +71,7 @@ class Category_Database extends SQLite3 {
         try {
             $this->exec("DROP TABLE category;");
             $this->exec("DROP TABLE hashtag;");
+            $this->exec("DROP TABLE keyword;");
             $this->exec("VACUUM;");
             return $this->close();
         } catch (Exception $e) {

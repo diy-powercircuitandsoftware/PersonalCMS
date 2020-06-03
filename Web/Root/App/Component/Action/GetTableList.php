@@ -5,7 +5,7 @@ include_once '../../../../../Class/Core/Config/Config.php';
 include_once '../../../../../Class/Core/Database/Admin.php';
 $config = new Config();
 if ($config->HasRootAuth(session_id())) {
-    $path = '../../../../../Class/Core/' . $_POST["dir"] . '/Database.php';
+    $path = '../../../../../Class/Com/' . $_POST["dir"] . '/Database.php';
     include_once $path;
     $classes = array();
     $tokens = token_get_all(file_get_contents($path));

@@ -20,25 +20,7 @@ class Module_Database extends SQLite3 {
 
         $this->open($this->ModulePath . "Module.db");
     }
-
-    public function GetTableFields($table) {
-        $out = array();
-        $results = $this->query("PRAGMA table_info('" . $table . "')");
-        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-            $out[] = $row;
-        }
-        return $out;
-    }
-
-    public function GetTableList() {
-        $out = array();
-        $results = $this->query(" SELECT name FROM sqlite_master WHERE type='table';");
-        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-            $out[] = $row["name"];
-        }
-        return $out;
-    }
-
+ 
     public function AddModule($dirname, $classname, $public, $priority) {
         try {
             $stmt = $this->prepare("INSERT INTO module (dirname,classname,public,priority) VALUES ( :dirname,:classname,:public,:priority)");

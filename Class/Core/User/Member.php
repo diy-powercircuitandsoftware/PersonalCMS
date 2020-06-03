@@ -91,6 +91,14 @@ class User_Member {
     }
 
     public function SearchUser($searchdata, $field = "alias") {
+        /*
+          $stmt = $this->prepare("SELECT * FROM keyword WHERE name LIKE :kw;");
+        $stmt->bindValue(':kw', $k . "%", SQLITE3_TEXT);
+        $results = $stmt->execute();
+         */
+        
+        
+        
         $data = array();
         $results = $this->ud->query('SELECT id,alias,enable,writable,email,phone FROM user WHERE ' . $field . ' LIKE "' . $searchdata . '"   ');
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {

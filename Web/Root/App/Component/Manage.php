@@ -15,7 +15,7 @@ if ($config->HasRootAuth(session_id())) {
             <script src="../../../js/io/Ajax.js"></script>
             <script src="../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../js/dom/SuperDialog.js"></script>
-
+            <script src="../../../js/dom/TableTools.js"></script>
 
             <style>
 
@@ -30,7 +30,8 @@ if ($config->HasRootAuth(session_id())) {
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
                     var dialog = new SuperDialog();
-
+                    var tablelist = new TableTools();
+                    tablelist.Import(document.getElementById("TableField"));
                     // 
                     ss.S("#BNSelectInstall").Change(function (e) {
                         if (this.value == "1") {
@@ -52,79 +53,6 @@ if ($config->HasRootAuth(session_id())) {
                         }
                     }).Change();
 
-                    /*
-                     var lastid = 0;
-                     
-                     
-                     userlist.Import(document.getElementById("UserList"));
-                     
-                     ajaxsb.AddScrollEvent(function (data) {
-                     try {
-                     data = JSON.parse(data);
-                     for (var i in data) {
-                     userlist.InsertRow();
-                     userlist.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="UserSelect" value="' + data[i]["id"] + '" /></div>');
-                     userlist.InsertCellLastRow(data[i]["id"]);
-                     userlist.InsertCellLastRow(data[i]["alias"]);
-                     userlist.InsertCellLastRow(data[i]["writable"]);
-                     userlist.InsertCellLastRow(data[i]["enable"]);
-                     userlist.InsertCellLastRow(data[i]["email"]);
-                     userlist.InsertCellLastRow(data[i]["phone"]);
-                     userlist.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
-                     lastid = Math.max(lastid, data[i]["id"]);
-                     }
-                     ajaxsb.Param("id", lastid);
-                     } catch (e) {
-                     dialog.Alert(data);
-                     }
-                     });
-                     userlist.AddEventListener("click", function (e) {
-                     if (e.target.getAttribute("class") === "BNEdit") {
-                     var v = e.target.getAttribute("data-value");
-                     ajax.Post("Action/GetUserData.php", {"id": v}, function (v) {
-                     ss.S(".EditUser").ValByName(JSON.parse(v));
-                     var d = dialog.Import("Edit", "#EditTable", {"OK": function () {
-                     ajax.Post("Action/EditUserData.php", ss.S(".EditUser").ValByName(), function () {
-                     lastid = 0;
-                     userlist.DeleteRowAfter(0);
-                     ajaxsb.Param("id", lastid);
-                     ajaxsb.LoadAjax();
-                     d.Close();
-                     
-                     });
-                     }, "Cancel": function () {
-                     d.Close();
-                     ss.S(".AddUser").Val("");
-                     }});
-                     });
-                     }
-                     });
-                     
-                     ss.S("#BNAddUser").Click(function () {
-                     var d = dialog.Import("Add", "#AddTable", {"OK": function () {
-                     ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
-                     ajaxsb.LoadAjax();
-                     d.Close();
-                     ss.S(".AddUser").Val("");
-                     });
-                     }, "Cancel": function () {
-                     d.Close();
-                     ss.S(".AddUser").Val("");
-                     }});
-                     });
-                     
-                     ss.S("#BNDeleteUser").Click(function () {
-                     dialog.Confirm("are you sure want to delete select user", function () {
-                     var v = ss.S(".UserSelect").Val();
-                     ajax.Post("Action/DeleteUser.php", {"UserID": v}, function (s) {
-                     lastid = 0;
-                     userlist.DeleteRowAfter(0);
-                     ajaxsb.Param("id", lastid);
-                     ajaxsb.LoadAjax();
-                     });
-                     }).ZIndex(999);
-                     });
-                     */
 
                     ss.S(".BNInstall").Click(function (e) {
                         ajax.Post("Action/InstallComponent.php", {"DIR": this.getAttribute("data-id")}, function (data) {
@@ -147,19 +75,37 @@ if ($config->HasRootAuth(session_id())) {
                         });
 
                     });
-                    ss.S("#####").Click(function (e) {
-                        ajax.Get("Action/ViewModuleFiles.php", function (data) {
-                            tablemodview.DeleteRowAfter(0);
+                    ss.S("#TableList").Change(function (e) {
+                        ajax.Post("Action/GetTableFields.php", {"name": this.value}, function (data) {
                             data = JSON.parse(data);
+                            tablelist.DeleteRowAfter(0);
                             for (var i in data) {
-                                tablemodview.InsertRow();
-                                tablemodview.InsertCellLastRow(data[i]);
-                                tablemodview.InsertCellLastRow('<button class="BNView" data-value="' + data[i] + '">View</button>');
-                                tablemodview.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i] + '">Delete</button>');
+                                tablelist.InsertRow();
+                                tablelist.InsertCellLastRow(data[i]["cid"]);
+                                tablelist.InsertCellLastRow(data[i]["name"]);
+                                tablelist.InsertCellLastRow(data[i]["type"]);
+                                tablelist.InsertCellLastRow(data[i]["notnull"]);
+                                tablelist.InsertCellLastRow(data[i]["dflt_value"]);
+                                tablelist.InsertCellLastRow(data[i]["pk"]);
                             }
-                            
 
                         });
+
+                    });
+
+
+                    ss.S(".BNTableView").Click(function (e) {
+                        var dbname = this.getAttribute("data-id");
+                        ajax.Post("Action/GetTableList.php", {"dir": dbname}, function (s) {
+                            s = JSON.parse(s);
+                            ss.S("#TableList").Empty();
+                            for (var i in s) {
+                                ss.S("#TableList").Append(dbname + "/" + s[i], s[i]);
+                            }
+                            dialog.Import("TableFields", "#TableViewer");
+                            ss.S("#TableList").Change();
+                        });
+
                     });
 
                 });
@@ -216,7 +162,19 @@ if ($config->HasRootAuth(session_id())) {
                 </div>
             </div>
 
-
+            <div id="TableViewer" style="display: none;">
+                <select id="TableList" style="width: 100%;box-sizing: border-box;"></select>
+                <table id="TableField">
+                    <tr>
+                        <th>cid</th>
+                        <th>name</th>
+                        <th>type</th>
+                        <th>notnull</th>
+                        <th>dflt_value</th>
+                        <th>pk</th>
+                    </tr>
+                </table>
+            </div>
         </body>
     </html>
     <?php

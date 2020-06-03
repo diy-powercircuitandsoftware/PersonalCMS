@@ -2,6 +2,7 @@
 
 session_start();
 include_once '../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../Class/Core/Database/Admin.php';
 $config = new Config();
 if ($config->HasRootAuth(session_id())) {
 $sp= explode("/",  $_POST["name"]);
@@ -13,9 +14,9 @@ $sp= explode("/",  $_POST["name"]);
         if ($tokens[$i - 2][0] == T_CLASS && $tokens[$i - 1][0] == T_WHITESPACE && $tokens[$i][0] == T_STRING
         ) {
             $class_name = $tokens[$i][1];
-            $exec = new $class_name($config);
-            echo json_encode($exec->GetTableFields($sp[1]));
-            $exec->close();
+             $dbadmin=new Database_Admin( new $class_name($config));
+            echo json_encode($dbadmin->GetTableFields($sp[1]));
+            $dbadmin->close();
         }
     }
 }

@@ -53,9 +53,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     var EKeyword = new SpanList("#EKeyword");
                     var FL = new FilesList("#FilesList");
-
                     FL.Multiple(false);
-
                     tabletool.Import(document.getElementById("TableOutput"));
 
                     FL.OpenDir(function (v) {
@@ -70,15 +68,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
 
-                   
 
-                    EKeyword.Input (function (v) {
-                         
+
+                    EKeyword.Input(function (v) {
+
                         var ref = this;
                         ajax.Post("../../../../Api/Ajax/Category/SearchKeyword.php", {"Keyword": v}, function (data) {
+                            ref.RemoveList();
                             data = JSON.parse(data);
                             for (var i = 0; i < data.length; i++) {
                                 ref.AddList(data[i]["id"], data[i]["name"]);
+                                  
                             }
                         });
                     });
@@ -101,6 +101,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 EKeyword.Empty();
                                 for (var i = 0; i < kwl.length; i++) {
                                     EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                    
+                                    
+                                   /*  EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                      EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                       EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                        EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                        */
                                 }
 
                                 sd.Import("#Dialog", function () {
@@ -135,13 +142,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      wsl.Done = (function (data) {
                      data = JSON.parse(data);
                      for (var i = 0; i < data.length; i++) {
-                         
+                     
                      tabletool.InsertRow();
                      tabletool.InsertCellLastRow('<input type="checkbox" class="SelectID" value="' + data[i]["id"] + '" />');
                      tabletool.InsertCellLastRow(data[i]["title"]);
                      tabletool.InsertCellLastRow(data[i]["categoryid"]);
                      tabletool.InsertCellLastRow('<a href="#" class="fullpathfile" data-id="' + data[i]["htmlfilepath"] + '" >' + data[i]["filename"] + '</a>');
-                         
+                     
                      tabletool.InsertCellLastRow('<button class="BNEdit" data-id="' + data[i]["id"] + '">Edit</button>');
                      wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
                      }
@@ -155,12 +162,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S(".AjaxSendEdit").Val("");
                         ss.S("#EFilePath").Html("");
                         EKeyword.Empty();
-                          FL.OpenDir("/");
+                        FL.OpenDir("/");
                         sd.ImportOkCancel("Add", "#Dialog", function () {
-                             
+
                             var senddata = ss.S(".AjaxSendEdit").ValByName();
-                           // senddata["filepath"] = FL.GetSelectFiles(0);
-                            //senddata["keyword"] = EKeyword.GetList();
+                            // senddata["filepath"] = FL.GetSelectFiles(0);
+                            senddata["keyword"] = EKeyword.GetItems();
 
                             ajax.Post("../../../../Api/Ajax/Blog/AddBlog.php", senddata, function (d) {
                                 tabletool.DeleteRowAfter(0);
@@ -298,11 +305,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         </td>
                     </tr>
                     <tr>
-                         <td>Keyword</td>
+                        <td>Keyword</td>
                         <td id="EKeyword"></td>
                     </tr>
                     <tr>
-                       <td>Access:</td>
+                        <td>Access:</td>
                         <td>
                             <select class="AjaxSendEdit" name="accessmode"  style="width: 100%;">
                                 <?php
@@ -312,16 +319,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             </select>
                         </td>
                     </tr>
-                     
-                     
+
+
                     <tr>
                         <td>Description:</td>
                         <td>
                             <textarea style="min-width:100%;resize: vertical; " class="AjaxSendEdit" name="description" rows="4" cols="20"></textarea>
                         </td>
-                        
+
                     </tr>
-                     
+
                 </table>
                 <div>
 

@@ -8,8 +8,8 @@ class SpanList {
         } else {
             this.list = document.body.appendChild(document.createElement("DIV"));
         }
-        this.list.style.cssText = "border-style: solid;border-width: thin;";
-        this.list.innerHTML = '<div><input data-domspanlist="TxtBox" type="text"  style="border: none;outline: none;width:100%; box-sizing: border-box;" /><ul></ul></div>';
+        this.list.style.cssText = "border-style: solid;border-width: thin;word-wrap: break-word;";
+        this.list.innerHTML = '<div><input data-domspanlist="TxtBox" type="text"  style="border: none;outline: none;width:100%; box-sizing: border-box;" /><ul  data-domspanlist="List" style="cursor:pointer ;padding: 0;margin: 0;list-style: none;"></ul></div>';
         var txtbox = this.list.querySelector('[data-domspanlist="TxtBox"]');
         txtbox.ref = this;
         txtbox.addEventListener("input", function () {
@@ -22,12 +22,61 @@ class SpanList {
         });
 
     }
-    AddList() {
+    AddItem(id, value) {
+        var span = this.list.insertBefore(document.createElement("SPAN"), this.list.lastElementChild);
+        span.appendChild(document.createTextNode(value));
+        span.setAttribute("data-id", id);
+        span.setAttribute("data-domspanlist", "SpanList");
+        span.style.cssText = "display: inline-block;border-style: solid;border-width: thin;margin-left: 3px;margin-top: 3px;";
+        var bn = span.appendChild(document.createElement("A"));
+        bn.innerHTML = "x";
+        bn.href = "#";
+        bn.style.cssText = "text-decoration: none;color: red;";
+        bn.addEventListener("click", function (e) {
+            this.parentNode.parentNode.removeChild(this.parentNode);
+        });
+    }
+    AddList(id, text) {
+        var list = this.list.querySelector('[data-domspanlist="List"]');
+        var l = list.appendChild(document.createElement("LI"));
+        list.style.border = "1px solid";
+        l.setAttribute("data-id", id);
+        l.innerHTML = text;
+        l.ref = this;
+        l.addEventListener("click", function () {
 
+            var txtbox = this.ref.list.querySelector('[data-domspanlist="TxtBox"]');
+            this.ref.RemoveList();
+            txtbox.value = "";
+            txtbox.focus();
+            this.ref.AddItem(this.getAttribute("data-id"), this.textContent);
+
+        });
+    }
+    GetItems(){
+        var list=[];
+        [].forEach.call(this.list.querySelectorAll('[data-domspanlist="SpanList"]'), function (span) {
+            list.push(span.getAttribute("data-id"));
+        });
+        return list;
     }
     Empty() {
+        this.RemoveList();
+        this.list.querySelector('[data-domspanlist="TxtBox"]').value = "";
 
+        [].forEach.call(this.list.querySelectorAll('[data-domspanlist="SpanList"]'), function (span) {
+            span.parentNode.removeChild(span);
+        });
     }
+
+    GetList() {
+        var arr = [];
+        [].forEach.call(this.querySelectorAll('[data-domspanlist="SpanList"]'), function (span) {
+            arr.push(span.getAttribute("data-id"));
+        });
+        return arr;
+    }
+
     Input(v) {
         if (typeof v === "function") {
             this.Input = v;
@@ -36,98 +85,8 @@ class SpanList {
         }
     }
     RemoveList() {
-
+        var list = this.list.querySelector('[data-domspanlist="List"]');
+        list.innerHTML = "";
+        list.style.border = "";
     }
 }
-
-
-
-
-/*
- function SpanList() {
- var Method = document.createElement("");
- Method.UISearch = Method.appendChild(document.createElement("DIV"));
- Method.TextBox = Method.UISearch.appendChild(document.createElement("INPUT"));
- Method.LockPosition = Method.UISearch.appendChild(document.createElement("DIV"));
- Method.ULList = Method.LockPosition.appendChild(document.createElement("UL"));
- Method.TextBox.type = "text";
- Method.TextBox.style.cssText = "outline: none;width:100%;";
- Method.LockPosition.style.cssText = "position: relative;";
- Method.ULList.style.cssText = "background-color:white;width:100%;border-style: solid;border-width: thin;position: absolute;list-style: none";
- Method.style.cssText = "word-wrap: break-word;overflow-wrap: break-word;border-style: solid;border-width: thin;width: 99%;height: 100%;background-color: white;";
- 
- Method.AddList = function (id, name) {
- this.LockPosition.style.zIndex = this.style.zIndex;
- var li = this.ULList.appendChild(document.createElement("LI"));
- li.addEventListener("click", function () {
- this.parentNode.parentNode.parentNode.parentNode.AddSelectList(this.getAttribute("data-id"), this.textContent);
- this.parentNode.parentNode.parentNode.parentNode.TextBox.value = "";
- this.parentNode.parentNode.parentNode.parentNode.TextBox.focus();
- this.parentNode.innerHTML = "";
- });
- li.addEventListener("mouseover", function () {
- this.style.cursor = "pointer";
- });
- li.addEventListener("mouseout", function () {
- this.style.cursor = "";
- });
- li.setAttribute("data-id", id);
- li.innerHTML = name;
- 
- };
- Method.AddSelectList = function (id, name) {
- var selectlist = this.insertBefore(document.createElement("SPAN"), this.UISearch);
- selectlist.style.cssText = "display: inline-block;margin-left: 3px;border-style: solid;border-width: thin;";
- selectlist.setAttribute("data-id", id);
- selectlist.appendChild(document.createTextNode(name));
- var bnremove = selectlist.appendChild(document.createElement("SPAN"));
- bnremove.innerHTML = "X";
- bnremove.style.cssText = "color:red;cursor:pointer;margin-left: 3px;border-style: solid;border-width: thin;";
- bnremove.addEventListener("click", function () {
- this.parentNode.parentNode.removeChild(this.parentNode);
- });
- };
- Method.Clear = function () {
- this.ULList.innerHTML = "";
- };
- Method.Empty = function () {
- [].forEach.call(this.querySelectorAll("SPAN[data-id]"), function (span) {
- span.parentNode.removeChild(span);
- });
- };
- Method.GetList = function () {
- var List = this.querySelectorAll("SPAN[data-id]");
- var arr = [];
- [].forEach.call(List, function (span) {
- arr.push(span.getAttribute("data-id"));
- });
- return arr;
- };
- Method.Enter = function (v) {
- 
- };
- 
- 
- 
- Method.TextBox.addEventListener("keyup", function (event) {
- var k = event.which || event.keyCode;
- if (k == 8) {
- var span = this.parentNode.parentNode.querySelectorAll("SPAN[data-id]");
- if (span.length > 0 && this.value == "") {
- var lastspan = span[span.length - 1];
- lastspan.parentNode.removeChild(lastspan);
- }
- } else if (k == 13) {
- this.parentNode.parentNode.Enter(this.value);
- } else {
- this.parentNode.parentNode.ULList.innerHTML = "";
- this.parentNode.parentNode.Input(this.value);
- }
- });
- Method.addEventListener("click", function (e) {
- if (e.target == this) {
- Method.TextBox.focus();
- }
- });
- return Method;
- }*/
