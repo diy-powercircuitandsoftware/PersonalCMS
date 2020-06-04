@@ -57,12 +57,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     tabletool.Import(document.getElementById("TableOutput"));
 
                     FL.OpenDir(function (v) {
-                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Location": v}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v, "Ext": ["html", "htm"]}, function (data) {
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
-                                //type
-                                FL.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"]);
+                                if (data[i]["type"] == "DIR") {
+                                    FL.AddDir(data[i]["name"], data[i]["fullpath"], data[i]["modified"]);
+                                } else if (data[i]["type"] == "FILE") {
+                                    FL.AddFile(data[i]["name"], data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
+                                }
                             }
                             ss.S("#CHDIRList").Html(decodeURIComponent(v));
                         });
@@ -79,7 +82,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             data = JSON.parse(data);
                             for (var i = 0; i < data.length; i++) {
                                 ref.AddList(data[i]["id"], data[i]["name"]);
-                                  
+
                             }
                         });
                     });
@@ -102,13 +105,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 EKeyword.Empty();
                                 for (var i = 0; i < kwl.length; i++) {
                                     EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                    
-                                    
-                                   /*  EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                      EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                       EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                        EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                        */
+
+
+                                    /*  EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                     EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                     EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                     EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                     */
                                 }
 
                                 sd.Import("#Dialog", function () {
@@ -169,7 +172,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             var senddata = ss.S(".AjaxSendEdit").ValByName();
                             // senddata["filepath"] = FL.GetSelectFiles(0);
                             senddata["keyword"] = EKeyword.GetItems();
-     
+
                             ajax.Post("../../../../Api/Ajax/Blog/AddBlog.php", senddata, function (d) {
                                 tabletool.DeleteRowAfter(0);
                                 wsl.Param["StartID"] = 0;

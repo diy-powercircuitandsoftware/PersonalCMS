@@ -7,7 +7,13 @@ $config = new Config();
 $fd=new Files_Database($config);
 if ($config->IsOnline() && isset($_SESSION["User"])) {
  $vd=new VirtualDirectory( $fd->GetUserDIR($_SESSION["User"]["id"])) ;
- echo json_encode($vd->GetFilesInformation($_POST["Location"]));
+ if (isset($_POST["Ext"])){
+     echo json_encode($vd->GetFilesInformation($_POST["Path"],$_POST["Ext"]));
+ }
+ else{
+     echo json_encode($vd->GetFilesInformation($_POST["Path"]));
+ }
+ 
 }
 $fd->close();
  

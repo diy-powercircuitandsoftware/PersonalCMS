@@ -1,5 +1,6 @@
 class FilesList {
     constructor(...args) {
+        this.iconext = [];
         if (args.length === 1 && typeof args[0] === 'string' || args[0] instanceof String) {
             this.list = document.querySelector(args[0]).appendChild(document.createElement("TABLE"));
         } else if (args.length === 1 && args[0] instanceof HTMLElement) {
@@ -10,31 +11,68 @@ class FilesList {
         this.list.border = "1";
         this.list.style.cssText = "width: 100%;text-align: center;";
         this.list.innerHTML = "<tr>" +
-                "<th><input data-dom='FL-SelectAll' type = 'checkbox'/> Select All</th>" +
+                "<th><input data-domfileslist='SelectAll' type = 'checkbox'/> Select All</th>" +
                 "<th>FileName</th>" +
                 "<th>Size</th>" +
                 "<th>Modified</th>" +
                 "<th>Manage</th></tr>";
         this.list.addEventListener("click", function (e) {
-            alert(e.target);
+            var selcetdom = e.target.getAttribute("data-domfileslist");
+            if (selcetdom == "SelectAll") {
+                var sett = e.target.checked && this.fn.multiple;
+                [].forEach.call(this.querySelectorAll('[data-domfileslist="Select"]'), function (chk) {
+                    chk.checked = sett;
+                });
+            } else if (selcetdom == "Select" && !this.fn.multiple) {
+                [].forEach.call(this.querySelectorAll('[data-domfileslist="Select"]'), function (chk) {
+                    chk.checked = false;
+                });
+                e.target.checked = true;
+            } else if (selcetdom == "Open") {
+                var parrent = e.target.parentNode.parentNode;
+                if (parrent.getAttribute("data-type") == "DIR") {
+                    this.fn.OpenDir(parrent.getAttribute("data-path"));
+                } else if (parrent.getAttribute("data-type") == "File") {
+                    this.fn.OpenFile(parrent.getAttribute("data-path"));
+                }
+            }else if (selcetdom == "Open") {
+                
+            }
         });
-
-
+        this.list.fn = this;
     }
-    AddFile(name, path, icon, size, date) {
+    AddFile(name, path, size, date) {
+        var icon = "";
         var lastrow = this.list.insertRow(-1);
         lastrow.setAttribute("data-path", path);
-        lastrow.innerHTML = this.StringFormat('<td><input type="checkbox" /></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>',name,size,date,"edit");
+        lastrow.setAttribute("data-type", "File");
+
+
+        lastrow.innerHTML = this.StringFormat('<td><input data-domfileslist="Select" type="checkbox" /></td><td>%s %s</td><td>%s</td><td>%s</td><td><a data-domfileslist="Open" href="#">Open</a>&nbsp;<a data-domfileslist="Rename" href="#">Rename</a>&nbsp;<a data-domfileslist="Delete" href="#" >Delete</a>&nbsp;<a data-domfileslist="Properties" href="#">Properties</a>&nbsp;<a data-domfileslist="Download" href="">Download</a></td>', icon, name, size, date);
 
     }
-    AddDir(name, path, icon, date) {
+    AddDir(name, path, date) {
+        var icon = '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABwklEQVQ4T6VTPWtUURA9Z+59b4O7GgJBoyCYRgQr+6ASVNAi/0SFgK2lva0/wkawsZU0pkglmBgFRd24fmTX1XX3vZmRe3cFYzQsZB6PW9yZM+fMmUscMjht/dbjrUZ3rnseFTAajjwH/CPX19bPlTPlDZISJBAOgWTYlGLufsxqu2bqFwQsTQ2qhnTWVr3j9tqjJ0JckSgQCRAS6TM4PCW7YSALUGkAhlyoqtBaYWYddh5crwI0hhhB2avIMw+AM018b5xAT05BvUzcYObol2e+cuf+1Z+NaI1QFKCMue8Nh5rDzTIYKJmFa422LA75/t7yt0asW0WZAAI4IZG7TxiACQD5jiFAa0M1HKHNkyO+vntpt8nBbCyKPAP85YsnCX9SihHmCh1W2OHxii/vLHWa2puPMQHIPoB9imKR5WhV4ZPM1Xy+uvShOfy8kAE4BUAIyR94XeMLZ5Ubty++af5onw4hghTw9xD+s2GecpBcUPTZUj67efnV0d7bRQlJf3Lh4OUcW512RDEIM8aNW8svWrubZ4lx9/H/7/ZpoOnSk61wKEvn09WVh/PdzRWfVE31ODxzgBZH+lPlH/TgDg3wCxuW05idQ2qnAAAAAElFTkSuQmCC"/>';
         var lastrow = this.list.insertRow(-1);
-
+        lastrow.setAttribute("data-path", path);
+        lastrow.setAttribute("data-type", "DIR");
+        lastrow.innerHTML = this.StringFormat('<td><input data-domfileslist="Select" type="checkbox" /></td><td>%s %s</td><td>-</td><td>%s</td><td><a data-domfileslist="Open" href="#">Open</a>&nbsp;<a data-domfileslist="Rename" href="#">Rename</a>&nbsp;<a data-domfileslist="Delete" href="#" >Delete</a>&nbsp;<a data-domfileslist="Properties" href="#">Properties</a>&nbsp;<a data-domfileslist="Download" href="">Download</a></td>', icon, name, date);
+    }
+    AddIconFiles(ext, path) {
+        this.iconext[ext] = path;
+    }
+    AddPreviewImage(path) {
+        this.preview = path;
     }
     Clear() {
         while (this.list.rows.length > 1) {
-            this.deleteRow(this.rows.length - 1);
+            this.list.deleteRow(this.list.rows.length - 1);
         }
+    }
+    ClearSelectList() {
+        [].forEach.call(this.list.querySelectorAll('[data-domfileslist="Select"]'), function (chk) {
+            chk.checked = false;
+        });
     }
     Multiple(bool) {
         this.multiple = bool;
@@ -46,8 +84,19 @@ class FilesList {
             this.OpenDir(v);
         }
     }
-    OpenFile() {
-
+    OpenFile(v) {
+        if (typeof v === "function") {
+            this.OpenFile = v;
+        } else if (typeof v === 'string' || v instanceof String) {
+            this.OpenFile(v);
+        }
+    }
+    Rename(v) {
+        if (typeof v === "function") {
+            this.Rename = v;
+        } else if (typeof v === 'string' || v instanceof String) {
+            this.Rename(v);
+        }
     }
     StringFormat(...args) {
         var str = args[0];
@@ -72,12 +121,7 @@ class FilesList {
  for (var i = 0; i < fs.length; i++) {
  fs[i].checked = e.target.checked;
  }
- } else if (e.target.getAttribute("class") == "FL-Open" && e.target.parentNode.parentNode.getAttribute("data-filetype") == "DIR") {
- this.ChDir(e.target.parentNode.parentNode.getAttribute("data-path"));
- this.Name = e.target.parentNode.parentNode.getAttribute("data-name");
- } else if (e.target.getAttribute("class") == "FL-Open" && e.target.parentNode.parentNode.getAttribute("data-filetype") == "FILE") {
- this.OpenFile(e.target.parentNode.parentNode.getAttribute("data-path"));
- this.Name = e.target.parentNode.parentNode.getAttribute("data-name");
+ } else if (e 
  } else if (e.target.getAttribute("class") == "FL-Rename") {
  this.RenameFile(e.target.parentNode.parentNode.getAttribute("data-path"));
  this.Name = e.target.parentNode.parentNode.getAttribute("data-name");
@@ -102,37 +146,7 @@ class FilesList {
  }
  
  }
- });
- Method.AddFile = function (name, path, icon, size, date, type) {
- 
- lastrow.setAttribute("data-filetype", type);
- lastrow.setAttribute("data-path", path);
- lastrow.setAttribute("data-name", name);
- lastrow.insertCell(-1).innerHTML = '<input  class="FL-FileSelect" type="checkbox" name=""   />';
- if (icon !== "") {
- lastrow.insertCell(-1).innerHTML = '<a class="FL-Open" href="#"><img style="max-width: 50px;max-height: 50px;" src = "' + icon + '" / >' + name + '</a>';
- } else {
- lastrow.insertCell(-1).innerHTML = '<a class="FL-Open" href="#">' + name + '</a>';
- }
- 
- lastrow.insertCell(-1).innerHTML = size;
- lastrow.insertCell(-1).innerHTML = date;
- var Manage = lastrow.insertCell(-1);
- if (this.Editable) {
- Manage.insertAdjacentHTML('beforeend', '<a class="FL-Rename" href="#">Rename</a> &nbsp;');
- Manage.insertAdjacentHTML('beforeend', '<a class="FL-Delete" href="#" >Delete</a> &nbsp;');
- }
- Manage.insertAdjacentHTML('beforeend', '<br>');
- Manage.insertAdjacentHTML('beforeend', '<a class="FL-Open" href="#">Open</a> &nbsp;');
- Manage.insertAdjacentHTML('beforeend', '<a class="FL-Download" href="' + this.DownloadURL + btoa(path) + '">Download</a> &nbsp; ');
- Manage.insertAdjacentHTML('beforeend', '<a Class="FL-Properties" href="#">Properties</a> &nbsp; ');
- };
- 
- Method.BeforeDownload = function (cb) {
- 
- };
- 
- 
+ }); 
  
  Method.ClearSelectList = function () {
  var FileSelect = this.getElementsByClassName("FL-FileSelect");
