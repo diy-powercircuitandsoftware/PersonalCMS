@@ -37,7 +37,25 @@ class Blog_Manager {
             return false;
         }
     }
-     public function DataFilter($param) {
+     public function AddBlogKeyword($blogid, $array) {
+            try {
+           
+           
+            $q = ("INSERT INTO blogcategory (blogid,categoryid) VALUES (blogid,categoryid)");
+            $stmt = $this->bd->prepare($q);
+            $stmt->bindParam(':userid', $userid, SQLITE3_INTEGER);
+            $val = array_values($Prepare);
+            for ($i = 0; $i < count($val); $i++) {
+                $stmt->bindParam($i + 2, $val[$i]);
+            }
+            $stmt->execute();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+     }
+
+    public function DataFilter($param) {
         $out = array();
         $results = $this->bd->query("PRAGMA table_info('blog')");
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
@@ -60,6 +78,10 @@ class Blog_Manager {
             }
         }
         return $out;
+    }
+
+    public function LastInsertID() {
+        return $this->bd->lastInsertRowID();
     }
 
 }

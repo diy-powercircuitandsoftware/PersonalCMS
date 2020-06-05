@@ -17,8 +17,11 @@ if ($config->IsOnline() &&
         $session->Registered(session_id()) &&
         $userdata->CanWritable($_SESSION["User"]["id"])
 ) {
-
-    echo  ( $blog->AddBlog($_SESSION["User"]["id"], $_POST));
+    $kw = $_POST["keyword"];
+    unset($_POST["keyword"]);
+    if ($blog->AddBlog($_SESSION["User"]["id"], $_POST)) {
+        echo $blog->LastInsertID();
+    }
 }
  
  

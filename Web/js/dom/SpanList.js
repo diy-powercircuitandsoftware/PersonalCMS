@@ -80,9 +80,7 @@ class SpanList {
     Input(v) {
         if (typeof v === "function") {
             this.Input = v;
-        } else if (typeof v === 'string' || v instanceof String) {
-            this.Input(v);
-        }
+        }  
     }
     RemoveList() {
         var list = this.list.querySelector('[data-domspanlist="List"]');

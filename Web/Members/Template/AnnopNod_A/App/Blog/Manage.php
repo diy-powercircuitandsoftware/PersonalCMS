@@ -50,9 +50,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var ajax = new Ajax();
                     var sd = new SuperDialog();
                     var tabletool = new TableTools();
-
                     var EKeyword = new SpanList("#EKeyword");
                     var FL = new FilesList("#FilesList");
+                    var asb=new ajax.AjaxScrollBar();
                     FL.Multiple(false);
                     tabletool.Import(document.getElementById("TableOutput"));
 
@@ -71,22 +71,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
                     });
 
-
-
-
                     EKeyword.Input(function (v) {
-
                         var ref = this;
                         ajax.Post("../../../../Api/Ajax/Category/SearchKeyword.php", {"Keyword": v}, function (data) {
                             ref.RemoveList();
                             data = JSON.parse(data);
                             for (var i = 0; i < data.length; i++) {
                                 ref.AddList(data[i]["id"], data[i]["name"]);
-
                             }
                         });
                     });
-
 
                     tabletool.AddEventListener("click", function (e) {
                         if (e.target.getAttribute("class") == "SelectID") {
@@ -139,7 +133,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         }
                     });
-                    ;
+                  
                     /*       var wsl = ss.WindowScrollLoad();
                      wsl.URL = "../../../Api/Ajax/BlogManager/GetBlogList.php";
                      wsl.Param["StartID"] = 0;
@@ -168,21 +162,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         EKeyword.Empty();
                         FL.OpenDir("/");
                         sd.ImportOkCancel("Add", "#Dialog", function () {
-
+                            
                             var senddata = ss.S(".AjaxSendEdit").ValByName();
-                            // senddata["filepath"] = FL.GetSelectFiles(0);
+                               senddata["htmlfilepath"] = FL.GetSelectFiles(0);
                             senddata["keyword"] = EKeyword.GetItems();
 
                             ajax.Post("../../../../Api/Ajax/Blog/AddBlog.php", senddata, function (d) {
                                 tabletool.DeleteRowAfter(0);
-                                wsl.Param["StartID"] = 0;
-                                wsl.Lock = false;
-                                wsl.LoadData();
-
-                                FL.ChDir("/");
-
+                                 
                             });
-                        }).ZIndex(999).Title("Add");
+                        }).ZIndex(999);
 
                     });
                     ss.S("#BNRemove").Click(function () {

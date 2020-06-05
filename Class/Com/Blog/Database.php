@@ -39,7 +39,7 @@ class Blog_Database extends SQLite3 {
     enable   BOOLEAN);');
         $install[1] = ('
     CREATE TABLE IF NOT EXISTS blogcategory (
-    id  INTEGER  NOT NULL PRIMARY KEY,
+    id  INTEGER  NOT NULL PRIMARY KEY AUTOINCREMENT,
     blogid     INTEGER NOT NULL,
     categoryid INTEGER,
     keywordid  INTEGER,
