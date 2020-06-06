@@ -37,10 +37,10 @@ class Blog_Manager {
             return false;
         }
     }
-     public function AddBlogKeyword($blogid, $array) {
-            try {
-           
-           
+
+    public function AddBlogKeyword($blogid, $array) {
+        try {
+
             $q = ("INSERT INTO blogcategory (blogid,categoryid) VALUES (blogid,categoryid)");
             $stmt = $this->bd->prepare($q);
             $stmt->bindParam(':userid', $userid, SQLITE3_INTEGER);
@@ -53,7 +53,19 @@ class Blog_Manager {
         } catch (Exception $e) {
             return false;
         }
-     }
+    }
+
+    public function GetBlogList($userid, $startid) {
+        $data = array();
+        $stmt = $this->bd->prepare('SELECT * FROM blog WHERE userid=:userid AND id>:startid  LIMIT 30; ');
+         $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
+           $stmt->bindValue(':startid', $startid, SQLITE3_INTEGER);
+        $results = $stmt->execute();
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+        return $data;
+    }
 
     public function DataFilter($param) {
         $out = array();

@@ -52,10 +52,28 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var tabletool = new TableTools();
                     var EKeyword = new SpanList("#EKeyword");
                     var FL = new FilesList("#FilesList");
-                    var asb=new ajax.AjaxScrollBar();
+                    var ajaxsb = new   AjaxScrollBar("../../../../Api/Ajax/Blog/GetBlogListForEdit.php", {"id": 0});
                     FL.Multiple(false);
+                    var lastid = 0;
                     tabletool.Import(document.getElementById("TableOutput"));
-
+                    ajaxsb.AddScrollEvent(function (data) {
+                        try {
+                            data = JSON.parse(data);
+                            for (var i in data) {
+                                tabletool.InsertRow();
+                                tabletool.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="UserSelect" value="' + data[i]["id"] + '" /></div>');
+                                tabletool.InsertCellLastRow(data[i]["title"]);
+                                tabletool.InsertCellLastRow(data[i]["categoryname"]);
+                                tabletool.InsertCellLastRow(data[i]["htmlfilepath"]);
+                                
+                                tabletool.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
+                                lastid = Math.max(lastid, data[i]["id"]);
+                            }
+                            ajaxsb.Param("id", lastid);
+                        } catch (e) {
+                            sd.Alert(data);
+                        }
+                    });
                     FL.OpenDir(function (v) {
                         ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v, "Ext": ["html", "htm"]}, function (data) {
                             FL.Clear();
@@ -133,7 +151,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         }
                     });
-                  
+
                     /*       var wsl = ss.WindowScrollLoad();
                      wsl.URL = "../../../Api/Ajax/BlogManager/GetBlogList.php";
                      wsl.Param["StartID"] = 0;
@@ -162,14 +180,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         EKeyword.Empty();
                         FL.OpenDir("/");
                         sd.ImportOkCancel("Add", "#Dialog", function () {
-                            
+
                             var senddata = ss.S(".AjaxSendEdit").ValByName();
-                               senddata["htmlfilepath"] = FL.GetSelectFiles(0);
+                            senddata["htmlfilepath"] = FL.GetSelectFiles(0);
                             senddata["keyword"] = EKeyword.GetItems();
 
                             ajax.Post("../../../../Api/Ajax/Blog/AddBlog.php", senddata, function (d) {
                                 tabletool.DeleteRowAfter(0);
-                                 
+
                             });
                         }).ZIndex(999);
 

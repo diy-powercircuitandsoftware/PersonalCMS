@@ -21,7 +21,6 @@ class Blog_Database extends SQLite3 {
         if (!is_dir($path)) {
             mkdir($path);
         }
-
         $this->open($path . "Blog.db");
     }
 
