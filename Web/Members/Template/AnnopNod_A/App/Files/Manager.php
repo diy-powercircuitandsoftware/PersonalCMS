@@ -1,48 +1,49 @@
 <?php
 session_start();
-include_once '../../../../../Class/DB/Config/DB/Config.php';
-include_once '../../../../../Class/DB/Config/DB/Software.php';
-include_once '../../../../../Class/DB/Com/User/SessionManager.php';
-include_once '../../../../../Class/DB/Com/User/Profile.php';
-include_once '../../../../../Class/DB/Com/Events/Viewer.php';
-include_once '../../../../../Class/DB/Com/User/LoadModule.php';
-include_once '../../../../../Class/DB/Com/Module/LoadModule.php';
-include_once '../../../../../Class/DB/Com/User/Permission.php';
-$DBConfig = new Config_DB_Config();
-$SC = new Config_DB_Software($DBConfig);
-$Sess = new Com_User_SessionManager($DBConfig);
-$User = new Com_User_Profile($DBConfig);
-$Event = new Com_Events_Viewer($DBConfig);
-$Module = new Com_Module_LoadModule($DBConfig);
-$UModule = new Com_User_LoadModule($DBConfig);
-$Permission = new Com_User_Permission($DBConfig);
-$DBConfig->Open();
-if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id())) {
+include_once '../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../Class/Core/UI/NAV.php';
+include_once '../../../../../../Class/Core/Module/Database.php';
+include_once '../../../../../../Class/Com/Event/Database.php';
+include_once '../../../../../../Class/Com/Event/Reader.php';
+include_once '../../../../../../Class/Com/Blog/Database.php';
+include_once '../../../../../../Class/SDK/Module/Basic.php';
+include_once '../../../../Auth/Action/VerifySession.php';
+
+$config = new Config();
+$uinav = new UINAV();
+$module = new Module_Database($config);
+$event = new Event_Reader(new Event_Database($config));
+
+if ($config->IsOnline() && isset($_SESSION["User"])) {
+    $modlist = array();
+    foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
+        include_once $module->ModulePath . $value["dirname"] . "/init.php";
+        $cn = new $value["classname"]();
+        $cn->SetUserID($_SESSION["User"]["id"]);
+        $modlist[] = $cn;
+    }
     ?>
     <!DOCTYPE html>
     <html>
         <head>
             <meta charset="UTF-8">
-            <title><?php echo $SC->GetName(); ?></title>
+            <title><?php echo basename(__FILE__, ".php"); ?></title>
             <link rel="stylesheet" href="../css/Page.css">
             <?php
-            foreach ($UModule->LoadModule($_SESSION["UserID"], Com_User_LoadModule::Layout_Head) as $value) {
-                try {
-                    include_once '../../../../../Class/DB/UserModule/' . $value["filename"];
-                    $mod = new $value["classname"]($UModule);
-                    $mod->LoadConfig($value["config"]);
-                    echo $mod->Execute();
-                } catch (Exception $ex) {
-                    
-                }
+            foreach ($modlist as $value) {
+                echo $value->Execute(Module_SDK_Basic::Layout_Head);
             }
             ?>
-            <script src="../../../../js/dom/SSQueryFW.js"></script>
+             <script src="../../../../../js/io/Ajax.js"></script>
+            <script src="../../../../../js/dom/SSQueryFW.js"></script>
+            <script src="../../../../../js/dom/SuperDialog.js"></script>          
+            <script src="../../../../../js/dom/TableTools.js"></script>
+            <script src="../../../../../js/dom//FilesList.js"></script>
+             
             <script src="../../../../js/io/FilesUpload.js"></script>
-            <script src="../../../../js/dom/SuperDialog.js"></script>
+            
             <script src="../../../../js/image/TakePhoto.js"></script>
-            <script src="../../../../js/file/FilesList.js"></script>
-            <script src="../../../../js/dom/TableTools.js"></script>
+           
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
@@ -62,19 +63,19 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     TBShareFile.InsertHead("File Path");
                     TBShareFile.InsertHead("Edit");
                     ss.S(bnupload).Change(function () {
-                         fileupload.Upload(this.files);
+                        fileupload.Upload(this.files);
                     });
-                     
-                    fileupload.GetCurrentFileName=function (name) {
+
+                    fileupload.GetCurrentFileName = function (name) {
                         ss.S("#UpLoadFName").Html(name);
                     };
-                    fileupload.Complete=function () {
+                    fileupload.Complete = function () {
                         fl.ChDir(fl.currentdir);
                         window.onbeforeunload = null;
                         dialog.Alert("Upload Complete").ZIndex(999);
                         ss.S("#BNCancelUpload").Hide();
                     };
-                    fileupload.Error=function (message) {
+                    fileupload.Error = function (message) {
                         window.onbeforeunload = null;
                         dialog.Alert(message).ZIndex(999);
                         ss.S("#PGByte").Val(0);
@@ -82,16 +83,16 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                         ss.S("#PGFOA").Val(0);
                         ss.S("#BNCancelUpload").Hide();
                     };
-                    fileupload.ByteTransferProgress=function (v) {
+                    fileupload.ByteTransferProgress = function (v) {
                         ss.S("#PGByte").Val((v * 100));
                     };
-                    fileupload.UploadProgress=function (v) {
-                       ss.S("#PGFile").Val((v * 100));
+                    fileupload.UploadProgress = function (v) {
+                        ss.S("#PGFile").Val((v * 100));
                     };
-                    fileupload.OverallProgress=function (v) {
+                    fileupload.OverallProgress = function (v) {
                         ss.S("#PGFOA").Val((v * 100));
                     };
-                    fileupload.BeforeUpload=function () {
+                    fileupload.BeforeUpload = function () {
                         window.onbeforeunload = function () {
                             return "File Uploading...";
                         };
@@ -145,7 +146,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                         } else if (["jpg", "gif", "png", "jpeg"].indexOf(ext.toLowerCase()) >= 0) {
                             dialog.ImageViewer("../../../Api/Action/Files/DownloadFile.php?id=" + btoa(v)).ZIndex(999);
                         } else if (ext.toLowerCase() == "pdf") {
-                            window.open('../../../Api/Action/Files/DownloadFile.php?id=' + btoa(v)+"&option=opendisable206", '_blank', 'fullscreen=yes');
+                            window.open('../../../Api/Action/Files/DownloadFile.php?id=' + btoa(v) + "&option=opendisable206", '_blank', 'fullscreen=yes');
                         }
                     };
                     fl.PropertiesFile = function (v) {
@@ -335,104 +336,38 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
             </script>
         </head>
         <body>
-
-            <div id="Header"  >
-                <div style="width: 50%;">
-                    <a href="../index.php">
-                        <img  src="../../../../../File/Resource/Logo.png"/>
-                    </a>
-                </div>
-                <div  style="width: 50%;text-align: right;">
-                    <a href="../index.php">MainPage</a>
+            <header id="mainheader">
+                <div style="width: 50%;"></div>
+                <div style="width: 50%;text-align: right;">
                     <?php
-                    $UserData = $User->GetBasicUserData($_SESSION["UserID"]);
-                    printf('<img  src="../../../Api/Action/Profile/GetUserIcon.php?id=%s" />', $UserData["userid"]);
-                    echo '<span>' . $UserData["alias"] . '</span>';
-                    ?>
-                    <a href="../Config/Config.php">Config</a>
-                    <a href="../../../Session/Action/Logout.php">Logout</a>
+                    printf('<img src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
+                    printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
+                    ?>       
+                    <a style="font-weight: bold;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
-            </div>
-            <div class="Container">
-                <div class="Nav" >
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Audio</span>
-                        <ul>
-                            <li><a href="../Audio/Player.php">Player</a></li>
-                            <li><a href="../Audio/PlayList.php">PlayList</a></li>
-
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Blog</span>
-                        <ul>
-                            <li><a href="../Blog/Manage.php">Manage</a></li>
-                            <li><a href="../Blog/View.php">View</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Event</span>
-                        <ul>
-                            <li><a href="../Event/Manage.php">Manage</a></li>
-                            <li><a href="../Event/View.php">View</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Files</span>
-                        <ul>
-                            <li><span style="font-weight: bold;">Manager</span></li>
-                            <li><a href="Temp.php">Temp</a></li>
-                            <li><a href="Trash.php">Trash</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Office</span>
-                        <ul>
-                            <li><a href="../Office/FinFin/MainPage.php">FinFin</a></li>
-                            <li><a href="../Office/FlowFlow/MainPage.php">FlowFlow</a></li>
-                            <li><a href="../Office/Image/MainPage.php">Image</a></li>
-                            <li><a href="../Office/PointPoint/MainPage.php">PointPoint</a></li>
-                            <li><a href="../Office/Statistics/MainPage.php">Statistics</a></li>
-                            <li><a href="../Office/WordWord/MainPage.php">WordWord</a></li>
-                            <li><a href="../Office/WYSIWYG/NewDoc.php">WYSIWYG</a></li>
-                            <li><a href="../Office/XCell/MainPage.php">XCell</a></li>
-                            <li><a href="../Office/XCess/MainPage.php">XCess</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Photo</span>
-                        <ul>
-                            <li><a href="../Photo/ImageSlider.php">ImageSlider</a></li>
-                            <li><a href="../Photo/PlayList.php">PlayList</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Share</span>
-                        <ul>
-                            <li><a href="../Share/BlogViewer.php">Blog</a></li>
-                            <li><a href="../Share/EventViewer.php">Event</a></li>
-                        </ul>
-                    </div>
+            </header>
+            <div class="LMR157015">
+                <div>
                     <?php
-                    $Dat = array_merge($Module->LoadModule(Com_Module_LoadModule::Layout_Nav, Config_DB_Config::Access_Mode_Members), $Module->LoadModule(Com_Module_LoadModule::Layout_Nav, Config_DB_Config::Access_Mode_Public));
-                    foreach ($Dat as $value) {
-                        try {
-                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                            include_once '../../../../../Class/DB/Module/' . $value["filename"];
-                            $mod = new $value["classname"]($Module);
-                            printf('<label class="Title">%s</label>', $mod->GetTitle());
-                            $mod->SetModuleID($value["id"]);
-                            $mod->SetModulePage("../Module/Page.php");
-                            $mod->SetUserID($_SESSION["UserID"]);
-                            echo $mod->Execute();
+                    foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+                            printf('  <a class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
+                        }
+                        echo '</div>';
+                    }
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
                             echo '</div>';
-                        } catch (Exception $ex) {
-                            
                         }
                     }
-                    ?>
+                    ?>  
                 </div>
-                <div id="FileSection" class="Section" >
+                <div>
                     <div style="display: flex;flex-direction: row;margin-top: 7px;">
                         <div style="width: 100%; box-sizing: border-box;">
                             <input id="TXTSearch" placeholder="Search" style="width: 100%;box-sizing: border-box;" type="text" name="" value="" />
@@ -442,149 +377,80 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     <div style="width: 100%;box-sizing: border-box;" id="FileRS">
                     </div>
                 </div>
-                <div class="Aside" >
-
+                <div>
                     <div class="BorderBlock" >
-                        <ul>
-                            <li class="Title">Action</li>
-                            <li> <a id="BNRefresh" href="#">Refresh</a></li>
-                            <li class="Title">Folder</li>
-                            <li> <a id="BNHome" href="#">Home</a></li>
-                            <?php
-                            if ($Permission->Writable($_SESSION["UserID"])) {
-                                ?>
-                                <li class="Title">New</li>
-                                <li> <a id="BNNewFolder"href="#">Folder</a></li>
-                                <li> <a id="BNNewPhoto" href="#">Photo</a></li>
-                                <li class="Title">Manager</li>
-                                <li> <a href="#" id="BNCutPaste">Cut</a></li>
-                                <li> <a href="#" id="BNCopyPaste">Copy</a></li>
-                                <li> <a id="BNDelete" href="#">Delete</a></li>
-                                <li class="Title">Share</li>
-                                <li> <a id="BNAddShare" href="#">Add</a></li>
-                                <li> <a id="BNShareManager" href="#">Manager</a></li>
-                                <li class="Title">Upload</li>
-                                <li style="text-align: center;overflow: hidden;">
-                                    <input id="BNUpload"   type="file" multiple="multiple"   value="Upload" />
-                                    <span  style="text-align: left;display: block;font-weight: bold;word-wrap: break-word;">Filename:
-                                        <span id="UpLoadFName" style="font-weight: normal;"></span>
-                                    </span>
-                                    <span style="font-weight: bold;display: block;">ChunkSize:</span>
-                                    <progress id="PGByte" style="display: block;width: 98%;" min =0 max="100" value="0"></progress>
-                                    <span style="font-weight: bold;display: block;">File:</span>
-                                    <progress id="PGFile" style="display: block;width: 98%;"min =0 max="100" value="0"></progress>
-                                    <span style="font-weight: bold;display: block;">OverAll:</span>
-                                    <progress id="PGFOA" style="display: block;width: 98%;"min =0 max="100" value="0"></progress>
-                                    <input id="BNCancelUpload" type="button" style="display: none;width: 100%;" value="Cancel" />
-                                </li>
-                                <?php
-                            }
-                            ?>
-                        </ul>
+                        <label class="TitleCenter" style="display: block;">Action</label>
+                        <a id="BNRefresh" href="#">Refresh</a>
+
+                        <label class="TitleCenter" style="display: block;">Folder</label>
+                        <a id="BNHome" href="#">Home</a>
                     </div>
-                    <div class="BorderBlock">
-                        <label class="Title">My Event</label>
+                    <?php
+                    if ($_SESSION["User"]["writable"] == 1) {
+                        ?>
+                        <div class="BorderBlock" >
+                            <label class="TitleCenter" style="display: block;">New</label>
+                            <a  style="display: block;" id="BNNewFolder"href="#">Folder</a>
+                            <a  style="display: block;" id="BNNewPhoto" href="#">Photo</a>
+                        </div>
+                        <div class="BorderBlock" >
+                            <label class="TitleCenter" style="display: block;">Manager</label>
+                            <a style="display: block;" href="#" id="BNCutPaste">Cut</a>
+                            <a style="display: block;" href="#" id="BNCopyPaste">Copy</a>
+                            <a style="display: block;" id="BNDelete" href="#">Delete</a>
+                        </div>
+                        <div class="BorderBlock" >
+                            <label class="TitleCenter" style="display: block;">Share</label>
+                            <a style="display: block;"  id="BNAddShare" href="#">Add</a>
+                            <a  style="display: block;" id="BNShareManager" href="#">Manager</a>
+                        </div>
+                        <div class="BorderBlock" >
+                            <label class="TitleCenter" style="display: block;">Upload</label>
+                            <input id="BNUpload"   type="file" multiple="multiple"   value="Upload" />
+                            <span  style="text-align: left;display: block;font-weight: bold;word-wrap: break-word;">Filename:
+                                <span id="UpLoadFName" style="font-weight: normal;"></span>
+                            </span>
+                            <span style="font-weight: bold;display: block;">ChunkSize:</span>
+                            <progress id="PGByte" style="display: block;width: 98%;" min =0 max="100" value="0"></progress>
+                            <span style="font-weight: bold;display: block;">File:</span>
+                            <progress id="PGFile" style="display: block;width: 98%;"min =0 max="100" value="0"></progress>
+                            <span style="font-weight: bold;display: block;">OverAll:</span>
+                            <progress id="PGFOA" style="display: block;width: 98%;"min =0 max="100" value="0"></progress>
+                            <input id="BNCancelUpload" type="button" style="display: none;width: 100%;" value="Cancel" />
+                        </div>
                         <?php
-                        foreach ($Event->GetCurrentMyEvent($_SESSION["UserID"]) as $value) {
-                            echo '<div  >';
+                    }
+                    ?>
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Event</div>
+                        <?php
+                        foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
+                            echo '<div>';
                             printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
                             printf('<div style="color: black;" >%s</div></a>', $value["description"]);
                             echo '</div><hr>';
                         }
                         ?>
                     </div>
-                    <div class="BorderBlock">
-                        <label class="Title">Other Event</label>
-                        <?php
-                        $Dat = array_merge($Event->GetCurrentEventNotUserID(Config_DB_Config::Access_Mode_Members, $_SESSION["UserID"]), $Event->GetCurrentEventNotUserID(Config_DB_Config::Access_Mode_Public, $_SESSION["UserID"]));
-                        foreach ($Dat as $value) {
-                            echo '<div  >';
-                            printf('<a href="../Share/EventViewer.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                            echo '</div><hr>';
-                        }
-                        ?>
-                    </div>
                     <?php
-                    $Dat = array_merge($Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Members), $Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Public));
-                    foreach ($Dat as $value) {
-                        try {
-                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                            include_once '../../../../../Class/DB/Module/' . $value["filename"];
-                            $mod = new $value["classname"]($Module);
-                            printf('<label class="Title">%s</label>', $mod->GetTitle());
-                            $mod->SetModuleID($value["id"]);
-                            $mod->SetModulePage("../Module/Page.php");
-                            $mod->SetUserID($_SESSION["UserID"]);
-                            echo $mod->Execute();
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Aside);
                             echo '</div>';
-                        } catch (Exception $ex) {
-                            
                         }
                     }
                     ?>
-
                 </div>
             </div>
-            <div id="AddShareDialog" style="display: none;">
-                <table style="width: 98%;">
-                    <tr>
-                        <td>Access Mode:</td>
-                        <td>
-                            <select id="OPTAddAccessMode" style="width: 100%;">
-                                <?php
-                                foreach ($DBConfig->GetAccessMode() as $value) {
-                                    printf('<option value="%s">%s</option>', $value["value"], $value["name"]);
-                                }
-                                ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>UserName:</td>
-                        <td>
-                            <input type="text" style="width: 100%;" id="TXTAddUserShare" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Password:</td>
-                        <td>
-                            <input type="password" style="width: 100%;" id="TXTAddPWShare" />
-                        </td>
-                    </tr>
 
-                </table>
-            </div>
-            <div id="ShareManagerDialog" style="display: none;">
-                <table style="width: 98%;">
-                    <tr>
-                        <td>Access Mode:</td>
-                        <td>
-                            <select id="OPTMAccessMode" style="width: 100%;">
-                                <?php
-                                foreach ($DBConfig->GetAccessMode() as $value) {
-                                    printf('<option value="%s">%s</option>', $value["value"], $value["name"]);
-                                }
-                                ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <div id="TBShareFile">
 
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><button id="BNDeleteAccess" style="width: 100%">Remove</button></td>
-                    </tr>
-                </table>
-            </div>
+
         </body>
     </html>
     <?php
 } else {
-     header("location: ../../../Session/AuthUserID.php");
+    header("location: ../../../Session/AuthUserID.php");
     session_destroy();
 }
