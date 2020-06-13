@@ -34,302 +34,327 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
             }
             ?>
-             <script src="../../../../../js/io/Ajax.js"></script>
+            <script src="../../../../../js/io/Ajax.js"></script>
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../js/dom/SuperDialog.js"></script>          
             <script src="../../../../../js/dom/TableTools.js"></script>
-            <script src="../../../../../js/dom//FilesList.js"></script>
-             
-            <script src="../../../../js/io/FilesUpload.js"></script>
-            
-            <script src="../../../../js/image/TakePhoto.js"></script>
-           
+            <script src="../../../../../js/dom/FilesList.js"></script>
+            <script src="../../../../../js/io/FilesUpload.js"></script>
+            <script src="../../../../../js/image/TakePhoto.js"></script>
+
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
-
-                    var fileupload = new FilesUpload();
+                    var ajax = new Ajax();
                     var dialog = new SuperDialog();
-                    var bnupload = document.getElementById("BNUpload");
-                    var TBShareFile = document.getElementById("TBShareFile").appendChild(new TableTools());
-                    var fl = document.getElementById("FileRS").appendChild(new FilesList(true));
-                    fl.DownloadURL = "../../../Api/Action/Files/DownloadFile.php?id=";
-                    fl.currentdir = "/";
-                    fileupload.URL = "../../../Api/Ajax/Files/Upload.php";
-                    TBShareFile.Border(1);
-                    TBShareFile.CSSText("width: 100%;box-sizing: border-box;");
-                    TBShareFile.InsertRow();
-                    TBShareFile.InsertHead('<input class="checkselectall" type="checkbox" />');
-                    TBShareFile.InsertHead("File Path");
-                    TBShareFile.InsertHead("Edit");
-                    ss.S(bnupload).Change(function () {
-                        fileupload.Upload(this.files);
-                    });
-
-                    fileupload.GetCurrentFileName = function (name) {
-                        ss.S("#UpLoadFName").Html(name);
-                    };
-                    fileupload.Complete = function () {
-                        fl.ChDir(fl.currentdir);
-                        window.onbeforeunload = null;
-                        dialog.Alert("Upload Complete").ZIndex(999);
-                        ss.S("#BNCancelUpload").Hide();
-                    };
-                    fileupload.Error = function (message) {
-                        window.onbeforeunload = null;
-                        dialog.Alert(message).ZIndex(999);
-                        ss.S("#PGByte").Val(0);
-                        ss.S("#PGFile").Val(0);
-                        ss.S("#PGFOA").Val(0);
-                        ss.S("#BNCancelUpload").Hide();
-                    };
-                    fileupload.ByteTransferProgress = function (v) {
-                        ss.S("#PGByte").Val((v * 100));
-                    };
-                    fileupload.UploadProgress = function (v) {
-                        ss.S("#PGFile").Val((v * 100));
-                    };
-                    fileupload.OverallProgress = function (v) {
-                        ss.S("#PGFOA").Val((v * 100));
-                    };
-                    fileupload.BeforeUpload = function () {
-                        window.onbeforeunload = function () {
-                            return "File Uploading...";
-                        };
-                        ss.S("#BNCancelUpload").Show();
-                    };
-                    ss.S("#BNCancelUpload").Click(function () {
-                        fileupload.Abort();
-                    });
-
-                    fl.ChDir = function (v) {
-                        ss.Post("../../../Api/Ajax/Files/GetFiles.php", {"Location": v}, function (data) {
-                            fl.currentdir = v;
-                            fl.ClearFileList();
-                            fileupload.PostJson = {"Location": v};
+                    var FL = new FilesList(document.getElementById("FileRS"));
+                    var tablesharefile = new TableTools(document.getElementById("TBShareFile"));
+                    var fileupload = new FilesUpload({
+                        "url": "../../../../Api/Action/Files/Upload.php"
+                    }, {});
+                    FL.SetPreviewImage("../../../../Api/Action/Files/ImagePreview.php?id=");
+                    FL.OpenDir(function (v) {
+                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v}, function (data) {
+                            FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
-                                var ext = (data[i]["ext"]).toLowerCase();
-                                if (["jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
-                                    fl.AddFile(data[i]["name"], data[i]["fullpath"], "../../../Api/Action/Files/ImagePreview.php?id=" + data[i]["fullpath"], data[i]["size"], data[i]["modified"], data[i]["type"]);
-                                } else {
-                                    fl.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"], data[i]["type"]);
+                                if (data[i]["type"] == "DIR") {
+                                    FL.AddDir(data[i]["name"], data[i]["fullpath"], data[i]["modified"]);
+                                } else if (data[i]["type"] == "FILE") {
+                                    FL.AddFile(data[i]["name"], data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
                                 }
-
                             }
                             ss.S("#CHDIRList").Html(decodeURIComponent(v));
                         });
-                    };
-                    fl.ChDir(fl.currentdir);
-
-                    fl.Delete = function (v) {
-                        dialog.Confirm("Delete This File????", function (name) {
-                            ss.Post("../../../Api/Ajax/Files/MoveToTrash.php", {"Files": v}, function (data) {
-                                fl.ChDir(fl.currentdir);
-                            });
-                        }).ZIndex(999);
-                    };
-
-                    fl.OpenFile = function (v) {
-
-                        var ext = v.split('.').pop();
-                        if (["mp4", "webm", "ogg"].indexOf(ext.toLowerCase()) >= 0) {
-                            var player = dialog.VideoPlayer("../../../Api/Action/Files/DownloadFile.php?id=" + btoa(v))
-                            player.ZIndex(999);
-                            player.Width("800px");
-                            player.Height("600px");
-                        } else if (["mp3", "wma"].indexOf(ext.toLowerCase()) >= 0) {
-                            var player = dialog.AudioPlayer("../../../Api/Action/Files/DownloadFile.php?id=" + btoa(v));
-                            player.ZIndex(999);
-                            player.Width("800px");
-
-                        } else if (["jpg", "gif", "png", "jpeg"].indexOf(ext.toLowerCase()) >= 0) {
-                            dialog.ImageViewer("../../../Api/Action/Files/DownloadFile.php?id=" + btoa(v)).ZIndex(999);
-                        } else if (ext.toLowerCase() == "pdf") {
-                            window.open('../../../Api/Action/Files/DownloadFile.php?id=' + btoa(v) + "&option=opendisable206", '_blank', 'fullscreen=yes');
-                        }
-                    };
-                    fl.PropertiesFile = function (v) {
-                        ss.Post("../../../Api/Ajax/Files/GetPropertiesFile.php", {"Path": v}, function (data) {
-                            data = JSON.parse(data);
-                            var tl = dialog.TableLayout().Title("Properties").ZIndex(999);
-                            tl.AddTableDom("Name", data["name"]);
-                            tl.AddTableDom("Size", data["size"]);
-                            tl.AddTableDom("Modified", data["modified"]);
-
-                        });
-                    };
-                    fl.RenameFile = function (v) {
-                        dialog.Prompt("Rename", function (name) {
-                            ss.Post("../../../Api/Ajax/Files/RenameFiles.php", {"Path": v, "Name": name}, function (data) {
-                                fl.ChDir(fl.currentdir);
-                            });
-                        }).ZIndex(999);
-                    };
-
-                    ss.S("#BNAddShare").Click(function () {
-                        dialog.Import("#AddShareDialog", function () {
-                            ss.Post("../../../Api/Ajax/Files/AddShareList.php", {
-                                "AuthName": ss.S("#TXTAddUserShare").Val(), "PW": ss.S("#TXTAddPWShare").Val(), "AccessMode": ss.S("#OPTAddAccessMode").Val(), "FilesList": fl.GetSelectFiles()}, function (data) {
-
-                            });
-                        }).Title("Share").ZIndex(999);
                     });
+                    FL.OpenDir("/");
+ 
+                    
+                    
+                    // if (["jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
+                     //fl.AddFile(data[i]["name"], data[i]["fullpath"],  + data[i]["fullpath"], data[i]["size"], data[i]["modified"], data[i]["type"]);
+                     //} 
 
-                    ss.S("#BNCutPaste").Click(function () {
-                        if (this.cutdata === undefined || this.cutdata == null) {
-                            if (fl.GetSelectFiles().length > 0) {
-                                this.cutdata = fl.GetSelectFiles();
-                                this.innerHTML = "Paste";
-                                ss.S("#BNCopyPaste").Hide();
-                            }
-                        } else {
-                            var ref = this;
-                            ss.Post("../../../Api/Ajax/Files/MoveFile.php", {"Files": ref.cutdata, "DESC": fl.currentdir}, function (data) {
-                                ref.innerHTML = "Cut";
-                                ref.cutdata = null;
-                                fl.ChDir(fl.currentdir);
-                                ss.S("#BNCopyPaste").Show();
-                            });
-                        }
-                    });
-                    ss.S("#BNCopyPaste").Click(function () {
-                        if (this.cutdata === undefined || this.cutdata == null) {
-                            if (fl.GetSelectFiles().length > 0) {
-                                this.cutdata = fl.GetSelectFiles();
-                                this.innerHTML = "Paste";
-                                ss.S("#BNCutPaste").Hide();
-                            }
-                        } else {
-                            var ref = this;
-                            var pw = dialog.PleaseWait().ZIndex(999);
-                            ss.Post("../../../Api/Ajax/Files/CopyFile.php", {"Files": ref.cutdata, "DESC": fl.currentdir}, function (data) {
-                                ref.innerHTML = "Copy";
-                                ref.cutdata = null;
-                                fl.ChDir(fl.currentdir);
-                                ss.S("#BNCutPaste").Show();
-                                pw.Close();
-                            });
-                        }
-                    });
-                    ss.S("#BNDelete").Click(function () {
-                        if (fl.GetSelectFiles().length > 0) {
-                            dialog.Confirm("Delete It????", function (name) {
-                                var s = fl.GetSelectFiles();
-                                ss.Post("../../../Api/Ajax/Files/MoveToTrash.php", {"Files": s}, function (data) {
-                                    fl.ChDir(fl.currentdir);
-                                });
-                            }).ZIndex(999);
-                        }
-                    });
-                    ss.S("#BNDeleteAccess").Click(function () {
-
-                        dialog.Confirm("Delete It????", function (name) {
-                            var v = ss.S(".checkaccessfileid").Val();
-                            ss.Post("../../../Api/Ajax/Files/DelShareList.php", {"IDList": v}, function (data) {
-                                ss.S("#OPTMAccessMode").Change();
-                            });
-                        }).ZIndex(1000);
-
-                    });
-
-                    ss.S("#BNHome").Click(function () {
-                        fl.currentdir = "/";
-                        fl.ChDir(fl.currentdir);
-                    });
-
-                    ss.S("#BNNewFolder").Click(function (e) {
-                        dialog.Prompt("MKDIR", function (v) {
-                            ss.Post("../../../Api/Ajax/Files/MkDir.php", {"Name": v, "Path": fl.currentdir}, function (data) {
-                                fl.ChDir(fl.currentdir);
-                            });
-                        }).ZIndex(999);
-                    });
-                    ss.S("#BNNewPhoto").Click(function () {
-                        var takephoto = new TakePhoto();
-                        var cust = dialog.Custom();
-                        cust.AddDOM(takephoto);
-                        cust.OpenDialog();
-                        cust.ZIndex(999);
-                        cust.Title("Take Pictures");
-                        takephoto.Open();
-                        cust.AddButton("1", "Take Pictures");
-                        cust.BeforeClose(function () {
-                            takephoto.Close();
-                        });
-                        cust.CallbackResult = (function (rs) {
-                            if (rs == "1") {
-                                takephoto.TakePhoto();
-                                takephoto.SaveToFile(function (f) {
-                                    var ajax = ss.Ajax();
-                                    var fd = new FormData();
-                                    fd.append("Location", fl.currentdir);
-                                    fd.append("Upload", f, f.name);
-                                    ajax.Post("../../../Api/Ajax/Files/UploadOneByte.php", fd);
-                                    ajax.ReadyStateChange().Success(function () {
-                                        takephoto.ReSet();
-                                        fl.ChDir(fl.currentdir);
-                                    });
-
-                                });
-                            }
-                        });
-                    });
-                    ss.S("#BNRefresh").Click(function () {
-                        fl.ChDir(fl.currentdir);
-                    });
-                    ss.S("#BNShareManager").Click(function () {
-                        ss.S("#OPTMAccessMode").Change();
-                        dialog.Import("#ShareManagerDialog").Title("Share").ZIndex(999);
-                    });
-                    ss.S("#OPTMAccessMode").Change(function () {
-                        ss.Post("../../../Api/Ajax/Files/GetShareList.php", {"AccessMode": this.value}, function (data) {
-                            data = JSON.parse(data);
-                            TBShareFile.DeleteRowAfter(0);
-                            for (var i = 0; i < data.length; i++) {
-                                TBShareFile.InsertRow();
-                                TBShareFile.InsertCellLastRow('<input class="checkaccessfileid" type="checkbox" name="" value="' + data[i]["id"] + '" />');
-                                TBShareFile.InsertCellLastRow(data[i]["fullpath"]);
-                                TBShareFile.InsertCellLastRow('<button class="editaccesslist" data-id="' + data[i]["id"] + '" style="width:100%;box-sizing: border-box;">Edit</button>');
-                            }
-                        });
-                    });
-                    ss.S("#TBShareFile").Click(function (e) {
-                        if (e.target.getAttribute("class") == "checkselectall") {
-                            var chk = this.getElementsByClassName("checkaccessfileid");
-                            for (var i = 0; i < chk.length; i++) {
-                                chk[i].checked = e.target.checked;
-                            }
-                        } else if (e.target.getAttribute("class") == "editaccesslist") {
-                            var t = dialog.TableLayout(function () {
-                                ss.Post("../../../Api/Ajax/Files/UpdateShareList.php", {"ID": t.fileid, "AccessMode": t.Access.value, "AuthName": t.UserName.value, "PW": t.Password.value}, function (data) {
-                                    ss.S("#OPTMAccessMode").Change();
-                                    t.Close();
-                                });
-
-                            }).ZIndex(1000).Title("Edit");
-                            t.Access = t.AddTableDom('Access:', '<select style="width: 100%;"><option value="0">None</option><option value="1">Public</option><option value="2">Member</option></select>');
-                            t.UserName = t.AddTableDom('UserName:', '<input type="text" style="width: 100%;" />');
-                            t.Password = t.AddTableDom('Password:', '<input type="password" style="width: 100%;" />');
-                            t.fileid = e.target.getAttribute("data-id");
-                        }
-                    });
-
-                    ss.S("#TXTSearch").Input(function () {
-                        ss.Post("../../../Api/Ajax/Files/SearchFileName.php", {"Location": fl.currentdir, "Name": this.value}, function (data) {
-                            fl.ClearFileList();
-                            data = JSON.parse(data);
-                            for (var i in data) {
-                                var ext = data[i]["ext"];
-                                if (["jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
-                                    fl.AddFile(data[i]["name"], data[i]["fullpath"], "../../../Api/Action/Files/ImagePreview.php?id=" + data[i]["fullpath"], data[i]["size"], data[i]["modified"], data[i]["type"]);
-                                } else {
-                                    fl.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"], data[i]["type"]);
-                                }
-                            }
-                            ss.S("#CHDIRList").Html("Search");
-                        });
-                    });
+                    /*  
+                     
+                     var bnupload = document.getElementById("BNUpload");
+                     var TBShareFile = document.getElementById("").appendChild(new TableTools());
+                     var  =.appendChild(new FilesList(true));
+                     fl.DownloadURL = "../../../Api/Action/Files/DownloadFile.php?id=";
+                     fl.currentdir = "/";
+                     fileupload.URL = "../../../Api/Ajax/Files/Upload.php";
+                     TBShareFile.Border(1);
+                     TBShareFile.CSSText("width: 100%;box-sizing: border-box;");
+                     TBShareFile.InsertRow();
+                     TBShareFile.InsertHead('<input class="checkselectall" type="checkbox" />');
+                     TBShareFile.InsertHead("File Path");
+                     TBShareFile.InsertHead("Edit");
+                     ss.S(bnupload).Change(function () {
+                     fileupload.Upload(this.files);
+                     });
+                     
+                     fileupload.GetCurrentFileName = function (name) {
+                     ss.S("#UpLoadFName").Html(name);
+                     };
+                     fileupload.Complete = function () {
+                     fl.ChDir(fl.currentdir);
+                     window.onbeforeunload = null;
+                     dialog.Alert("Upload Complete").ZIndex(999);
+                     ss.S("#BNCancelUpload").Hide();
+                     };
+                     fileupload.Error = function (message) {
+                     window.onbeforeunload = null;
+                     dialog.Alert(message).ZIndex(999);
+                     ss.S("#PGByte").Val(0);
+                     ss.S("#PGFile").Val(0);
+                     ss.S("#PGFOA").Val(0);
+                     ss.S("#BNCancelUpload").Hide();
+                     };
+                     fileupload.ByteTransferProgress = function (v) {
+                     ss.S("#PGByte").Val((v * 100));
+                     };
+                     fileupload.UploadProgress = function (v) {
+                     ss.S("#PGFile").Val((v * 100));
+                     };
+                     fileupload.OverallProgress = function (v) {
+                     ss.S("#PGFOA").Val((v * 100));
+                     };
+                     fileupload.BeforeUpload = function () {
+                     window.onbeforeunload = function () {
+                     return "File Uploading...";
+                     };
+                     ss.S("#BNCancelUpload").Show();
+                     };
+                     ss.S("#BNCancelUpload").Click(function () {
+                     fileupload.Abort();
+                     });
+                     
+                     fl.ChDir = function (v) {
+                     ss.Post("../../../Api/Ajax/Files/GetFiles.php", {"Location": v}, function (data) {
+                     fl.currentdir = v;
+                     fl.ClearFileList();
+                     fileupload.PostJson = {"Location": v};
+                     data = JSON.parse(data);
+                     for (var i in data) {
+                     var ext = (data[i]["ext"]).toLowerCase();
+                   else {
+                     fl.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"], data[i]["type"]);
+                     }
+                     
+                     }
+                     ss.S("#CHDIRList").Html(decodeURIComponent(v));
+                     });
+                     };
+                     fl.ChDir(fl.currentdir);
+                     
+                     fl.Delete = function (v) {
+                     dialog.Confirm("Delete This File????", function (name) {
+                     ss.Post("../../../Api/Ajax/Files/MoveToTrash.php", {"Files": v}, function (data) {
+                     fl.ChDir(fl.currentdir);
+                     });
+                     }).ZIndex(999);
+                     };
+                     
+                     fl.OpenFile = function (v) {
+                     
+                     var ext = v.split('.').pop();
+                     if (["mp4", "webm", "ogg"].indexOf(ext.toLowerCase()) >= 0) {
+                     var player = dialog.VideoPlayer("../../../Api/Action/Files/DownloadFile.php?id=" + btoa(v))
+                     player.ZIndex(999);
+                     player.Width("800px");
+                     player.Height("600px");
+                     } else if (["mp3", "wma"].indexOf(ext.toLowerCase()) >= 0) {
+                     var player = dialog.AudioPlayer("../../../Api/Action/Files/DownloadFile.php?id=" + btoa(v));
+                     player.ZIndex(999);
+                     player.Width("800px");
+                     
+                     } else if (["jpg", "gif", "png", "jpeg"].indexOf(ext.toLowerCase()) >= 0) {
+                     dialog.ImageViewer("../../../Api/Action/Files/DownloadFile.php?id=" + btoa(v)).ZIndex(999);
+                     } else if (ext.toLowerCase() == "pdf") {
+                     window.open('../../../Api/Action/Files/DownloadFile.php?id=' + btoa(v) + "&option=opendisable206", '_blank', 'fullscreen=yes');
+                     }
+                     };
+                     fl.PropertiesFile = function (v) {
+                     ss.Post("../../../Api/Ajax/Files/GetPropertiesFile.php", {"Path": v}, function (data) {
+                     data = JSON.parse(data);
+                     var tl = dialog.TableLayout().Title("Properties").ZIndex(999);
+                     tl.AddTableDom("Name", data["name"]);
+                     tl.AddTableDom("Size", data["size"]);
+                     tl.AddTableDom("Modified", data["modified"]);
+                     
+                     });
+                     };
+                     fl.RenameFile = function (v) {
+                     dialog.Prompt("Rename", function (name) {
+                     ss.Post("../../../Api/Ajax/Files/RenameFiles.php", {"Path": v, "Name": name}, function (data) {
+                     fl.ChDir(fl.currentdir);
+                     });
+                     }).ZIndex(999);
+                     };
+                     
+                     ss.S("#BNAddShare").Click(function () {
+                     dialog.Import("#AddShareDialog", function () {
+                     ss.Post("../../../Api/Ajax/Files/AddShareList.php", {
+                     "AuthName": ss.S("#TXTAddUserShare").Val(), "PW": ss.S("#TXTAddPWShare").Val(), "AccessMode": ss.S("#OPTAddAccessMode").Val(), "FilesList": fl.GetSelectFiles()}, function (data) {
+                     
+                     });
+                     }).Title("Share").ZIndex(999);
+                     });
+                     
+                     ss.S("#BNCutPaste").Click(function () {
+                     if (this.cutdata === undefined || this.cutdata == null) {
+                     if (fl.GetSelectFiles().length > 0) {
+                     this.cutdata = fl.GetSelectFiles();
+                     this.innerHTML = "Paste";
+                     ss.S("#BNCopyPaste").Hide();
+                     }
+                     } else {
+                     var ref = this;
+                     ss.Post("../../../Api/Ajax/Files/MoveFile.php", {"Files": ref.cutdata, "DESC": fl.currentdir}, function (data) {
+                     ref.innerHTML = "Cut";
+                     ref.cutdata = null;
+                     fl.ChDir(fl.currentdir);
+                     ss.S("#BNCopyPaste").Show();
+                     });
+                     }
+                     });
+                     ss.S("#BNCopyPaste").Click(function () {
+                     if (this.cutdata === undefined || this.cutdata == null) {
+                     if (fl.GetSelectFiles().length > 0) {
+                     this.cutdata = fl.GetSelectFiles();
+                     this.innerHTML = "Paste";
+                     ss.S("#BNCutPaste").Hide();
+                     }
+                     } else {
+                     var ref = this;
+                     var pw = dialog.PleaseWait().ZIndex(999);
+                     ss.Post("../../../Api/Ajax/Files/CopyFile.php", {"Files": ref.cutdata, "DESC": fl.currentdir}, function (data) {
+                     ref.innerHTML = "Copy";
+                     ref.cutdata = null;
+                     fl.ChDir(fl.currentdir);
+                     ss.S("#BNCutPaste").Show();
+                     pw.Close();
+                     });
+                     }
+                     });
+                     ss.S("#BNDelete").Click(function () {
+                     if (fl.GetSelectFiles().length > 0) {
+                     dialog.Confirm("Delete It????", function (name) {
+                     var s = fl.GetSelectFiles();
+                     ss.Post("../../../Api/Ajax/Files/MoveToTrash.php", {"Files": s}, function (data) {
+                     fl.ChDir(fl.currentdir);
+                     });
+                     }).ZIndex(999);
+                     }
+                     });
+                     ss.S("#BNDeleteAccess").Click(function () {
+                     
+                     dialog.Confirm("Delete It????", function (name) {
+                     var v = ss.S(".checkaccessfileid").Val();
+                     ss.Post("../../../Api/Ajax/Files/DelShareList.php", {"IDList": v}, function (data) {
+                     ss.S("#OPTMAccessMode").Change();
+                     });
+                     }).ZIndex(1000);
+                     
+                     });
+                     
+                     ss.S("#BNHome").Click(function () {
+                     fl.currentdir = "/";
+                     fl.ChDir(fl.currentdir);
+                     });
+                     
+                     ss.S("#BNNewFolder").Click(function (e) {
+                     dialog.Prompt("MKDIR", function (v) {
+                     ss.Post("../../../Api/Ajax/Files/MkDir.php", {"Name": v, "Path": fl.currentdir}, function (data) {
+                     fl.ChDir(fl.currentdir);
+                     });
+                     }).ZIndex(999);
+                     });
+                     ss.S("#BNNewPhoto").Click(function () {
+                     var takephoto = new TakePhoto();
+                     var cust = dialog.Custom();
+                     cust.AddDOM(takephoto);
+                     cust.OpenDialog();
+                     cust.ZIndex(999);
+                     cust.Title("Take Pictures");
+                     takephoto.Open();
+                     cust.AddButton("1", "Take Pictures");
+                     cust.BeforeClose(function () {
+                     takephoto.Close();
+                     });
+                     cust.CallbackResult = (function (rs) {
+                     if (rs == "1") {
+                     takephoto.TakePhoto();
+                     takephoto.SaveToFile(function (f) {
+                     var ajax = ss.Ajax();
+                     var fd = new FormData();
+                     fd.append("Location", fl.currentdir);
+                     fd.append("Upload", f, f.name);
+                     ajax.Post("../../../Api/Ajax/Files/UploadOneByte.php", fd);
+                     ajax.ReadyStateChange().Success(function () {
+                     takephoto.ReSet();
+                     fl.ChDir(fl.currentdir);
+                     });
+                     
+                     });
+                     }
+                     });
+                     });
+                     ss.S("#BNRefresh").Click(function () {
+                     fl.ChDir(fl.currentdir);
+                     });
+                     ss.S("#BNShareManager").Click(function () {
+                     ss.S("#OPTMAccessMode").Change();
+                     dialog.Import("#ShareManagerDialog").Title("Share").ZIndex(999);
+                     });
+                     ss.S("#OPTMAccessMode").Change(function () {
+                     ss.Post("../../../Api/Ajax/Files/GetShareList.php", {"AccessMode": this.value}, function (data) {
+                     data = JSON.parse(data);
+                     TBShareFile.DeleteRowAfter(0);
+                     for (var i = 0; i < data.length; i++) {
+                     TBShareFile.InsertRow();
+                     TBShareFile.InsertCellLastRow('<input class="checkaccessfileid" type="checkbox" name="" value="' + data[i]["id"] + '" />');
+                     TBShareFile.InsertCellLastRow(data[i]["fullpath"]);
+                     TBShareFile.InsertCellLastRow('<button class="editaccesslist" data-id="' + data[i]["id"] + '" style="width:100%;box-sizing: border-box;">Edit</button>');
+                     }
+                     });
+                     });
+                     ss.S("#TBShareFile").Click(function (e) {
+                     if (e.target.getAttribute("class") == "checkselectall") {
+                     var chk = this.getElementsByClassName("checkaccessfileid");
+                     for (var i = 0; i < chk.length; i++) {
+                     chk[i].checked = e.target.checked;
+                     }
+                     } else if (e.target.getAttribute("class") == "editaccesslist") {
+                     var t = dialog.TableLayout(function () {
+                     ss.Post("../../../Api/Ajax/Files/UpdateShareList.php", {"ID": t.fileid, "AccessMode": t.Access.value, "AuthName": t.UserName.value, "PW": t.Password.value}, function (data) {
+                     ss.S("#OPTMAccessMode").Change();
+                     t.Close();
+                     });
+                     
+                     }).ZIndex(1000).Title("Edit");
+                     t.Access = t.AddTableDom('Access:', '<select style="width: 100%;"><option value="0">None</option><option value="1">Public</option><option value="2">Member</option></select>');
+                     t.UserName = t.AddTableDom('UserName:', '<input type="text" style="width: 100%;" />');
+                     t.Password = t.AddTableDom('Password:', '<input type="password" style="width: 100%;" />');
+                     t.fileid = e.target.getAttribute("data-id");
+                     }
+                     });
+                     
+                     ss.S("#TXTSearch").Input(function () {
+                     ss.Post("../../../Api/Ajax/Files/SearchFileName.php", {"Location": fl.currentdir, "Name": this.value}, function (data) {
+                     fl.ClearFileList();
+                     data = JSON.parse(data);
+                     for (var i in data) {
+                     var ext = data[i]["ext"];
+                     if (["jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
+                     fl.AddFile(data[i]["name"], data[i]["fullpath"], "../../../Api/Action/Files/ImagePreview.php?id=" + data[i]["fullpath"], data[i]["size"], data[i]["modified"], data[i]["type"]);
+                     } else {
+                     fl.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"], data[i]["type"]);
+                     }
+                     }
+                     ss.S("#CHDIRList").Html("Search");
+                     });
+                     });*/
 
                 });
 

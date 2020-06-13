@@ -60,6 +60,9 @@ class FilesList {
     AddFile(name, path, size, date) {
         var icon = "";
         var lastrow = this.list.insertRow(-1);
+        if (["jpg", "gif", "png", "jpeg"].indexOf( path.split('.').pop()) >= 0) {
+            icon='<img src="'+this.previewpath+path+'"/>';
+        }
         lastrow.setAttribute("data-path", path);
         lastrow.setAttribute("data-type", "File");
         lastrow.innerHTML = this.StringFormat('<td><input data-domfileslist="Select" type="checkbox" /></td><td>%s %s</td><td>%s</td><td>%s</td><td><a data-domfileslist="Open" href="#">Open</a>&nbsp;<a data-domfileslist="Rename" href="#">Rename</a>&nbsp;<a data-domfileslist="Delete" href="#" >Delete</a>&nbsp;<a data-domfileslist="Properties" href="#">Properties</a>&nbsp;<a data-domfileslist="Download" href="#">Download</a></td>', icon, name, size, date);

@@ -96,7 +96,6 @@ class TableTools {
             var html = args[2];
             this.table.rows[y].cells[x].innerHTML = html;
         }
-
     }
 
     InsertCellAtRow(...args) {
@@ -108,7 +107,6 @@ class TableTools {
         } else if (args.length === 2) {
             c.innerHTML = data;
         }
-
     }
 
     InsertCellLastRow(...args) {
@@ -155,7 +153,7 @@ class TableTools {
     }
 
     ShowCol(x, y) {
-        this.table.rows[y].style.display = "";
+        this.table.rows[y].cells[x].style.display = "";
     }
 
 }

@@ -41,7 +41,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../js/dom/SuperDialog.js"></script>          
             <script src="../../../../../js/dom/TableTools.js"></script>
-            <script src="../../../../../js/dom//FilesList.js"></script>
+            <script src="../../../../../js/dom/FilesList.js"></script>
             <script src="../../../../../js/dom/SpanList.js"></script>
             <script>
 

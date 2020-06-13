@@ -55,6 +55,9 @@ class SSQueryFW {
             });
         }
     }
+     Disable(bool){
+        
+    }
     DocumentReady(callback) {
         document.addEventListener('DOMContentLoaded', callback);
     }
@@ -168,6 +171,7 @@ class SSQueryFW {
             xhttp.send( );
         }
     }
+   
     Show() {
         var block = ["html", "address", "blockquote", "body", "dd", "div", "dl", "dt", "fieldset", "form", "frame", "frameset", "h1", "h2", " h3", " h4", "h5", " h6", "noframes", "ol", "p", "ul", "center", "dir", "hr", "menu", "pre"];
         var other = {
