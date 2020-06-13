@@ -1,23 +1,32 @@
 
 <?php
-include_once '../../../../../Class/DB/Config/DB/Config.php';
-include_once '../../../../../Class/DB/Config/DB/Software.php';
-include_once '../../../../../Class/DB/Com/Events/Viewer.php';
-include_once '../../../../../Class/DB/Com/Module/LoadModule.php';
-include_once '../../../../../Class/DB/Com/User/Profile.php';
-$DBConfig = new Config_DB_Config();
-$SC = new Config_DB_Software($DBConfig);
-$Event = new Com_Events_Viewer($DBConfig);
-$User = new Com_User_Profile($DBConfig);
-$Module = new Com_Module_LoadModule($DBConfig);
-$DBConfig->Open();
-if ($SC->Online()) {
+include_once '../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../Class/Core/UI/NAV.php';
+include_once '../../../../../../Class/Com/Blog/Database.php';
+include_once '../../../../../../Class/Com/Blog/Reader.php';
+include_once '../../../../../../Class/Com/Event/Database.php';
+include_once '../../../../../../Class/Com/Event/Reader.php';
+include_once '../../../../../../Class/Core/Module/Database.php';
+include_once '../../../../../../Class/SDK/Module/Basic.php';
+$config = new Config();
+$uinav = new UINAV();
+$module = new Module_Database($config);
+$blog = new Blog_Reader(new Blog_Database($config));
+$event = new Event_Reader(new Event_Database($config));
+
+if ($config->IsOnline()) {
+    $modlist = array();
+    foreach ($module->LoadModule(Module_Database::Access_Public) as $value) {
+
+        include_once $module->ModulePath . $value["dirname"] . "/init.php";
+        $modlist[] = new $value["classname"]();
+    }
     ?>
     <!DOCTYPE html>
     <html>
         <head>
             <meta charset="UTF-8">
-            <title><?php echo $SC->GetName() . ' Cloud Service'; ?> </title>
+             <title><?php echo $config->GetName(); ?></title>
             <link rel="stylesheet" type="text/css" href="../css/Page.css">
             <script src="../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../js/dom/SuperDialog.js"></script>
@@ -212,75 +221,45 @@ if ($SC->Online()) {
                 });
             </script>
         </head>
-        <body  >
-            <div  id="Header" style="position: static;">
-                <h1  style="width: 100%;text-align: center;"><?php echo $SC->GetName(); ?> Cloud Service</h1>
-            </div>
-            <div class="Container">
-                <div class="Nav">
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">About</label>
-                        <a href="../About/index.php">About</a>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">App</label>
-                        <a href="../App/index.php">Player</a>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Blog</label>
-                        <a href="../Blog/index.php">Viewer</a>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Event</label>
-                        <a href="../Event/index.php">Viewer</a>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Files</label>
-                        <span style="font-weight: bold;">Viewer </span>
-                    </div>
-
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Photo</label>
-                        <a href="../Photo/ImageSlider.php">ImageSlider </a>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Template</label>
+        <body>
+            <header> 
+                <h1 style="width: 100%;text-align: center;"><?php echo $config->GetName(); ?> Website</h1>
+            </header>
+            <div class="LMR157015">
+                <div>
+                    <nav>
                         <?php
-                        $filelist = array_diff(scandir("../../"), array('.', '..'));
-                        foreach ($filelist as $value) {
-                            if (is_dir("../../" . $value)) {
-                                printf('<a style="display:block;" href="../../%s">%s</a>', $value, $value);
+                        foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
+                            echo '<div class="BorderBlock">';
+                            printf(' <div class="TitleCenter">%s</div>', $key);
+                            foreach ($valueA as $valueB) {
+                                printf('  <a  class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
                             }
+                            echo '</div>';
                         }
                         ?>
 
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">User</label>
-                         <a href="../../../../Members/Session/AuthUserID.php?tp=AnnopNod_A">Login</a>
-                         
-                    </div>
-
-
-
-                    <?php
-                    foreach ($Module->LoadModule(Com_Module_LoadModule::Layout_Nav, Config_DB_Config::Access_Mode_Public) as $value) {
-                        try {
-                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                            include_once '../../../../../Class/DB/Module/' . $value["filename"];
-                            $mod = new $value["classname"]($Module);
-                            printf('<label class="Title">%s</label>', $mod->GetTitle());
-                            $mod->SetModulePage("../Module/Page.php");
-                            $mod->SetModuleID($value["id"]);
-                            echo $mod->Execute();
-                            echo '</div>';
-                        } catch (Exception $ex) {
-                            
+                        <div class="BorderBlock" style="margin-top: 1px;">
+                            <div class="TitleCenter">Template</div>
+                            <?php
+                            foreach ($uinav->FindAllTemplate("../../../") as $key => $value) {
+                                printf('  <a  class="MenuLink" href="%s">%s</a>', $value, $key);
+                            }
+                            ?>
+                        </div>
+                        <?php
+                        foreach ($modlist as $value) {
+                            if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                                echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                                printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                                echo $value->Execute(Module_SDK_Basic::Layout_Nav);
+                                echo '</div>';
+                            }
                         }
-                    }
-                    ?>
+                        ?>
+                    </nav>
                 </div>
-                <div class="Section">
+                <div>
                     <div>
                         <label>Location:</label>
                         <span id="CHDIRList"></span>
@@ -294,13 +273,12 @@ if ($SC->Online()) {
                             <img src="../img/DropBoxError.png" width="574" height="388" alt="DropBoxError"/>
                         </div>
                         <div id="DboxErrorBodyMessage">
-                            <h1>Restricted Content</h1> This file is no longer available. For additional information <a href="../About/index.php">Contact <?php echo $SC->GetName(); ?> Support</a>.
+                            <h1>Restricted Content</h1> This file is no longer available. For additional information <a href="../About/index.php">Contact <?php echo $config->GetName(); ?> Support</a>.
                         </div>
                     </div>
                 </div>
-                <div class="Aside">
-
-                    <div   class="BorderBlock" style="margin-top: 1px;">
+                <div>
+                     <div   class="BorderBlock" style="margin-top: 1px;">
                         <label class="Title">User</label>
                         <ul>
                             <?php
@@ -313,51 +291,39 @@ if ($SC->Online()) {
 
                         </div>
                     </div>
-
-
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Password</label>
-                        <a id="BNClearPassword" href="#">ClearPassword</a>
-                    </div>
-                    <div class="BorderBlock">
-                        <span  class="Title">Event</span>
-                        <?php
-                        foreach ($Event->GetCurrentEvent(Config_DB_Config::Access_Mode_Public) as $value) {
-                            echo '<div  >';
-                            printf('<a href="../Event/index.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                            printf('<div style="color: black;">%s</div></a>', $value["description"]);
-                            echo '</div><hr>';
-                        }
-                        ?>
-                    </div>
-                    <?php
-                    foreach ($Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Public) as $value) {
-                        try {
-                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                            include_once '../../../../../Class/DB/Module/' . $value["filename"];
-                            $mod = new $value["classname"]($Module);
-                            printf('<label class="Title">%s</label>', $mod->GetTitle());
-                            $mod->SetModulePage("../Module/Page.php");
-                            $mod->SetModuleID($value["id"]);
-                            echo $mod->Execute();
+                       <?php
+                    echo '<div class="BorderBlock" style="margin-top: 1px;">';
+                    echo '  <div class="TitleCenter">Event</div>';
+                    foreach ($event->GetComingEvent(Event_Database::Access_Public) as $value) {
+                        echo '<div>';
+                        printf('<a href="Event/index.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                        printf('<div style="color: black;" >%s</div></a>', $value["description"]);
+                        echo '</div><hr>';
+                    }
+                    echo '</div>';
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Aside);
                             echo '</div>';
-                        } catch (Exception $ex) {
-                            
                         }
                     }
                     ?>
                 </div>
             </div>
-            <div>
-                <span style="font-weight: 700;display: block;">
+            
+             <footer>
+                <span style="font-weight: bold;display: block;">
                     <?php
-                    echo "&COPY;" . date("Y") . " " . $SC->GetName();
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
                     ?>
-                </span>
-            </div>
+                </span>  
+
+            </footer>
         </body>
     </html>
     <?php
 } else {
-    header("location: ../Error/Offline.php");
-}
+    header("location: ../../../../../../DefaultPages/Offline.php");
+} 

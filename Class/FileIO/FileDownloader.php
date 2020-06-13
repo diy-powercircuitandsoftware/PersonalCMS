@@ -24,9 +24,12 @@ class FileDownloader {
     }
 
     private function SendPartialHeader($start, $end, $size) {
-        header("Accept-Ranges: 0-" . $end);
+        $end=intval($end);
+        $start=intval($start);
+        $diff= ($end-$start)+1;
+        header("Accept-Ranges: 0-" . strval( $end));
         header('HTTP/1.1 206 Partial Content');
-        header("Content-Length: " . $end - $start + 1);
+        header("Content-Length: " . strval($diff));
         $ContRange = sprintf("Content-Range: bytes %d-%d/%d", $start, $end, $size);
         header($ContRange);
     }

@@ -55,6 +55,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     FL.SetPreviewImage("../../../../Api/Action/Files/ImagePreview.php?id=");
                     FL.OpenDir(function (v) {
                         ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v}, function (data) {
+                            fileupload.currentdir = v;
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
@@ -67,21 +68,30 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#CHDIRList").Html(decodeURIComponent(v));
                         });
                     });
+                    FL.OpenFile(function (v) {
+                        if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(v.split('.').pop().toLowerCase()) >= 0) {
+                            dialog.MediaPlayer("../../../../Api/Action/Files/DownloadFiles.php?path=" + (v));
+                        }
+                    })
                     FL.OpenDir("/");
- 
-                    
-                    
-                    // if (["jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
-                     //fl.AddFile(data[i]["name"], data[i]["fullpath"],  + data[i]["fullpath"], data[i]["size"], data[i]["modified"], data[i]["type"]);
-                     //} 
+
+
+
+
 
                     /*  
+                     
+                     fl.OpenFile = function (v) {
+                     
+                     
+                     
+                     
+                     
                      
                      var bnupload = document.getElementById("BNUpload");
                      var TBShareFile = document.getElementById("").appendChild(new TableTools());
                      var  =.appendChild(new FilesList(true));
-                     fl.DownloadURL = "../../../Api/Action/Files/DownloadFile.php?id=";
-                     fl.currentdir = "/";
+                     
                      fileupload.URL = "../../../Api/Ajax/Files/Upload.php";
                      TBShareFile.Border(1);
                      TBShareFile.CSSText("width: 100%;box-sizing: border-box;");
@@ -137,7 +147,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      data = JSON.parse(data);
                      for (var i in data) {
                      var ext = (data[i]["ext"]).toLowerCase();
-                   else {
+                     else {
                      fl.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"], data[i]["type"]);
                      }
                      
@@ -155,25 +165,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      }).ZIndex(999);
                      };
                      
-                     fl.OpenFile = function (v) {
                      
-                     var ext = v.split('.').pop();
-                     if (["mp4", "webm", "ogg"].indexOf(ext.toLowerCase()) >= 0) {
-                     var player = dialog.VideoPlayer("../../../Api/Action/Files/DownloadFile.php?id=" + btoa(v))
-                     player.ZIndex(999);
-                     player.Width("800px");
-                     player.Height("600px");
-                     } else if (["mp3", "wma"].indexOf(ext.toLowerCase()) >= 0) {
-                     var player = dialog.AudioPlayer("../../../Api/Action/Files/DownloadFile.php?id=" + btoa(v));
-                     player.ZIndex(999);
-                     player.Width("800px");
-                     
-                     } else if (["jpg", "gif", "png", "jpeg"].indexOf(ext.toLowerCase()) >= 0) {
-                     dialog.ImageViewer("../../../Api/Action/Files/DownloadFile.php?id=" + btoa(v)).ZIndex(999);
-                     } else if (ext.toLowerCase() == "pdf") {
-                     window.open('../../../Api/Action/Files/DownloadFile.php?id=' + btoa(v) + "&option=opendisable206", '_blank', 'fullscreen=yes');
-                     }
-                     };
                      fl.PropertiesFile = function (v) {
                      ss.Post("../../../Api/Ajax/Files/GetPropertiesFile.php", {"Path": v}, function (data) {
                      data = JSON.parse(data);
