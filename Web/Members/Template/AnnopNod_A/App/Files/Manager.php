@@ -75,8 +75,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     })
                     FL.OpenDir("/");
 
-
-
+                    ss.S("#BNHome").Click(function () {
+                        FL.OpenDir("/");
+                    });
+                    ss.S("#BNRefresh").Click(function () {
+                        FL.OpenDir(fileupload.currentdir);
+                    });
 
 
                     /*  
@@ -250,10 +254,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      
                      });
                      
-                     ss.S("#BNHome").Click(function () {
-                     fl.currentdir = "/";
-                     fl.ChDir(fl.currentdir);
-                     });
+                     
                      
                      ss.S("#BNNewFolder").Click(function (e) {
                      dialog.Prompt("MKDIR", function (v) {
@@ -292,9 +293,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      }
                      });
                      });
-                     ss.S("#BNRefresh").Click(function () {
-                     fl.ChDir(fl.currentdir);
-                     });
+                     
                      ss.S("#BNShareManager").Click(function () {
                      ss.S("#OPTMAccessMode").Change();
                      dialog.Import("#ShareManagerDialog").Title("Share").ZIndex(999);

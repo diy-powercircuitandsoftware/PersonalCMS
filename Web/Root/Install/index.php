@@ -42,12 +42,12 @@ and open the template in the editor.
                     <tbody>
                         <tr>
                             <td>Password:</td>
-                            <td><input style="width: 100%;" type="text" name="Password" value="" /></td>
+                            <td><input style="width: 100%;box-sizing: border-box;" type="text" name="Password" value="" /></td>
                         </tr>
                         <tr>
                             <td>Data:</td>
                             <td>
-                                <input style="width: 100%;"  id="TXTDataPath" type="text" name="DataPath" value="DefaultFiles" />
+                                <input style="width: 100%;box-sizing: border-box;"  id="TXTDataPath" type="text" name="DataPath" value="DefaultFiles" />
                                 <div id="Simpath" style="word-wrap: break-word;">
 
                                 </div>

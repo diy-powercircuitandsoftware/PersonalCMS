@@ -2,18 +2,20 @@
 <?php
 include_once '../../../../../../Class/Core/Config/Config.php';
 include_once '../../../../../../Class/Core/UI/NAV.php';
+include_once '../../../../../../Class/Core/Module/Database.php';
+include_once '../../../../../../Class/Core/User/Database.php';
+include_once '../../../../../../Class/Core/User/Member.php';
 include_once '../../../../../../Class/Com/Blog/Database.php';
 include_once '../../../../../../Class/Com/Blog/Reader.php';
 include_once '../../../../../../Class/Com/Event/Database.php';
 include_once '../../../../../../Class/Com/Event/Reader.php';
-include_once '../../../../../../Class/Core/Module/Database.php';
 include_once '../../../../../../Class/SDK/Module/Basic.php';
 $config = new Config();
 $uinav = new UINAV();
 $module = new Module_Database($config);
 $blog = new Blog_Reader(new Blog_Database($config));
 $event = new Event_Reader(new Event_Database($config));
-
+$user=new User_Member(new User_Database($config));
 if ($config->IsOnline()) {
     $modlist = array();
     foreach ($module->LoadModule(Module_Database::Access_Public) as $value) {
@@ -35,6 +37,7 @@ if ($config->IsOnline()) {
             <style>
                 .BNUserList{
                     cursor: pointer;
+                    display: block;
                 }
                 #DboxErrorBody
                 {
@@ -279,14 +282,13 @@ if ($config->IsOnline()) {
                 </div>
                 <div>
                      <div   class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">User</label>
-                        <ul>
-                            <?php
-                            foreach ($User->GetUserList() as $value) {
-                                printf('<li><a class="BNUserList" data-id="%s">%s</a></li>', $value["userid"], $value["alias"]);
+                        <div class="TitleCenter">User</div>
+                                                    <?php
+                            foreach ($user->GetUserList() as $value) {
+                                printf('<a class="BNUserList" data-id="%s">%s</a>', $value["id"], $value["alias"]);
                             }
                             ?>
-                        </ul>
+                         
                         <div id="SearchBox" class="BorderBlock" style="margin-top: 1px;">
 
                         </div>
