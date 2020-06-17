@@ -195,7 +195,7 @@ class SuperDialog {
         var d = this.Import(args[0], args[1], {"OK": function () {
                 if (typeof args[2] === "function" && args[2]()) {
                     d.Close();
-                } else if (typeof args[2] !== "function" ) {
+                } else if (typeof args[2] !== "function") {
                     d.Close();
                 }
             }, "Cancel": function () {
@@ -324,7 +324,26 @@ class SuperDialog {
             }
         }
     }
-
+    Mutilline(...args) {
+        var sd = new Dialog();
+        sd.ta = document.createElement("textarea");
+        sd.ta.style.cssText = " width: 100%;height: 100%;resize: none;";
+        sd.Title("Prompt");
+        sd.Content(args[0]);
+        sd.Append(sd.ta);
+        sd.DestroyAfterClose();
+        sd.Show();
+        sd.Button({"OK": function () {
+                if (typeof args[1] === "function") {
+                    if (args[1](sd.ta.value)) {
+                        sd.Close();
+                    }
+                }
+            }, "Cancel": function () {
+                sd.Close();
+            }});
+        return sd;
+    }
     Payment(callback) {
         var sd = this.TableLayout(callback);
         sd.Title("Payment");
@@ -363,10 +382,11 @@ class SuperDialog {
         sd.Show();
         return sd;
     }
+
     Prompt(...args) {
         var sd = new Dialog();
-        sd.ta = document.createElement("textarea");
-        sd.ta.style.cssText = " width: 100%;height: 100%;resize: none;";
+        sd.ta = document.createElement("input");
+        sd.ta.style.cssText = " width: 100%;";
         sd.Title("Prompt");
         sd.Content(args[0]);
         sd.Append(sd.ta);
@@ -383,6 +403,7 @@ class SuperDialog {
             }});
         return sd;
     }
+
     Rect(callback) {
         var sd = this.TableLayout(callback);
         sd.Title("Rect");

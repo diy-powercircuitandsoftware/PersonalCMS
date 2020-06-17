@@ -50,12 +50,20 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var FL = new FilesList(document.getElementById("FileRS"));
                     var tablesharefile = new TableTools(document.getElementById("TBShareFile"));
                     var fileupload = new FilesUpload({
-                        "url": "../../../../Api/Action/Files/Upload.php"
-                    }, {});
+                        "url": "../../../../Api/Action/Files/UploadFiles.php",
+                        "files":"file"
+                    }, {
+                        
+                    });
+                    fileupload.Log(function(v){
+                        console.log(v);
+                    });
+                    FL.Multiple(true);
                     FL.SetPreviewImage("../../../../Api/Action/Files/ImagePreview.php?id=");
                     FL.OpenDir(function (v) {
                         ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v}, function (data) {
                             fileupload.currentdir = v;
+                            
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
@@ -75,27 +83,52 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     })
                     FL.OpenDir("/");
 
+
+                    ss.S("#BNDelete").Click(function () {
+                        if (FL.GetSelectFiles().length > 0) {
+                            dialog.UnLock(function (p) {
+                                var s = FL.GetSelectFiles();
+                                ajax.Post("../../../../Api/Action/Files/DeleteFiles.php", {"path": s, "password": p}, function (data) {
+                                    if (data == "1") {
+                                        FL.OpenDir(fileupload.currentdir);
+                                    } else {
+                                        dialog.Alert(data);
+                                    }
+
+                                });
+                                return true;
+                            }).ZIndex(999);
+                        }
+                    });
+
                     ss.S("#BNHome").Click(function () {
                         FL.OpenDir("/");
+                    });
+                    ss.S("#BNNewFolder").Click(function (e) {
+                        var p = dialog.Prompt("MKDIR", function (v) {
+                            ajax.Post("../../../../Api/Action/Files/MKDIR.php", {"path": fileupload.currentdir + "/" + v}, function (data) {
+                                FL.OpenDir(fileupload.currentdir);
+                                p.Close();
+                            });
+                        });
                     });
                     ss.S("#BNRefresh").Click(function () {
                         FL.OpenDir(fileupload.currentdir);
                     });
-
+                    ss.S("#BNUpload").Change(function () {
+                       this.disabled=true;
+                       fileupload.SetParam("dir",   fileupload.currentdir);
+                        fileupload.SetFiles(this.files);
+                        fileupload.Send();
+                    });
 
                     /*  
-                     
-                     fl.OpenFile = function (v) {
-                     
-                     
-                     
-                     
-                     
-                     
-                     var bnupload = document.getElementById("BNUpload");
+                         
+                         
+                     var bnupload = document.getElementById("");
                      var TBShareFile = document.getElementById("").appendChild(new TableTools());
                      var  =.appendChild(new FilesList(true));
-                     
+                         
                      fileupload.URL = "../../../Api/Ajax/Files/Upload.php";
                      TBShareFile.Border(1);
                      TBShareFile.CSSText("width: 100%;box-sizing: border-box;");
@@ -106,7 +139,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      ss.S(bnupload).Change(function () {
                      fileupload.Upload(this.files);
                      });
-                     
+                         
                      fileupload.GetCurrentFileName = function (name) {
                      ss.S("#UpLoadFName").Html(name);
                      };
@@ -142,25 +175,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      ss.S("#BNCancelUpload").Click(function () {
                      fileupload.Abort();
                      });
-                     
-                     fl.ChDir = function (v) {
-                     ss.Post("../../../Api/Ajax/Files/GetFiles.php", {"Location": v}, function (data) {
-                     fl.currentdir = v;
-                     fl.ClearFileList();
-                     fileupload.PostJson = {"Location": v};
-                     data = JSON.parse(data);
-                     for (var i in data) {
-                     var ext = (data[i]["ext"]).toLowerCase();
-                     else {
-                     fl.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"], data[i]["type"]);
-                     }
-                     
-                     }
-                     ss.S("#CHDIRList").Html(decodeURIComponent(v));
-                     });
-                     };
-                     fl.ChDir(fl.currentdir);
-                     
+                         
+                         
+                         
                      fl.Delete = function (v) {
                      dialog.Confirm("Delete This File????", function (name) {
                      ss.Post("../../../Api/Ajax/Files/MoveToTrash.php", {"Files": v}, function (data) {
@@ -168,8 +185,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      });
                      }).ZIndex(999);
                      };
-                     
-                     
+                         
+                         
                      fl.PropertiesFile = function (v) {
                      ss.Post("../../../Api/Ajax/Files/GetPropertiesFile.php", {"Path": v}, function (data) {
                      data = JSON.parse(data);
@@ -177,7 +194,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      tl.AddTableDom("Name", data["name"]);
                      tl.AddTableDom("Size", data["size"]);
                      tl.AddTableDom("Modified", data["modified"]);
-                     
+                         
                      });
                      };
                      fl.RenameFile = function (v) {
@@ -187,16 +204,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      });
                      }).ZIndex(999);
                      };
-                     
+                         
                      ss.S("#BNAddShare").Click(function () {
                      dialog.Import("#AddShareDialog", function () {
                      ss.Post("../../../Api/Ajax/Files/AddShareList.php", {
                      "AuthName": ss.S("#TXTAddUserShare").Val(), "PW": ss.S("#TXTAddPWShare").Val(), "AccessMode": ss.S("#OPTAddAccessMode").Val(), "FilesList": fl.GetSelectFiles()}, function (data) {
-                     
+                         
                      });
                      }).Title("Share").ZIndex(999);
                      });
-                     
+                         
                      ss.S("#BNCutPaste").Click(function () {
                      if (this.cutdata === undefined || this.cutdata == null) {
                      if (fl.GetSelectFiles().length > 0) {
@@ -233,36 +250,21 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      });
                      }
                      });
-                     ss.S("#BNDelete").Click(function () {
-                     if (fl.GetSelectFiles().length > 0) {
-                     dialog.Confirm("Delete It????", function (name) {
-                     var s = fl.GetSelectFiles();
-                     ss.Post("../../../Api/Ajax/Files/MoveToTrash.php", {"Files": s}, function (data) {
-                     fl.ChDir(fl.currentdir);
-                     });
-                     }).ZIndex(999);
-                     }
-                     });
+                         
                      ss.S("#BNDeleteAccess").Click(function () {
-                     
+                         
                      dialog.Confirm("Delete It????", function (name) {
                      var v = ss.S(".checkaccessfileid").Val();
                      ss.Post("../../../Api/Ajax/Files/DelShareList.php", {"IDList": v}, function (data) {
                      ss.S("#OPTMAccessMode").Change();
                      });
                      }).ZIndex(1000);
-                     
+                         
                      });
-                     
-                     
-                     
-                     ss.S("#BNNewFolder").Click(function (e) {
-                     dialog.Prompt("MKDIR", function (v) {
-                     ss.Post("../../../Api/Ajax/Files/MkDir.php", {"Name": v, "Path": fl.currentdir}, function (data) {
-                     fl.ChDir(fl.currentdir);
-                     });
-                     }).ZIndex(999);
-                     });
+                         
+                         
+                         
+                         
                      ss.S("#BNNewPhoto").Click(function () {
                      var takephoto = new TakePhoto();
                      var cust = dialog.Custom();
@@ -288,12 +290,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      takephoto.ReSet();
                      fl.ChDir(fl.currentdir);
                      });
-                     
+                         
                      });
                      }
                      });
                      });
-                     
+                         
                      ss.S("#BNShareManager").Click(function () {
                      ss.S("#OPTMAccessMode").Change();
                      dialog.Import("#ShareManagerDialog").Title("Share").ZIndex(999);
@@ -322,7 +324,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      ss.S("#OPTMAccessMode").Change();
                      t.Close();
                      });
-                     
+                         
                      }).ZIndex(1000).Title("Edit");
                      t.Access = t.AddTableDom('Access:', '<select style="width: 100%;"><option value="0">None</option><option value="1">Public</option><option value="2">Member</option></select>');
                      t.UserName = t.AddTableDom('UserName:', '<input type="text" style="width: 100%;" />');
@@ -330,7 +332,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      t.fileid = e.target.getAttribute("data-id");
                      }
                      });
-                     
+                         
                      ss.S("#TXTSearch").Input(function () {
                      ss.Post("../../../Api/Ajax/Files/SearchFileName.php", {"Location": fl.currentdir, "Name": this.value}, function (data) {
                      fl.ClearFileList();
