@@ -18,7 +18,7 @@ class User_Manager  {
     public function AddUser($alias, $password) {
         try {
             $hash = sha1(sha1("Transp" . $password . "arency"));
-            $stmt = $this->ud->prepare("INSERT INTO user (id,alias,password,enable) VALUES (null, :alias,:password,true)");
+            $stmt = $this->ud->prepare("INSERT INTO user (id,alias,password,enable) VALUES (null, :alias,:password,1)");
             $stmt->bindValue(':alias', $alias, SQLITE3_TEXT);
             $stmt->bindValue(':password', $hash, SQLITE3_TEXT);
             $stmt->execute();

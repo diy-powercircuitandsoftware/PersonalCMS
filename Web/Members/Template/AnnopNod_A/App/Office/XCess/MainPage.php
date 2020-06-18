@@ -55,7 +55,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     fd.Mutilselect = false;
                     fd.ChDir = function (v) {
                         ss.Post("../../../../Api/Ajax/SQLite/GetSQLiteList.php", {"Location": v}, function (data) {
-                            ss.S("#FileLocation").Val(decodeURIComponent(v));
+                            ss.S("#FileLocation").Val((v));
                             fd.currentdir = v;
 
                             fd.ClearFileList();
@@ -69,7 +69,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                         ss.S("#DatabaseManager").Show();
                         ss.S(".LinkManageDB").ForEach(function (d) {
 
-                            d.setAttribute("href", d.getAttribute("data-url") + "?path=" + encodeURIComponent(v));
+                            d.setAttribute("href", d.getAttribute("data-url") + "?path=" + (v));
                         });
                     };
 

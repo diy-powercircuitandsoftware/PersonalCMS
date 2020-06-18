@@ -60,6 +60,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S("#PGByte").Val(v.AjaxProgress);
                         ss.S("#PGFile").Val(v.FileProgress);
                         ss.S("#PGFOA").Val(v.AllProgress);
+                         
                         if (v.Complete) {
                             ss.S("#BNUpload").Disable(false);
                             ss.S("#BNCancelUpload").Hide();
@@ -85,7 +86,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     FL.AddFile(data[i]["name"], data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
                                 }
                             }
-                            ss.S("#CHDIRList").Html(decodeURIComponent(v));
+                            ss.S("#CHDIRList").Html((v));
                         });
                     });
                     FL.OpenFile(function (v) {
@@ -121,7 +122,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     ss.S("#BNNewFolder").Click(function (e) {
                         var p = dialog.Prompt("MKDIR", function (v) {
-                            ajax.Post("../../../../Api/Action/Files/MKDIR.php", {"path": fileupload.currentdir + "/" + v}, function (data) {
+                            ajax.Post("../../../../Api/Action/Files/MKDIR.php", {"path": fileupload.currentdir + "/" +v }, function (data) {
                                 FL.OpenDir(fileupload.currentdir);
                                 p.Close();
                             });

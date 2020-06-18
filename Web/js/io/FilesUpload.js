@@ -20,6 +20,9 @@ class FilesUpload {
                 } else if (this.ref.filereader.fd_complete) {
                     this.ref.filesindex++;
                     if (this.ref.filesindex < this.ref.filescount) {
+                          var spfile = (this.ref.filereader.Tell() / this.ref.filereader.Size()) * 100;
+                      var all = ((this.ref.filesindex + 1) / this.ref.filescount) * 100;
+                this.ref.Log({"AjaxProgress": 100, "FileProgress": spfile, "AllProgress": all});
                         this.ref.filereader.SetFile(this.ref.files[ this.ref.filesindex]);
                         this.ref.filereader.Read(this.ref.chunksize);
                     } else {

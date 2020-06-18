@@ -48,7 +48,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     fd.Mutilselect = false;
                     fd.ChDir = function (v) {
                         ss.Post("../../../../Api/Ajax/Image/GetImagetList.php", {"Location": v}, function (data) {
-                            ss.S("#FileLocation").Val(decodeURIComponent(v));
+                            ss.S("#FileLocation").Val((v));
                             fd.currentdir = v
                             fd.ClearFileList();
                             data = JSON.parse(data);
@@ -66,14 +66,14 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     fd.ChDir("/");
 
                     fd.OpenFile = function (v) {
-                        window.location.replace("Editor.php?path=" + encodeURIComponent(v));
+                        window.location.replace("Editor.php?path=" + (v));
                     };
 
                     ss.S("#BNNew").Click(function () {
 
                         var tl = sd.TableLayout(function (v) {
                             var jsondata = {};
-                            jsondata["FullPath"] = encodeURIComponent(fd.currentdir + "/" + encodeURIComponent(tl.filename.value) + tl.filetype.value);
+                            jsondata["FullPath"] = (fd.currentdir + "/" + (tl.filename.value) + tl.filetype.value);
                             jsondata["w"] = tl.w.value;
                             jsondata["h"] = tl.h.value;
 

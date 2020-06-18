@@ -222,8 +222,8 @@ class SuperDialog {
             var json = args[1];
             xhttp.open("GET", args[0] + '?' +
                     Object.keys(json).map(function (key) {
-                return encodeURIComponent(key) + '=' +
-                        encodeURIComponent(json[key]);
+                return (key) + '=' +
+                        (json[key]);
             }).join('&'), true);
             xhttp.send( );
         }

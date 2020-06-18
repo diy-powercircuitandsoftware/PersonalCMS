@@ -62,8 +62,8 @@ class Ajax {
             return "";
         return '?' +
                 Object.keys(json).map(function (key) {
-            return encodeURIComponent(key) + '=' +
-                    encodeURIComponent(json[key]);
+            return (key) + '=' +
+                    (json[key]);
         }).join('&');
     }
 

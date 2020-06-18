@@ -17,7 +17,7 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $tmppath = "PersonalCMS_" . $_SESSION["User"]["id"];
 
     if ($_POST["header"] == "206") {
-        $tmpfname = sys_get_temp_dir() . "/" . $tmppath . "_" . $_FILES["file"]["name"];
+        $tmpfname = sys_get_temp_dir() . "/" . $tmppath . "_" . ($_FILES["file"]["name"]);
         $handle = fopen($tmpfname, "a");
         fwrite($handle, file_get_contents($_FILES["file"]["tmp_name"]));
         fclose($handle);
@@ -25,8 +25,9 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
         $vd = new VirtualDirectory($fd->GetUserDIR($_SESSION["User"]["id"]));
         $dp = $vd->DiskPath($_POST["path"]);
         if (is_writable($dp)) {
-            $tmpfname = (sys_get_temp_dir() . "/" . $tmppath . "_" . $_POST["file"]); 
-            rename($tmpfname, $dp . "/" . $_POST["file"]);
+           $name= ( $_POST["file"]);
+            $tmpfname = (sys_get_temp_dir() . "/" . $tmppath . "_" . $name); 
+            rename($tmpfname, $dp . "/" .$name);
         }
     }
 } else {

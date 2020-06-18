@@ -50,7 +50,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     fd.Mutilselect = false;
                     fd.ChDir = function (v) {
                         ss.Post("../../../../Api/Ajax/WordWord/GetWordWordList.php", {"Location": v}, function (data) {
-                            ss.S("#FileLocation").Val(decodeURIComponent(v));
+                            ss.S("#FileLocation").Val((v));
                             fd.currentdir = v
                             fd.ClearFileList();
                             data = JSON.parse(data);
@@ -62,12 +62,12 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     fd.ChDir("/");
 
                     fd.OpenFile = function (v) {
-                        window.location.replace("Editor.php?path=" + encodeURIComponent(v));
+                        window.location.replace("Editor.php?path=" + (v));
                     };
 
                     ss.S("#BNNew").Click(function () {
                         sd.Prompt("Enter File Name", function (v) {
-                            ss.Post("../../../../Api/Ajax/WordWord/SaveWordWordFile.php", {"FullPath": encodeURIComponent(fd.currentdir + "/" + encodeURIComponent(v) + ".anwwf")}, function (data) {
+                            ss.Post("../../../../Api/Ajax/WordWord/SaveWordWordFile.php", {"FullPath": (fd.currentdir + "/" + (v) + ".anwwf")}, function (data) {
                                 data = JSON.parse(data);
                                 fd.ChDir(fd.currentdir);
                             });

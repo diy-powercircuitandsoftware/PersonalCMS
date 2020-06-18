@@ -50,7 +50,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     fd.Mutilselect = false;
                     fd.ChDir = function (v) {
                         ss.Post("../../../../Api/Ajax/CSV/GetCSVList.php", {"Location": v}, function (data) {
-                            ss.S("#FileLocation").Val(decodeURIComponent(v));
+                            ss.S("#FileLocation").Val((v));
                             fd.currentdir = v
                             fd.ClearFileList();
                             data = JSON.parse(data);
@@ -64,7 +64,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     ss.S("#BNNew").Click(function () {
 
                         sd.Prompt("Enter File Name", function (v) {
-                            ss.Post("../../../../Api/Ajax/CSV/SaveCSVFile.php", {"path": encodeURIComponent(fd.currentdir + "/" + encodeURIComponent(v) + ".csv")}, function (data) {
+                            ss.Post("../../../../Api/Ajax/CSV/SaveCSVFile.php", {"path": (fd.currentdir + "/" + (v) + ".csv")}, function (data) {
 
                                 fd.ChDir(fd.currentdir);
                             });
@@ -75,7 +75,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
 
                         ss.S(".LinkPage").ForEach(function (d) {
 
-                            d.setAttribute("href", d.getAttribute("data-url") + "?path=" + encodeURIComponent(v));
+                            d.setAttribute("href", d.getAttribute("data-url") + "?path=" + (v));
                         });
                     };
 

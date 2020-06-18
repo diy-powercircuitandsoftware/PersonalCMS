@@ -2,7 +2,7 @@
 session_start();
 include_once '../../../Class/Core/Config/Config.php';
 $config = new Config();
-if ($config->Installed() && isset($_POST["Superuser"]) && isset($_POST["Password"])) {
+if ($config->Installed() && isset($_POST["Superuser"]) && isset($_POST["Password"])) {  
     if (in_array($_POST["Superuser"], $config->SuperuserVocabulary)) {
         if ($config->Auth(session_id(), $_POST["Password"])) {
             header("location: ../index.php");
@@ -13,7 +13,7 @@ if ($config->Installed() && isset($_POST["Superuser"]) && isset($_POST["Password
         header("location: index.php?error='Wrong Answer Superuser?'");
     }
 } else if (!$config->Installed()){
-     header("location: ../Install/index.php");
+    header("location: ../Install/index.php");
 }
 else {
         

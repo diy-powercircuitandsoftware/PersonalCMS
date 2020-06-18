@@ -62,7 +62,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     var image = new Image();
                     var imagetrans = new ImageTransaction();
                     var selectarea = new SelectArea(canvas);
-                    ss.S(image).Url("../../../../Api/Action/Files/DownloadFile.php", {"id": btoa(decodeURIComponent(ss.URLParam()["path"])), "option": "opendisable206"});
+                    ss.S(image).Url("../../../../Api/Action/Files/DownloadFile.php", {"id": btoa((ss.URLParam()["path"])), "option": "opendisable206"});
                     image.onload = function () {
                         ctx.canvas.width = this.width;
                         ctx.canvas.height = this.height;
