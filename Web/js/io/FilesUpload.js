@@ -1,6 +1,5 @@
 class FilesUpload {
     constructor(variables, param) {
-
         if (variables.hasOwnProperty('url') && variables.hasOwnProperty('files') && variables.hasOwnProperty('path')) {
             this.chunksize = 8192 * 128;
             this.variables = variables;
@@ -11,7 +10,6 @@ class FilesUpload {
             this.path = variables["path"];
             this.filereader = new FilesUpload_Reader();
             this.ajax = new FilesUpload_Ajax();
-
             var variables = this.variables;
             var chunksize = this.chunksize;
             this.ajax.ref = this;
@@ -31,10 +29,12 @@ class FilesUpload {
                 }
             });
             this.ajax.Progress(function (v) {
-
                 var spfile = (this.ref.filereader.Tell() / this.ref.filereader.Size()) * 100;
                 var all = ((this.ref.filesindex + 1) / this.ref.filescount) * 100;
                 this.ref.Log({"AjaxProgress": v, "FileProgress": spfile, "AllProgress": all});
+            });
+            this.ajax.Error(function (e) {
+                this.ref.Log({"Error": e,"AjaxProgress": 0, "FileProgress": 0, "AllProgress": 0});
             });
             this.filereader.GetUint8Array(function (f) {
                 var fd = new FormData();
@@ -50,21 +50,19 @@ class FilesUpload {
                 fd.append("path", this.ref.path);
                 this.fd_complete = true;
                 this.ref.ajax.Send(variables["url"], fd);
-
             });
-        }
-        else{
+        } else {
             alert("FilesUpload_Configuration_Mistakes[url,files,path]");
         }
     }
-
+    Abort() {
+        this.ajax.Abort();
+    }
     SetFiles(files) {
         this.files = files;
         this.filesindex = 0;
         this.filescount = this.files.length;
-
     }
-
     SetParam(key, val) {
         this.param[key] = val;
     }
@@ -72,8 +70,10 @@ class FilesUpload {
         this.path = val;
     }
     Send() {
-
         if (!this.mutex && this.filescount > 0) {
+            window.addEventListener("beforeunload", function (event) {
+                event.returnValue = "cancel upload";
+            });
             this.mutex = true;
             this.filereader.SetFile(this.files[ this.filesindex]);
             this.filereader.Read(this.chunksize);

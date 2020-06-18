@@ -180,6 +180,7 @@ class SSQueryFW {
 
     Show() {
         var block = ["html", "address", "blockquote", "body", "dd", "div", "dl", "dt", "fieldset", "form", "frame", "frameset", "h1", "h2", " h3", " h4", "h5", " h6", "noframes", "ol", "p", "ul", "center", "dir", "hr", "menu", "pre"];
+       var inline=["input","span","button"];
         var other = {
             "li": "list-item",
             "head": "none",
@@ -195,13 +196,17 @@ class SSQueryFW {
             "caption": "table-caption"
         };
         this.ForEach(this.element, function (el) {
+            
             if (window.getComputedStyle(el).getPropertyValue("display") == "none") {
                 var tagname = el.tagName.toLowerCase();
                 if (block.indexOf(tagname) >= 0) {
                     el.style.display = "block";
+                } else if (inline.indexOf(tagname) >= 0) {
+                    el.style.display = "inline";
                 } else if (other.hasOwnProperty(tagname)) {
                     el.style.display = other[tagname];
                 }
+               
             } else {
                 el.style.display = "";
             }

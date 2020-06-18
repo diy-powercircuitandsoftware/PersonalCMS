@@ -26,7 +26,7 @@ class VirtualDirectory {
                     unlink($file);
                 }
             }
-            if ($src !== "/" && $src !== "") {
+            if (!in_array("$src", array("/", "\\", ".", ".."))) {
                 rmdir($src);
             }
         } else if (is_file($src)) {
@@ -97,8 +97,8 @@ class VirtualDirectory {
                 "ext" => $info->getExtension(),
                 "type" => $info->isDir() ? "DIR" : "FILE",
                 "fullpath" => $this->Normalize($s),
-                "md5"=> md5_file($path),
-                 "sha1"=> sha1_file($path)
+                "md5" => md5_file($path),
+                "sha1" => sha1_file($path)
             );
         }
         return array();
