@@ -51,19 +51,26 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var tablesharefile = new TableTools(document.getElementById("TBShareFile"));
                     var fileupload = new FilesUpload({
                         "url": "../../../../Api/Action/Files/UploadFiles.php",
-                        "files":"file"
+                        "files": "file",
+                        "path": "/"
                     }, {
-                        
+
                     });
-                    fileupload.Log(function(v){
-                        console.log(v);
+                    fileupload.Log(function (v) {
+                        ss.S("#PGByte").Val(v.AjaxProgress);
+                        ss.S("#PGFile").Val(v.FileProgress);
+                        ss.S("#PGFOA").Val(v.AllProgress);
+                        if (v.Complete) {
+                            ss.S("#BNUpload").Disable(false);
+                            FL.OpenDir(fileupload.currentdir);
+                        }
                     });
                     FL.Multiple(true);
                     FL.SetPreviewImage("../../../../Api/Action/Files/ImagePreview.php?id=");
                     FL.OpenDir(function (v) {
                         ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v}, function (data) {
                             fileupload.currentdir = v;
-                            
+
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
@@ -116,8 +123,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         FL.OpenDir(fileupload.currentdir);
                     });
                     ss.S("#BNUpload").Change(function () {
-                       this.disabled=true;
-                       fileupload.SetParam("dir",   fileupload.currentdir);
+                        this.disabled = true;
+                        fileupload.SetPath(fileupload.currentdir);
                         fileupload.SetFiles(this.files);
                         fileupload.Send();
                     });
@@ -152,20 +159,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      fileupload.Error = function (message) {
                      window.onbeforeunload = null;
                      dialog.Alert(message).ZIndex(999);
-                     ss.S("#PGByte").Val(0);
-                     ss.S("#PGFile").Val(0);
-                     ss.S("#PGFOA").Val(0);
+                         
                      ss.S("#BNCancelUpload").Hide();
                      };
-                     fileupload.ByteTransferProgress = function (v) {
-                     ss.S("#PGByte").Val((v * 100));
-                     };
-                     fileupload.UploadProgress = function (v) {
-                     ss.S("#PGFile").Val((v * 100));
-                     };
-                     fileupload.OverallProgress = function (v) {
-                     ss.S("#PGFOA").Val((v * 100));
-                     };
+                         
                      fileupload.BeforeUpload = function () {
                      window.onbeforeunload = function () {
                      return "File Uploading...";

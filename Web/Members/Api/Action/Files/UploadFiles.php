@@ -12,16 +12,23 @@ $fd = new Files_Database($config);
 $userdb = new User_Database($config);
 $session = new User_Session($userdb);
 $userdata = new User_Member($userdb);
-if ($config->IsOnline() && isset($_POST["path"]) && isset($_SESSION["User"]) &&
+if ($config->IsOnline() && isset($_SESSION["User"]) &&
         $session->Registered(session_id()) &&
         $userdata->CanWritable($_SESSION["User"]["id"])) {
-    $vd = new VirtualDirectory($fd->GetUserDIR($_SESSION["User"]["id"]));
-    $dp = $vd->DiskPath($_POST["path"]);
-    if (is_writable($dp)) {
-        var_dump($_FILES["Upload"]);
-      //  $fp = fopen($TMPPath, 'a');
-       // fwrite($fp, file_get_contents($_FILES["Upload"]["tmp_name"]));
-       // fclose($fp);
+    $tmppath = "PersonalCMS_" . $_SESSION["User"]["id"];
+
+    if ($_POST["header"] == "206") {
+        $tmpfname = sys_get_temp_dir() . "/" . $tmppath . "_" . $_FILES["file"]["name"];
+        $handle = fopen($tmpfname, "a");
+        fwrite($handle, file_get_contents($_FILES["file"]["tmp_name"]));
+        fclose($handle);
+    } else if ($_POST["header"] == "200" && isset($_POST["path"])) {
+        $vd = new VirtualDirectory($fd->GetUserDIR($_SESSION["User"]["id"]));
+        $dp = $vd->DiskPath($_POST["path"]);
+        if (is_writable($dp)) {
+            $tmpfname = (sys_get_temp_dir() . "/" . $tmppath . "_" . $_POST["file"]); 
+            rename($tmpfname, $dp . "/" . $_POST["file"]);
+        }
     }
 } else {
     echo '0';

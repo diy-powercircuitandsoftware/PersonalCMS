@@ -1,51 +1,61 @@
 class FilesUpload {
     constructor(variables, param) {
 
-        this.chunksize = 8192 * 128;
-        this.variables = variables;
-        this.param = param;
-        this.mutex = false;
-        this.filesindex = 0;
-        this.filescount = 0;
-        this.filereader = new FilesUpload_Reader();
-        var ajax = new FilesUpload_Ajax();
+        if (variables.hasOwnProperty('url') && variables.hasOwnProperty('files') && variables.hasOwnProperty('path')) {
+            this.chunksize = 8192 * 128;
+            this.variables = variables;
+            this.param = param;
+            this.mutex = false;
+            this.filesindex = 0;
+            this.filescount = 0;
+            this.path = variables["path"];
+            this.filereader = new FilesUpload_Reader();
+            this.ajax = new FilesUpload_Ajax();
 
-        var variables = this.variables;
-        var chunksize = this.chunksize;
-        ajax.ref = this;
-        ajax.Complete(function () {
-            if (!this.ref.filereader.fd_complete) {
-                this.ref.filereader.Read(chunksize);
-            } else if (this.ref.filereader.fd_complete) {
-                this.ref.filesindex++;
-                if (this.ref.filesindex < this.ref.filescount) {
-                    this.ref.filereader.SetFile(this.ref.files[ this.ref.filesindex]);
-                    this.ref.filereader.Read(this.ref.chunksize);
+            var variables = this.variables;
+            var chunksize = this.chunksize;
+            this.ajax.ref = this;
+            this.filereader.ref = this;
+            this.ajax.Complete(function () {
+                if (!this.ref.filereader.fd_complete) {
+                    this.ref.filereader.Read(chunksize);
+                } else if (this.ref.filereader.fd_complete) {
+                    this.ref.filesindex++;
+                    if (this.ref.filesindex < this.ref.filescount) {
+                        this.ref.filereader.SetFile(this.ref.files[ this.ref.filesindex]);
+                        this.ref.filereader.Read(this.ref.chunksize);
+                    } else {
+                        this.ref.Log({"AjaxProgress": 100, "FileProgress": 100, "AllProgress": 100, "Complete": true});
+                        this.ref.mutex = false;
+                    }
                 }
-            }
-        });
-        ajax.Progress(function(v){
-           
-            var spfile= (this.ref.filereader.Tell()/this.ref.filereader.Size())*100;
-            var all=((this.ref.filesindex+1)/this.ref.filescount)*100;
-            this.ref.Log({"AjaxProgress":v,"FileProgress":spfile,"AllProgress":all});
-        });
-        this.filereader.GetUint8Array(function (f) {
-            var fd = new FormData();
-            fd.append(variables["files"], new File([f], this.name));
-            fd.append("header", 206);
-            this.fd_complete = false;
-            ajax.Send(variables["url"], fd);
-        });
-        this.filereader.EndOfFile(function (f) {
-            var fd = new FormData();
-            fd.append(variables["files"], this.name);
-            fd.append("header", 200);
-            this.fd_complete = true;
-            ajax.Send(variables["url"], fd);
+            });
+            this.ajax.Progress(function (v) {
 
-        });
+                var spfile = (this.ref.filereader.Tell() / this.ref.filereader.Size()) * 100;
+                var all = ((this.ref.filesindex + 1) / this.ref.filescount) * 100;
+                this.ref.Log({"AjaxProgress": v, "FileProgress": spfile, "AllProgress": all});
+            });
+            this.filereader.GetUint8Array(function (f) {
+                var fd = new FormData();
+                fd.append(variables["files"], new File([f], this.name));
+                fd.append("header", 206);
+                this.fd_complete = false;
+                this.ref.ajax.Send(variables["url"], fd);
+            });
+            this.filereader.EndOfFile(function (f) {
+                var fd = new FormData();
+                fd.append(variables["files"], this.name);
+                fd.append("header", 200);
+                fd.append("path", this.ref.path);
+                this.fd_complete = true;
+                this.ref.ajax.Send(variables["url"], fd);
 
+            });
+        }
+        else{
+            alert("FilesUpload_Configuration_Mistakes[url,files,path]");
+        }
     }
 
     SetFiles(files) {
@@ -58,11 +68,10 @@ class FilesUpload {
     SetParam(key, val) {
         this.param[key] = val;
     }
-
+    SetPath(val) {
+        this.path = val;
+    }
     Send() {
-        //variables["files"
-        //variables["url"
-
 
         if (!this.mutex && this.filescount > 0) {
             this.mutex = true;

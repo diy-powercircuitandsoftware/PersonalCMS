@@ -96,7 +96,9 @@ class VirtualDirectory {
                 "modified" => date("d-m-Y", $info->getMTime()),
                 "ext" => $info->getExtension(),
                 "type" => $info->isDir() ? "DIR" : "FILE",
-                "fullpath" => $this->Normalize($s)
+                "fullpath" => $this->Normalize($s),
+                "md5"=> md5_file($path),
+                 "sha1"=> sha1_file($path)
             );
         }
         return array();
