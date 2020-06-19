@@ -10,17 +10,40 @@ and open the template in the editor.
         <title>Install</title>
         <script src="../../js/io/Ajax.js"></script>
         <script src="../../js/dom/SSQueryFW.js"></script>
+        <script src="../../js/dom/FilesList.js"></script>
         <script>
             var ss = new SSQueryFW();
             ss.DocumentReady(function () {
                 var ajax = new Ajax();
+                var fl = new FilesList(document.getElementById("FileRS"));
 
 
-                ss.S("#TXTDataPath").KeyUp(function () {
-                    ajax.Post("Action/SimulationDataPath.php", {"Path": this.value}, function (s) {
-                         ss.S("#Simpath").Html(s);
+                fl.OpenDir(function (v) {
+                    ajax.Post("Action/ListDIR.php", {"Path": v}, function (data) {
+                        fl.Clear();
+                        data = JSON.parse(data);
+                        for (var i in data) {
+                            fl.AddDir(data[i]["name"], data[i]["realpath"], "-");
+                        }
+                        ss.S("#CHDIRList").Html((v));
                     });
                 });
+                fl.OpenDir("/");
+                ss.S("#BNInstall").Click(function () {
+                    
+                    var tin= ss.S(".TXTInput").ValByName();
+                    tin.path=fl.GetSelectFiles(0);
+                    
+                    ajax.Post("Action/Install.php", tin, function (data) {
+                        if (data=="1"){
+                            alert("Install Complete");
+                        }
+                        else{
+                             alert(data);
+                        }
+                    });
+                });
+//
 
             });
 
@@ -28,43 +51,31 @@ and open the template in the editor.
     </head>
     <body style="background-color: cornsilk; ">
 
-        <form action="Action/Install.php" method="POST">
-            <div style="transform: translate(-50%,-50%);
-                 position:absolute;
-                 top:50%;
-                 left:50%;">
-                <table style=" border-style: solid;">
-                    <thead>
-                        <tr>
-                            <th colspan="2">Install</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Password:</td>
-                            <td><input style="width: 100%;box-sizing: border-box;" type="text" name="Password" value="" /></td>
-                        </tr>
-                        <tr>
-                            <td>Data:</td>
-                            <td>
-                                <input style="width: 100%;box-sizing: border-box;"  id="TXTDataPath" type="text" name="DataPath" value="DefaultFiles" />
-                                <div id="Simpath" style="word-wrap: break-word;">
+        <form action="Action/Install.php" method="POST" >
+            <h1 style="text-align: center;">Install</h1>
+            <div id="CHDIRList"></div>
+            <div id="FileRS">
 
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2"><input type="submit" value="Add" style="width: 100%;" /></td>
-                        </tr>
-                    </tbody>
-
-                </table>
-                <?php
-                if (isset($_GET["error"])) {
-                    echo 'Error:' . $_GET["error"];
-                }
-                ?>
             </div>
+
+            <?php
+            $path = "../../../Class/Core/Config/";
+            if (is_writable($path)) {
+                echo '<div style="border-style: solid;border-width: thin;">
+                <label>name:</label>
+                  <input class="TXTInput" type="text" name="name" value="" />
+                 <label>Password:</label>
+                <input class="TXTInput" type="password" name="password" value="" />
+                <input id="BNInstall" type="button" value="Install" />
+                <a href="../../index.php"><input type="button" value="Back" /></a>
+            </div>';
+            } else {
+                echo '<label>can not write config file(Class/Core/Config)</label>';
+            }
+            ?>
+
+
+
         </form>
 
     </body>
