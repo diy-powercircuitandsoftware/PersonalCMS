@@ -12,16 +12,20 @@ class Config extends SQLite3 {
         $this->open($path);
     }
 
-    /* public function Auth($sessionid, $password) {
-      $hash = sha1(sha1("Transp" . $password . "arency"));
-      if ($hash == $this->configdata["Password"]) {
-      $this->configdata["SessionID"] = $sessionid;
-      $this->configdata["AuthIP"] = $_SERVER['REMOTE_ADDR'];
-      return $this->Save();
-      }
-      return false;
-      }
+    public function Auth($name, $password) {
+        $hash = sha1(sha1("Transp" . $password . "arency"));
+        $results = $this->query(" SELECT v FROM config WHERE k='root';");
+        $data = $results->fetchArray();
+        $v = json_decode($data["v"], true);
+        return $v["name"] == $name && $v["pw"] == $hash;
+    }
 
+    public function CanAuth() {
+        $results = $this->query(" SELECT v FROM config WHERE k='root';");
+        return !($results->fetchArray() === false);
+    }
+
+    /*
 
 
       public function ChRootPW($password, $newpassword) {
@@ -37,40 +41,34 @@ class Config extends SQLite3 {
     public function GetDataPath() {
         $results = $this->query(" SELECT v FROM config WHERE k='data';");
         $data = $results->fetchArray();
-        return $data["v"];
-        
+        if ($data) {
+            return $data["v"];
+        }
+        return "";
     }
 
     public function GetConfigDIRPath() {
         return realpath(dirname(__FILE__));
     }
 
-    /*
-      public function GetName() {
+    public function GetName() {
+        $results = $this->query(" SELECT v FROM config WHERE k='name';");
+        $data = $results->fetchArray();
+        if ($data) {
+            return $data["v"];
+        }
+        return "PersonalCMS";
+    }
 
-      if ($this->Installed() && isset($this->configdata["Name"])) {
-      return $this->configdata["Name"];
-      }
-      return "";
-      }
-
-      public function GetPathRootApp() {
-      return dirname(__FILE__) . "/../../../";
-      }
-
-      public function GetShortDataPath() {
-      if (isset($this->configdata["DataPath"])) {
-      return $this->configdata["DataPath"];
-      }
-      return null;
-      }
-
-      public function HasRootAuth($sessionid) {
-      if ($this->Installed() && isset($this->configdata["SessionID"]) && isset($this->configdata["AuthIP"])) {
-      return ($sessionid == $this->configdata["SessionID"]) && ( $_SERVER['REMOTE_ADDR'] == $this->configdata["AuthIP"]);
-      }
-      }
-     */
+    public function HasRootAuth($sessionid) {
+        if ($this->Installed()) {
+            $results = $this->query(" SELECT v FROM config WHERE k='session';");
+            $data = $results->fetchArray();
+            $v = json_decode($data["v"], true);
+            return $v["session"] == $sessionid && $v["ip"] == $_SERVER['REMOTE_ADDR'];
+        }
+        return false;
+    }
 
     public function InsertValue($key, $val) {
         try {
@@ -91,7 +89,7 @@ class Config extends SQLite3 {
                 k       VARCHAR (256)   PRIMARY KEY,
                 v VARCHAR (1024));');
             $this->exec($sql);
-            return $this->InsertValue("rootname", $rootname) && $this->InsertValue("pw", $hash) && $this->InsertValue("data", $datadir);
+            return $this->InsertValue("root", json_encode(array("name" => $rootname, "pw" => $hash))) && $this->InsertValue("data", $datadir);
         }
         return false;
     }
@@ -106,38 +104,41 @@ class Config extends SQLite3 {
       $hash = sha1(sha1("Transp" . $password . "arency"));
       return ($hash == $this->configdata["Password"]) && $this->HasRootAuth($sessionid);
       }
-
-      public function Logout() {
-      unset($this->configdata["SessionID"]);
-      unset($this->configdata["AuthIP"]);
-      return $this->Save();
-      }
      */
+
+    public function Logout() {
+        return $this->RemoveValue("session");
+    }
 
     public function IsOnline() {
         if ($this->Installed()) {
             $results = $this->query(" SELECT v FROM config WHERE k='online';");
-            return ( $results->fetchArray() == "1");
+            $rs = $results->fetchArray();
+            return $rs && $rs["v"] == "1";
         }
         return false;
     }
 
-    /*
+    public function RemoveValue($key) {
+        try {
+            $stmt = $this->prepare("DELETE FROM config  WHERE k=:k;");
+            $stmt->bindValue(':k', $key, SQLITE3_TEXT);
+            $stmt->execute();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 
+    public function SessionRegister($sessionid) {
+        if ($this->Installed()) {
+            $data = array(
+                "session" => $sessionid,
+                "ip" => $_SERVER['REMOTE_ADDR']
+            );
+            return $this->InsertValue("session", json_encode($data));
+        }
+        return false;
+    }
 
-      public function SetValue($password, $data = array()) {
-      $hash = sha1(sha1("Transp" . $password . "arency"));
-      if ($hash == $this->configdata["Password"]) {
-      foreach ($data as $key => $value) {
-      $this->configdata[$key] = $value;
-      }
-      return $this->Save();
-      }
-      return false;
-      }
-
-      public function SimulationDataPath($datadir) {
-      return realpath($this->GetPathRootApp() . $datadir . "/");
-      }
-     */
 }

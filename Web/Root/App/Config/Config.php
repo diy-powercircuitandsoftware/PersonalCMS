@@ -61,14 +61,7 @@ if ($config->HasRootAuth(session_id())) {
 
                     });
 
-                    ss.S("#TXTUserDIR").KeyUp(function (e) {
-
-                        ajax.Post("Action/SimulationDataPath.php", {"path": this.value}, function (data) {
-                            ss.S("#PathPreview").Html(data);
-                        });
-
-                    });
-
+                   
                 });
 
             </script>
@@ -139,8 +132,8 @@ if ($config->HasRootAuth(session_id())) {
                         <tr  >
                             <td>UserDIR:</td>
                             <td>
-                                <input id="TXTUserDIR" class="AjaxChangeValue" type="text" name="DataPath" value="<?php echo $config->GetShortDataPath(); ?>" />
-                                <span id="PathPreview">FullPath:<?php echo $config->GetDataPath(); ?></span>
+                                <input id="TXTUserDIR" class="AjaxChangeValue" type="text" name="DataPath" value="<?php echo $config->GetDataPath(); ?>" />
+                                
                             </td>
                         </tr>
                     </table>

@@ -2,21 +2,23 @@
 session_start();
 include_once '../../../Class/Core/Config/Config.php';
 $config = new Config();
-if ($config->Installed() && isset($_POST["Superuser"]) && isset($_POST["Password"])) {  
-    if (in_array($_POST["Superuser"], $config->SuperuserVocabulary)) {
-        if ($config->Auth(session_id(), $_POST["Password"])) {
-            header("location: ../index.php");
+if ($config->Installed() && isset($_POST["Superuser"]) && isset($_POST["Password"])) {
+    if (($config->CanAuth())) {
+        if ($config->Auth($_POST["Superuser"], $_POST["Password"])) {
+            if ($config->SessionRegister(session_id())) {
+                header("location: ../index.php");
+            } else {
+                header("location: index.php?error='Session Register Error'");
+            }
         } else {
-            header("location: index.php?error='password error'");
+            header("location: index.php?error='Password Error'");
         }
     } else {
-        header("location: index.php?error='Wrong Answer Superuser?'");
+        header("location: index.php?error='Can Not Auth Database Not Exists'");
     }
-} else if (!$config->Installed()){
+} else if (!$config->Installed()) {
     header("location: ../Install/index.php");
-}
-else {
-        
+} else {
     ?>
 
     <!DOCTYPE html>
