@@ -45,21 +45,19 @@ if ($config->HasRootAuth(session_id())) {
                     ss.S(".BNUnInstall").Click(function (e) {
                         e.preventDefault();
                         var ref = this.href;
-                        var u = dialog.UnLock(function (v) {
-                            ajax.Post(ref, {"password": v}, function (s) {
+                        var u = dialog.Confirm(function () {
+                            ajax.Post(ref, {}, function (s) {
                                 if (s == "1") {
                                     u.Close();
                                 } else {
                                     dialog.Alert(s);
                                     u.Close();
                                 }
-
                             });
 
                         }).ZIndex(999);
 
                     });
-
 
                     ss.S("#TableList").Change(function (e) {
                         ajax.Post("Action/GetTableFields.php", {"name": this.value}, function (data) {

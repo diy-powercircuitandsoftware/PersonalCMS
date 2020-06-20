@@ -5,7 +5,7 @@ include_once '../../../../../Class/Core/Config/Config.php';
 include_once '../../../../../Class/Core/Module/Database.php';
 $config = new Config();
 $module = new Module_Database($config);
-if ($config->IsME(session_id(), $_POST["password"])) {
+if ($config->HasRootAuth(session_id())) {
     $modpath = $module->ModulePath;
     $addlist = array();
     if (isset($_FILES["file"])) {

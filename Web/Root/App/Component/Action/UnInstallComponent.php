@@ -3,7 +3,7 @@
 session_start();
 include_once '../../../../../Class/Core/Config/Config.php';
 $config = new Config();
-if ($config->IsME(session_id(),$_POST["password"])) {
+if ($config->HasRootAuth(session_id())) {
     $fullpath = '../../../../../Class/Com/'.$_POST["DIR"]."/Database.php";
      include_once $fullpath;
     

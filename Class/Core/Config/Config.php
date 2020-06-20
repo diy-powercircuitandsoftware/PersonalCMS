@@ -25,18 +25,18 @@ class Config extends SQLite3 {
         return !($results->fetchArray() === false);
     }
 
-    /*
-
-
-      public function ChRootPW($password, $newpassword) {
-      $hash = sha1(sha1("Transp" . $password . "arency"));
-      if ($hash == $this->configdata["Password"]) {
-      $this->configdata["Password"] = sha1(sha1("Transp" . $newpassword . "arency"));
-      return $this->Save();
-      }
-      return false;
-      }
-     */
+    public function ChRootPW($password, $newpassword) {
+        $hash = sha1(sha1("Transp" . $password . "arency"));
+        $hashnew = sha1(sha1("Transp" . $newpassword . "arency"));
+        $results = $this->query(" SELECT v FROM config WHERE k='root';");
+        $data = $results->fetchArray();
+        $v = json_decode($data["v"], true);
+        if ($v["pw"] == $hash) {
+            $v["pw"] = $hashnew;
+            return $this->InsertValue("root", json_encode($v));
+        }
+        return false;
+    }
 
     public function GetDataPath() {
         $results = $this->query(" SELECT v FROM config WHERE k='data';");
@@ -98,13 +98,6 @@ class Config extends SQLite3 {
         $results = $this->query(" SELECT name FROM sqlite_master WHERE name='config';");
         return !($results->fetchArray() === false);
     }
-
-    /*
-      public function IsME($sessionid, $password) {
-      $hash = sha1(sha1("Transp" . $password . "arency"));
-      return ($hash == $this->configdata["Password"]) && $this->HasRootAuth($sessionid);
-      }
-     */
 
     public function Logout() {
         return $this->RemoveValue("session");

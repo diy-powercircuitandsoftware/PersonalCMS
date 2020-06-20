@@ -36,9 +36,9 @@ if ($config->HasRootAuth(session_id())) {
                     var dialog = new SuperDialog();
                     var ajax = new Ajax();
                     ss.S("#BNSave").Click(function () {
-                        var u = dialog.UnLock(function (v) {
+                        var u = dialog.Confirm(function () {
                             var json = ss.S(".AjaxChangeValue").ValByName();
-                            ajax.Post("Action/SaveBasicConfig.php", {"password": v, "data": json}, function (data) {
+                            ajax.Post("Action/SaveBasicConfig.php", { "data": json}, function (data) {
                                 if (data === "1") {
                                     u.Close();
                                 }
