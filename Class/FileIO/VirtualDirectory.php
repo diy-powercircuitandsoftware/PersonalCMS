@@ -26,7 +26,7 @@ class VirtualDirectory {
                     unlink($file);
                 }
             }
-            if (!in_array("$src", array("/", "\\", ".", ".."))) {
+            if (!in_array($src, array("/", "\\", ".", ".."))) {
                 rmdir($src);
             }
         } else if (is_file($src)) {
@@ -134,6 +134,20 @@ class VirtualDirectory {
         $src = $this->DiskPath($s);
         $dest = $this->DiskPath($d);
         return rename($src, $dest);
+    }
+
+    public function RenameLast($s, $newname) {
+        if (!in_array($s, array("/", "\\", ".", "..",""))&&!in_array($newname, array("/", "\\", ".", "..",""))) {
+            $src = $this->DiskPath($s);
+            $parrent = dirname($src)."/";
+            if (is_file($src)) {
+                $ext = pathinfo($src, PATHINFO_EXTENSION);
+                return rename($src,$parrent. $newname . "." . $ext);
+            } else if (is_dir($src)) {
+                return rename($src,$parrent. $newname);
+            }
+        }
+        return false;
     }
 
     public function ScanDIR($Path) {

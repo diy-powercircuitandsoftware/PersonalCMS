@@ -63,7 +63,7 @@ if ($config->HasRootAuth(session_id())) {
                     });
                     ss.S(".BNUnInstall").Click(function (e) {
                         var dir = this.getAttribute("data-id");
-                        var dia = dialog.Confirm(function () {
+                        var dia = dialog.Confirm("UnInstall",function () {
                             ajax.Post("Action/UnInstallComponent.php", { "DIR": dir}, function (data) {
                                 if (data == "1") {
                                     dia.Close();

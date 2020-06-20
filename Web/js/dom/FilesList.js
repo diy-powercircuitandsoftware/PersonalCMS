@@ -51,7 +51,7 @@ class FilesList {
             if (selcetdom == "Download") {
                 var parrent = e.target.parentNode.parentNode;
                 if (this.fn.downloadpath != undefined) {
-                    e.target.href = this.fn.downloadpath;
+                    e.target.href = this.fn.downloadpath + parrent.getAttribute("data-path");
                 }
             }
         });
@@ -60,8 +60,8 @@ class FilesList {
     AddFile(name, path, size, date) {
         var icon = "";
         var lastrow = this.list.insertRow(-1);
-        if (["jpg", "gif", "png", "jpeg"].indexOf( path.split('.').pop()) >= 0) {
-            icon='<img src="'+this.previewpath+path+'"/>';
+        if (["jpg", "gif", "png", "jpeg"].indexOf(path.split('.').pop()) >= 0) {
+            icon = '<img src="' + this.previewpath + path + '"/>';
         }
         lastrow.setAttribute("data-path", path);
         lastrow.setAttribute("data-type", "File");
@@ -102,9 +102,8 @@ class FilesList {
         });
         if (args.length === 0) {
             return out;
-        }
-        else{
-          return  out[args[0]];
+        } else {
+            return  out[args[0]];
         }
     }
     Multiple(bool) {

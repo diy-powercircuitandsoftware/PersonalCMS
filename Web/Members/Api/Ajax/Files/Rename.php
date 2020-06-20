@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 include_once '../../../../../Class/Core/Config/Config.php';
 include_once '../../../../../Class/Com/Files/Database.php';
@@ -12,18 +11,12 @@ $fd = new Files_Database($config);
 $userdb = new User_Database($config);
 $session = new User_Session($userdb);
 $userdata = new User_Member($userdb);
-if ($config->IsOnline() && isset($_POST["path"]) && isset($_SESSION["User"]) &&
-        isset($_POST["password"])&&
+if ($config->IsOnline() && isset($_POST["path"]) &&isset($_POST["newname"]) && isset($_SESSION["User"]) &&
         $session->Registered(session_id()) &&
-        $userdata->CanWritable($_SESSION["User"]["id"])&&
-        $userdata->AuthByPassword($_SESSION["User"]["id"], $_POST["password"])
-        ) {
+        $userdata->CanWritable($_SESSION["User"]["id"])) {
     $vd = new VirtualDirectory($fd->GetUserDIR($_SESSION["User"]["id"]));
-    
-    foreach ($_POST["path"] as $value) {
-           $vd->DeleteFile($value);
-    }
-    echo '1';
+    echo ($vd->RenameLast($_POST["path"],$_POST["newname"])) ;
+        
 } else {
     echo '0';
 }

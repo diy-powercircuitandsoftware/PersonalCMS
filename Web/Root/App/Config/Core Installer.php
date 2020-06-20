@@ -45,7 +45,7 @@ if ($config->HasRootAuth(session_id())) {
                     ss.S(".BNUnInstall").Click(function (e) {
                         e.preventDefault();
                         var ref = this.href;
-                        var u = dialog.Confirm(function () {
+                        var u = dialog.Confirm("UnInstall",function () {
                             ajax.Post(ref, {}, function (s) {
                                 if (s == "1") {
                                     u.Close();

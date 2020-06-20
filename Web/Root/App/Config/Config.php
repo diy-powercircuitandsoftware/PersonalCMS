@@ -36,7 +36,7 @@ if ($config->HasRootAuth(session_id())) {
                     var dialog = new SuperDialog();
                     var ajax = new Ajax();
                     ss.S("#BNSave").Click(function () {
-                        var u = dialog.Confirm(function () {
+                        var u = dialog.Confirm("Save!",function () {
                             var json = ss.S(".AjaxChangeValue").ValByName();
                             ajax.Post("Action/SaveBasicConfig.php", { "data": json}, function (data) {
                                 if (data === "1") {
@@ -101,7 +101,7 @@ if ($config->HasRootAuth(session_id())) {
                         <tr>
                             <td>Online:</td>
                             <td>
-                                <select  class="AjaxChangeValue" style="width:99%;" name="Online" >
+                                <select  class="AjaxChangeValue" style="width:99%;" name="online" >
                                     <option value="0">false</option>
                                     <option value="1"
                                     <?php
@@ -117,7 +117,7 @@ if ($config->HasRootAuth(session_id())) {
                         <tr>
                             <td>Name:</td>
                             <td>
-                                <input class="AjaxChangeValue" style="width:99%;" type="text" name="Name" value="<?php
+                                <input class="AjaxChangeValue" style="width:99%;" type="text" name="name" value="<?php
                                 echo $config->GetName();
                                 ?>" />
                             </td>
@@ -132,7 +132,7 @@ if ($config->HasRootAuth(session_id())) {
                         <tr  >
                             <td>UserDIR:</td>
                             <td>
-                                <input id="TXTUserDIR" class="AjaxChangeValue" type="text" name="DataPath" value="<?php echo $config->GetDataPath(); ?>" />
+                                <input id="TXTUserDIR" class="AjaxChangeValue" type="text" name="data" value="<?php echo $config->GetDataPath(); ?>" />
                                 
                             </td>
                         </tr>

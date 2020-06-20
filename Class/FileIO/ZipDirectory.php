@@ -2,31 +2,30 @@
 
 class ZipDirectory {
 
+    private $tmpfile;
+    private $zip;
+
     function __construct() {
-        
+        $this->tmpfile = tempnam("tmp", "zip");
+        $this->zip = new ZipArchive();
+        $this->zip->open($this->tmpfile, ZipArchive::CREATE);
     }
 
-    function Compress($path) {
-
-        $tmpfile = tempnam("tmp", "zip");
-        $zip = new ZipArchive();
-        $zip->open($tmpfile, ZipArchive::CREATE);
-
+    public function Add($path) {
         $files = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST
         );
         foreach ($files as $file) {
-            if (is_file($file)) {
-                $zip->addFile($file, urldecode($files->getSubPathName()));
-            }
+            $this->zip->addFile($file, ($files->getSubPathName()));
         }
+    }
 
-        $zip->close();
-        header('Content-Type: application/zip');
-        header('Content-Length: ' . filesize($tmpfile));
-        header("Content-Disposition: attachment; filename=" . basename($path) . ".zip");
-        readfile($tmpfile);
-        unlink($tmpfile);
+    public function GetTempFile() {
+        return $this->tmpfile;
+    }
+
+    public function Zip() {
+        $this->zip->close;
     }
 
 }
