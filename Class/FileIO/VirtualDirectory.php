@@ -90,16 +90,23 @@ class VirtualDirectory {
         $path = $this->DiskPath($s);
         if (file_exists($path)) {
             $info = new SplFileInfo($path);
-            return array(
+            $a = array(
                 "name" => urldecode($info->getFilename()),
                 "size" => $info->getSize(),
                 "modified" => date("d-m-Y", $info->getMTime()),
-                "ext" => $info->getExtension(),
                 "type" => $info->isDir() ? "DIR" : "FILE",
                 "fullpath" => $this->Normalize($s),
-                "md5" => md5_file($path),
-                "sha1" => sha1_file($path)
             );
+            if ($info->isFile()) {
+                $a["md5"] = md5_file($path);
+                $a["sha1"] = sha1_file($path);
+                $a["ext"] = $info->getExtension();
+            } else {
+                $a["md5"] = "";
+                $a["sha1"] = "";
+                $a["ext"] = "";
+            }
+            return $a;
         }
         return array();
     }
@@ -137,14 +144,14 @@ class VirtualDirectory {
     }
 
     public function RenameLast($s, $newname) {
-        if (!in_array($s, array("/", "\\", ".", "..",""))&&!in_array($newname, array("/", "\\", ".", "..",""))) {
+        if (!in_array($s, array("/", "\\", ".", "..", "")) && !in_array($newname, array("/", "\\", ".", "..", ""))) {
             $src = $this->DiskPath($s);
-            $parrent = dirname($src)."/";
+            $parrent = dirname($src) . "/";
             if (is_file($src)) {
                 $ext = pathinfo($src, PATHINFO_EXTENSION);
-                return rename($src,$parrent. $newname . "." . $ext);
+                return rename($src, $parrent . $newname . "." . $ext);
             } else if (is_dir($src)) {
-                return rename($src,$parrent. $newname);
+                return rename($src, $parrent . $newname);
             }
         }
         return false;

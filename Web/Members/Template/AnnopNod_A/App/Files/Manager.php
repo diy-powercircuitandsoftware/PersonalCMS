@@ -112,12 +112,31 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     })
                     FL.OpenDir("/");
 
+                    FL.Properties(function (v) {
+                        ajax.Get("../../../../Api/Ajax/Files/GetPropertiesFile.php", {"path": v}, function (data) {
+                            data = JSON.parse(data);
+                            var tl = dialog.TableLayout().Title("Properties").ZIndex(999);
+                            tl.AddNewRowElement();
+                            tl.AddNewCellElement("Name", data["name"]);
+                            tl.AddNewRowElement();
+                            tl.AddNewCellElement("Size", data["size"]);
+                            tl.AddNewRowElement();
+                            tl.AddNewCellElement("Extension", data["ext"]);
+                            tl.AddNewRowElement();
+                            tl.AddNewCellElement("md5", data["md5"]);
+                            tl.AddNewRowElement();
+                            tl.AddNewCellElement("sha1", data["sha1"]);
+                            tl.AddNewRowElement();
 
+                            tl.AddNewCellElement("Modified", data["modified"]);
 
-                    FL.Rename( function (v) {
+                        });
+                    });
+
+                    FL.Rename(function (v) {
                         dialog.Prompt("Rename", function (name) {
                             ajax.Post("../../../../Api/Ajax/Files/Rename.php", {"path": v, "newname": name}, function (data) {
-                            FL.OpenDir(fileupload.currentdir);
+                                FL.OpenDir(fileupload.currentdir);
                             });
                             return  true;
                         }).ZIndex(999);
@@ -185,16 +204,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                          
                          
                          
-                     fl.PropertiesFile = function (v) {
-                     ss.Post("../../../Api/Ajax/Files/GetPropertiesFile.php", {"Path": v}, function (data) {
-                     data = JSON.parse(data);
-                     var tl = dialog.TableLayout().Title("Properties").ZIndex(999);
-                     tl.AddTableDom("Name", data["name"]);
-                     tl.AddTableDom("Size", data["size"]);
-                     tl.AddTableDom("Modified", data["modified"]);
-                         
-                     });
-                     };
                          
                          
                      ss.S("#BNAddShare").Click(function () {

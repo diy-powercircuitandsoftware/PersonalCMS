@@ -540,7 +540,6 @@ class SuperDialog {
                 var id = args[0];
                 var name = args[1];
                 var data = args[2];
-
                 row.insertCell(-1).appendChild(document.createTextNode(name + ":"));
                 var cell = row.insertCell(-1);
                 if (typeof data === 'string' || data instanceof String) {
@@ -556,7 +555,6 @@ class SuperDialog {
         };
         sd.AddNewCellElement = function (...args) {
             var lastrow = this.table.rows.length - 1;
-
             var row = this.table.rows[lastrow];
             if (args.length === 1) {
                 var cell = row.insertCell(-1);
@@ -577,6 +575,9 @@ class SuperDialog {
                 } else if (data instanceof HTMLElement) {
                     cell.appendChild(data);
                     data.name = args[0].replace(/\s/g, '');
+                }
+                else{
+                     cell.insertAdjacentHTML('beforeend', data);
                 }
                 cell.setAttribute("data-marker", "1");
             } else if (args.length === 3) {
