@@ -10,7 +10,7 @@ class TempFile {
             mkdir($this->temppath);
         }
     }
-
+ 
     function mkdir($path) {
         if (!is_dir($this->temppath . $path)) {
             return mkdir($this->temppath . $path);
@@ -45,6 +45,10 @@ class TempFile {
 
     function getdiskpath($src) {
         return realpath($this->temppath . $this->Normalize($src));
+    }
+
+    function realpathsimulation($src) {
+        return realpath($this->temppath) . $this->Normalize($src);
     }
 
     private function Normalize($Path) {

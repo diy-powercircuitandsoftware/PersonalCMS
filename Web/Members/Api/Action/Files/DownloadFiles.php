@@ -16,24 +16,23 @@ if ($config->IsOnline() && isset($_GET["path"])) {
     if ($vd->IsFile($_GET["path"])) {
         $fdownload->DownloadFile($vd->DiskPath($_GET["path"]));
     } else if ($vd->IsDir($_GET["path"])) {
-         $dirpath = "PersonalCMS_Download_" . $_SESSION["User"]["id"] . "/";
-        $zipfilename = sha1($_GET["path"]) . ".zip";
+        $dirpath = "PersonalCMS_Download_" . $_SESSION["User"]["id"] . "/";
         $tmpfile->mkdir($dirpath);
-       echo $tmpfile->getdiskpath($dirpath);
-        if (!$tmpfile->file_exists($dirpath . $zipfilename)) {
-           /* $zip->open($tmpfile->getdiskpath($dirpath) . $zipfilename, ZipArchive::CREATE);
+        $filepath = $tmpfile->realpathsimulation($dirpath . sha1($_GET["path"]) . ".zip");
+        if (!file_exists($filepath)) {
+            $zip->open($filepath, ZipArchive::CREATE);
             $files = new RecursiveIteratorIterator(
                     new RecursiveDirectoryIterator($vd->DiskPath($_GET["path"]), RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST
             );
             foreach ($files as $file) {
-                $zip->addFile($file, ($files->getSubPathName()));
+                if (is_file($file)) {
+                    $zip->addFile($file, ($files->getSubPathName()));
+                }
             }
-            $zip->close();*/
+            $zip->close();
         }
-        /* $zip->Add($vd->DiskPath($_GET["path"]));
-          $zip->Zip();
-          echo ;
-         */
+          $fdownload->DownloadFile($filepath);
+        
     }
 } else {
     header("HTTP/1.0 404 Not Found");
