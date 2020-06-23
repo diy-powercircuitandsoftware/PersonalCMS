@@ -57,11 +57,11 @@ class SSQueryFW {
     }
     Disable(bool) {
         this.ForEach(this.element, function (el) {
-            if (bool){
-                el.disabled="disabled";
-            }else{
+            if (bool) {
+                el.disabled = "disabled";
+            } else {
                 el.removeAttribute("disabled");
-            }   
+            }
         });
     }
     DocumentReady(callback) {
@@ -152,35 +152,25 @@ class SSQueryFW {
         this.EventListener("keyup", ...args);
         return  this;
     }
+    Prop(...args) {
+        if (args.length == 1) {
+            var out = [];
+            this.ForEach(this.element, function (el) {
+                out.push(el[args[0]]);
+            });
+            return out;
 
-    Load(...args) {//test
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                this.ref.ForEach(this.refelement, function (el) {
-                    el.innerHTML = xhttp.responseText;
-                });
-            }
-        };
-        xhttp.ref = this;
-        xhttp.refelement = this.element;
-        if (args.length === 1) {
-            xhttp.open("GET", args[0], true);
-            xhttp.send();
-        } else if (args.length === 2) {
-            var json = args[1];
-            xhttp.open("GET", args[0] + '?' +
-                    Object.keys(json).map(function (key) {
-                return (key) + '=' +
-                        (json[key]);
-            }).join('&'), true);
-            xhttp.send( );
+        } else if (args.length == 2) {
+            this.ForEach(this.element, function (el) {
+                el[args[0]] = args[1];
+            });
+              return  this;
         }
-    }
 
+    }
     Show() {
         var block = ["html", "address", "blockquote", "body", "dd", "div", "dl", "dt", "fieldset", "form", "frame", "frameset", "h1", "h2", " h3", " h4", "h5", " h6", "noframes", "ol", "p", "ul", "center", "dir", "hr", "menu", "pre"];
-       var inline=["input","span","button"];
+        var inline = ["input", "span", "button"];
         var other = {
             "li": "list-item",
             "head": "none",
@@ -196,7 +186,7 @@ class SSQueryFW {
             "caption": "table-caption"
         };
         this.ForEach(this.element, function (el) {
-            
+
             if (window.getComputedStyle(el).getPropertyValue("display") == "none") {
                 var tagname = el.tagName.toLowerCase();
                 if (block.indexOf(tagname) >= 0) {
@@ -206,7 +196,7 @@ class SSQueryFW {
                 } else if (other.hasOwnProperty(tagname)) {
                     el.style.display = other[tagname];
                 }
-               
+
             } else {
                 el.style.display = "";
             }
@@ -248,7 +238,7 @@ class SSQueryFW {
 
     Val(...args) {
         var arrchk = ["checkbox", "radio"];
-        var hassrc = ["video", "audio", "img"];
+        var hassrc = ["video", "audio", "img", "iframe"];
         if (args.length === 0) {
             var output = [];
             this.ForEach(this.element, function (el) {
@@ -267,7 +257,7 @@ class SSQueryFW {
                             output.push(option.value);
                         }
                     }
-                } else if (hassrc.indexOf(el.tagName) >= 0) {
+                } else if (hassrc.indexOf(el.tagName.toLowerCase()) >= 0) {
                     output.push(el.src);
                 } else if (arrchk.indexOf(el.type) === -1) {
                     output.push(el.value);

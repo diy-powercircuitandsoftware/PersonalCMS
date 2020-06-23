@@ -3,34 +3,51 @@
 class VirtualDirectory {
 
     private $DiskDirPath;
+    private $RootPath = array("/", "\\");
 
     function __construct($path) {
         $this->DiskDirPath = realpath($path);
     }
 
     public function Copy($s, $d) {
-        return copy($this->DiskPath($s), $this->DiskPath($d));
+        if (($s !== $d) && !in_array($this->Normalize($s), $this->RootPath) && !in_array($this->Normalize($d), $this->RootPath)) {
+            $src = $this->DiskPath($s);
+            $dest = $this->DiskPath($d) . DIRECTORY_SEPARATOR;
+            if (is_file($src)) {
+                return copy($src, $dest . basename($src));
+            } else if (is_dir($src)) {
+                foreach ($iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($src, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::SELF_FIRST) as $item) {
+                    if ($item->isDir()) {
+                        mkdir($dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());                        
+                    } else {
+                        copy($item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public function DeleteFile($s) {
-        $src = $this->DiskPath($s);
-
-        if (is_dir($src)) {
-            $files = new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator($src, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST
-            );
-            foreach ($files as $file) {
-                if (is_dir($file)) {
-                    rmdir($file);
-                } else if (is_file($file)) {
-                    unlink($file);
+        if (!in_array($this->Normalize($s), $this->RootPath)) {
+            $src = $this->DiskPath($s);
+            if (is_dir($src)) {
+                $files = new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator($src, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST
+                );
+                foreach ($files as $file) {
+                    if (is_dir($file)) {
+                        rmdir($file);
+                    } else if (is_file($file)) {
+                        unlink($file);
+                    }
                 }
-            }
-            if (!in_array($src, array("/", "\\", ".", ".."))) {
                 rmdir($src);
+            } else if (is_file($src)) {
+                unlink($src);
             }
-        } else if (is_file($src)) {
-            unlink($src);
         }
     }
 
@@ -42,7 +59,7 @@ class VirtualDirectory {
         return file_exists($this->DiskPath($s));
     }
 
-    public function GetFilesInformation(...$args) {
+    public function GetFilesList(...$args) {
         if (!is_dir($this->DiskPath($args[0]))) {
             return array();
         }
@@ -137,14 +154,30 @@ class VirtualDirectory {
         return mkdir($this->DiskPath($s));
     }
 
-    public function Rename($s, $d) {
-        $src = $this->DiskPath($s);
-        $dest = $this->DiskPath($d);
-        return rename($src, $dest);
+    public function MoveFiles($s, $d) {
+        if (($s !== $d) && !in_array($this->Normalize($s), $this->RootPath) && !in_array($this->Normalize($d), $this->RootPath)) {
+            $src = $this->DiskPath($s);
+            $dest = $this->DiskPath($d);
+            if (is_file($src)) {
+                return copy($src, $dest . basename($src));
+            } else if (is_dir($src)) {
+                foreach ($iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($src, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::SELF_FIRST) as $item) {
+                    if ($item->isDir()) {
+                        mkdir($dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName()); 
+                        rmdir($src . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
+                    } else {
+                        rename($item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public function RenameLast($s, $newname) {
-        if (!in_array($s, array("/", "\\", ".", "..", "")) && !in_array($newname, array("/", "\\", ".", "..", ""))) {
+        if (!in_array($this->Normalize($s), $this->RootPath) && !in_array($this->Normalize($newname), $this->RootPath)) {
             $src = $this->DiskPath($s);
             $parrent = dirname($src) . "/";
             if (is_file($src)) {
@@ -162,53 +195,59 @@ class VirtualDirectory {
     }
 
     function SearchFiles(...$args) {
-        if (count($args) < 2 || !is_dir($this->DiskPath($args[0]))) {
+        $path = $args[0];
+        $nameorext = array();
+        $searchall = false;
+        $filelist = array();
+        $normalize = $this->Normalize($path);
+        $realpath = realpath($this->DiskDirPath . $normalize);
+        $recursive = new DirectoryIterator($realpath);
+        if (count($args) == 2 && is_dir($this->DiskPath($path))) {
+            if (is_array($args[1])) {
+                $nameorext = $args[1];
+            } else if (is_string($args[1])) {
+                $nameorext = explode(",", $args[1]);
+            } else if (is_bool($args[1])) {
+                $searchall = $args[1];
+            }
+        } else if (count($args) == 3 && is_dir($this->DiskPath($path))) {
+            if (is_array($args[1])) {
+                $nameorext = $args[1];
+            } else if (is_string($args[1])) {
+                $nameorext = explode(",", $args[1]);
+            }
+            $searchall = $args[2];
+        } else {
             return array();
         }
-        $Normalize = $this->Normalize($args[0]);
-        $Path = $this->DiskDirPath . $Normalize;
-        $Recursive = new DirectoryIterator($Path);
-        $RecursiveAll = count($args) == 3 && $args[2];
-        $SearchList = array();
-        $FileList = array();
-        if (is_string($args[1])) {
-            $SearchList = explode(",", $args[1]);
-        } else if (is_array($args[1])) {
-            $SearchList = $args[1];
+        if (in_array("*.*", $nameorext)) {
+            $nameorext = array("*.*");
         }
-
-        if ($RecursiveAll) {
-            $Recursive = new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator($Path, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST
+        foreach ($nameorext as &$sl) {
+            $sl = strtolower($sl);
+        }
+        if ($searchall) {
+            $recursive = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($realpath, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST
             );
         }
-        if (in_array("*.*", $SearchList)) {
-            $SearchList = array("*.*");
-        }
-
-        foreach ($SearchList as &$sl) {
-            $sl = strtolower(urldecode($sl));
-        }
-
-
-        foreach ($Recursive as $file) {
+        foreach ($recursive as $file) {
             $addtoarray = false;
-            $decodebasename = urlencode($file->getBasename());
-            foreach ($SearchList as $sl) {
+            $decodebasename = $file->getBasename();
+            foreach ($nameorext as $sl) {
                 if ($sl == "*.*") {
                     $addtoarray = true;
                     break;
                 } else if (substr($sl, 0, 2) == "*.") {
                     $addtoarray = ( strtolower($file->getExtension()) == substr($sl, 2));
                     break;
-                } else {
+                } else if ($sl !== "") {
                     $addtoarray = ( strpos($decodebasename, $sl) !== false);
                     break;
                 }
             }
             if ($addtoarray) {
                 $ArrData = array();
-
                 $ArrData["name"] = $file->getBasename();
                 if ($file->isFile()) {
                     $ArrData["type"] = "FILE";
@@ -220,20 +259,18 @@ class VirtualDirectory {
                     $ArrData["ext"] = "";
                 }
                 $ArrData["modified"] = date("d-m-Y", $file->getMTime());
-
-                if ($RecursiveAll) {
-                    $ArrData["fullpath"] = $Normalize . DIRECTORY_SEPARATOR . $Recursive->getSubPathname();
+                if ($searchall) {
+                    $ArrData["fullpath"] = $normalize . DIRECTORY_SEPARATOR . $recursive->getSubPathname();
                 } else {
-                    $ArrData["fullpath"] = $Normalize . DIRECTORY_SEPARATOR . $file->getBasename();
+                    $ArrData["fullpath"] = $normalize . DIRECTORY_SEPARATOR . $file->getBasename();
                 }
-
-                $FileList[] = $ArrData;
+                $filelist[] = $ArrData;
             }
         }
-        usort($FileList, function($a, $b) {
+        usort($filelist, function($a, $b) {
             return strcmp($a["name"], $b["name"]);
         });
-        return $FileList;
+        return $filelist;
     }
 
 }
