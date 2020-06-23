@@ -206,7 +206,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                         ajax.Post(url, {"Path": fileupload.currentdir, "Files": files }, function (data) {
                             FL.OpenDir(fileupload.currentdir);
-                            ss.S("#BNPaste").Data({"mode": null, "files": null});
+                           // ss.S("#BNPaste").Data({"mode": null, "files": null});
                         });
 
                     });

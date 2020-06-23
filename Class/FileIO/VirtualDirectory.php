@@ -10,21 +10,24 @@ class VirtualDirectory {
     }
 
     public function Copy($s, $d) {
-        if (($s !== $d) && !in_array($this->Normalize($s), $this->RootPath) && !in_array($this->Normalize($d), $this->RootPath)) {
+        if (($s !== $d) && !in_array($this->Normalize($s), $this->RootPath) ) {
             $src = $this->DiskPath($s);
             $dest = $this->DiskPath($d) . DIRECTORY_SEPARATOR;
             if (is_file($src)) {
                 return copy($src, $dest . basename($src));
             } else if (is_dir($src)) {
+                $dest = $dest . DIRECTORY_SEPARATOR . basename($src) . DIRECTORY_SEPARATOR;
+                mkdir($dest);
                 foreach ($iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($src, RecursiveDirectoryIterator::SKIP_DOTS),
                 RecursiveIteratorIterator::SELF_FIRST) as $item) {
                     if ($item->isDir()) {
-                        mkdir($dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());                        
+                        mkdir($dest . $iterator->getSubPathName());
                     } else {
-                        copy($item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
+                        copy($item, $dest . $iterator->getSubPathName());
                     }
                 }
+                rmdir($src);
             }
         }
         return false;
@@ -155,22 +158,20 @@ class VirtualDirectory {
     }
 
     public function MoveFiles($s, $d) {
-        if (($s !== $d) && !in_array($this->Normalize($s), $this->RootPath) && !in_array($this->Normalize($d), $this->RootPath)) {
+        if (($s !== $d) && !in_array($this->Normalize($s), $this->RootPath) ) {
             $src = $this->DiskPath($s);
             $dest = $this->DiskPath($d);
             if (is_file($src)) {
                 return copy($src, $dest . basename($src));
             } else if (is_dir($src)) {
+                $dest = $dest . DIRECTORY_SEPARATOR . basename($src) . DIRECTORY_SEPARATOR;
+                mkdir($dest);
                 foreach ($iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($src, RecursiveDirectoryIterator::SKIP_DOTS),
                 RecursiveIteratorIterator::SELF_FIRST) as $item) {
-                    if ($item->isDir()) {
-                        mkdir($dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName()); 
-                        rmdir($src . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
-                    } else {
-                        rename($item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
-                    }
+                    rename($item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
                 }
+                rmdir($src);
             }
         }
         return false;
@@ -228,7 +229,7 @@ class VirtualDirectory {
         }
         if ($searchall) {
             $recursive = new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator($realpath, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST
+                    new RecursiveDirectoryIterator($realpath, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST
             );
         }
         foreach ($recursive as $file) {
