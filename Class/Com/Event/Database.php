@@ -15,7 +15,6 @@ class Event_Database extends SQLite3 {
         if (!is_dir($path)) {
             mkdir($path);
         }
-
         $this->open($path . "Event.db");
     }
 

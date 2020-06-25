@@ -16,28 +16,25 @@ class FilesUpload {
             this.filereader.ref = this;
             this.ajax.Complete(function () {
                 if (!this.ref.filereader.fd_complete) {
+                    var spfile = (this.ref.filereader.Tell() / this.ref.filereader.Size()) * 100;
+                    var all = ((this.ref.filesindex + 1) / this.ref.filescount) * 100;
+                    this.ref.Log({"FileProgress": spfile, "AllProgress": all});
                     this.ref.filereader.Read(chunksize);
                 } else if (this.ref.filereader.fd_complete) {
                     this.ref.filesindex++;
                     if (this.ref.filesindex < this.ref.filescount) {
-                          var spfile = (this.ref.filereader.Tell() / this.ref.filereader.Size()) * 100;
-                      var all = ((this.ref.filesindex + 1) / this.ref.filescount) * 100;
-                this.ref.Log({"AjaxProgress": 100, "FileProgress": spfile, "AllProgress": all});
                         this.ref.filereader.SetFile(this.ref.files[ this.ref.filesindex]);
                         this.ref.filereader.Read(this.ref.chunksize);
                     } else {
-                        this.ref.Log({"AjaxProgress": 100, "FileProgress": 100, "AllProgress": 100, "Complete": true});
+                        this.ref.Log({"FileProgress": 100, "AllProgress": 100, "Complete": true});
                         this.ref.mutex = false;
+                          window.onbeforeunload =null;
                     }
                 }
             });
-            this.ajax.Progress(function (v) {
-                var spfile = (this.ref.filereader.Tell() / this.ref.filereader.Size()) * 100;
-                var all = ((this.ref.filesindex + 1) / this.ref.filescount) * 100;
-                this.ref.Log({"AjaxProgress": v, "FileProgress": spfile, "AllProgress": all});
-            });
+
             this.ajax.Error(function (e) {
-                this.ref.Log({"Error": e,"AjaxProgress": 0, "FileProgress": 0, "AllProgress": 0});
+                this.ref.Log({"Error": e, "AjaxProgress": 0, "FileProgress": 0, "AllProgress": 0});
             });
             this.filereader.GetUint8Array(function (f) {
                 var fd = new FormData();
@@ -74,9 +71,9 @@ class FilesUpload {
     }
     Send() {
         if (!this.mutex && this.filescount > 0) {
-            window.addEventListener("beforeunload", function (event) {
-                event.returnValue = "cancel upload";
-            });
+            window.onbeforeunload = function (event) {
+                event.returnValue = "cancel upload????";
+            }
             this.mutex = true;
             this.filereader.SetFile(this.files[ this.filesindex]);
             this.filereader.Read(this.chunksize);
@@ -98,16 +95,10 @@ class FilesUpload_Ajax {
         this.xmlhttp.addEventListener("load", function (e) {
             this.ref.Complete(e);
         });
-        this.xmlhttp.addEventListener("progress", function (e) {
-            var pg = e.loaded / e.total * 100;
-            this.ref.Progress(pg);
-        });
         this.xmlhttp.addEventListener("error", function (e) {
-            this.ref.Progress(0);
             this.ref.Error(e);
         });
         this.xmlhttp.addEventListener("abort", function (e) {
-            this.ref.Progress(0);
             this.ref.Error(e);
         });
         this.xmlhttp.ref = this;
@@ -124,12 +115,6 @@ class FilesUpload_Ajax {
     Error(cb) {
         if (typeof cb === "function") {
             this.Error = cb;
-        }
-    }
-
-    Progress(cb) {
-        if (typeof cb === "function") {
-            this.Progress = cb;
         }
     }
     Send(url, formdata) {

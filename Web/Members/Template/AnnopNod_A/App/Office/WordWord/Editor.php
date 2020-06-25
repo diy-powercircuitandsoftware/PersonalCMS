@@ -24,7 +24,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
         <html>
             <head>
                 <meta charset="UTF-8">
-                <title><?php echo urldecode($_GET["path"]); ?></title>
+                <title><?php echo ($_GET["path"]); ?></title>
                 <link rel="stylesheet" href="../../css/Page.css">
                 <style>
                     .ToolBoxTab{

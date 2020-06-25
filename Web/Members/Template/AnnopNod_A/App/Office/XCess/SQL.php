@@ -24,7 +24,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
     <html>
         <head>
             <meta charset="UTF-8">
-            <title><?php echo urldecode($_GET["path"]); ?></title>
+            <title><?php echo ($_GET["path"]); ?></title>
             <link rel="stylesheet" href="../../css/Page.css">
             <style>
                 .SQLTab{
@@ -179,9 +179,9 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                         <label class="Title">Database Manager</label>
                         <ul>
                             <li> <a href="MainPage.php">Database</a></li>
-                            <li> <a href="<?php echo "Table.php?path=" . urlencode($_GET["path"]); ?>">Table</a></li>
-                            <li> <a href="<?php echo "Field.php?path=" . urlencode($_GET["path"]); ?>"> Field </a></li>
-                            <li> <a href="<?php echo "Data.php?path=" . urlencode($_GET["path"]); ?>">Data</a></li>
+                            <li> <a href="<?php echo "Table.php?path=" . ($_GET["path"]); ?>">Table</a></li>
+                            <li> <a href="<?php echo "Field.php?path=" . ($_GET["path"]); ?>"> Field </a></li>
+                            <li> <a href="<?php echo "Data.php?path=" . ($_GET["path"]); ?>">Data</a></li>
                             <li style="font-weight: bold;">SQL</li>
                         </ul>
 

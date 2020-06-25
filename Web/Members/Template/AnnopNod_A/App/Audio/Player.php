@@ -1,40 +1,35 @@
 <?php
 session_start();
-include_once '../../../../../Class/DB/Config/DB/Config.php';
-include_once '../../../../../Class/DB/Config/DB/Software.php';
-include_once '../../../../../Class/DB/Com/User/SessionManager.php';
-include_once '../../../../../Class/DB/Com/User/Profile.php';
-include_once '../../../../../Class/DB/Com/Audio/PlayList_Manager.php';
-include_once '../../../../../Class/DB/Com/Events/Viewer.php';
-include_once '../../../../../Class/DB/Com/Module/LoadModule.php';
-include_once '../../../../../Class/DB/Com/User/LoadModule.php';
-$DBConfig = new Config_DB_Config();
-$SC = new Config_DB_Software($DBConfig);
-$Sess = new Com_User_SessionManager($DBConfig);
-$User = new Com_User_Profile($DBConfig);
-$Event = new Com_Events_Viewer($DBConfig);
-$Module = new Com_Module_LoadModule($DBConfig);
-$PL = new Com_Audio_PlayList_Manager($DBConfig);
-$UModule = new Com_User_LoadModule($DBConfig);
-$DBConfig->Open();
-if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id())) {
+include_once '../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../Class/Core/UI/NAV.php';
+include_once '../../../../../../Class/Core/Module/Database.php';
+include_once '../../../../../../Class/Com/Event/Database.php';
+include_once '../../../../../../Class/Com/Event/Reader.php';
+include_once '../../../../../../Class/Com/Blog/Database.php';
+include_once '../../../../../../Class/SDK/Module/Basic.php';
+include_once '../../../../Auth/Action/VerifySession.php';
+$config = new Config();
+$uinav = new UINAV();
+$module = new Module_Database($config);
+$event = new Event_Reader(new Event_Database($config));
+if ($config->IsOnline() && isset($_SESSION["User"])) {
+    $modlist = array();
+    foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
+        include_once $module->ModulePath . $value["dirname"] . "/init.php";
+        $cn = new $value["classname"]();
+        $cn->SetUserID($_SESSION["User"]["id"]);
+        $modlist[] = $cn;
+    }
     ?>
     <!DOCTYPE html>
     <html>
         <head>
             <meta charset="UTF-8">
-            <title><?php echo $SC->GetName(); ?></title>
+            <title><?php echo basename(__FILE__, ".php"); ?></title>
             <link rel="stylesheet" href="../css/Page.css">
             <?php
-            foreach ($UModule->LoadModule($_SESSION["UserID"], Com_User_LoadModule::Layout_Head) as $value) {
-                try {
-                    include_once '../../../../../Class/DB/UserModule/' . $value["filename"];
-                    $mod = new $value["classname"]($UModule);
-                    $mod->LoadConfig($value["config"]);
-                    echo $mod->Execute();
-                } catch (Exception $ex) {
-                    
-                }
+            foreach ($modlist as $value) {
+                echo $value->Execute(Module_SDK_Basic::Layout_Head);
             }
             ?>
             <script src="../../../../js/dom/SSQueryFW.js"></script>
@@ -159,105 +154,39 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
             </script>
         </head>
         <body >
-
-            <div id="Header" >
-                <div style="width: 50%;">
-                    <a href="../index.php">
-                        <img  src="../../../../../File/Resource/Logo.png"/>
-                    </a>
-                </div>
-                <div  style="width: 50%;text-align: right;">
-                    <a href="../index.php">MainPage</a>
+            <header id="mainheader">
+                <div style="width: 50%;"></div>
+                <div style="width: 50%;text-align: right;">
                     <?php
-                    $Dat = $User->GetBasicUserData($_SESSION["UserID"]);
-                    printf('<img  src="../../../Api/Action/Profile/GetUserIcon.php?id=%s" />', $Dat["userid"]);
-                    echo '<span>' . $Dat["alias"] . '</span>';
-                    ?>
-                    <a href="../Config/Config.php">Config</a>
-                    <a href="../../../Session/Action/Logout.php">Logout</a>
-
+                    printf('<img src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
+                    printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
+                    ?>       
+                    <a style="font-weight: bold;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
-            </div>
+            </header>
 
-            <div class="Container">
-                <div class="Nav">
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Audio</span>
-                        <ul>
-                            <li><span style="font-weight: bold;">Player</span></li>
-                            <li><a href="PlayList.php">PlayList</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Blog</span>
-                        <ul>
-                            <li><a href="../Blog/Manage.php">Manage</a></li>
-                            <li><a href="../Blog/View.php">View</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Event</span>
-                        <ul>
-                            <li><a href="../Event/Manage.php">Manage</a></li>
-                            <li><a href="../Event/View.php">View</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Files</span>
-                        <ul>
-                            <li><a href="../Files/Manager.php">Manager</a></li>
-                            <li><a href="../Files/Temp.php">Temp</a></li>
-                            <li><a href="../Files/Trash.php">Trash</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Office</span>
-                        <ul>
-                            <li><a href="../Office/FinFin/MainPage.php">FinFin</a></li>
-                            <li><a href="../Office/FlowFlow/MainPage.php">FlowFlow</a></li>
-                            <li><a href="../Office/Image/MainPage.php">Image</a></li>
-                            <li><a href="../Office/PointPoint/MainPage.php">PointPoint</a></li>
-                            <li><a href="../Office/Statistics/MainPage.php">Statistics</a></li>
-                            <li><a href="../Office/WordWord/MainPage.php">WordWord</a></li>
-                            <li><a href="../Office/WYSIWYG/NewDoc.php">WYSIWYG</a></li>
-                            <li><a href="../Office/XCell/MainPage.php">XCell</a></li>
-                            <li><a href="../Office/XCess/MainPage.php">XCess</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Photo</span>
-                        <ul>
-                            <li><a href="../Photo/ImageSlider.php">ImageSlider</a></li>
-                            <li><a href="../Photo/PlayList.php">PlayList</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Share</span>
-                        <ul>
-                            <li><a href="../Share/BlogViewer.php">Blog</a></li>
-                            <li><a href="../Share/EventViewer.php">Event</a></li>
-                        </ul>
-                    </div>
+            <div class="LMR157015">
+                <div>
                     <?php
-                    $Dat = array_merge($Module->LoadModule(Com_Module_LoadModule::Layout_Nav, Config_DB_Config::Access_Mode_Members), $Module->LoadModule(Com_Module_LoadModule::Layout_Nav, Config_DB_Config::Access_Mode_Public));
-                    foreach ($Dat as $value) {
-                        try {
-                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                            include_once '../../../../../Class/DB/Module/' . $value["filename"];
-                            $mod = new $value["classname"]($Module);
-                            printf('<label class="Title">%s</label>', $mod->GetTitle());
-                            $mod->SetModuleID($value["id"]);
-                            $mod->SetModulePage("../Module/Page.php");
-                            $mod->SetUserID($_SESSION["UserID"]);
-                            echo $mod->Execute();
+                    foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+                            printf('  <a class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
+                        }
+                        echo '</div>';
+                    }
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
                             echo '</div>';
-                        } catch (Exception $ex) {
-                            
                         }
                     }
-                    ?>
+                    ?>  
                 </div>
-                <div class="Section">
+                <div>
                     <div style="display: flex;flex-direction: column;">
                         <div style="height: 80%;width: 100%;">
                             <canvas id="CanvasVisualizer" style="width: 100%;border-style: solid;border-width: thin;background-color: black;" ></canvas>
@@ -265,112 +194,56 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                         </div>
 
                         <div class="BorderBlock" style="margin-top: 1px;"  >
-                            <label class="Title">Equalizer</label>
-                            <span>Profile:</span>
-                            <select id="EqualizerPresetsList">
-                            </select>
+
                             <div  id="EqualizerList" style="display: flex;flex-direction: row;flex-wrap: wrap;">
                             </div>
                         </div>
-                        <div class="BorderBlock" style="margin-top: 1px;" >
-                            <label class="Title">Visualizer</label>
-                            <span>Profile:</span>
-                            <select id="VisualizerList">
-                            </select>
-                        </div>
+
                     </div>
                 </div>
-                <div class="Aside" style="">
+                <div>
                     <div class="BorderBlock">
-                        <span class="Title" style="display: block ">Library</span>
+                        <div class="TitleCenter" style="display: block ">Library</div>
                         <select id="OptLibrary" style="width: 99%;">
                             <option>==Select==</option>
                             <option value="-1">* All Audio *</option>
                             <?php
-                            foreach ($PL->GetPlayList($_SESSION["UserID"]) as $value) {
-                                printf('<option value="%s">%s</option>', $value["id"], $value["name"]);
-                            }
+                            // foreach ($PL->GetPlayList($_SESSION["UserID"]) as $value) {
+                            //   printf('<option value="%s">%s</option>', $value["id"], $value["name"]);
+                            //}
                             ?>
                         </select>
                         <div id="AudioList"></div>
                     </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Playing</label>
-                        <table>
-                            <tr>
-                                <td>Volume:</td>
-                                <td><input style="width: 100%;box-sizing: border-box;"  id="RangeVolume" type="range" min="0" max="1" step="0.1" value="1" /></td>
-                            </tr>
-                            <tr>
-                                <td>Play Mode:</td>
-                                <td><select id="PlayMode"  style="width: 100%;box-sizing: border-box;">
-                                        <option value="0">None</option>
-                                        <option value="1">Repeat</option>
-                                        <option value="2">Repeat All</option>
-                                        <option value="3">Random</option>
-                                    </select></td>
-                            </tr>
-                        </table>
+                    <div class="BorderBlock">
+                        <div class="TitleCenter" style="display: block ">Play</div>
+                        <select id="PlayMode"  style="width: 100%;box-sizing: border-box;">
+                            <option value="0">None</option>
+                            <option value="1">Repeat</option>
+                            <option value="2">Repeat All</option>
+                            <option value="3">Random</option>
+                        </select>
                     </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">My Event</label>
-                        <?php
-                        foreach ($Event->GetCurrentMyEvent($_SESSION["UserID"]) as $value) {
-                            echo '<div  >';
-                            printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                            echo '</div><hr>';
-                        }
-                        ?>
+                    <div class="BorderBlock">
+                        <div class="TitleCenter" style="display: block ">Volume</div>
+                        <input style="width: 100%;box-sizing: border-box;"  id="RangeVolume" type="range" min="0" max="1" step="0.1" value="1" />
                     </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Other Event</label>
-                        <?php
-                        $Dat = array_merge($Event->GetCurrentEventNotUserID(Config_DB_Config::Access_Mode_Members, $_SESSION["UserID"]), $Event->GetCurrentEventNotUserID(Config_DB_Config::Access_Mode_Public, $_SESSION["UserID"]));
-                        foreach ($Dat as $value) {
-                            echo '<div  >';
-                            printf('<a href="../Share/EventViewer.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                            echo '</div><hr>';
-                        }
-                        ?>
+                    <div class="BorderBlock">
+                        <div class="TitleCenter" style="display: block ">Equalizer</div>
+                        <select id="EqualizerPresetsList" style="width: 100%;box-sizing: border-box;" >
+                        </select>
                     </div>
-                    <?php
-                    $Dat = array_merge($Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Members), $Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Public));
-                    foreach ($Dat as $value) {
-                        try {
-                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                            include_once '../../../../../Class/DB/Module/' . $value["filename"];
-                            $mod = new $value["classname"]($Module);
-                            printf('<label class="Title">%s</label>', $mod->GetTitle());
-                            $mod->SetModuleID($value["id"]);
-                            $mod->SetModulePage("../Module/Page.php");
-                            $mod->SetUserID($_SESSION["UserID"]);
-                            echo $mod->Execute();
-                            echo '</div>';
-                        } catch (Exception $ex) {
-                            
-                        }
-                    }
-                    ?>
-
-                </div>
-            </div>
-
-
-            <div class="Hidden">
-                <div id="FilesList">
-
+                    <div class="BorderBlock">
+                        <div class="TitleCenter" style="display: block ">Visualizer</div>
+                        <select id="VisualizerList" style="width: 100%;box-sizing: border-box;" >
+                        </select>
+                    </div>
                 </div>
             </div>
         </body>
     </html>
     <?php
 } else {
-
-
-     header("location: ../../../Session/AuthUserID.php");
-
-
+    header("location: ../../../../Auth/Login.php");
     session_destroy();
 }

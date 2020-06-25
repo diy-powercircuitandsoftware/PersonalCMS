@@ -571,10 +571,14 @@ class SuperDialog {
                 var cell = row.insertCell(-1);
                 if (typeof data === 'string' || data instanceof String) {
                     cell.insertAdjacentHTML('beforeend', data);
-                    cell.lastChild.name = args[0].replace(/\s/g, '');
+                    if (args[0]!==null){
+                         cell.lastChild.name = args[0].replace(/\s/g, '');
+                    } 
                 } else if (data instanceof HTMLElement) {
                     cell.appendChild(data);
-                    data.name = args[0].replace(/\s/g, '');
+                     if (args[0]!==null){
+                         data.name = args[0].replace(/\s/g, '');
+                    }
                 }
                 else{
                      cell.insertAdjacentHTML('beforeend', data);

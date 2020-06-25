@@ -55,7 +55,7 @@ class VirtualDirectory {
     }
 
     public function DiskPath($s) {
-        return $this->DiskDirPath . $this->Normalize($s);
+        return ($this->DiskDirPath . $this->Normalize($s));
     }
 
     public function FileExists($s) {
@@ -79,17 +79,17 @@ class VirtualDirectory {
         foreach ($files as $file) {
             $ArrData = array();
             if ($file->isFile() && $ExtensionList == null) {
-                $ArrData["name"] = urldecode($file->getBasename());
+                $ArrData["name"] = ($file->getBasename());
                 $ArrData["type"] = "FILE";
                 $ArrData["size"] = $file->getSize();
                 $ArrData["ext"] = $file->getExtension();
             } else if ($file->isFile() && in_array(strtolower($file->getExtension()), $ExtensionList)) {
-                $ArrData["name"] = urldecode($file->getBasename());
+                $ArrData["name"] = ($file->getBasename());
                 $ArrData["type"] = "FILE";
                 $ArrData["size"] = $file->getSize();
                 $ArrData["ext"] = $file->getExtension();
             } else if ($file->isDir()) {
-                $ArrData["name"] = urldecode($file->getBasename());
+                $ArrData["name"] = ($file->getBasename());
                 $ArrData["type"] = "DIR";
                 $ArrData["size"] = "";
                 $ArrData["ext"] = "";
@@ -111,7 +111,7 @@ class VirtualDirectory {
         if (file_exists($path)) {
             $info = new SplFileInfo($path);
             $a = array(
-                "name" => urldecode($info->getFilename()),
+                "name" => ($info->getFilename()),
                 "size" => $info->getSize(),
                 "modified" => date("d-m-Y", $info->getMTime()),
                 "type" => $info->isDir() ? "DIR" : "FILE",
@@ -141,13 +141,13 @@ class VirtualDirectory {
 
     public function Normalize($Path) {
         $ArrayOut = array();
-        $ReFormat = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, urldecode($Path));
+        $ReFormat = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, ($Path));
         $Split = array_filter(explode(DIRECTORY_SEPARATOR, $ReFormat), 'strlen');
         foreach ($Split as $value) {
             if ($value == "..") {
                 array_pop($ArrayOut);
             } else if ($value !== ".") {
-                $ArrayOut[] = $value;
+                $ArrayOut[] = ($value);
             }
         }
         return DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $ArrayOut);
@@ -249,7 +249,7 @@ class VirtualDirectory {
             }
             if ($addtoarray) {
                 $ArrData = array();
-                $ArrData["name"] = $file->getBasename();
+                $ArrData["name"] = ($file->getBasename());
                 if ($file->isFile()) {
                     $ArrData["type"] = "FILE";
                     $ArrData["size"] = $file->getSize();

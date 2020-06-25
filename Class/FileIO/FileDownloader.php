@@ -7,7 +7,7 @@ class FileDownloader {
     }
 
     private function SendMineType($filename) {
-        header('Content-Disposition: attachment; filename=' .urldecode( pathinfo($filename, PATHINFO_FILENAME)) . "." . pathinfo($filename, PATHINFO_EXTENSION));
+        header('Content-Disposition: attachment; filename=' .( pathinfo($filename, PATHINFO_FILENAME)) . "." . pathinfo($filename, PATHINFO_EXTENSION));
         header("Content-Type: " . mime_content_type($filename));
     }
 

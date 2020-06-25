@@ -8,12 +8,10 @@ include_once '../../../../../../Class/Com/Event/Reader.php';
 include_once '../../../../../../Class/Com/Blog/Database.php';
 include_once '../../../../../../Class/SDK/Module/Basic.php';
 include_once '../../../../Auth/Action/VerifySession.php';
-
 $config = new Config();
 $uinav = new UINAV();
 $module = new Module_Database($config);
 $event = new Event_Reader(new Event_Database($config));
-
 if ($config->IsOnline() && isset($_SESSION["User"])) {
     $modlist = array();
     foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
@@ -58,10 +56,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     FL.SetDownload("../../../../Api/Action/Files/DownloadFiles.php?path=");
                     fileupload.Log(function (v) {
-                        ss.S("#PGByte").Val(v.AjaxProgress);
+                        
                         ss.S("#PGFile").Val(v.FileProgress);
                         ss.S("#PGFOA").Val(v.AllProgress);
-
                         if (v.Complete) {
                             ss.S("#BNUpload").Disable(false);
                             ss.S("#BNCancelUpload").Hide();
@@ -85,8 +82,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         }).ZIndex(999);
                     };
-
-
 
                     FL.Multiple(true);
                     FL.SetPreviewImage("../../../../Api/Action/Files/ImagePreview.php?id=");
@@ -127,7 +122,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             tl.AddNewRowElement();
                             tl.AddNewCellElement("sha1", data["sha1"]);
                             tl.AddNewRowElement();
-
                             tl.AddNewCellElement("Modified", data["modified"]);
 
                         });
@@ -196,7 +190,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var mode = this.getAttribute("data-mode");
                         var files = this.getAttribute("data-files");
                         var url = "";
-                        var json = {};
                         if (mode == "cut") {
                             url = "../../../../Api/Ajax/Files/MoveFiles.php";
                         } else if (mode == "copy") {
@@ -204,9 +197,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         } else {
                             return;
                         }
-                        ajax.Post(url, {"Path": fileupload.currentdir, "Files": files }, function (data) {
+                        ajax.Post(url, {"Path": fileupload.currentdir, "Files": files}, function (data) {
                             FL.OpenDir(fileupload.currentdir);
-                           // ss.S("#BNPaste").Data({"mode": null, "files": null});
+                            ss.S("#BNPaste").Data({"mode": null, "files": null});
                         });
 
                     });
@@ -224,12 +217,19 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#CHDIRList").Html(" ");
                         });
                     });
+                    ss.S("#BNShareManager").Click(function () {
+                        dialog.ImportOkCancel("Share","#TableShare", function () {
+
+                        });
+                    });
+
+
                     /*  
-                     
-                     
-                     
+                         
+                         
+                         
                      var TBShareFile = document.getElementById("").appendChild(new TableTools());
-                     
+                         
                      TBShareFile.Border(1);
                      TBShareFile.CSSText("width: 100%;box-sizing: border-box;");
                      TBShareFile.InsertRow();
@@ -237,73 +237,38 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      TBShareFile.InsertHead("File Path");
                      TBShareFile.InsertHead("Edit");
                      ss.S(bnupload).Change(function () {
-                     
-                     
-                     
-                     
-                     
-                     
-                     
+                         
+                         
+                         
+                         
+                         
+                         
+                         
                      ss.S("#BNAddShare").Click(function () {
                      dialog.Import("#AddShareDialog", function () {
                      ss.Post("../../../Api/Ajax/Files/AddShareList.php", {
                      "AuthName": ss.S("#TXTAddUserShare").Val(), "PW": ss.S("#TXTAddPWShare").Val(), "AccessMode": ss.S("#OPTAddAccessMode").Val(), "FilesList": fl.GetSelectFiles()}, function (data) {
-                     
+                         
                      });
                      }).Title("Share").ZIndex(999);
                      });
+                         
                      
-                     ss.S("#BNCutPaste").Click(function () {
-                     if (this.cutdata === undefined || this.cutdata == null) {
-                     if (fl.GetSelectFiles().length > 0) {
-                     this.cutdata = fl.GetSelectFiles();
-                     this.innerHTML = "Paste";
-                     ss.S("#BNCopyPaste").Hide();
-                     }
-                     } else {
-                     var ref = this;
-                     ss.Post("../../../Api/Ajax/Files/MoveFile.php", {"Files": ref.cutdata, "DESC": fl.currentdir}, function (data) {
-                     ref.innerHTML = "Cut";
-                     ref.cutdata = null;
-                     fl.ChDir(fl.currentdir);
-                     ss.S("#BNCopyPaste").Show();
-                     });
-                     }
-                     });
-                     ss.S("#BNCopyPaste").Click(function () {
-                     if (this.cutdata === undefined || this.cutdata == null) {
-                     if (fl.GetSelectFiles().length > 0) {
-                     this.cutdata = fl.GetSelectFiles();
-                     this.innerHTML = "Paste";
-                     ss.S("#BNCutPaste").Hide();
-                     }
-                     } else {
-                     var ref = this;
-                     var pw = dialog.PleaseWait().ZIndex(999);
-                     ss.Post("../../../Api/Ajax/Files/CopyFile.php", {"Files": ref.cutdata, "DESC": fl.currentdir}, function (data) {
-                     ref.innerHTML = "Copy";
-                     ref.cutdata = null;
-                     fl.ChDir(fl.currentdir);
-                     ss.S("#BNCutPaste").Show();
-                     pw.Close();
-                     });
-                     }
-                     });
-                     
+                         
                      ss.S("#BNDeleteAccess").Click(function () {
-                     
+                         
                      dialog.Confirm("Delete It????", function (name) {
                      var v = ss.S(".checkaccessfileid").Val();
                      ss.Post("../../../Api/Ajax/Files/DelShareList.php", {"IDList": v}, function (data) {
                      ss.S("#OPTMAccessMode").Change();
                      });
                      }).ZIndex(1000);
-                     
+                         
                      });
-                     
-                     
-                     
-                     
+                         
+                         
+                         
+                         
                      ss.S("#BNNewPhoto").Click(function () {
                      var takephoto = new TakePhoto();
                      var cust = dialog.Custom();
@@ -329,12 +294,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      takephoto.ReSet();
                      fl.ChDir(fl.currentdir);
                      });
-                     
+                         
                      });
                      }
                      });
                      });
-                     
+                         
                      ss.S("#BNShareManager").Click(function () {
                      ss.S("#OPTMAccessMode").Change();
                      dialog.Import("#ShareManagerDialog").Title("Share").ZIndex(999);
@@ -363,7 +328,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      ss.S("#OPTMAccessMode").Change();
                      t.Close();
                      });
-                     
+                         
                      }).ZIndex(1000).Title("Edit");
                      t.Access = t.AddTableDom('Access:', '<select style="width: 100%;"><option value="0">None</option><option value="1">Public</option><option value="2">Member</option></select>');
                      t.UserName = t.AddTableDom('UserName:', '<input type="text" style="width: 100%;" />');
@@ -371,7 +336,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      t.fileid = e.target.getAttribute("data-id");
                      }
                      });
-                     
+                         
                      */
 
                 });
@@ -382,33 +347,33 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <header id="mainheader">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
-    <?php
-    printf('<img src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
-    printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
-    ?>       
+                    <?php
+                    printf('<img src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
+                    printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
+                    ?>       
                     <a style="font-weight: bold;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
             <div class="LMR157015">
                 <div>
-    <?php
-    foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
-        echo '<div class="BorderBlock">';
-        printf(' <div class="TitleCenter">%s</div>', $key);
-        foreach ($valueA as $valueB) {
-            printf('  <a class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
-        }
-        echo '</div>';
-    }
-    foreach ($modlist as $value) {
-        if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
-            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
-            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
-            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
-            echo '</div>';
-        }
-    }
-    ?>  
+                    <?php
+                    foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+                            printf('  <a class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
+                        }
+                        echo '</div>';
+                    }
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
+                            echo '</div>';
+                        }
+                    }
+                    ?>  
                 </div>
                 <div>
                     <div style="display: flex;flex-direction: row;margin-top: 7px;">
@@ -428,9 +393,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <label class="TitleCenter" style="display: block;">Folder</label>
                         <a id="BNHome" href="#">Home</a>
                     </div>
-    <?php
-    if ($_SESSION["User"]["writable"] == 1) {
-        ?>
+                    <?php
+                    if ($_SESSION["User"]["writable"] == 1) {
+                        ?>
                         <div class="BorderBlock" >
                             <label class="TitleCenter" style="display: block;">New</label>
                             <a  style="display: block;" id="BNNewFolder"href="#">Folder</a>
@@ -454,43 +419,47 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             <span  style="text-align: left;display: block;font-weight: bold;word-wrap: break-word;">Filename:
                                 <span id="UpLoadFName" style="font-weight: normal;"></span>
                             </span>
-                            <span style="font-weight: bold;display: block;">ChunkSize:</span>
-                            <progress id="PGByte" style="display: block;width: 98%;" min =0 max="100" value="0"></progress>
                             <span style="font-weight: bold;display: block;">File:</span>
                             <progress id="PGFile" style="display: block;width: 98%;"min =0 max="100" value="0"></progress>
                             <span style="font-weight: bold;display: block;">OverAll:</span>
                             <progress id="PGFOA" style="display: block;width: 98%;"min =0 max="100" value="0"></progress>
                             <input id="BNCancelUpload" type="button" style="display: none;width: 100%;" value="Cancel" />
                         </div>
-        <?php
-    }
-    ?>
+                        <?php
+                    }
+                    ?>
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">Event</div>
-    <?php
-    foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
-        echo '<div>';
-        printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-        printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-        echo '</div><hr>';
-    }
-    ?>
-                    </div>
                         <?php
-                        foreach ($modlist as $value) {
-                            if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
-                                echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
-                                printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
-                                echo $value->Execute(Module_SDK_Basic::Layout_Aside);
-                                echo '</div>';
-                            }
+                        foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
+                            echo '<div>';
+                            printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
+                            echo '</div><hr>';
                         }
                         ?>
+                    </div>
+                    <?php
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Aside);
+                            echo '</div>';
+                        }
+                    }
+                    ?>
                 </div>
             </div>
 
 
-
+            <table border="1" id="TableShare" style="width: 100%;display: none;">
+                <tr>
+                    <th>Select</th>
+                    <th>Name</th>
+                    <th>Remove</th>
+                </tr>
+            </table>
         </body>
     </html>
     <?php

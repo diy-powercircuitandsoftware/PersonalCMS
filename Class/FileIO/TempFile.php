@@ -53,7 +53,7 @@ class TempFile {
 
     private function Normalize($Path) {
         $ArrayOut = array();
-        $ReFormat = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, urldecode($Path));
+        $ReFormat = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, ($Path));
         $Split = array_filter(explode(DIRECTORY_SEPARATOR, $ReFormat), 'strlen');
         foreach ($Split as $value) {
             if ($value == "..") {

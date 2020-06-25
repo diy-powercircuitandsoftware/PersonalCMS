@@ -795,7 +795,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
 
                                 </div>
                                 <div class="ToolBoxTab" data-id="Player" style="display: none;">
-                                    <a href="<?php echo 'Player.php?path=' . urlencode($_GET["path"]); ?>" target="_blank"><img style="border-style: outset; border-width: thin;"  src="../img/pointpoint/play.png" width="22" height="22"  /></a>
+                                    <a href="<?php echo 'Player.php?path=' . ($_GET["path"]); ?>" target="_blank"><img style="border-style: outset; border-width: thin;"  src="../img/pointpoint/play.png" width="22" height="22"  /></a>
                                 </div>
 
                                 <div class="ToolBoxTab" data-id="CSS" style="display: none;" >
@@ -810,7 +810,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                         <?php
                     } else {
                         echo ' <div class="Section" style="box-sizing: border-box;">
-                                    <a  href=" Player.php?path=' . urlencode($_GET["path"]) . '" target="_blank"><img style="border-style: outset; border-width: thin;"  src="../img/pointpoint/play.png" width="22" height="22"  /></a>
+                                    <a  href=" Player.php?path=' . ($_GET["path"]) . '" target="_blank"><img style="border-style: outset; border-width: thin;"  src="../img/pointpoint/play.png" width="22" height="22"  /></a>
                                 <div id="Editor" style="width: 100%; height: 80vh;border-style: solid;box-sizing: border-box;border-width: thin;overflow: auto;">
                             </div> </div>';
                     }
