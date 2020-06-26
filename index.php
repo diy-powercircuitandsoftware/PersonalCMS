@@ -1,5 +1,4 @@
 <?php
-
 include_once 'Class/Function/IsMobile.php';
 include_once 'Class/Core/Config/Config.php';
 

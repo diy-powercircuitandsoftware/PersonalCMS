@@ -8,8 +8,6 @@ class SearchBox {
         } else {
             this.searchbox = document.body.appendChild(document.createElement("DIV"));
         }
-
-
         var htmlcode = '<div>\n\
 <input data-domsearchbox="txtbox" style=" width: 100%;box-sizing: border-box;" type="text" name="" value="" />\n\
 <div style="position: relative;"><ul  data-domsearchbox="list" style="background-color: white;position: absolute;width:100%;box-sizing: border-box;padding-left: 0;padding-top: 0;list-style: none;margin-top: 0;"></ul></div>\n\
@@ -22,8 +20,8 @@ class SearchBox {
         var li = list.appendChild(document.createElement("LI"));
         li.addEventListener("click", function () {
             this.ref.Calllback(this.getAttribute("data-id"));
-             this.parentNode.style.borderStyle = "none";
-            this.parentNode.innerHTML="";
+            this.parentNode.style.borderStyle = "none";
+            this.parentNode.innerHTML = "";
             ;
         });
         li.setAttribute("data-id", id);
@@ -37,6 +35,16 @@ class SearchBox {
             this.Calllback = args;
         }
     }
+    Enter(args) {
+        if (typeof args === "function") {
+            var txtbox = this.searchbox.querySelector('[data-domsearchbox="txtbox"]');
+            txtbox.addEventListener("keyup", function (e) {
+                if (e.keyCode === 13) {
+                    args(this.value);
+                }
+            });
+        }
+    }
     ValueChange(args) {
         if (typeof args === "function") {
             var txtbox = this.searchbox.querySelector('[data-domsearchbox="txtbox"]');
@@ -45,8 +53,10 @@ class SearchBox {
                 this.uilist.style.borderStyle = "none";
                 this.funccallbank(this.value);
             });
+
             txtbox.uilist = this.searchbox.querySelector('[data-domsearchbox="list"]');
             txtbox.funccallbank = args;
+
         }
     }
 }

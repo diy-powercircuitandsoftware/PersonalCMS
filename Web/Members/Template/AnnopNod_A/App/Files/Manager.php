@@ -56,7 +56,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     FL.SetDownload("../../../../Api/Action/Files/DownloadFiles.php?path=");
                     fileupload.Log(function (v) {
-                        
                         ss.S("#PGFile").Val(v.FileProgress);
                         ss.S("#PGFOA").Val(v.AllProgress);
                         if (v.Complete) {

@@ -281,7 +281,7 @@ if ($config->IsOnline()) {
                     </div>
                 </div>
                 <div>
-                     <div   class="BorderBlock" style="margin-top: 1px;">
+                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">User</div>
                                                     <?php
                             foreach ($user->GetUserList() as $value) {
