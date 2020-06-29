@@ -6,20 +6,15 @@ class FilesACLS_Database extends SQLite3 {
     public const Access_Member = 1;
 
     private $path = "";
-    private $ud=null;
+   
     public function __construct(Config $cfg) {
         $this->path = $cfg->GetLocalConfigPath()["Com"] . "/Files/";
         if (!is_dir($this->path)) {
             mkdir($this->path);
         }
-        $this->ud=$ud;
-        $this->open($this->path . "Files.db");
+        $this->open($this->path . "FilesACLS.db");
     }
-
-    public function GetUserDIR($userid) {
-        return $this->ud->GetDataPath($userid);
-    }
-
+    
     public function Install() {
         $install = array();
         $install[0] = ('
