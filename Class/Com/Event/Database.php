@@ -11,7 +11,7 @@ class Event_Database extends SQLite3 {
     public const Access_Member = 1;
 
     public function __construct(Config $cfg) {
-        $path = $cfg->GetDataPath() . "/Event/";
+        $path = $cfg->GetLocalConfigPath()["Com"] . "/Event/";
         if (!is_dir($path)) {
             mkdir($path);
         }

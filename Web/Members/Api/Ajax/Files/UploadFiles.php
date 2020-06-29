@@ -27,7 +27,7 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
         unlink($_FILES["file"]["tmp_name"]);
     } else if ($_POST["header"] == "200" && isset($_POST["path"])) {
          
-        $vd = new VirtualDirectory($fd->GetUserDIR($_SESSION["User"]["id"]));
+        $vd = new VirtualDirectory($fd->GetUserDIR($userdb,$_SESSION["User"]["id"])."/Files/");
         $dp = $vd->DiskPath($_POST["path"]);
         if (is_writable($dp)) {
             rename($tmpfile->getdiskpath($dirpath . "_" .( $_POST["file"])), $dp . "/" . preg_replace('/\s/', '_', ($_POST["file"])));

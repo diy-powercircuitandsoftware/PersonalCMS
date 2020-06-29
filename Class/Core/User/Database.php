@@ -1,25 +1,39 @@
 <?php
 
-/**
- * Description of Database
- *
- * @author annopnod
- */
 class User_Database extends SQLite3 {
 
     public $path = "";
-    public $profilepath = "";
 
     public function __construct(Config $cfg) {
-        $this->path = $cfg->GetDataPath() . "/User/";
-        $this->profilepath = $cfg->GetDataPath() . "/User/Profiles/";
+        $this->path = $cfg->GetLocalConfigPath()["Core"] . "/User/";
         if (!is_dir($this->path)) {
             mkdir($this->path);
         }
-        if (!is_dir($this->profilepath)) {
-            mkdir($this->profilepath);
-        }
         $this->open($this->path . "User.db");
+    }
+
+    public function GetFilesPath($userid) {
+        $path = $this->GetRootPath($userid) . "/Files/";
+        if (!is_dir($path)) {
+            mkdir($path);
+        }
+        return $path;
+    }
+
+    public function GetProfilePath($userid) {
+        $path = $this->GetRootPath($userid) . "/Profile/";
+        if (!is_dir($path)) {
+            mkdir($path);
+        }
+        return $path;
+    }
+
+    public function GetRootPath($userid) {
+        $path = $this->path . $userid;
+        if (!is_dir($path)) {
+            mkdir($path);
+        }
+        return $path;
     }
 
     public function Install() {

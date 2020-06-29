@@ -13,14 +13,13 @@ class Module_Database extends SQLite3 {
     public const Access_Member = 1;
 
     public function __construct(Config $cfg) {
-        $this->ModulePath = $cfg->GetDataPath() . "/Module/";
+        $this->ModulePath = $cfg->GetLocalConfigPath()["Core"] . "/Module/";
         if (!is_dir($this->ModulePath)) {
             mkdir($this->ModulePath);
         }
-
         $this->open($this->ModulePath . "Module.db");
     }
- 
+
     public function AddModule($dirname, $classname, $public, $priority) {
         try {
             $stmt = $this->prepare("INSERT INTO module (dirname,classname,public,priority) VALUES ( :dirname,:classname,:public,:priority)");
@@ -38,14 +37,15 @@ class Module_Database extends SQLite3 {
     public function LoadModule($mode) {
         $out = array();
         $results = null;
-        if ($mode==Module_Database::Access_Member){
-              $results = $this->query("SELECT  * FROM module ORDER BY priority ASC ");
+        if ($mode == Module_Database::Access_Member) {
+            $results = $this->query("SELECT * FROM module ORDER BY priority ASC ");
+        } else {
+            $results = $this->query("SELECT * FROM module WHERE public=1 ORDER BY priority ASC ");
         }
-        else{
-              $results = $this->query("SELECT  * FROM module WHERE public=1 ORDER BY priority ASC ");
-        }
-        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-            $out[] = $row;
+        if ($results) {
+            while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+                $out[] = $row;
+            }
         }
         return $out;
     }

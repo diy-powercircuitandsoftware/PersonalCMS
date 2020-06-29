@@ -2,17 +2,19 @@
 
 session_start();
 include_once '../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../Class/Core/User/Database.php';
 include_once '../../../../../Class/Com/Files/Database.php';
 include_once '../../../../../Class/FileIO/VirtualDirectory.php';
 include_once '../../../../../Class/FileIO/FileDownloader.php';
 include_once '../../../../../Class/FileIO/TempFile.php';
 $config = new Config();
 $fd = new Files_Database($config);
+$udb = new User_Database($config);
 $fdownload = new FileDownloader();
 $zip = new ZipArchive();
 $tmpfile = new TempFile($config->GetDataPath());
 if ($config->IsOnline() && isset($_GET["path"])) {
-    $vd = new VirtualDirectory($fd->GetUserDIR($_SESSION["User"]["id"]));
+    $vd = new VirtualDirectory($fd->GetUserDIR($udb,$_SESSION["User"]["id"])."/Files/");
     if ($vd->IsFile($_GET["path"])) {
         $fdownload->DownloadFile($vd->DiskPath($_GET["path"]));
     } else if ($vd->IsDir($_GET["path"])) {

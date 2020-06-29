@@ -5,14 +5,16 @@ class Blog_Database extends SQLite3 {
     public const Access_Public = 0;
     public const Access_Member = 1;
 
-    public function __construct(Config $cfg) {
-        $path = $cfg->GetDataPath() . "/Blog/";
-        if (!is_dir($path)) {
-            mkdir($path);
-        }
-        $this->open($path . "Blog.db");
-    }
+    public $path = "";
 
+    public function __construct(Config $cfg) {
+        $this->path = $cfg->GetLocalConfigPath()["Com"] . "/Blog/";
+        if (!is_dir($this->path)) {
+            mkdir($this->path);
+        }
+        $this->open($this->path . "Blog.db");
+    }
+ 
     public function Install() {
         $install = array();
         $install[0] = ('
@@ -32,8 +34,6 @@ class Blog_Database extends SQLite3 {
     categoryid INTEGER,
     keywordid  INTEGER,
     hashtag    INTEGER);');
-
-
         try {
             foreach ($install as $value) {
                 $this->exec($value);

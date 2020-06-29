@@ -14,7 +14,7 @@ $userdata = new User_Member($userdb);
 if ($config->IsOnline() && isset($_POST["path"]) &&isset($_POST["newname"]) && isset($_SESSION["User"]) &&
         $session->Registered(session_id()) &&
         $userdata->CanWritable($_SESSION["User"]["id"])) {
-    $vd = new VirtualDirectory($fd->GetUserDIR($_SESSION["User"]["id"]));
+    $vd = new VirtualDirectory($fd->GetUserDIR($userdb,$_SESSION["User"]["id"])."/Files/");
     echo ($vd->RenameLast($_POST["path"],$_POST["newname"])) ;
         
 } else {

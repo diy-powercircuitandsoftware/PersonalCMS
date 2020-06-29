@@ -11,10 +11,10 @@
  *
  * @author annopnod
  */
-class Files_ShareList {
+class FilesACLS_ShareList {
      private $fdb;
 
-    public function __construct(Files_Database $fd) {
+    public function __construct(FilesACLS_Database $fd) {
         $this->fdb = $fd;
     }
       public function GetShareList($userid) {

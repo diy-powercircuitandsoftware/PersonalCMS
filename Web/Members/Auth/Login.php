@@ -64,7 +64,7 @@ if (isset($_SESSION["UserID"]) && $config->IsOnline()) {
                                         $arrdiff = array();
                                         if (isset($_GET["tp"])) {
                                             $arrdiff[] = $_GET["tp"];
-                                             printf(' <option>%s</option>', $_GET["tp"]);
+                                            printf(' <option>%s</option>', $_GET["tp"]);
                                         }
                                         foreach ($nav->FindAllTemplate("../Template/", $arrdiff) as $value) {
                                             $bname = basename($value);
@@ -75,6 +75,11 @@ if (isset($_SESSION["UserID"]) && $config->IsOnline()) {
 
                                     </select>
                                 </td>
+                                <?php
+                                if (isset($_GET["error"])) {
+                                    echo '<tr><td colspan="2">error:'.($_GET["error"]).'</td></tr>';
+                                }
+                                ?>
                             </tr>
 
                             <tr>

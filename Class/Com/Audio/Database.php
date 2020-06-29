@@ -11,13 +11,13 @@
  *
  * @author annopnod
  */
-class Audio_Database {
+class Audio_Database extends SQLite3 {
 
     public const Access_Public = 0;
     public const Access_Member = 1;
     public $path;
     public function __construct(Config $cfg) {
-        $this->path = $cfg->GetDataPath() . "/Audio/";
+        $this->path = $cfg->GetLocalConfigPath()["Com"] . "/Audio/";
         if (!is_dir( $this->path )) {
             mkdir( $this->path );
         }
@@ -30,13 +30,8 @@ class Audio_Database {
     playlist (
     id     INTEGER      PRIMARY KEY AUTOINCREMENT,
     userid INT,
-    name   VARCHAR (50),
+    filename   VARCHAR (250),
     public BOOLEAN );');
-         $install[1] = (' CREATE TABLE IF NOT EXISTS
-    playlistfile (
-     id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    playlistid INTEGER,
-    filepath   TEXT );');
         try {
             foreach ($install as $value) {
                 $this->exec($value);
@@ -49,7 +44,7 @@ class Audio_Database {
 
     public function Uninstall() {
         try {
-            $this->exec("DROP TABLE event;");
+            $this->exec("DROP TABLE playlist;");
 
             $this->exec("VACUUM;");
             return $this->close();

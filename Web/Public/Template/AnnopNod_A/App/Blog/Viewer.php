@@ -33,6 +33,7 @@ if ($config->IsOnline()) {
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../js/dom/SuperDialog.js"></script>
             <script src="../../../../../js/dom/SearchBox.js"></script>
+            <script src="../../../../../js/io/Ajax.js"></script>
             <style>
                 .BlogList{
                     margin-top: 1px;
@@ -61,15 +62,8 @@ if ($config->IsOnline()) {
                         // wsl.Lock = false;
                         // wsl.LoadData();
                     });
-                    BlogSB.Enter(function (v) {
-                        alert(v);
-                        //  SS.S("#Blog_SearchRS,#HtmlReadable").Empty();
-                        // wsl.Param = {"KeywordID": v, "StartID": 0};
-                        // wsl.Lock = false;
-                        // wsl.LoadData();
-                    });
-
-                    var wsl = SS.WindowScrollLoad();
+                    
+                    var wsl =  AjaxScrollBar();
                     wsl.URL = "../../../Api/ShareAjax/Blog/SearchBlogUsingKeywordID.php";
                     wsl.Done = (function (data) {
                         data = JSON.parse(data);
@@ -145,7 +139,7 @@ if ($config->IsOnline()) {
                               } */
                         } else if (!isset($_GET["id"])) {
                             foreach ($blog->GetLastBlogList() as $value) {
-                                echo '<div class="BlogList"><a href="#">';
+                                echo '<div class="BlogList"><a href="?id='.$value["id"].'">';
                                 printf('<h2>%s</h2>',   $value["title"]);
                                 echo $value["description"];
                                 echo '</a></div>';
@@ -156,7 +150,7 @@ if ($config->IsOnline()) {
                     <div id="HtmlReadable" style="height: 100%;">
                         <?php
                         if (isset($_GET["id"])) {
-                            printf('<iframe style="%s" src="../../../Api/ShareAction/Blog/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100%;box-sizing: border-box;", $_GET["id"]);
+                            printf('<iframe style="%s" src="../../../../Api/Action/Blog/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100%;box-sizing: border-box;", $_GET["id"]);
                         }
                         ?>
                     </div>

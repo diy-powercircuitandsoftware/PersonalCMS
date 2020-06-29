@@ -1,26 +1,23 @@
 <?php
  
-class Files_Database extends SQLite3 {
+class FilesACLS_Database extends SQLite3 {
 
     public const Access_Public = 0;
     public const Access_Member = 1;
 
     private $path = "";
-
+    private $ud=null;
     public function __construct(Config $cfg) {
-        $this->path = $cfg->GetDataPath() . "/Files/";
+        $this->path = $cfg->GetLocalConfigPath()["Com"] . "/Files/";
         if (!is_dir($this->path)) {
             mkdir($this->path);
         }
+        $this->ud=$ud;
         $this->open($this->path . "Files.db");
     }
 
     public function GetUserDIR($userid) {
-      $p=  $this->path.$userid."/";
-      if (!is_dir($p)){
-          mkdir($p);
-      }
-        return $p;
+        return $this->ud->GetDataPath($userid);
     }
 
     public function Install() {

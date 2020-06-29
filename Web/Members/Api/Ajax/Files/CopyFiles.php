@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 include_once '../../../../../Class/Core/Config/Config.php';
 include_once '../../../../../Class/Com/Files/Database.php';
@@ -11,13 +12,13 @@ $fd = new Files_Database($config);
 $userdb = new User_Database($config);
 $session = new User_Session($userdb);
 $userdata = new User_Member($userdb);
-if ($config->IsOnline() && isset($_POST["Path"]) &&isset($_POST["Files"]) && isset($_SESSION["User"]) &&
+if ($config->IsOnline() && isset($_POST["Path"]) && isset($_POST["Files"]) && isset($_SESSION["User"]) &&
         $session->Registered(session_id()) &&
         $userdata->CanWritable($_SESSION["User"]["id"])) {
-    $vd = new VirtualDirectory($fd->GetUserDIR($_SESSION["User"]["id"]));
-     $out = true;
+    $vd = new VirtualDirectory($fd->GetUserDIR($userdb, $_SESSION["User"]["id"])."/Files/");
+    $out = true;
     foreach (explode(",", $_POST["Files"]) as $value) {
-        $out = $out && ($vd->Copy($value,$_POST["Path"]));
+        $out = $out && ($vd->Copy($value, $_POST["Path"]));
     }
     echo $out;
 } else {

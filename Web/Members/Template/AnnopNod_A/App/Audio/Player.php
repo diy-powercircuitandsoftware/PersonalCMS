@@ -32,10 +32,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
             }
             ?>
-            <script src="../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../js/audio/AudioManager.js"></script>
-            <script src="../../../../js/audio/AudioVisualizer.js"></script>
-            <script src="../../../../js/player/PlayingList.js"></script>
+            <script src="../../../../../js/dom/SSQueryFW.js"></script>
+            <script src="../../../../../js/dom/PlayingList.js"></script>
+            <script src="../../../../../js/io/Ajax.js"></script>
             <style>
                 #AudioList{
                     background-color: cornsilk;
@@ -51,6 +50,37 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
+                    var ajax = new Ajax();
+                    var playlist = new PlayingList(document.getElementById("OptLibrary"));
+
+
+                    ajax.Post("../../../../Api/Ajax/Files/SearchFiles.php", {"Path": "Audios/PlayList", "Name": ".xml"}, function (data) {
+                        data = JSON.parse(data);
+                        for (var i in data) {
+                            ss.S("#OptLibrary").Append(data[i]["fullpath"], data[i]["name"]);
+                        }
+                    });
+
+                    ss.S("#OptLibrary").Change(function () {
+                        alert(this.value);
+                    });
+
+                    return;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     var AudioSrc = document.getElementById("AudioSrc");
                     var CanvasVisualizer = document.getElementById("CanvasVisualizer");
                     var audiomanager = new AudioManager();
@@ -167,24 +197,26 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
             <div class="LMR157015">
                 <div>
-                    <?php
-                    foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
-                        echo '<div class="BorderBlock">';
-                        printf(' <div class="TitleCenter">%s</div>', $key);
-                        foreach ($valueA as $valueB) {
-                            printf('  <a class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
-                        }
-                        echo '</div>';
-                    }
-                    foreach ($modlist as $value) {
-                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
-                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
-                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
-                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
+                    <nav>
+                        <?php
+                        foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
+                            echo '<div class="BorderBlock">';
+                            printf(' <div class="TitleCenter">%s</div>', $key);
+                            foreach ($valueA as $valueB) {
+                                printf('  <a class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
+                            }
                             echo '</div>';
                         }
-                    }
-                    ?>  
+                        foreach ($modlist as $value) {
+                            if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                                echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                                printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                                echo $value->Execute(Module_SDK_Basic::Layout_Nav);
+                                echo '</div>';
+                            }
+                        }
+                        ?>  
+                    </nav>
                 </div>
                 <div>
                     <div style="display: flex;flex-direction: column;">
@@ -206,12 +238,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <div class="TitleCenter" style="display: block ">Library</div>
                         <select id="OptLibrary" style="width: 99%;">
                             <option>==Select==</option>
-                            <option value="-1">* All Audio *</option>
-                            <?php
-                            // foreach ($PL->GetPlayList($_SESSION["UserID"]) as $value) {
-                            //   printf('<option value="%s">%s</option>', $value["id"], $value["name"]);
-                            //}
-                            ?>
+
+
                         </select>
                         <div id="AudioList"></div>
                     </div>

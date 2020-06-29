@@ -198,7 +198,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                         ajax.Post(url, {"Path": fileupload.currentdir, "Files": files}, function (data) {
                             FL.OpenDir(fileupload.currentdir);
-                            ss.S("#BNPaste").Data({"mode": null, "files": null});
+                           ss.S("#BNPaste").Data({"mode": null, "files": null});
                         });
 
                     });
@@ -355,6 +355,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             </header>
             <div class="LMR157015">
                 <div>
+                    <nav>
                     <?php
                     foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
                         echo '<div class="BorderBlock">';
@@ -373,6 +374,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     }
                     ?>  
+                        </nav>
                 </div>
                 <div>
                     <div style="display: flex;flex-direction: row;margin-top: 7px;">

@@ -4,29 +4,17 @@ class Audio_PlayList {
 
     private $path;
 
-    public function __construct(Audio_Database $ad) {
-        $this->path = $ad->path;
+    public function __construct($path) {
+        $this->path = $path;
     }
 
-    public function GetMyPlayList($userid) {
-        $arr = array();
-        $pubdir = $this->path . $userid . "/Public/";
-        $pridir = $this->path . $userid . "/Members/";
-        if (is_dir($pubdir)) {
-            foreach (scandir($pubdir) as $value) {
-                if (strtolower(pathinfo($value, PATHINFO_EXTENSION))) {
-                    $arr[] = basename($value, ".xml");
-                }
-            }
+    public function Read() {
+        $xmlstring = "";
+        if (is_file($this->path)) {
+            $xmlstring = file_get_contents($path);
         }
-        if (is_dir($pridir)) {
-            foreach (scandir($pridir) as $value) {
-                if (strtolower(pathinfo($value, PATHINFO_EXTENSION))) {
-                    $arr[] = basename($value, ".xml");
-                }
-            }
-        }
-        return $arr;
+        $xml = new SimpleXMLElement($xmlstring);
+        
     }
 
     public function AddPlayList($userid, $name, $file = array(), $accessmode) {
@@ -39,12 +27,9 @@ class Audio_PlayList {
         if (!is_dir($dir)) {
             mkdir($dir);
         }
-        $xmlstring = "";
+
         $path = $dir . $name . ".xml";
-        if (is_file($path)) {
-            $xmlstring = file_get_contents($path);
-        }
-        $xml = new SimpleXMLElement();
+
         $xml->addChild('title', 'PHP2: More Parser Stories');
     }
 

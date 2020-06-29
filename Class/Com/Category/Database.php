@@ -14,7 +14,7 @@
 class Category_Database extends SQLite3 {
 
     public function __construct(Config $cfg) {
-        $path = $cfg->GetDataPath() . "/Category/";
+        $path = $cfg->GetLocalConfigPath()["Com"] . "/Category/";
         if (!is_dir($path)) {
             mkdir($path);
         }

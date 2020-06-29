@@ -44,11 +44,23 @@ class Config extends SQLite3 {
         if ($data) {
             return $data["v"];
         }
-        return "";
+        return false;
     }
 
     public function GetConfigDIRPath() {
         return realpath(dirname(__FILE__));
+    }
+
+    public function GetLocalConfigPath() {
+        $com = $this->GetDataPath() . "/Com/";
+        $core = $this->GetDataPath() . "/Core/";
+        if (!is_dir($com)) {
+            mkdir($com);
+        }
+        if (!is_dir($core)) {
+            mkdir($core);
+        }
+        return array("Com" => $com, "Core" => $core);
     }
 
     public function GetName() {

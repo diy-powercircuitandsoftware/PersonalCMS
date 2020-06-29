@@ -10,7 +10,7 @@ class VirtualDirectory {
     }
 
     public function Copy($s, $d) {
-        if (($s !== $d) && !in_array($this->Normalize($s), $this->RootPath) ) {
+        if (($s !== $d) && !in_array($this->Normalize($s), $this->RootPath)) {
             $src = $this->DiskPath($s);
             $dest = $this->DiskPath($d) . DIRECTORY_SEPARATOR;
             if (is_file($src)) {
@@ -158,11 +158,12 @@ class VirtualDirectory {
     }
 
     public function MoveFiles($s, $d) {
-        if (($s !== $d) && !in_array($this->Normalize($s), $this->RootPath) ) {
+        $isroot = in_array($this->Normalize($s), $this->RootPath) && is_dir($this->DiskPath($s));
+        if (($s !== $d) && !$isroot) {
             $src = $this->DiskPath($s);
             $dest = $this->DiskPath($d);
             if (is_file($src)) {
-                return copy($src, $dest . basename($src));
+                return rename($src, $dest . DIRECTORY_SEPARATOR . basename($src));
             } else if (is_dir($src)) {
                 $dest = $dest . DIRECTORY_SEPARATOR . basename($src) . DIRECTORY_SEPARATOR;
                 mkdir($dest);
@@ -174,6 +175,7 @@ class VirtualDirectory {
                 rmdir($src);
             }
         }
+
         return false;
     }
 

@@ -61,7 +61,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             data = JSON.parse(data);
                             for (var i in data) {
                                 tabletool.InsertRow();
-                                tabletool.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="UserSelect" value="' + data[i]["id"] + '" /></div>');
+                                tabletool.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="SelectID" value="' + data[i]["id"] + '" /></div>');
                                 tabletool.InsertCellLastRow(data[i]["title"]);
                                 tabletool.InsertCellLastRow(data[i]["categoryname"]);
                                 tabletool.InsertCellLastRow(data[i]["htmlfilepath"]);
@@ -75,15 +75,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     });
                     FL.OpenDir(function (v) {
-                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v, "Ext": ["html", "htm"]}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path":v,"Ext":["html"]}, function (data) {
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
                                 if (data[i]["type"] == "DIR") {
                                     FL.AddDir(data[i]["name"], data[i]["fullpath"], data[i]["modified"]);
-                                } else if (data[i]["type"] == "FILE") {
-                                    FL.AddFile(data[i]["name"], data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
-                                }
+                                }  
                             }
                             ss.S("#CHDIRList").Html(decodeURIComponent(v));
                         });
@@ -195,11 +193,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNRemove").Click(function () {
                         sd.Confirm("Do You Delect It", function () {
                             var v = ss.S(".SelectID").Val();
-                            ss.Post("../../../Api/Ajax/BlogManager/DeleteBlog.php", {"ID": v}, function () {
-                                tabletool.DeleteRowAfter(0);
+                            ajax.Post("../../../Api/Ajax/BlogManager/DeleteBlog.php", {"ID": v}, function () {
+                               /* tabletool.DeleteRowAfter(0);
                                 wsl.Param["StartID"] = 0;
                                 wsl.Lock = false;
-                                wsl.LoadData();
+                                wsl.LoadData();*/
                             });
                         }).ZIndex(999);
                     });

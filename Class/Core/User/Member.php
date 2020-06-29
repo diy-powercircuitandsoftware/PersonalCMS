@@ -7,6 +7,12 @@
  */
 class User_Member {
 
+    public const Auth_DatabaseError = 0;
+    public const Auth_Complete = 1;
+    public const Auth_NotRegistered = 2;
+    public const Auth_PasswordError = 3;
+    public const Auth_UserDisable = 4;
+
     private $ud;
 
     public function __construct(User_Database $ud) {
@@ -19,12 +25,20 @@ class User_Member {
 
     public function AuthByPassword($userid, $password) {
         $hash = sha1(sha1("Transp" . $password . "arency"));
-        $stmt = $this->ud->prepare('SELECT COUNT(id) AS n  FROM user WHERE id=:id AND password=:password AND enable=1; ');
+        $stmt = $this->ud->prepare('SELECT COUNT(id) AS n,enable,password  FROM user WHERE id=:id ; ');
         $stmt->bindValue(':id', $userid, SQLITE3_INTEGER);
-        $stmt->bindValue(':password', $hash, SQLITE3_TEXT);
         $results = $stmt->execute();
         $rs = $results->fetchArray(SQLITE3_ASSOC);
-        return $rs["n"] == 1;
+        if ($rs["n"] == 0) {
+            return User_Member::Auth_NotRegistered;
+        } else if ($rs["n"] == 1 && $rs["enable"] == 0) {
+            return User_Member::Auth_UserDisable;
+        } else if ($rs["n"] == 1 && $rs["enable"] == 1 && $hash !== $rs["password"]) {
+            return User_Member::Auth_PasswordError;
+        } else if ($rs["n"] == 1 && $rs["enable"] == 1 && $hash == $rs["password"]) {
+            return User_Member::Auth_Complete;
+        }
+        return User_Member::Auth_DatabaseError;
     }
 
     public function GetProfileData($userid) {
@@ -93,12 +107,12 @@ class User_Member {
     public function SearchUser($searchdata, $field = "alias") {
         /*
           $stmt = $this->prepare("SELECT * FROM keyword WHERE name LIKE :kw;");
-        $stmt->bindValue(':kw', $k . "%", SQLITE3_TEXT);
-        $results = $stmt->execute();
+          $stmt->bindValue(':kw', $k . "%", SQLITE3_TEXT);
+          $results = $stmt->execute();
          */
-        
-        
-        
+
+
+
         $data = array();
         $results = $this->ud->query('SELECT id,alias,enable,writable,email,phone FROM user WHERE ' . $field . ' LIKE "' . $searchdata . '"   ');
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {

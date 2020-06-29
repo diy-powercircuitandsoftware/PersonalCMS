@@ -12,7 +12,6 @@ $uinav = new UINAV();
 $module = new Module_Database($config);
 $blog = new Blog_Reader(new Blog_Database($config));
 $event = new Event_Reader(new Event_Database($config));
-
 if ($config->IsOnline()) {
     $modlist = array();
     foreach ($module->LoadModule(Module_Database::Access_Public) as $value) {
@@ -27,7 +26,12 @@ if ($config->IsOnline()) {
             <meta charset="UTF-8">
             <title><?php echo $config->GetName(); ?></title>
             <link rel="stylesheet" type="text/css" href="App/css/Page.css">
-            <?php
+            <style>
+                .DivList{
+                   border-style: solid;
+                }
+            </style>
+                <?php
             foreach ($modlist as $value) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
             }
@@ -90,10 +94,12 @@ if ($config->IsOnline()) {
                             <div  style="text-align: left;" class="TitleCenter">Last Blog</div>
                             <?php
                             foreach ($blog->GetLastBlogList(Blog_Database::Access_Public) as $value) {
-                                echo '<div style="border-style: solid;border-width: thin;margin-top: 1px;">';
-                                printf('<h2><a href="Blog/index.php?id=%d">%s</a></h2>', intval($value["id"]), $value["title"]);
+                                echo '<div class="DivList"><a href="App/Blog/Viewer.php?id='.$value["id"].'">';
+                                printf('<h2>%s</h2>',   $value["title"]);
                                 echo $value["description"];
-                                echo '</div>';
+                                echo '</a></div>';
+                                
+                                 
                             }
                             ?>
                         </div>
