@@ -26,7 +26,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
-            <link rel="stylesheet" href="../css/Page.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
+
 
             <?php
             foreach ($modlist as $value) {
@@ -40,19 +42,19 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 var ss = new SSQueryFW();
             </script>
         </head>
-        <body>
-            <header id="mainheader">
+        <body  class="HolyGrail">
+            <header class="Header">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <?php
                     printf('<img src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
-                    <a style="font-weight: bold;" href="../../../../Auth/Action/Logout.php">LogOut</a>
+                    <a class="MenuLink" style="display: inline;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
-            <div class="LMR157015">
-                <div>
+            <div class="HolyGrail-body">
+                <nav>
                     <?php
                     foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
                         echo '<div class="BorderBlock">';
@@ -71,8 +73,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     }
                     ?>     
-                </div>
-                <div>
+                </nav>
+                <main>
                     <?php
                     if (isset($_GET["id"])) {
                         $value=$event->ReadEvent($_GET["id"], Event_Database::Access_Member);
@@ -89,8 +91,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         
                     }
                     ?> 
-                </div>
-                <div>
+                </main>
+                <aside>
 
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">Event</div>
@@ -113,8 +115,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     }
                     ?>
-                </div>
+                </aside>
             </div>
+            <footer>
+                <span style="font-weight: bold;display: block;">
+                    <?php
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
+                    ?>
+                </span>  
+            </footer>
         </body>
 
     </html>

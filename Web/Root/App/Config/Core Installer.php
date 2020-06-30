@@ -11,7 +11,8 @@ if ($config->HasRootAuth(session_id())) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
-            <link rel="stylesheet" href="../css/Page.css">
+            <link rel="stylesheet" type="text/css" href="../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../css/PersonalCMS.css">
             <script src="../../../js/io/Ajax.js"></script>
             <script src="../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../js/dom/SuperDialog.js"></script>
@@ -96,17 +97,17 @@ if ($config->HasRootAuth(session_id())) {
 
             </script>
         </head>
-        <body>
+        <body class="HolyGrail">
 
-            <header id="mainheader">
+            <header  class="Header">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <span style="font-weight: bold;cursor: default;">Root</span>
-                    <a style="font-weight: bold;" href="../../Auth/ExitRoot.php">Exit</a>
+                    <a class="MenuLink" style="display: inline;" href="../../Auth/ExitRoot.php">Exit</a>
                 </div>
             </header>
-            <div class="LMR157015">
-                <div>
+            <div class="HolyGrail-body">
+                
                     <nav>
                         <?php
                         foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
@@ -120,8 +121,8 @@ if ($config->HasRootAuth(session_id())) {
                         ?>
 
                     </nav>
-                </div>
-                <div>
+                
+                <main>
 
                     <table>
                         <tr>
@@ -148,11 +149,18 @@ if ($config->HasRootAuth(session_id())) {
                         ?>
                     </table>
 
-                </div>
-                <div>
+                </main>
+                <aside>
 
-                </div>
+                </aside>
             </div>
+            <footer>
+                <span style="font-weight: bold;display: block;">
+                    <?php
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
+                    ?>
+                </span>  
+            </footer>
             <div id="TableViewer" style="display: none;">
                 <select id="TableList" style="width: 100%;box-sizing: border-box;"></select>
                 <table id="TableField">

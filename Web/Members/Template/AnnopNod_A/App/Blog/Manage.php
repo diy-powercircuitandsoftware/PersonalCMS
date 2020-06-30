@@ -31,7 +31,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
-            <link rel="stylesheet" href="../css/Page.css">
+           <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
+
             <?php
             foreach ($modlist as $value) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
@@ -208,20 +210,20 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 });
             </script>
         </head>
-        <body>
+        <body  class="HolyGrail">
 
-            <header id="mainheader">
+            <header class="Header">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <?php
                     printf('<img src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
-                    <a style="font-weight: bold;" href="../../../../Auth/Action/Logout.php">LogOut</a>
+                    <a class="MenuLink" style="display: inline;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
-            <div class="LMR157015">
-                <div>
+            <div class="HolyGrail-body">
+                <nav>
                     <?php
                     foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
                         echo '<div class="BorderBlock">';
@@ -240,8 +242,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     }
                     ?>     
-                </div>
-                <div>
+                </nav>
+                <main>
 
                     <?php
                     if ($_SESSION["User"]["writable"] == 1) {
@@ -257,8 +259,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     </table>';
                     }
                     ?>
-                </div>
-                <div>
+                </main>
+                <aside>
                     <?php
                     if ($_SESSION["User"]["writable"] == 1) {
                         echo ' <div class="BorderBlock">
@@ -291,8 +293,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     }
                     ?>
-                </div>
+                </aside>
             </div>
+            <footer>
+                <span style="font-weight: bold;display: block;">
+                    <?php
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
+                    ?>
+                </span>  
+            </footer>
             <div id="Dialog" style="display: none;">
                 <table style="width: 98%;">
                     <tr>

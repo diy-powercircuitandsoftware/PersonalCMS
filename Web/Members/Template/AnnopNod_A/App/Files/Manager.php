@@ -26,7 +26,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
-            <link rel="stylesheet" href="../css/Page.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
+
             <?php
             foreach ($modlist as $value) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
@@ -198,7 +200,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                         ajax.Post(url, {"Path": fileupload.currentdir, "Files": files}, function (data) {
                             FL.OpenDir(fileupload.currentdir);
-                           ss.S("#BNPaste").Data({"mode": null, "files": null});
+                            ss.S("#BNPaste").Data({"mode": null, "files": null});
                         });
 
                     });
@@ -217,18 +219,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
                     });
                     ss.S("#BNShareManager").Click(function () {
-                        dialog.ImportOkCancel("Share","#TableShare", function () {
+                        dialog.ImportOkCancel("Share", "#TableShare", function () {
 
                         });
                     });
 
 
                     /*  
-                         
-                         
-                         
+                     
+                     
+                     
                      var TBShareFile = document.getElementById("").appendChild(new TableTools());
-                         
+                     
                      TBShareFile.Border(1);
                      TBShareFile.CSSText("width: 100%;box-sizing: border-box;");
                      TBShareFile.InsertRow();
@@ -236,38 +238,38 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      TBShareFile.InsertHead("File Path");
                      TBShareFile.InsertHead("Edit");
                      ss.S(bnupload).Change(function () {
-                         
-                         
-                         
-                         
-                         
-                         
-                         
+                     
+                     
+                     
+                     
+                     
+                     
+                     
                      ss.S("#BNAddShare").Click(function () {
                      dialog.Import("#AddShareDialog", function () {
                      ss.Post("../../../Api/Ajax/Files/AddShareList.php", {
                      "AuthName": ss.S("#TXTAddUserShare").Val(), "PW": ss.S("#TXTAddPWShare").Val(), "AccessMode": ss.S("#OPTAddAccessMode").Val(), "FilesList": fl.GetSelectFiles()}, function (data) {
-                         
+                     
                      });
                      }).Title("Share").ZIndex(999);
                      });
-                         
                      
-                         
+                     
+                     
                      ss.S("#BNDeleteAccess").Click(function () {
-                         
+                     
                      dialog.Confirm("Delete It????", function (name) {
                      var v = ss.S(".checkaccessfileid").Val();
                      ss.Post("../../../Api/Ajax/Files/DelShareList.php", {"IDList": v}, function (data) {
                      ss.S("#OPTMAccessMode").Change();
                      });
                      }).ZIndex(1000);
-                         
+                     
                      });
-                         
-                         
-                         
-                         
+                     
+                     
+                     
+                     
                      ss.S("#BNNewPhoto").Click(function () {
                      var takephoto = new TakePhoto();
                      var cust = dialog.Custom();
@@ -293,12 +295,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      takephoto.ReSet();
                      fl.ChDir(fl.currentdir);
                      });
-                         
+                     
                      });
                      }
                      });
                      });
-                         
+                     
                      ss.S("#BNShareManager").Click(function () {
                      ss.S("#OPTMAccessMode").Change();
                      dialog.Import("#ShareManagerDialog").Title("Share").ZIndex(999);
@@ -327,7 +329,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      ss.S("#OPTMAccessMode").Change();
                      t.Close();
                      });
-                         
+                     
                      }).ZIndex(1000).Title("Edit");
                      t.Access = t.AddTableDom('Access:', '<select style="width: 100%;"><option value="0">None</option><option value="1">Public</option><option value="2">Member</option></select>');
                      t.UserName = t.AddTableDom('UserName:', '<input type="text" style="width: 100%;" />');
@@ -335,27 +337,26 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      t.fileid = e.target.getAttribute("data-id");
                      }
                      });
-                         
+                     
                      */
 
                 });
 
             </script>
         </head>
-        <body>
-            <header id="mainheader">
+        <body class="HolyGrail">
+            <header class="Header">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <?php
                     printf('<img src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
-                    <a style="font-weight: bold;" href="../../../../Auth/Action/Logout.php">LogOut</a>
+                    <a  class="MenuLink" style="display: inline;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
-            <div class="LMR157015">
-                <div>
-                    <nav>
+            <div class="HolyGrail-body">
+                <nav>
                     <?php
                     foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
                         echo '<div class="BorderBlock">';
@@ -374,9 +375,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     }
                     ?>  
-                        </nav>
-                </div>
-                <div>
+                </nav>
+
+                <main>
                     <div style="display: flex;flex-direction: row;margin-top: 7px;">
                         <div style="width: 100%; box-sizing: border-box;">
                             <input id="TXTSearch" placeholder="Search" style="width: 100%;box-sizing: border-box;" type="text" name="" value="" />
@@ -385,34 +386,34 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <div id="CHDIRList"></div>
                     <div style="width: 100%;box-sizing: border-box;" id="FileRS">
                     </div>
-                </div>
-                <div>
+                </main>
+                <aside>
                     <div class="BorderBlock" >
                         <label class="TitleCenter" style="display: block;">Action</label>
-                        <a id="BNRefresh" href="#">Refresh</a>
+                        <a  class="MenuLink" id="BNRefresh" href="#">Refresh</a>
 
                         <label class="TitleCenter" style="display: block;">Folder</label>
-                        <a id="BNHome" href="#">Home</a>
+                        <a  class="MenuLink" id="BNHome" href="#">Home</a>
                     </div>
                     <?php
                     if ($_SESSION["User"]["writable"] == 1) {
                         ?>
                         <div class="BorderBlock" >
                             <label class="TitleCenter" style="display: block;">New</label>
-                            <a  style="display: block;" id="BNNewFolder"href="#">Folder</a>
-                            <a  style="display: block;" id="BNNewPhoto" href="#">Photo</a>
+                            <a class="MenuLink" id="BNNewFolder"href="#">Folder</a>
+                            <a class="MenuLink" id="BNNewPhoto" href="#">Photo</a>
                         </div>
                         <div class="BorderBlock" >
                             <label class="TitleCenter" style="display: block;">Manager</label>
-                            <a style="display: block;" href="#" id="BNCut">Cut</a>
-                            <a style="display: block;" href="#" id="BNCopy">Copy</a>
-                            <a style="display: block;" href="#" id="BNPaste">Paste</a>
-                            <a style="display: block;" id="BNDelete" href="#">Delete</a>
+                            <a class="MenuLink" href="#" id="BNCut">Cut</a>
+                            <a class="MenuLink" href="#" id="BNCopy">Copy</a>
+                            <a class="MenuLink" href="#" id="BNPaste">Paste</a>
+                            <a class="MenuLink" id="BNDelete" href="#">Delete</a>
                         </div>
                         <div class="BorderBlock" >
                             <label class="TitleCenter" style="display: block;">Share</label>
-                            <a style="display: block;"  id="BNAddShare" href="#">Add</a>
-                            <a  style="display: block;" id="BNShareManager" href="#">Manager</a>
+                            <a class="MenuLink"  id="BNAddShare" href="#">Add</a>
+                            <a class="MenuLink" id="BNShareManager" href="#">Manager</a>
                         </div>
                         <div class="BorderBlock" >
                             <label class="TitleCenter" style="display: block;">Upload</label>
@@ -450,9 +451,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     }
                     ?>
-                </div>
+                </aside>
             </div>
-
+            <footer>
+                <span style="font-weight: bold;display: block;">
+                    <?php
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
+                    ?>
+                </span>  
+            </footer>
 
             <table border="1" id="TableShare" style="width: 100%;display: none;">
                 <tr>

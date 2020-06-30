@@ -25,58 +25,59 @@ if ($config->IsOnline()) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo $config->GetName(); ?></title>
-            <link rel="stylesheet" type="text/css" href="App/css/Page.css">
+            <link rel="stylesheet" type="text/css" href="../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../css/PersonalCMS.css">
             <style>
                 .DivList{
-                   border-style: solid;
+                    border-style: solid;
                 }
             </style>
-                <?php
+            <?php
             foreach ($modlist as $value) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
             }
             ?>
         </head>
-        <body>
+        <body class="HolyGrail">
 
             <header> 
                 <h1 style="width: 100%;text-align: center;"><?php echo $config->GetName(); ?> Website</h1>
             </header>
-            <div class="LMR157015">
-                <div>
-                    <nav>
+            <div class="HolyGrail-body">
+
+                <nav>
+                    <?php
+                    foreach ($uinav->FindAllMenuFile("App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+                            printf('  <a  class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
+                        }
+                        echo '</div>';
+                    }
+                    ?>
+
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Template</div>
                         <?php
-                        foreach ($uinav->FindAllMenuFile("App") as $key => $valueA) {
-                            echo '<div class="BorderBlock">';
-                            printf(' <div class="TitleCenter">%s</div>', $key);
-                            foreach ($valueA as $valueB) {
-                                printf('  <a  class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
-                            }
+                        foreach ($uinav->FindAllTemplate("../") as $key => $value) {
+                            printf('  <a  class="MenuLink" href="%s">%s</a>', $value, $key);
+                        }
+                        ?>
+                    </div>
+                    <?php
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
                             echo '</div>';
                         }
-                        ?>
+                    }
+                    ?>
+                </nav>
 
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <div class="TitleCenter">Template</div>
-                            <?php
-                            foreach ($uinav->FindAllTemplate("../") as $key => $value) {
-                                printf('  <a  class="MenuLink" href="%s">%s</a>', $value, $key);
-                            }
-                            ?>
-                        </div>
-                        <?php
-                        foreach ($modlist as $value) {
-                            if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
-                                echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
-                                printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
-                                echo $value->Execute(Module_SDK_Basic::Layout_Nav);
-                                echo '</div>';
-                            }
-                        }
-                        ?>
-                    </nav>
-                </div>
-                <div>
+                <main>
                     <div  style="text-align: center;border-style: dashed;background-color:#e9eaed ;">
                         <h2 >Sorry, this page isn't available</h2>
                         <h3>The link you followed may be broken, or the page may have been removed.</h3>
@@ -94,12 +95,10 @@ if ($config->IsOnline()) {
                             <div  style="text-align: left;" class="TitleCenter">Last Blog</div>
                             <?php
                             foreach ($blog->GetLastBlogList(Blog_Database::Access_Public) as $value) {
-                                echo '<div class="DivList"><a href="App/Blog/Viewer.php?id='.$value["id"].'">';
-                                printf('<h2>%s</h2>',   $value["title"]);
+                                echo '<div class="DivList"><a href="App/Blog/Viewer.php?id=' . $value["id"] . '">';
+                                printf('<h2>%s</h2>', $value["title"]);
                                 echo $value["description"];
                                 echo '</a></div>';
-                                
-                                 
                             }
                             ?>
                         </div>
@@ -110,8 +109,8 @@ if ($config->IsOnline()) {
                             <div  style="text-align: left;" class="TitleCenter">Welcome</div>
                         </div>
                     </div>
-                </div>
-                <div>
+                </main>
+                <aside>
                     <?php
                     echo '<div class="BorderBlock" style="margin-top: 1px;">';
                     echo '  <div class="TitleCenter">Event</div>';
@@ -131,7 +130,7 @@ if ($config->IsOnline()) {
                         }
                     }
                     ?>
-                </div>
+                </aside>
             </div>
 
             <footer>
@@ -140,7 +139,6 @@ if ($config->IsOnline()) {
                     echo "&COPY;" . date("Y") . " " . $config->GetName();
                     ?>
                 </span>  
-
             </footer>
 
 

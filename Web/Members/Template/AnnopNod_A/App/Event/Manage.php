@@ -13,9 +13,9 @@ $config = new Config();
 $uinav = new UINAV();
 $module = new Module_Database($config);
 $category = new Category_Database($config);
-$eventdb=new Event_Database($config);
+$eventdb = new Event_Database($config);
 $event = new Event_Manager($eventdb);
-$eventreader=new Event_Reader($eventdb);
+$eventreader = new Event_Reader($eventdb);
 if ($config->IsOnline() && isset($_SESSION["User"])) {
     $modlist = array();
     foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
@@ -30,7 +30,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
-            <link rel="stylesheet" href="../css/Page.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
+
             <style>
                 .EventAjaxSend{
                     width: 100%;
@@ -56,8 +58,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var sd = new SuperDialog();
                     var tabletool = new TableTools();
                     var ajax = new Ajax();
-                        var lastid=0;
-                     var ajaxsb = new AjaxScrollBar("../../../../Api/Ajax/Event/GetEvent.php", {"id": 0});
+                    var lastid = 0;
+                    var ajaxsb = new AjaxScrollBar("../../../../Api/Ajax/Event/GetEvent.php", {"id": 0});
                     tabletool.Import(document.getElementById("TableOutput"));
                     ajaxsb.AddScrollEvent(function (data) {
                         try {
@@ -72,14 +74,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 tabletool.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
                                 lastid = Math.max(lastid, data[i]["id"]);
                             }
-                            
+
                             ajaxsb.Param("id", lastid);
                         } catch (e) {
                             sd.Alert(data);
                         }
                     });
-                    
-                    
+
+
                     tabletool.AddEventListener("click", function (e) {
                         if (e.target.getAttribute("class") == "SelectID") {
                             if (!e.target.checked) {
@@ -88,7 +90,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         } else if (e.target.getAttribute("class") == "BNEdit") {
                             ajax.Post("../../../../Api/Ajax/Event/GetEventForEdit.php", {"id": e.target.getAttribute("data-value")}, function (data) {
                                 ss.S(".EventAjaxSend").ValByName(JSON.parse(data));
-                                sd.Import("Edit","#EventDialog", function () {
+                                sd.Import("Edit", "#EventDialog", function () {
                                     var json = ss.S(".EventAjaxSend").SerializeToJson();
                                     json["id"] = e.target.getAttribute("data-id");
                                     ss.Post("../../../Api/Ajax/EventManager/UpdateEventList.php", json, function () {
@@ -98,7 +100,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         }
                     });
-                    
+
 
                     ss.S("#BNAddEvent").Click(function () {
                         ss.S(".EventAjaxSend").Val("");
@@ -110,10 +112,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         var i = sd.Import("Add", "#EventDialog", {"OK": function () {
                                 ajax.Post("../../../../Api/Ajax/Event/AddEvent.php", ss.S(".EventAjaxSend").ValByName(), function (data) {
-                                    if (data=="1"){
-                                         location.reload();
+                                    if (data == "1") {
+                                        location.reload();
                                     }
-                                   
+
                                 });
 
                             }, "Cancel": function () {
@@ -141,20 +143,20 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 });
             </script>
         </head>
-        <body>
-            <header id="mainheader">
+        <body  class="HolyGrail">
+            <header class="Header">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <?php
                     printf('<img src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
-                    <a style="font-weight: bold;" href="../../../../Auth/Action/Logout.php">LogOut</a>
+                    <a class="MenuLink" style="display: inline;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
 
-            <div class="LMR157015">
-                <div>
+            <div class="HolyGrail-body">
+                <nav>
                     <?php
                     foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
                         echo '<div class="BorderBlock">';
@@ -173,8 +175,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     }
                     ?>     
-                </div>
-                <div>
+                </nav>
+                <main>
                     <?php
                     if ($_SESSION["User"]["writable"] == 1) {
                         echo ' <table style="width: 100%;text-align: center;word-wrap: break-word;" id="TableOutput">
@@ -189,8 +191,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         </table>';
                     }
                     ?>
-                </div>
-                <div>
+                </main>
+                <aside>
                     <?php
                     if ($_SESSION["User"]["writable"] == 1) {
                         echo ' <div class="BorderBlock">
@@ -206,7 +208,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <div class="TitleCenter">Event</div>
                         <?php
                         foreach ($eventreader->GetComingEvent(Event_Database::Access_Member) as $value) {
-                           echo '<div>';
+                            echo '<div>';
                             printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
                             printf('<div style="color: black;" >%s</div></a>', $value["description"]);
                             echo '</div><hr>';
@@ -223,9 +225,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     }
                     ?>
-                </div>
+                </aside>
             </div>
-
+            <footer>
+                <span style="font-weight: bold;display: block;">
+                    <?php
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
+                    ?>
+                </span>  
+            </footer>
             <table id="EventDialog" style="display: none;width: 100%;box-sizing: border-box;">
                 <tr>
                     <td>Name:</td>
@@ -277,7 +285,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <td><textarea class="EventAjaxSend" name="description" ></textarea></td>
                 </tr>
             </table>
-             
+
         </body>
     </html>
     <?php

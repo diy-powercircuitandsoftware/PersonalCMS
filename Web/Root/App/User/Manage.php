@@ -11,7 +11,9 @@ if ($config->HasRootAuth(session_id())) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
-            <link rel="stylesheet" href="../css/Page.css">
+            <link rel="stylesheet" type="text/css" href="../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../css/PersonalCMS.css">
+
             <script src="../../../js/io/Ajax.js"></script>
             <script src="../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../js/dom/SuperDialog.js"></script>
@@ -38,7 +40,7 @@ if ($config->HasRootAuth(session_id())) {
                     var dialog = new SuperDialog();
                     var userlist = new TableTools();
                     var lastid = 0;
-                    userlist.Import(document.getElementById("UserList"));                  
+                    userlist.Import(document.getElementById("UserList"));
                     ajaxsb.AddScrollEvent(function (data) {
                         try {
                             data = JSON.parse(data);
@@ -65,27 +67,27 @@ if ($config->HasRootAuth(session_id())) {
                             ajax.Post("Action/GetUserData.php", {"id": v}, function (v) {
                                 ss.S(".EditUser").ValByName(JSON.parse(v));
                                 var d = dialog.ImportOkCancel("Edit", "#EditTable", function () {
-                                        ajax.Post("Action/EditUserData.php", ss.S(".EditUser").ValByName(), function () {
-                                            lastid = 0;
-                                            userlist.DeleteRowAfter(0);
-                                            ajaxsb.Param("id", lastid);
-                                            ajaxsb.LoadAjax();
-                                            d.Close();
+                                    ajax.Post("Action/EditUserData.php", ss.S(".EditUser").ValByName(), function () {
+                                        lastid = 0;
+                                        userlist.DeleteRowAfter(0);
+                                        ajaxsb.Param("id", lastid);
+                                        ajaxsb.LoadAjax();
+                                        d.Close();
 
-                                        });
                                     });
+                                });
                             });
                         }
                     });
 
                     ss.S("#BNAddUser").Click(function () {
-                        var d = dialog.ImportOkCancel("Add", "#AddTable",  function () {
-                                ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
-                                    ajaxsb.LoadAjax();
-                                    d.Close();
-                                    ss.S(".AddUser").Val("");
-                                });
+                        var d = dialog.ImportOkCancel("Add", "#AddTable", function () {
+                            ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
+                                ajaxsb.LoadAjax();
+                                d.Close();
+                                ss.S(".AddUser").Val("");
                             });
+                        });
                     });
 
                     ss.S("#BNDeleteUser").Click(function () {
@@ -99,7 +101,7 @@ if ($config->HasRootAuth(session_id())) {
                             });
                         }).ZIndex(999);
                     });
-                    
+
                     ss.S("#SearchBox").Input(function (e) {
                         if (this.value !== "") {
                             ajax.Post("Action/SearchUser.php", {"data": this.value, "field": ss.S("#SearchOption").Val()}, function (data) {
@@ -126,35 +128,35 @@ if ($config->HasRootAuth(session_id())) {
                             ajaxsb.Param("id", lastid);
                             ajaxsb.LoadAjax();
                         }
-                    });       
+                    });
                 });
 
             </script>
         </head>
-        <body> 
-            <header id="mainheader">
+        <body class="HolyGrail"> 
+            <header class="Header">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <span style="font-weight: bold;cursor: default;">Root</span>
-                    <a style="font-weight: bold;" href="../../Auth/ExitRoot.php">Exit</a>
+                    <a  class="MenuLink" style="display: inline;" href="../../Auth/ExitRoot.php">Exit</a>
                 </div>
             </header>
-            <div class="LMR157015">
-                <div>
-                    <nav>
-                        <?php
-                        foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
-                            echo '<div class="BorderBlock">';
-                            printf(' <div class="TitleCenter">%s</div>', $key);
-                            foreach ($valueA as $valueB) {
-                                printf('  <a  class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
-                            }
-                            echo '</div>';
+            <div class="HolyGrail-body">
+
+                <nav>
+                    <?php
+                    foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+                            printf('  <a  class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
                         }
-                        ?>
-                    </nav>
-                </div> 
-                <div>
+                        echo '</div>';
+                    }
+                    ?>
+                </nav>
+
+                <main>
                     <div style="display: flex;flex-direction: row;   ">
                         <input   style="flex-grow: 1;" type="text" id="SearchBox" value="" />
                         <select id="SearchOption">
@@ -175,19 +177,26 @@ if ($config->HasRootAuth(session_id())) {
                             <th>Edit</th>
                         </tr>
                     </table>
-                </div> 
-                <div>
-                    <aside>
-                        <div class="BorderBlock">
-                            <div class="TitleCenter">User</div>
-                            <a id="BNAddUser" style="display: block;" href="#">Add New User</a>
-                            <a id="BNDeleteUser" style="display: block;" href="#">Delete User</a>                             
-                        </div>
-                    </aside>
-                </div>
+                </main> 
+
+                <aside>
+                    <div class="BorderBlock">
+                        <div class="TitleCenter">User</div>
+                        <a id="BNAddUser"  class="MenuLink" href="#">Add New User</a>
+                        <a id="BNDeleteUser"  class="MenuLink" href="#">Delete User</a>                             
+                    </div>
+                </aside>
+
             </div>
 
+            <footer>
+                <span style="font-weight: bold;display: block;">
+                    <?php
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
+                    ?>
+                </span>  
 
+            </footer>
 
 
             <div id="AllDialog" style="display: none;">
@@ -249,7 +258,7 @@ if ($config->HasRootAuth(session_id())) {
                         </td>
                     </tr>
                 </table>
-                
+
             </div>
         </body>
 

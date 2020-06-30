@@ -10,8 +10,10 @@ if ($config->HasRootAuth(session_id())) {
     <html>
         <head>
             <meta charset="UTF-8">
-            <title><?php echo basename(__FILE__,".php");  ?></title>
-            <link rel="stylesheet" href="../css/Page.css">
+            <title><?php echo basename(__FILE__, ".php"); ?></title>
+            <link rel="stylesheet" type="text/css" href="../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../css/PersonalCMS.css">
+
             <script src="../../../js/io/Ajax.js"></script>
             <script src="../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../js/dom/SuperDialog.js"></script>
@@ -36,9 +38,9 @@ if ($config->HasRootAuth(session_id())) {
                     var dialog = new SuperDialog();
                     var ajax = new Ajax();
                     ss.S("#BNSave").Click(function () {
-                        var u = dialog.Confirm("Save!",function () {
+                        var u = dialog.Confirm("Save!", function () {
                             var json = ss.S(".AjaxChangeValue").ValByName();
-                            ajax.Post("Action/SaveBasicConfig.php", { "data": json}, function (data) {
+                            ajax.Post("Action/SaveBasicConfig.php", {"data": json}, function (data) {
                                 if (data === "1") {
                                     u.Close();
                                 }
@@ -48,7 +50,7 @@ if ($config->HasRootAuth(session_id())) {
                     });
 
                     ss.S("#BNCHPW").Click(function () {
-                         
+
                         var tl = dialog.ChangePassword(function (v) {
                             console.log(v);
                             ajax.Post("Action/ChangePassword.php", v, function (data) {
@@ -61,37 +63,37 @@ if ($config->HasRootAuth(session_id())) {
 
                     });
 
-                   
+
                 });
 
             </script>
         </head>
-        <body>
+        <body class="HolyGrail">
 
-            <header id="mainheader">
+            <header class="Header">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <span style="font-weight: bold;cursor: default;">Root</span>
-                    <a style="font-weight: bold;" href="../../Auth/ExitRoot.php">Exit</a>
+                    <a  class="MenuLink" style="display: inline;"  href="../../Auth/ExitRoot.php">Exit</a>
                 </div>
             </header>
-            <div class="LMR157015">
-                <div>
-                    <nav>
-                        <?php
-                        foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
-                            echo '<div class="BorderBlock">';
-                            printf(' <div class="TitleCenter">%s</div>', $key);
-                            foreach ($valueA as $valueB) {
-                                printf('  <a  class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
-                            }
-                            echo '</div>';
-                        }
-                        ?>
+            <div class="HolyGrail-body">
 
-                    </nav>
-                </div>
-                <div>           
+                <nav>
+                    <?php
+                    foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+                            printf('  <a  class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
+                        }
+                        echo '</div>';
+                    }
+                    ?>
+
+                </nav>
+
+                <main>           
                     <span style="font-weight: bold;">Software</span>
                     <table id="ConfigList">
                         <tr class="Title">
@@ -133,7 +135,7 @@ if ($config->HasRootAuth(session_id())) {
                             <td>UserDIR:</td>
                             <td>
                                 <input id="TXTUserDIR" class="AjaxChangeValue" type="text" name="data" value="<?php echo $config->GetDataPath(); ?>" />
-                                
+
                             </td>
                         </tr>
                     </table>
@@ -141,12 +143,19 @@ if ($config->HasRootAuth(session_id())) {
                         <button id="BNSave">Save!</button>
                     </div>
 
-                </div>
-                <div>
+                </main>
+                <aside>
 
-                </div>
+                </aside>
             </div>
+            <footer>
+                <span style="font-weight: bold;display: block;">
+                    <?php
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
+                    ?>
+                </span>  
 
+            </footer>
         </body>
     </html>
     <?php

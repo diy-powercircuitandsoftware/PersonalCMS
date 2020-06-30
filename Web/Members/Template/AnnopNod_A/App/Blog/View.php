@@ -27,7 +27,9 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
         <head>
             <meta charset="UTF-8">
             <title><?php echo $SC->GetName(); ?></title>
-            <link rel="stylesheet" href="../css/Page.css">
+           <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
+
             <?php
             foreach ($UModule->LoadModule($_SESSION["UserID"], Com_User_LoadModule::Layout_Head) as $value) {
                 try {
@@ -99,7 +101,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                 });
             </script>
         </head>
-        <body >
+        <body  class="HolyGrail">
             <div id="Header">
                 <div style="width: 50%;">
                     <a href="../index.php">

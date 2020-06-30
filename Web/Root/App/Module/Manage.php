@@ -11,7 +11,9 @@ if ($config->HasRootAuth(session_id())) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
-            <link rel="stylesheet" href="../css/Page.css">
+            <link rel="stylesheet" type="text/css" href="../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../css/PersonalCMS.css">
+
             <script src="../../../js/io/Ajax.js"></script>
             <script src="../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../js/dom/SuperDialog.js"></script>
@@ -180,30 +182,29 @@ if ($config->HasRootAuth(session_id())) {
 
             </script>
         </head>
-        <body> 
-            <header id="mainheader">
+        <body class="HolyGrail"> 
+            <header class="Header">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <span style="font-weight: bold;cursor: default;">Root</span>
-                    <a style="font-weight: bold;" href="../../Auth/ExitRoot.php">Exit</a>
+                    <a  class="MenuLink" style="display: inline;" href="../../Auth/ExitRoot.php">Exit</a>
                 </div>
             </header>
-            <div class="LMR157015">
-                <div>
-                    <nav>
-                        <?php
-                        foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
-                            echo '<div class="BorderBlock">';
-                            printf(' <div class="TitleCenter">%s</div>', $key);
-                            foreach ($valueA as $valueB) {
-                                printf('  <a  class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
-                            }
-                            echo '</div>';
+            <div class="HolyGrail-body">
+                <nav>
+                    <?php
+                    foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+                            printf('  <a  class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
                         }
-                        ?>
-                    </nav>
-                </div> 
-                <div>
+                        echo '</div>';
+                    }
+                    ?>
+                </nav>
+
+                <main>
                     <div style="display: flex;flex-direction: row;   ">
                         <input   style="flex-grow: 1;" type="text" id="SearchBox" value="" />
                     </div>
@@ -218,19 +219,26 @@ if ($config->HasRootAuth(session_id())) {
                         </tr>
                     </table>
 
-                </div>
+                </main>
 
-                <div>
-                    <aside>
-                        <div class="BorderBlock">
-                            <div class="TitleCenter">Module</div>
-                            <a id="BNInstallMod" href="#"  style="display: block;">Install</a>
-                            <a id="BNViewModFile" href="#"  style="display: block;">View Module File</a>
-                        </div>
-                    </aside>
-                </div>
+
+                <aside>
+                    <div class="BorderBlock">
+                        <div class="TitleCenter">Module</div>
+                        <a id="BNInstallMod" href="#"   class="MenuLink">Install</a>
+                        <a id="BNViewModFile" href="#"   class="MenuLink">View Module File</a>
+                    </div>
+                </aside>
+
             </div>
+            <footer>
+                <span style="font-weight: bold;display: block;">
+                    <?php
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
+                    ?>
+                </span>  
 
+            </footer>
             <table id="TableInstaller" style="display: none;">
                 <tr>
                     <td>Install:</td>

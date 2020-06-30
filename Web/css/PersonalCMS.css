@@ -1,0 +1,27 @@
+
+
+body{
+    margin: 0;
+    padding: 0;
+}
+.BorderBlock{
+    border-style: solid;
+    border-width: thin;
+    width: 98%;
+    word-wrap: break-word;
+      margin-top: 1px;
+}
+.Header{
+    background-color: burlywood;
+    display: flex;
+}
+.MenuLink{
+    text-decoration: none;
+    color: blue;
+    display: block;
+}
+.TitleCenter{
+   font-weight: bold;
+    background-color: burlywood;
+    text-align: center;
+}
