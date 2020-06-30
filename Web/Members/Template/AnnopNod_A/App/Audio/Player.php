@@ -268,6 +268,27 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <select id="VisualizerList" style="width: 100%;box-sizing: border-box;" >
                         </select>
                     </div>
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Event</div>
+                        <?php
+                        foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
+                            echo '<div>';
+                            printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
+                            echo '</div><hr>';
+                        }
+                        ?>
+                    </div>
+                    <?php
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Aside);
+                            echo '</div>';
+                        }
+                    }
+                    ?>
                 </aside>
             </div>
             <footer>

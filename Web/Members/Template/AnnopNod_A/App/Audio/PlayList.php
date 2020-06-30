@@ -26,7 +26,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
-            <link rel="stylesheet" href="../css/Page.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
+
             <?php
             foreach ($modlist as $value) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
@@ -37,44 +39,49 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     width: 100%;
                     box-sizing: border-box;
                 }
+                #EditArea{
+                    display: flex;
+                    flex-direction: row;
+                }
+
             </style>
-            
-            <script src="../../../../js/dom/SelectList.js"></script>
-            <script src="../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../js/dom/SuperDialog.js"></script>
-            <script src="../../../../js/file/FilesList.js"></script>
+
+            <script src="../../../../../js/dom/SelectList.js"></script>
+            <script src="../../../../../js/dom/SSQueryFW.js"></script>
+            <script src="../../../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../../../js/dom/FilesList.js"></script>
+            <script src="../../../../../js/io/Ajax.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var sd = new SuperDialog();
-                    var fl = document.getElementById("UIFileRS").appendChild(new FilesList());
-                    var FilePlayList = document.getElementById("FilePlayList").appendChild(new SelectList());
-                    fl.DownloadURL = "../../../Api/Action/Files/DownloadFile.php?id=";
-                    fl.OpenFile = function (v) {
-                        var player = sd.AudioPlayer("../../../Api/Action/Files/DownloadFile.php?id=" + btoa(v))
-                        player.ZIndex(999);
-                        player.Width("800px");
-                    };
-                    fl.ChDir = function (v) {
-                        ss.Post("../../../Api/Ajax/AudioPlayList/GetAudioFiles.php", {"Location": v}, function (data) {
-                            fl.ClearFileList();
+                    var ajax =new Ajax();
+                    var FL = new FilesList(document.getElementById("FilesList"));
+                  //  var FilePlayList = document.getElementById("FilePlayList").appendChild(new SelectList());
+                     FL.SetDownload("../../../../Api/Action/Files/DownloadFiles.php?path=");
+                   FL.Multiple(true);
+                    FL.OpenDir(function (v) {
+                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v,"Ext":"wma,mp3,ogg"}, function (data) {
+                           
+                            FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
-                                fl.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"], data[i]["type"]);
+                                if (data[i]["type"] == "DIR") {
+                                    FL.AddDir(data[i]["name"], data[i]["fullpath"], data[i]["modified"]);
+                                } else if (data[i]["type"] == "FILE") {
+                                    FL.AddFile(data[i]["name"], data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
+                                }
                             }
+                            ss.S("#CHDIRList").Html((v));
                         });
-                    };
-                    fl.PropertiesFile = function (v) {
-                        ss.Post("../../../Api/Ajax/Files/GetPropertiesFile.php", {"Path": v}, function (data) {
-                            data = JSON.parse(data);
-                            var tl = sd.TableLayout().Title("Properties").ZIndex(999);
-                            tl.AddTableDom("Name", data["name"]);
-                            tl.AddTableDom("Size", data["size"]);
-                            tl.AddTableDom("Modified", data["modified"]);
-                        });
-                    };
-                    fl.ChDir("/");
-
+                    });
+                    FL.OpenFile(function (v) {
+                        if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(v.split('.').pop().toLowerCase()) >= 0) {
+                            sd.MediaPlayer("../../../../Api/Action/Files/DownloadFiles.php?path=" + (v));
+                        }
+                    })
+                    FL.OpenDir("/");
+                     return ;
                     ss.S("#BNAddFile").Click(function () {
                         ss.Post("../../../Api/Ajax/AudioPlayList/AddAudioFileToPlayList.php", {"FilesList": fl.GetSelectFiles(), "ID": ss.S("#OPTSELALB").Val()}, function (data) {
                             fl.ClearSelectList();
@@ -135,9 +142,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 });
             </script>
         </head>
-        <body>
+        <body  class="HolyGrail">
 
-           <header id="mainheader">
+            <header class="Header">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <?php
@@ -147,8 +154,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <a style="font-weight: bold;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
-            <div class="LMR157015">
-                <div>
+            <div class="HolyGrail-body">
+                <nav>
                     <?php
                     foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
                         echo '<div class="BorderBlock">';
@@ -167,25 +174,38 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     }
                     ?>  
-                </div>
-                <div>
-                     
-                </div>
-                <div>
-                     
-                     
-                     
-                
-                     
-                </div>
-            </div>
-            
-            <div class="Container" >
-                 
-                
-                <div class="Aside" style="">
+                </nav>
+                <main>
+                    <div>
+                        <label>PlayList:</label>
+                        <select name=""></select>
+
+                        <?php
+                        if ($_SESSION["User"]["writable"] == 1) {
+                            ?>
+                            <button>New</button> 
+                            <button>Delete</button>
+                            <div style="border-style: solid;border-width: thin;">
+                                <button>Add</button>
+                                <button>Delete</button>
+                           
+                            <div id="EditArea">
+
+
+                                <div id=FilesList style="width: 50%;overflow: auto;"></div>
+                                <div id=Playlist></div>
+
+                            </div>
+                                 </div>
+                            <?php
+                        }
+                        ?>
+                    </div>
+
+                </main>
+                <aside>
                     <?php
-                    if ($Permission->Writable($_SESSION["UserID"])) {
+                    if ($_SESSION["User"]["writable"] == 1) {
                         ?>
                         <div class="BorderBlock" style="margin-top: 1px;">
                             <label class="Title">Files</label>
@@ -218,6 +238,38 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <?php
                     }
                     ?>
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Event</div>
+                        <?php
+                        foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
+                            echo '<div>';
+                            printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
+                            echo '</div><hr>';
+                        }
+                        ?>
+                    </div>
+                    <?php
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Aside);
+                            echo '</div>';
+                        }
+                    }
+                    ?>
+
+
+
+                </aside>
+            </div>
+
+            <div class="Container" >
+
+
+                <div class="Aside" style="">
+
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <label class="Title">My Event</label>
                         <?php

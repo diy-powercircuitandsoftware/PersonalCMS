@@ -7,14 +7,8 @@ include_once '../../../../../Class/Core/User/Database.php';
 $config = new Config();
 $userdb = new User_Database($config);
 if ($config->IsOnline() && isset($_SESSION["User"])) {
-    $out=array();
-    $vd = new VirtualDirectory($userdb->GetFilesPath( $_SESSION["User"]["id"]));
-    if (isset($_POST["Ext"])) {
-       $out=($vd->GetFilesList($_POST["Path"], $_POST["Ext"]));
-    } else {
-       $out=($vd->GetFilesList($_POST["Path"]));
-    }
-    echo json_encode($out);
+    $vd = new VirtualDirectory($userdb->GetRootPath( $_SESSION["User"]["id"]));
+    echo json_encode($vd->SearchFiles("/Audio/", ".xml"));
 }
 $userdb->close();
 $config->close();
