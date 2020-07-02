@@ -39,10 +39,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     width: 100%;
                     box-sizing: border-box;
                 }
-                #EditArea{
-                    display: flex;
-                    flex-direction: row;
-                }
+
 
             </style>
 
@@ -55,14 +52,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var sd = new SuperDialog();
-                    var ajax =new Ajax();
+                    var ajax = new Ajax();
                     var FL = new FilesList(document.getElementById("FilesList"));
-                  //  var FilePlayList = document.getElementById("FilePlayList").appendChild(new SelectList());
-                     FL.SetDownload("../../../../Api/Action/Files/DownloadFiles.php?path=");
-                   FL.Multiple(true);
+                    var FilePlayList = new SelectList(document.getElementById("FilePlayList"));
+                    FL.SetDownload("../../../../Api/Action/Files/DownloadFiles.php?path=");
+                    FL.Multiple(true);
                     FL.OpenDir(function (v) {
-                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v,"Ext":"wma,mp3,ogg"}, function (data) {
-                           
+                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v, "Ext": "wma,mp3,ogg"}, function (data) {
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
@@ -81,36 +77,46 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     })
                     FL.OpenDir("/");
-                     return ;
+                    GetPlayList();
+                    function GetPlayList() {
+                        ajax.Post("../../../../Api/Ajax/Audio/GetPlayList.php", {}, function (data) {
+                            data = JSON.parse(data);
+                            ss.S("#OptSelectLib").Empty();
+                            for (var i in data) {
+                                ss.S("#OptSelectLib").Append(data[i], data[i]);
+                            }
+                            ss.S("#OptSelectLib").Change();
+                        });
+                    }
                     ss.S("#BNAddFile").Click(function () {
-                        ss.Post("../../../Api/Ajax/AudioPlayList/AddAudioFileToPlayList.php", {"FilesList": fl.GetSelectFiles(), "ID": ss.S("#OPTSELALB").Val()}, function (data) {
-                            fl.ClearSelectList();
-                            ss.S("#OPTSELALB").Change();
+                        ajax.Post("../../../../Api/Ajax/Audio/AddAudioToPlayList.php", {"Name": ss.S("#OptSelectLib").Val(), "Path": FL.GetSelectFiles()}, function (data) {
+
+
                         });
                     });
 
-                    ss.S("#BNAddPlayList").Click(function () {
-                        ss.S(".AjaxSend").Val("");
-                        sd.Import("#DialogEdit", function () {
-
-                            ss.Post("../../../Api/Ajax/AudioPlayList/CreatePlayList.php", ss.S(".AjaxSend").SerializeToJson(), function (data) {
-                                location.reload();
+                    ss.S("#BNNewPlayList").Click(function () {
+                        var p = sd.Prompt("Name:", function (v) {
+                            ajax.Post("../../../../Api/Ajax/Audio/CreatePlayList.php", {"Name": v}, function (data) {
+                                GetPlayList();
+                                p.Close();
                             });
-                        }).ZIndex(999).Title("AddPlayList");
+                        });
                     });
+                    return;
                     ss.S("#BNDeletePlayList").Click(function () {
                         sd.Confirm("Delect It????", function () {
-                            ss.Post("../../../Api/Ajax/AudioPlayList/DeletePlayList.php", {"ID": ss.S("#OPTSELALB").Val()}, function (data) {
+                            ss.Post("../../../Api/Ajax/AudioPlayList/DeletePlayList.php", {"ID": ss.S("#OptSelectLib").Val()}, function (data) {
                                 location.reload();
                             });
                         }).ZIndex(999);
                     });
                     ss.S("#BNEditPlayList").Click(function () {
-                        ss.Post("../../../Api/Ajax/AudioPlayList/GetPlaylistForEdit.php", {"ID": ss.S("#OPTSELALB").Val()}, function (data) {
+                        ss.Post("../../../Api/Ajax/AudioPlayList/GetPlaylistForEdit.php", {"ID": ss.S("#OptSelectLib").Val()}, function (data) {
                             ss.S(".AjaxSend").ValByName(JSON.parse(data));
                             sd.Import("#DialogEdit", function () {
                                 var json = ss.S(".AjaxSend").SerializeToJson();
-                                json["ID"] = ss.S("#OPTSELALB").Val();
+                                json["ID"] = ss.S("#OptSelectLib").Val();
                                 ss.Post("../../../Api/Ajax/AudioPlayList/SetPlaylistForEdit.php", json, function (data) {
                                     location.reload();
                                 });
@@ -125,11 +131,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S("#BNRemoveFile").Click(function () {
                         ss.Post("../../../Api/Ajax/AudioPlayList/RemoveAudioFromPlayList.php", {"ID": FilePlayList.GetSelectList().join(",")}, function (data) {
-                            ss.S("#OPTSELALB").Change();
+                            ss.S("#OptSelectLib").Change();
                         });
                     });
 
-                    ss.S("#OPTSELALB").Change(function () {
+                    ss.S("#OptSelectLib").Change(function () {
                         ss.Get("../../../Api/Ajax/AudioPlayList/GetFilesNameFromPlayList.php", {"PlayListID": this.value}, function (data) {
                             data = JSON.parse(data);
                             FilePlayList.Empty();
@@ -176,57 +182,26 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ?>  
                 </nav>
                 <main>
-                    <div>
-                        <label>PlayList:</label>
-                        <select name=""></select>
+                    <div id="FilesList"></div>
 
-                        <?php
-                        if ($_SESSION["User"]["writable"] == 1) {
-                            ?>
-                            <button>New</button> 
-                            <button>Delete</button>
-                            <div style="border-style: solid;border-width: thin;">
-                                <button>Add</button>
-                                <button>Delete</button>
-                           
-                            <div id="EditArea">
-
-
-                                <div id=FilesList style="width: 50%;overflow: auto;"></div>
-                                <div id=Playlist></div>
-
-                            </div>
-                                 </div>
-                            <?php
-                        }
-                        ?>
-                    </div>
 
                 </main>
                 <aside>
                     <?php
                     if ($_SESSION["User"]["writable"] == 1) {
                         ?>
+
                         <div class="BorderBlock" style="margin-top: 1px;">
-                            <label class="Title">Files</label>
-                            <a id="BNHome" style="width: 100%;box-sizing: border-box;" href="#">Go To Home</a>
-                        </div>
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <label class="Title">PlayList</label>
-                            <select id="OPTSELALB"  style="width: 100%;box-sizing: border-box;">
-                                <?php
-                                foreach ($PlayList->GetPlayList($_SESSION["UserID"]) as $value) {
-                                    printf('<option value="%s">%s</option>', $value["id"], $value["name"]);
-                                }
-                                ?>
+                            <div class="TitleCenter">PlayList</div>
+                            <select id="OptSelectLib"  style="width: 100%;box-sizing: border-box;">
+
                             </select>
 
                             <div style="display: flex;flex-direction: row;">
-                                <button id="BNAddPlayList" style="width: 33%;"  href="#">Add</button>
-                                <button id="BNEditPlayList" style="width: 33%;"  href="#">Edit</button>
-                                <button id="BNDeletePlayList" style="width: 33%;" href="#">Remove</button>
+                                <button id="BNNewPlayList" style="width: 50%;"  href="#">New</button>
+                                <button id="BNDeletePlayList" style="width: 50%;" href="#">Delete</button>
                             </div>
-                            <span>FilesList:</span>
+                            <div class="TitleCenter">Files List</div>
                             <div id="FilePlayList" style="margin-top: 1px;border-style: solid;border-width: thin;">
 
                             </div>
@@ -265,88 +240,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 </aside>
             </div>
 
-            <div class="Container" >
-
-
-                <div class="Aside" style="">
-
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">My Event</label>
-                        <?php
-                        foreach ($Event->GetCurrentMyEvent($_SESSION["UserID"]) as $value) {
-                            echo '<div  >';
-                            printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                            echo '</div><hr>';
-                        }
-                        ?>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Other Event</label>
-                        <?php
-                        $Dat = array_merge($Event->GetCurrentEventNotUserID(Config_DB_Config::Access_Mode_Members, $_SESSION["UserID"]), $Event->GetCurrentEventNotUserID(Config_DB_Config::Access_Mode_Public, $_SESSION["UserID"]));
-                        foreach ($Dat as $value) {
-                            echo '<div  >';
-                            printf('<a href="../Share/EventViewer.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                            echo '</div><hr>';
-                        }
-                        ?>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Share</span>
-                        <ul>
-                            <li><a href="../Share/BlogViewer.php">Blog</a></li>
-                            <li><a href="../Share/EventViewer.php">Event</a></li>
-                        </ul>
-                    </div>
+            <footer>
+                <span style="font-weight: bold;display: block;">
                     <?php
-                    $Dat = array_merge($Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Members), $Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Public));
-                    foreach ($Dat as $value) {
-                        try {
-                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                            include_once '../../../../../Class/DB/Module/' . $value["filename"];
-                            $mod = new $value["classname"]($Module);
-                            printf('<label class="Title">%s</label>', $mod->GetTitle());
-                            $mod->SetModuleID($value["id"]);
-                            $mod->SetModulePage("../Module/Page.php");
-                            $mod->SetUserID($_SESSION["UserID"]);
-                            echo $mod->Execute();
-                            echo '</div>';
-                        } catch (Exception $ex) {
-                            
-                        }
-                    }
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
                     ?>
+                </span>  
+            </footer>
 
-                </div>
-            </div>
-            <table id="DialogEdit" style="width: 100%;box-sizing: border-box;display: none;">
-                <tr>
-                    <td>Name:</td>
-                    <td><input  class="AjaxSend" type="text" name="name" value="" /></td>
-                </tr>
-                <tr>
-                    <td>UserName:</td>
-                    <td><input class="AjaxSend"  type="text" name="authname" value="" /></td>
-                </tr>
-                <tr>
-                    <td>Password:</td>
-                    <td><input class="AjaxSend"  type="password" name="password" value="" /></td>
-                </tr>
-                <tr>
-                    <td>AccessMode:</td>
-                    <td>
-                        <select class="AjaxSend" name="accessmode" >
-                            <?php
-                            foreach ($DBConfig->GetAccessMode() as $value) {
-                                printf('<option value="%s">%s</option>', $value["value"], $value["name"]);
-                            }
-                            ?>
-                        </select>
-                    </td>
-                </tr>
-            </table>
         </body>
     </html>
     <?php

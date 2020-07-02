@@ -62,6 +62,17 @@ class VirtualDirectory {
         return file_exists($this->DiskPath($s));
     }
 
+    public function FileGetContents($s) {
+        if ($this->FileExists($s)) {
+            return file_get_contents($this->DiskPath($s));
+        }
+        return "";
+    }
+
+    public function FilePutContents($s, $data, int $flags = 0, $context = NULL) {
+        return file_put_contents($this->DiskPath($s), $data, $flags, $context);
+    }
+
     public function GetFilesList(...$args) {
         if (!is_dir($this->DiskPath($args[0]))) {
             return array();
@@ -79,23 +90,23 @@ class VirtualDirectory {
         foreach ($files as $file) {
             $ArrData = array();
             if ($file->isFile() && $ExtensionList == null) {
-                $ArrData["name"] = ($file->getBasename());
+                $ArrData["name"] = ($file->getFilename());
                 $ArrData["type"] = "FILE";
                 $ArrData["size"] = $file->getSize();
                 $ArrData["ext"] = $file->getExtension();
             } else if ($file->isFile() && in_array(strtolower($file->getExtension()), $ExtensionList)) {
-                $ArrData["name"] = ($file->getBasename());
+                $ArrData["name"] = ($file->getFilename());
                 $ArrData["type"] = "FILE";
                 $ArrData["size"] = $file->getSize();
                 $ArrData["ext"] = $file->getExtension();
             } else if ($file->isDir()) {
-                $ArrData["name"] = ($file->getBasename());
+                $ArrData["name"] = ($file->getFilename());
                 $ArrData["type"] = "DIR";
                 $ArrData["size"] = "";
                 $ArrData["ext"] = "";
             }
             if (isset($ArrData["name"])) {
-                $ArrData["fullpath"] = $this->Normalize($Normalize . DIRECTORY_SEPARATOR . $file->getBasename());
+                $ArrData["fullpath"] = $this->Normalize($Normalize . DIRECTORY_SEPARATOR . $file->getFilename());
                 $ArrData["modified"] = date("d-m-Y", $file->getMTime());
                 $FileList[] = $ArrData;
             }
@@ -154,7 +165,10 @@ class VirtualDirectory {
     }
 
     public function MkDIR($s) {
-        return mkdir($this->DiskPath($s));
+        if (!$this->IsDir($s)) {
+            return mkdir($this->DiskPath($s));
+        }
+        return true;
     }
 
     public function MoveFiles($s, $d) {
@@ -251,7 +265,7 @@ class VirtualDirectory {
             }
             if ($addtoarray) {
                 $ArrData = array();
-                $ArrData["name"] = ($file->getBasename());
+                $ArrData["name"] = ($file->getFilename());
                 if ($file->isFile()) {
                     $ArrData["type"] = "FILE";
                     $ArrData["size"] = $file->getSize();
@@ -265,8 +279,9 @@ class VirtualDirectory {
                 if ($searchall) {
                     $ArrData["fullpath"] = $normalize . DIRECTORY_SEPARATOR . $recursive->getSubPathname();
                 } else {
-                    $ArrData["fullpath"] = $normalize . DIRECTORY_SEPARATOR . $file->getBasename();
+                    $ArrData["fullpath"] = $normalize . DIRECTORY_SEPARATOR . $file->getFilename();
                 }
+                $ArrData["fullpath"] = $this->Normalize($ArrData["fullpath"]);
                 $filelist[] = $ArrData;
             }
         }
