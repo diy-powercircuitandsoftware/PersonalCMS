@@ -12,13 +12,14 @@ class PlayingList {
         this.list.style.margin = "0";
         this.list.addEventListener("click", function (e) {
             if (e.target.tagName == "LI") {
-                this.Click(e.target);
+                this.ref.Select(e.target.getAttribute("data-id"));
                 this.Last = e.target;
             }
         });
+          this.list.ref=this;
     }
     AddList(id, name) {
-        var li = this.appendChild(document.createElement("LI"));
+        var li = this.list.appendChild(document.createElement("LI"));
         li.appendChild(document.createTextNode(name));
         li.setAttribute("data-id", id);
          

@@ -26,7 +26,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
-           <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
 
             <?php
@@ -53,18 +53,36 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
-                    var playlist = new PlayingList(document.getElementById("OptLibrary"));
+                    var audiosrc = document.getElementById("AudioSrc");
+                    var playlist = new PlayingList(document.getElementById("AudioList"));
 
 
-                    ajax.Post("../../../../Api/Ajax/Files/SearchFiles.php", {"Path": "Audios/PlayList", "Name": ".xml"}, function (data) {
+                    playlist.Select(function (v) {
+                        audiosrc.pause();
+                        audiosrc.src = "../../../../Api/Action/Files/DownloadFiles.php?path=" + v;
+                        audiosrc.play();
+                    });
+                    ajax.Post("../../../../Api/Ajax/Audio/GetPlayList.php", {}, function (data) {
                         data = JSON.parse(data);
+
                         for (var i in data) {
-                            ss.S("#OptLibrary").Append(data[i]["fullpath"], data[i]["name"]);
+                            ss.S("#OptLibrary").Append(data[i], data[i]);
                         }
+                        ss.S("#OptSelectLib").Change();
                     });
 
+
+
+
                     ss.S("#OptLibrary").Change(function () {
-                        alert(this.value);
+                        ajax.Get("../../../../Api/Ajax/Audio/GetAudioList.php", {"Name": this.value}, function (data) {
+                            data = JSON.parse(data);
+                            playlist.Empty();
+                            for (var i in data) {
+                                playlist.AddList(data [i]["path"], data [i]["name"]);
+                            }
+
+                        });
                     });
 
                     return;
@@ -83,7 +101,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
 
-                    var AudioSrc = document.getElementById("AudioSrc");
+
                     var CanvasVisualizer = document.getElementById("CanvasVisualizer");
                     var audiomanager = new AudioManager();
                     var audiovisualizer = new AudioVisualizer();
@@ -91,25 +109,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     audiovisualizer.SetUp(audiomanager.GetAnalyser(), CanvasVisualizer);
                     audiomanager.SetUp(AudioSrc);
                     var Equalizer = audiomanager.Template.Equalizer();
-                    ss.S("#OptLibrary").Change(function (v) {
-                        if (this.value == "-1") {
-                            ss.Get("../../../Api/Ajax/AudioPlayer/GetAllAudioFilesName.php", {}, function (data) {
-                                audiolist.Empty();
-                                data = JSON.parse(data);
-                                for (var i in data) {
-                                    audiolist.AddList(data[i]["name"]).setAttribute("url", data[i]["fullpath"]);
-                                }
-                            });
-                        } else if (this.value !== "") {
-                            ss.Get("../../../Api/Ajax/AudioPlayer/GetAudioFilesFromPlayList.php", {"PlayListID": this.value}, function (data) {
-                                audiolist.Empty();
-                                data = JSON.parse(data);
-                                for (var i in data) {
-                                    audiolist.AddList(data[i]["name"]).setAttribute("url", data[i]["fullpath"]);
-                                }
-                            });
-                        }
-                    });
+
                     audiolist.Click = function (d) {
                         AudioSrc.src = "../../../Api/Action/Files/DownloadFile.php?id=" + btoa(d.getAttribute("url"));
                         audiomanager.ResumeCTX();
@@ -198,28 +198,28 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             </header>
 
             <div class="HolyGrail-body">
-                
-                    <nav>
-                        <?php
-                        foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
-                            echo '<div class="BorderBlock">';
-                            printf(' <div class="TitleCenter">%s</div>', $key);
-                            foreach ($valueA as $valueB) {
-                                printf('  <a class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
-                            }
+
+                <nav>
+                    <?php
+                    foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+                            printf('  <a class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
+                        }
+                        echo '</div>';
+                    }
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
                             echo '</div>';
                         }
-                        foreach ($modlist as $value) {
-                            if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
-                                echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
-                                printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
-                                echo $value->Execute(Module_SDK_Basic::Layout_Nav);
-                                echo '</div>';
-                            }
-                        }
-                        ?>  
-                    </nav>
-                
+                    }
+                    ?>  
+                </nav>
+
                 <main>
                     <div style="display: flex;flex-direction: column;">
                         <div style="height: 80%;width: 100%;">

@@ -77,7 +77,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     })
                     FL.OpenDir("/");
-                    GetPlayList();
+                  
                     function GetPlayList() {
                         ajax.Post("../../../../Api/Ajax/Audio/GetPlayList.php", {}, function (data) {
                             data = JSON.parse(data);
@@ -103,6 +103,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         });
                     });
+                    
+                    ss.S("#OptSelectLib").Change(function () {
+                        ajax.Get("../../../../Api/Ajax/Audio/GetAudioList.php", {"Name": this.value}, function (data) {
+                            data = JSON.parse(data);
+                            FilePlayList.Empty();
+                            for (var i in data) {
+                                FilePlayList.AddList(data [i]["path"], data [i]["name"]);
+                            }
+
+                        });
+                    });
+                      GetPlayList();
                     return;
                     ss.S("#BNDeletePlayList").Click(function () {
                         sd.Confirm("Delect It????", function () {
@@ -135,16 +147,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
                     });
 
-                    ss.S("#OptSelectLib").Change(function () {
-                        ss.Get("../../../Api/Ajax/AudioPlayList/GetFilesNameFromPlayList.php", {"PlayListID": this.value}, function (data) {
-                            data = JSON.parse(data);
-                            FilePlayList.Empty();
-                            for (var i in data) {
-                                FilePlayList.AddList(data [i]["id"], data [i]["name"]);
-                            }
-
-                        });
-                    }).Change();
+                    
                 });
             </script>
         </head>
