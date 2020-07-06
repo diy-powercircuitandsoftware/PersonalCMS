@@ -238,7 +238,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <aside>
                     <div class="BorderBlock">
                         <div class="TitleCenter" style="display: block ">Library</div>
-                        <select id="OptLibrary" style="width: 99%;">
+                        <select id="OptLibrary" style="display: block;width: 100%;box-sizing: border-box;">
                             <option>==Select==</option>
 
 
@@ -247,7 +247,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     </div>
                     <div class="BorderBlock">
                         <div class="TitleCenter" style="display: block ">Play</div>
-                        <select id="PlayMode"  style="width: 100%;box-sizing: border-box;">
+                        <select id="PlayMode"  style="display: block;width: 100%;box-sizing: border-box;">
                             <option value="0">None</option>
                             <option value="1">Repeat</option>
                             <option value="2">Repeat All</option>
@@ -255,17 +255,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         </select>
                     </div>
                     <div class="BorderBlock">
-                        <div class="TitleCenter" style="display: block ">Volume</div>
-                        <input style="width: 100%;box-sizing: border-box;"  id="RangeVolume" type="range" min="0" max="1" step="0.1" value="1" />
+                        <div class="TitleCenter" >Volume</div>
+                        <input style="display: block;width: 100%;box-sizing: border-box;"  id="RangeVolume" type="range" min="0" max="1" step="0.1" value="1" />
                     </div>
                     <div class="BorderBlock">
                         <div class="TitleCenter" style="display: block ">Equalizer</div>
-                        <select id="EqualizerPresetsList" style="width: 100%;box-sizing: border-box;" >
+                        <select id="EqualizerPresetsList" style="display: block;width: 100%;box-sizing: border-box;" >
                         </select>
                     </div>
                     <div class="BorderBlock">
                         <div class="TitleCenter" style="display: block ">Visualizer</div>
-                        <select id="VisualizerList" style="width: 100%;box-sizing: border-box;" >
+                        <select id="VisualizerList" style="display: block;width: 100%;box-sizing: border-box;" >
                         </select>
                     </div>
                     <div class="BorderBlock" style="margin-top: 1px;">

@@ -8,19 +8,10 @@ $config = new Config();
 $userdb = new User_Database($config);
 if ($config->IsOnline() && isset($_SESSION["User"])) {
     $playlist = new VirtualDirectory($userdb->GetRootPath($_SESSION["User"]["id"]));
-    $filelist = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
     $savepath = "/Audio/" . $_POST["Name"];
     $out = explode("\r\n", $playlist->FileGetContents($savepath));
-    foreach ($_POST["Path"] as $value) {
-        if ($filelist->IsFile($value)) {
-            $out[] = $value;
-        } else if ($filelist->IsDir($value)) {
-            foreach ( $filelist->SearchFiles($value,".mp3,.wma,.ogg",true) as $value) {
-                 $out[] = $value["fullpath"];
-            }
-        }
-    }
-    $playlist->FilePutContents($savepath, implode("\r\n", $out), FILE_APPEND | LOCK_EX);
+       $out= array_diff($out,  $_POST["Path"]);
+    $playlist->FilePutContents($savepath, implode("\r\n", $out) );
 }
 $userdb->close();
 $config->close();

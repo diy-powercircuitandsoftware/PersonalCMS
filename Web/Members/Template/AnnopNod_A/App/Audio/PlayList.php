@@ -77,7 +77,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     })
                     FL.OpenDir("/");
-                  
+
                     function GetPlayList() {
                         ajax.Post("../../../../Api/Ajax/Audio/GetPlayList.php", {}, function (data) {
                             data = JSON.parse(data);
@@ -90,7 +90,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     }
                     ss.S("#BNAddFile").Click(function () {
                         ajax.Post("../../../../Api/Ajax/Audio/AddAudioToPlayList.php", {"Name": ss.S("#OptSelectLib").Val(), "Path": FL.GetSelectFiles()}, function (data) {
-
+                            ss.S("#OptSelectLib").Change();
 
                         });
                     });
@@ -103,7 +103,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         });
                     });
-                    
+
                     ss.S("#OptSelectLib").Change(function () {
                         ajax.Get("../../../../Api/Ajax/Audio/GetAudioList.php", {"Name": this.value}, function (data) {
                             data = JSON.parse(data);
@@ -114,40 +114,33 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         });
                     });
-                      GetPlayList();
-                    return;
+
+
                     ss.S("#BNDeletePlayList").Click(function () {
                         sd.Confirm("Delect It????", function () {
-                            ss.Post("../../../Api/Ajax/AudioPlayList/DeletePlayList.php", {"ID": ss.S("#OptSelectLib").Val()}, function (data) {
+                            ajax.Post("../../../../Api/Ajax/Audio/DeletePlayList.php", {"Name": ss.S("#OptSelectLib").Val()}, function (data) {
                                 location.reload();
                             });
                         }).ZIndex(999);
                     });
+
                     ss.S("#BNEditPlayList").Click(function () {
-                        ss.Post("../../../Api/Ajax/AudioPlayList/GetPlaylistForEdit.php", {"ID": ss.S("#OptSelectLib").Val()}, function (data) {
-                            ss.S(".AjaxSend").ValByName(JSON.parse(data));
-                            sd.Import("#DialogEdit", function () {
-                                var json = ss.S(".AjaxSend").SerializeToJson();
-                                json["ID"] = ss.S("#OptSelectLib").Val();
-                                ss.Post("../../../Api/Ajax/AudioPlayList/SetPlaylistForEdit.php", json, function (data) {
-                                    location.reload();
-                                });
-                            }).ZIndex(999).Title("EditPlayList");
+                        sd.Prompt("Rename", function (v) {
+                            ajax.Post("../../../../Api/Ajax/Audio/RenamePlayList.php", {"Name": ss.S("#OptSelectLib").Val(), "NewName": v}, function (data) {
+                                location.reload();
+                            });
                         });
-
-                    });
-
-                    ss.S("#BNHome").Click(function () {
-                        fl.ChDir("/");
                     });
 
                     ss.S("#BNRemoveFile").Click(function () {
-                        ss.Post("../../../Api/Ajax/AudioPlayList/RemoveAudioFromPlayList.php", {"ID": FilePlayList.GetSelectList().join(",")}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Audio/DeleteAudioFromPlayList.php", {"Name": ss.S("#OptSelectLib").Val(),"Path": FilePlayList.GetSelectLists()}, function (data) {
+
                             ss.S("#OptSelectLib").Change();
                         });
                     });
+                    GetPlayList();
 
-                    
+
                 });
             </script>
         </head>
@@ -201,8 +194,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             </select>
 
                             <div style="display: flex;flex-direction: row;">
-                                <button id="BNNewPlayList" style="width: 50%;"  href="#">New</button>
-                                <button id="BNDeletePlayList" style="width: 50%;" href="#">Delete</button>
+                                <button id="BNNewPlayList" style="width: 33%;"  href="#">New</button>
+                                <button id="BNEditPlayList" style="width: 33%;"  href="#">Edit</button>
+                                <button id="BNDeletePlayList" style="width: 33%;" href="#">Delete</button>
                             </div>
                             <div class="TitleCenter">Files List</div>
                             <div id="FilePlayList" style="margin-top: 1px;border-style: solid;border-width: thin;">

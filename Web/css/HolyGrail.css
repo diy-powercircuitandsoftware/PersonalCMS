@@ -18,13 +18,9 @@
    flex: 0 0 12em;
 }
 
-
 .HolyGrail-body nav{
    order: -1;
 }
 .HolyGrail-body main{
     flex: 1;
 }
-/*
-https://philipwalton.github.io/solved-by-flexbox/demos/holy-grail/
-*/
