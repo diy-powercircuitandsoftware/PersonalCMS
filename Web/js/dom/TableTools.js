@@ -116,6 +116,7 @@ class TableTools {
             return   rows.appendChild(data);
         } else if (args.length === 1) {
             rows.innerHTML = data;
+            return rows.lastChild;
         }
     }
 

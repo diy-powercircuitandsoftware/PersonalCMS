@@ -142,6 +142,26 @@ class VirtualDirectory {
         return array();
     }
 
+    public function GetTypeOFFile($s) {
+
+        $ArrData = array();
+        $file = new SplFileInfo($this->DiskPath($s));
+        $ArrData["name"] = ($file->getFilename());
+        if ($file->isFile()) {
+            $ArrData["type"] = "FILE";
+            $ArrData["size"] = $file->getSize();
+            $ArrData["ext"] = $file->getExtension();
+        } else if ($file->isDir()) {
+            $ArrData["type"] = "DIR";
+            $ArrData["size"] = "";
+            $ArrData["ext"] = "";
+        }
+        $ArrData["modified"] = date("d-m-Y", $file->getMTime());
+
+        $ArrData["fullpath"] = $this->Normalize($s);
+        return $ArrData;
+    }
+
     public function IsDir($s) {
         return is_dir($this->DiskPath($s));
     }

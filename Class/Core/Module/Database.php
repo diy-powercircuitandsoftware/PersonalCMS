@@ -9,8 +9,8 @@ class Module_Database extends SQLite3 {
 
     public $ModulePath = "";
 
-    public const Access_Public = 0;
-    public const Access_Member = 1;
+    public const Access_Public = 1;
+    public const Access_Member = 0;
 
     public function __construct(Config $cfg) {
         $this->ModulePath = $cfg->GetLocalConfigPath()["Core"] . "/Module/";

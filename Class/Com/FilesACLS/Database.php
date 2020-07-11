@@ -2,8 +2,8 @@
  
 class FilesACLS_Database extends SQLite3 {
 
-    public const Access_Public = 0;
-    public const Access_Member = 1;
+    public const Access_Public = 1;
+    public const Access_Member = 0;
 
     private $path = "";
    
@@ -18,8 +18,8 @@ class FilesACLS_Database extends SQLite3 {
     public function Install() {
         $install = array();
         $install[0] = ('
-    CREATE TABLE IF NOT EXISTS Files (
-    id       INTEGER        PRIMARY KEY,
+    CREATE TABLE IF NOT EXISTS FilesACLS (
+    id       INTEGER        PRIMARY KEY AUTOINCREMENT,
     userid   INTEGER,
     public   BOOLEAN,
     fullpath VARCHAR (1024) 
@@ -37,7 +37,7 @@ class FilesACLS_Database extends SQLite3 {
 
     public function Uninstall() {
         try {
-            $this->exec("DROP TABLE Files;");
+            $this->exec("DROP TABLE FilesACLS;");
             $this->exec("VACUUM;");
             return $this->close();
         } catch (Exception $e) {

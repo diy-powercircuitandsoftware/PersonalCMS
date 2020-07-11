@@ -7,8 +7,8 @@
  */
 class Event_Database extends SQLite3 {
 
-    public const Access_Public = 0;
-    public const Access_Member = 1;
+    public const Access_Public = 1;
+    public const Access_Member = 0;
 
     public function __construct(Config $cfg) {
         $path = $cfg->GetLocalConfigPath()["Com"] . "/Event/";

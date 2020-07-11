@@ -6,6 +6,7 @@ include_once '../../../../../../Class/Core/Module/Database.php';
 include_once '../../../../../../Class/Com/Event/Database.php';
 include_once '../../../../../../Class/Com/Event/Reader.php';
 include_once '../../../../../../Class/Com/Blog/Database.php';
+include_once '../../../../../../Class/Com/FilesACLS/Database.php';
 include_once '../../../../../../Class/SDK/Module/Basic.php';
 include_once '../../../../Auth/Action/VerifySession.php';
 $config = new Config();
@@ -48,7 +49,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var ajax = new Ajax();
                     var dialog = new SuperDialog();
                     var FL = new FilesList(document.getElementById("FileRS"));
-                    var tablesharefile = new TableTools(document.getElementById("TBShareFile"));
+                    var tablesharefile = new TableTools();
+                    tablesharefile.Import(document.getElementById("TBShareFile"));
                     var fileupload = new FilesUpload({
                         "url": "../../../../Api/Ajax/Files/UploadFiles.php",
                         "files": "file",
@@ -218,10 +220,35 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#CHDIRList").Html(" ");
                         });
                     });
+                    ss.S("#BNAddShare").Click(function () {
+                        dialog.DropDown(function (v) {
+                            ajax.Post("../../../../Api/Ajax/Files/AddACLS.php", {"Files": FL.GetSelectFiles(), "Access": v}, function (data) {
+
+                            });
+                        }).CopyOption("#CloneableOption").Title("Add Share");
+
+                    });
                     ss.S("#BNShareManager").Click(function () {
-                        dialog.ImportOkCancel("Share", "#TableShare", function () {
+                        ajax.Post("../../../../Api/Ajax/Files/GetACLS.php", {"AccessMode": this.value}, function (data) {
+                            data = JSON.parse(data);
+                            tablesharefile.DeleteRowAfter(0);
+                            var changeaccess = {};
+                            for (var i = 0; i < data.length; i++) {
+                                tablesharefile.InsertRow();
+                                tablesharefile.InsertCellLastRow(data[i]["fullpath"]);
+                                var select = tablesharefile.InsertCellLastRow('<select name=""><option value="1">Public</option><option  value="0">Member</option></select>');
+                                tablesharefile.InsertCellLastRow('<input class="checkaccessfileid" type="checkbox" name="" value="' + data[i]["id"] + '" />');
+                                select.setAttribute("data-id", data[i]["id"]);
+                                select.addEventListener("change", function () {
+                                    changeaccess[this.getAttribute("data-id")] = this.value;
+                                });
+                            }
+                            dialog.ImportOkCancel("Share", "#ShareFileDialog", function () {
+
+                            });
 
                         });
+
                     });
 
 
@@ -233,26 +260,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      
                      TBShareFile.Border(1);
                      TBShareFile.CSSText("width: 100%;box-sizing: border-box;");
-                     TBShareFile.InsertRow();
-                     TBShareFile.InsertHead('<input class="checkselectall" type="checkbox" />');
-                     TBShareFile.InsertHead("File Path");
-                     TBShareFile.InsertHead("Edit");
-                     ss.S(bnupload).Change(function () {
-                     
-                     
-                     
-                     
-                     
-                     
-                     
-                     ss.S("#BNAddShare").Click(function () {
-                     dialog.Import("#AddShareDialog", function () {
-                     ss.Post("../../../Api/Ajax/Files/AddShareList.php", {
-                     "AuthName": ss.S("#TXTAddUserShare").Val(), "PW": ss.S("#TXTAddPWShare").Val(), "AccessMode": ss.S("#OPTAddAccessMode").Val(), "FilesList": fl.GetSelectFiles()}, function (data) {
-                     
-                     });
-                     }).Title("Share").ZIndex(999);
-                     });
                      
                      
                      
@@ -305,18 +312,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      ss.S("#OPTMAccessMode").Change();
                      dialog.Import("#ShareManagerDialog").Title("Share").ZIndex(999);
                      });
-                     ss.S("#OPTMAccessMode").Change(function () {
-                     ss.Post("../../../Api/Ajax/Files/GetShareList.php", {"AccessMode": this.value}, function (data) {
-                     data = JSON.parse(data);
-                     TBShareFile.DeleteRowAfter(0);
-                     for (var i = 0; i < data.length; i++) {
-                     TBShareFile.InsertRow();
-                     TBShareFile.InsertCellLastRow('<input class="checkaccessfileid" type="checkbox" name="" value="' + data[i]["id"] + '" />');
-                     TBShareFile.InsertCellLastRow(data[i]["fullpath"]);
-                     TBShareFile.InsertCellLastRow('<button class="editaccesslist" data-id="' + data[i]["id"] + '" style="width:100%;box-sizing: border-box;">Edit</button>');
-                     }
-                     });
-                     });
+                     
                      ss.S("#TBShareFile").Click(function (e) {
                      if (e.target.getAttribute("class") == "checkselectall") {
                      var chk = this.getElementsByClassName("checkaccessfileid");
@@ -461,13 +457,24 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 </span>  
             </footer>
 
-            <table border="1" id="TableShare" style="width: 100%;display: none;">
-                <tr>
-                    <th>Select</th>
-                    <th>Name</th>
-                    <th>Remove</th>
-                </tr>
-            </table>
+            <div id="ShareFileDialog" style="display: none;">
+                <table border="1" id="TBShareFile" style="width: 100%;">
+                    <tr>
+
+                        <th>Name</th>
+                        <th>Access</th>
+                        <th>Remove</th>
+                    </tr>
+                </table>
+            </div>
+            <div style="display: none;">
+                <select id="CloneableOption">
+                    <?php
+                    printf('<option value="%s">Public</option>', FilesACLS_Database::Access_Public);
+                    printf('<option value="%s">Member</option>', FilesACLS_Database::Access_Member);
+                    ?>
+                </select>
+            </div>
         </body>
     </html>
     <?php

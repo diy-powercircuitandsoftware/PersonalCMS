@@ -148,6 +148,19 @@ class SuperDialog {
             opt.innerHTML = v;
             return this;
         };
+        sd.CopyOption = function (querystring) {
+            var ref = this;
+            [].forEach.call(document.querySelectorAll(querystring), function (dom) {
+                [].forEach.call(dom.querySelectorAll("OPTION"), function (option) {
+                    var opt = ref.dd.appendChild(document.createElement('option'));
+                    opt.value = option.value;
+                    opt.innerHTML = option.innerHTML;
+                });
+
+            });
+
+            return this;
+        };
         return sd;
     }
     Email(callback) {
@@ -571,17 +584,16 @@ class SuperDialog {
                 var cell = row.insertCell(-1);
                 if (typeof data === 'string' || data instanceof String) {
                     cell.insertAdjacentHTML('beforeend', data);
-                    if (args[0]!==null){
-                         cell.lastChild.name = args[0].replace(/\s/g, '');
-                    } 
+                    if (args[0] !== null) {
+                        cell.lastChild.name = args[0].replace(/\s/g, '');
+                    }
                 } else if (data instanceof HTMLElement) {
                     cell.appendChild(data);
-                     if (args[0]!==null){
-                         data.name = args[0].replace(/\s/g, '');
+                    if (args[0] !== null) {
+                        data.name = args[0].replace(/\s/g, '');
                     }
-                }
-                else{
-                     cell.insertAdjacentHTML('beforeend', data);
+                } else {
+                    cell.insertAdjacentHTML('beforeend', data);
                 }
                 cell.setAttribute("data-marker", "1");
             } else if (args.length === 3) {
