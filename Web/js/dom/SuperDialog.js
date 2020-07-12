@@ -290,7 +290,8 @@ class SuperDialog {
         sd.AddNewRowElement("Remember Me ", '<input type="checkbox"  style="width:100%;box-sizing: border-box;" value="true" />');
         return sd;
     }
-    MediaPlayer(src) {
+    MediaPlayer(...args) {
+         var src=args[0];
         var sd = new Dialog();
         var image = ["gif", "png", "jpg", "jpeg", "webp"];
         var video = ["mp4", "webm"];
@@ -326,7 +327,16 @@ class SuperDialog {
                     }
                 }});
 
-        } else {
+        }  else if (args.length==2){
+              var ext =args[1];
+            if (image.indexOf(ext) >= 0) {
+                sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><img style="max-width: 100%;max-height: 100%;" src="' + src + '"/></div>');
+            } else if (video.indexOf(ext) >= 0) {
+                sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><video  style="background-color: black;width: 100%;height: 100%;" controls="controls" autoplay="autoplay" src="' + src + '"></video></div>');
+            } else if (audio.indexOf(ext) >= 0) {
+                sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + src + '"></audio></div>');
+            }
+        }else {
             var ext = (src.split('.').pop()).toLowerCase();
             if (image.indexOf(ext) >= 0) {
                 sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><img style="max-width: 100%;max-height: 100%;" src="' + src + '"/></div>');
@@ -336,6 +346,7 @@ class SuperDialog {
                 sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + src + '"></audio></div>');
             }
         }
+        
     }
     Mutilline(...args) {
         var sd = new Dialog();

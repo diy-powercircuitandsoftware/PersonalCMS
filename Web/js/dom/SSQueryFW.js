@@ -14,7 +14,7 @@ class SSQueryFW {
                 });
                 if (this.element.length == 1) {
                     this.ForEach(args[0], function (el) {
-                      this.element[0].appendChild(el);
+                        this.element[0].appendChild(el);
                     });
                 } else if (this.element.length > 1) {
 
@@ -242,7 +242,22 @@ class SSQueryFW {
     StrRight(str, length) {
         return str.substring(str.length() - length);
     }
-
+    URLParam(...args) {
+        var vars = [], hash;
+        var hashes = [];
+        if (arguments.length == 0) {
+            hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        } else if (arguments.length == 1) {
+            hashes = args[0].split('&');
+        }
+        for (var i = 0; i < hashes.length; i++)
+        {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    }
     Val(...args) {
         var arrchk = ["checkbox", "radio"];
         var hassrc = ["video", "audio", "img", "iframe"];

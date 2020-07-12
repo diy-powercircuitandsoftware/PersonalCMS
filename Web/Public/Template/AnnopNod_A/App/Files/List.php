@@ -70,11 +70,11 @@ if ($config->IsOnline()) {
 
                 SS.DocumentReady(function () {
                     var ajax = new Ajax();
-                    var Dialog = new SuperDialog();
+                    var dialog = new SuperDialog();
                     var SB = new SearchBox(document.getElementById("SearchBox"));
                     var FL = new FilesList(document.getElementById("FilesList"));
 
-                    FL.DownloadURL = "../../../Api/ShareAction/Files/DownloadFile.php?id=";
+                    FL.SetDownload("../../../../Api/Action/Files/Download.php");
                     SB.Input = function (v) {
                         SS.Get("../../../Api/ShareAjax/User/SearchAlias.php", {"Alias": v}, function (data) {
                             data = JSON.parse(data);
@@ -84,37 +84,38 @@ if ($config->IsOnline()) {
                         });
                     };
                     SB.CallbackValue = function (v) {
-                        SS.S("#DboxErrorBody").Hide();
-                        FL.UserID = v;
-                        FL.ChDir(("fullpath=..."));
+                        //   SS.S("#DboxErrorBody").Hide();
+                        //  FL.UserID = v;
+                        //  FL.ChDir(("fullpath=..."));
                     };
 
                     FL.OpenDir(function (v) {
-                        v=JSON.parse(v);
-                        ajax.Post("../../../../Api/Ajax/Files/GetACLS.php", {"UserID": v.UserID, "Path": v.Path}, function (data) {
+
+                        ajax.Get("../../../../Api/Ajax/Files/GetACLS.php" + v, function (data) {
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
-                                var newjsonstring=JSON.stringify({"UserID": v.UserID, "Path": data[i]["fullpath"]});
+
                                 if (data[i]["type"] == "DIR") {
-                                    FL.AddDir(data[i]["name"], newjsonstring, data[i]["modified"]);
+                                    FL.AddDir(data[i]["name"], "?" + data[i]["fullpath"], data[i]["modified"]);
                                 } else if (data[i]["type"] == "FILE") {
-                                    FL.AddFile(data[i]["name"], newjsonstring, data[i]["size"], data[i]["modified"]);
+                                    FL.AddFile(data[i]["name"], "?" + data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
                                 }
                             }
-                           // ss.S("#CHDIRList").Html((v));
+                            SS.S("#CHDIRList").Html(v);
                         });
 
                     });
                     FL.OpenFile(function (v) {
-                        if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(v.split('.').pop().toLowerCase()) >= 0) {
-                            dialog.MediaPlayer("../../../../Api/Action/Files/DownloadFiles.php?path=" + (v));
+                        var qstringpath = SS.URLParam(v);
+                        var ext = qstringpath["?path"].split('.').pop().toLowerCase();
+                        if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
+                            dialog.MediaPlayer("../../../../Api/Action/Files/Download.php" + v, ext);
                         }
                     })
 
                     SS.S(".BNUserList").Click(function () {
-                       
-                        FL.OpenDir(JSON.stringify({"Path":"...","UserID": this.getAttribute("data-id")}));
+                        FL.OpenDir(ajax.JsonToQueryString({"userid": this.getAttribute("data-id"), "path": "..."}));
                         SS.S("#DboxErrorBody").Hide();
                     });
 
