@@ -35,7 +35,7 @@ class Blog_Reader {
             $stmt = $this->bd->prepare('SELECT * FROM blog WHERE  enable=1 ORDER BY id DESC LIMIT 30; ');
         } else {
             $stmt = $this->bd->prepare('SELECT * FROM blog WHERE enable=1 AND public=1 ORDER BY id DESC LIMIT 30; ');
-        }
+        }      
         $results = $stmt->execute();
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             $data[] = $row;

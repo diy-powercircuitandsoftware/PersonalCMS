@@ -17,14 +17,11 @@ if ($config->IsOnline() &&
         $session->Registered(session_id()) &&
         $userdata->CanWritable($_SESSION["User"]["id"])
 ) {
-    $kw = array();
-    if (isset($_POST["keyword"])) {
-        $kw = $_POST["keyword"];
-        unset($_POST["keyword"]);
-    }
+    
 
-    if ($blog->AddBlog($_SESSION["User"]["id"], $_POST)) {
-        echo $blog->LastInsertID();
+    if ($blog->DeleteBlogList($_SESSION["User"]["id"], $_POST["ID"])) {
+        
+        
     }
 }
  

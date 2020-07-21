@@ -31,7 +31,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
-           <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
 
             <?php
@@ -54,7 +54,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var tabletool = new TableTools();
                     var EKeyword = new SpanList("#EKeyword");
                     var FL = new FilesList("#FilesList");
-                    var ajaxsb = new   AjaxScrollBar("../../../../Api/Ajax/Blog/GetBlogListForEdit.php", {"id": 0});
+                    var ajaxsb = new AjaxScrollBar("../../../../Api/Ajax/Blog/GetBlogListForEdit.php", {"id": 0});
                     FL.Multiple(false);
                     var lastid = 0;
                     tabletool.Import(document.getElementById("TableOutput"));
@@ -65,9 +65,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 tabletool.InsertRow();
                                 tabletool.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="SelectID" value="' + data[i]["id"] + '" /></div>');
                                 tabletool.InsertCellLastRow(data[i]["title"]);
-                                tabletool.InsertCellLastRow(data[i]["categoryname"]);
+
                                 tabletool.InsertCellLastRow(data[i]["htmlfilepath"]);
-                                
+                                tabletool.InsertCellLastRow(data[i]["enable"]);
+                                tabletool.InsertCellLastRow(data[i]["public"]);
                                 tabletool.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i]["id"] + '">Edit</button>');
                                 lastid = Math.max(lastid, data[i]["id"]);
                             }
@@ -77,13 +78,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     });
                     FL.OpenDir(function (v) {
-                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path":v,"Ext":["html"]}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v, "Ext": ["BlogZip"]}, function (data) {
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
                                 if (data[i]["type"] == "DIR") {
                                     FL.AddDir(data[i]["name"], data[i]["fullpath"], data[i]["modified"]);
-                                }  
+                                }
                             }
                             ss.S("#CHDIRList").Html(decodeURIComponent(v));
                         });
@@ -195,11 +196,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNRemove").Click(function () {
                         sd.Confirm("Do You Delect It", function () {
                             var v = ss.S(".SelectID").Val();
-                            ajax.Post("../../../Api/Ajax/BlogManager/DeleteBlog.php", {"ID": v}, function () {
-                               /* tabletool.DeleteRowAfter(0);
-                                wsl.Param["StartID"] = 0;
-                                wsl.Lock = false;
-                                wsl.LoadData();*/
+                            ajax.Post("../../../../Api/Ajax/Blog/DeleteBlog.php", {"ID": v}, function () {
+                                /* tabletool.DeleteRowAfter(0);
+                                 wsl.Param["StartID"] = 0;
+                                 wsl.Lock = false;
+                                 wsl.LoadData();*/
                             });
                         }).ZIndex(999);
                     });
@@ -251,15 +252,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <tr>
                             <th>Select</th>
                             <th>Title</th>
-                            <th>Category</th>
-                            <th>FileName</th>
-
+                             <th>FileName</th>
+                             <th>Enable</th>
+                             <th>Public</th>
                             <th>Edit</th>
                         </tr>
                     </table>';
                     }
                     ?>
-                </main>
+                </main>  
                 <aside>
                     <?php
                     if ($_SESSION["User"]["writable"] == 1) {
@@ -329,7 +330,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <tr>
                         <td>Access:</td>
                         <td>
-                            <select class="AjaxSendEdit" name="accessmode"  style="width: 100%;">
+                            <select class="AjaxSendEdit" name="public"  style="width: 100%;">
                                 <?php
                                 printf('<option value="%s">%s</option>', Blog_Database::Access_Member, "Member");
                                 printf('<option value="%s">%s</option>', Blog_Database::Access_Public, "Public");
@@ -337,26 +338,27 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             </select>
                         </td>
                     </tr>
-
-
+                    <tr>
+                        <td>enable:</td>
+                        <td>
+                            <select class="AjaxSendEdit" name="enable"  style="width: 100%;">
+                                <option value="1">yes</option>
+                                <option value="0">no</option>
+                            </select>
+                        </td>
+                    </tr>
                     <tr>
                         <td>Description:</td>
                         <td>
                             <textarea style="min-width:100%;resize: vertical; " class="AjaxSendEdit" name="description" rows="4" cols="20"></textarea>
                         </td>
-
                     </tr>
-
                 </table>
                 <div>
-
                     <div id="FilesList">
                         <div id="CHDIRList"></div>
                     </div>
-
                 </div>
-
-
         </body>
     </html>
     <?php

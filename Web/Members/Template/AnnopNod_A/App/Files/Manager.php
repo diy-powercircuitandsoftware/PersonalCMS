@@ -236,15 +236,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             for (var i = 0; i < data.length; i++) {
                                 tablesharefile.InsertRow();
                                 tablesharefile.InsertCellLastRow(data[i]["fullpath"]);
-                                var select = tablesharefile.InsertCellLastRow('<select name=""><option value="1">Public</option><option  value="0">Member</option></select>');
-                                tablesharefile.InsertCellLastRow('<input class="checkaccessfileid" type="checkbox" name="" value="' + data[i]["id"] + '" />');
+                                var select = tablesharefile.InsertCellLastRow('<select name=""><option value="1">Public</option><option value="0">Member</option><option value="-1">Remove</option></select>');
                                 select.setAttribute("data-id", data[i]["id"]);
                                 select.addEventListener("change", function () {
                                     changeaccess[this.getAttribute("data-id")] = this.value;
                                 });
+                                select.value = data[i]["public"];
                             }
-                            dialog.ImportOkCancel("Share", "#ShareFileDialog", function () {
-
+                            var d = dialog.ImportOkCancel("Share", "#ShareFileDialog", function () {
+                                ajax.Post("../../../../Api/Ajax/Files/ChangeACLS.php", {"AccessList": changeaccess}, function (data) {
+                                    d.Close();
+                                });
                             });
 
                         });
@@ -253,30 +255,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
                     /*  
-                     
-                     
-                     
-                     var TBShareFile = document.getElementById("").appendChild(new TableTools());
-                     
-                     TBShareFile.Border(1);
-                     TBShareFile.CSSText("width: 100%;box-sizing: border-box;");
-                     
-                     
-                     
-                     ss.S("#BNDeleteAccess").Click(function () {
-                     
-                     dialog.Confirm("Delete It????", function (name) {
-                     var v = ss.S(".checkaccessfileid").Val();
-                     ss.Post("../../../Api/Ajax/Files/DelShareList.php", {"IDList": v}, function (data) {
-                     ss.S("#OPTMAccessMode").Change();
-                     });
-                     }).ZIndex(1000);
-                     
-                     });
-                     
-                     
-                     
-                     
+                         
+                         
+                      
                      ss.S("#BNNewPhoto").Click(function () {
                      var takephoto = new TakePhoto();
                      var cust = dialog.Custom();
@@ -302,38 +283,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      takephoto.ReSet();
                      fl.ChDir(fl.currentdir);
                      });
-                     
+                         
                      });
                      }
                      });
                      });
-                     
-                     ss.S("#BNShareManager").Click(function () {
-                     ss.S("#OPTMAccessMode").Change();
-                     dialog.Import("#ShareManagerDialog").Title("Share").ZIndex(999);
-                     });
-                     
-                     ss.S("#TBShareFile").Click(function (e) {
-                     if (e.target.getAttribute("class") == "checkselectall") {
-                     var chk = this.getElementsByClassName("checkaccessfileid");
-                     for (var i = 0; i < chk.length; i++) {
-                     chk[i].checked = e.target.checked;
-                     }
-                     } else if (e.target.getAttribute("class") == "editaccesslist") {
-                     var t = dialog.TableLayout(function () {
-                     ss.Post("../../../Api/Ajax/Files/UpdateShareList.php", {"ID": t.fileid, "AccessMode": t.Access.value, "AuthName": t.UserName.value, "PW": t.Password.value}, function (data) {
-                     ss.S("#OPTMAccessMode").Change();
-                     t.Close();
-                     });
-                     
-                     }).ZIndex(1000).Title("Edit");
-                     t.Access = t.AddTableDom('Access:', '<select style="width: 100%;"><option value="0">None</option><option value="1">Public</option><option value="2">Member</option></select>');
-                     t.UserName = t.AddTableDom('UserName:', '<input type="text" style="width: 100%;" />');
-                     t.Password = t.AddTableDom('Password:', '<input type="password" style="width: 100%;" />');
-                     t.fileid = e.target.getAttribute("data-id");
-                     }
-                     });
-                     
+                         
+                      
+                         
                      */
 
                 });
@@ -463,7 +420,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         <th>Name</th>
                         <th>Access</th>
-                        <th>Remove</th>
+
                     </tr>
                 </table>
             </div>

@@ -32,7 +32,10 @@ if ($config->IsOnline() && isset($_GET["path"])) {
             $zip->close();
         }
         $fdownload->DownloadFile($filepath);
-    }  
+    }
+   else{
+        header("HTTP/1.0 404 Not Found");
+   }
 } else {
     header("HTTP/1.0 404 Not Found");
 }

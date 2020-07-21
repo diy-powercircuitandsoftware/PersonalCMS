@@ -73,7 +73,8 @@ if ($config->IsOnline()) {
                     var dialog = new SuperDialog();
                     var SB = new SearchBox(document.getElementById("SearchBox"));
                     var FL = new FilesList(document.getElementById("FilesList"));
-
+ FL.SetPreviewImage("../../../../Api/Action/Files/ImagePreview.php?id=");
+ 
                     FL.SetDownload("../../../../Api/Action/Files/Download.php");
                     SB.Input = function (v) {
                         SS.Get("../../../Api/ShareAjax/User/SearchAlias.php", {"Alias": v}, function (data) {
@@ -83,11 +84,9 @@ if ($config->IsOnline()) {
                             }
                         });
                     };
-                    SB.CallbackValue = function (v) {
-                        //   SS.S("#DboxErrorBody").Hide();
-                        //  FL.UserID = v;
-                        //  FL.ChDir(("fullpath=..."));
-                    };
+                    SB.Calllback ( function (v) {
+                         FL.Clear();
+                    });
 
                     FL.OpenDir(function (v) {
 

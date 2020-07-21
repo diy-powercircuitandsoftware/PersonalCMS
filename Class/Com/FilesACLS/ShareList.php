@@ -25,6 +25,27 @@ class FilesACLS_ShareList {
         $this->fdb->close();
     }
 
+    public function Delete($userid, $list) {
+        $list = $this->FitterNumberArray($list);
+      
+       if ($list!=="") {
+            $sql='DELETE FROM FilesACLS WHERE userid=' . intval($userid) . ' AND id IN (' . $list . '); ';
+           return $this->fdb->query($sql);
+        } 
+        return false;
+    }
+
+    public function FitterNumberArray($list) {
+        $data = array();
+        if (is_string($list)) {
+            $list = explode(",", $list);
+        }
+        foreach ($list as $value) {
+            $data[] = intval($value);
+        }
+        return implode(",", $data);
+    }
+
     public function GetShareListManager($userid) {
         $data = array();
         $stmt = $this->fdb->prepare('SELECT * FROM FilesACLS WHERE userid=:userid ; ');
@@ -36,7 +57,7 @@ class FilesACLS_ShareList {
         return $data;
     }
 
-    public function GetRootShare( $id, $accessmode) {
+    public function GetRootShare($id, $accessmode) {
         $stmt = null;
         if ($accessmode == FilesACLS_Database::Access_Member) {
             $stmt = $this->fdb->prepare('SELECT userid,fullpath FROM FilesACLS WHERE id=:id ; ');
@@ -47,7 +68,7 @@ class FilesACLS_ShareList {
         $results = $stmt->execute();
         $row = $results->fetchArray(SQLITE3_ASSOC);
         if ($row) {
-            return array("userid"=>$row["userid"],"fullpath"=>$row["fullpath"]);
+            return array("userid" => $row["userid"], "fullpath" => $row["fullpath"]);
         }
         return null;
     }
@@ -66,6 +87,17 @@ class FilesACLS_ShareList {
             $data[] = $row;
         }
         return $data;
+    }
+
+    public function SetAccess($userid, $list, $Accessmode) {
+        $list = $this->FitterNumberArray($list);
+        if ($list!=="") {
+            $stmt = $this->fdb->prepare('UPDATE FilesACLS SET public=:public WHERE userid=:userid  AND id IN (' . $list . '); ');
+            $stmt->bindValue(':public', $Accessmode, SQLITE3_INTEGER);
+            $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
+            return $stmt->execute();
+        }
+        return false;
     }
 
 }

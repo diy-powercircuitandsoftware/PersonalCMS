@@ -58,8 +58,8 @@ class Blog_Manager {
     public function GetBlogList($userid, $startid) {
         $data = array();
         $stmt = $this->bd->prepare('SELECT * FROM blog WHERE userid=:userid AND id>:startid  LIMIT 30; ');
-         $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
-           $stmt->bindValue(':startid', $startid, SQLITE3_INTEGER);
+        $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
+        $stmt->bindValue(':startid', $startid, SQLITE3_INTEGER);
         $results = $stmt->execute();
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             $data[] = $row;
@@ -90,6 +90,47 @@ class Blog_Manager {
             }
         }
         return $out;
+    }
+
+    public function DeleteBlogList($userid, $idlist) {
+
+        $stmt = $this->bd->prepare('DELETE  FROM blog WHERE userid=:userid AND id IN (' . $this->FilterNumberSQL($idlist) . ') ');
+        $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
+        $stmt->execute();
+        
+        
+        
+        $stmt = $this->bd->prepare('DELETE  FROM blog WHERE userid=:userid AND id IN (' . $this->FilterNumberSQL($idlist) . ') ');
+        $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
+        $stmt->execute();
+/*
+ DELETE FROM blogcategory
+WHERE EXISTS
+  ( SELECT *
+    FROM positions
+    WHERE positions.position_id = employees.position_id );
+ */
+
+      //  $stmt = $this->bd->prepare('DELETE  FROM blogcategory WHERE userid=:userid AND blogid IN (' . $this->FilterNumberSQL($idlist) . ') ');
+       
+        //$stmt->execute();
+    }
+
+    public function FilterNumberSQL($obj) {
+        $Arrprocess = array();
+        if (is_array($obj)) {
+            $Arrprocess = $obj;
+        } else {
+            $Arrprocess = explode(",", $obj);
+        }
+
+        $out = array();
+        foreach ($Arrprocess as $value) {
+            if (is_numeric($value)) {
+                $out[] = $value;
+            }
+        }
+        return join(",", $out);
     }
 
     public function LastInsertID() {

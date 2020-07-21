@@ -34,6 +34,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
             }
             ?>
+            <script src="../../../../../js/audio/Player.js"></script>
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../js/dom/PlayingList.js"></script>
             <script src="../../../../../js/io/Ajax.js"></script>
@@ -58,9 +59,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
                     playlist.Select(function (v) {
-                        audiosrc.pause();
+                        audiosrc.pause();                     
                         audiosrc.src = "../../../../Api/Action/Files/DownloadFiles.php?path=" + v;
-                        audiosrc.play();
+                        var pp = audiosrc.play();
+                        if (pp !== undefined) {
+                            pp.then(function () {
+                                
+                            }).catch(function (error) {
+                                
+                            });
+                        }
                     });
                     ajax.Post("../../../../Api/Ajax/Audio/GetPlayList.php", {}, function (data) {
                         data = JSON.parse(data);
