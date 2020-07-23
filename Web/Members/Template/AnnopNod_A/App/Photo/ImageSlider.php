@@ -36,9 +36,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../js/dom/PlayingList.js"></script>
             <script src="../../../../../js/io/Ajax.js"></script>
-
-            <script src="../../../../js/image/ImageList.js"></script>
-            <script src="../../../../js/image/SlideShow.js"></script>
+            <script src="../../../../../js/image/SlideShow.js"></script>
 
 
             <style>
@@ -64,35 +62,29 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var AudioSrc = document.getElementById("AudioSrc");
-                    var AudioList = document.getElementById("AudioList").appendChild(new PlayingList());
-                    var ImageShow = document.getElementById("ImageShow").appendChild(new SlideShow());
-                    var ImgList = new ImageList();
-                    ImageShow.width = 1920;
-                    ImageShow.height = 1080;
+                    var AudioList = new PlayingList(document.getElementById("AudioList"));
+                    var ImageShow = new SlideShow(document.getElementById("ImageShow"));
 
-                    AudioSrc.addEventListener("ended", function () {
-                        var next = AudioList.GetNext();
-                        if (next !== null) {
-                            next.click();
-                        }
-                    });
-                    AudioList.Click = function (d) {
-                        AudioSrc.src = "../../../Api/Action/Files/DownloadFile.php?id=" + btoa(d.getAttribute("url"));
-                        var playPromise = AudioSrc.play();
-                        if (this.Last !== undefined) {
-                            this.Last.setAttribute("class", "");
-                        }
-                        d.setAttribute("class", "Playing");
-                        if (playPromise !== undefined) {
-                            playPromise.then(function () {
-                                // Automatic playback started!
+
+                    /* AudioSrc.addEventListener("ended", function () {
+                     var next = AudioList.GetNext();
+                     if (next !== null) {
+                     next.click();
+                     }
+                     });*/
+                    AudioList.Select(function (v) {
+                        AudioSrc.pause();
+                        AudioSrc.src = "../../../../Api/Action/Files/DownloadFiles.php?path=" + v;
+                        var pp = AudioSrc.play();
+                        if (pp !== undefined) {
+                            pp.then(function () {
+
                             }).catch(function (error) {
-                                // Automatic playback failed.
-                                // Show a UI element to let the user manually start playback.
+
                             });
                         }
-                    };
-                    ImgList.OnAfterAddImage = function () {
+                    });
+                    /*ImgList.OnAfterAddImage = function () {
                         ss.S("#ImageRangeViewer").Attr("max", this.Count() - 1);
                         ss.S("#LabArrayCount").Html(this.Count());
                     };
@@ -102,9 +94,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ImgList.Index = parseInt(ss.S("#ImageRangeViewer").Attr("current"));
                             ss.S("#ImageRangeViewer").Attr("seek", "");
                         }
-                    };
+                    };*/
 
-                    ImgList.OnChangeIndex = function () {
+                 /*   ImgList.OnChangeIndex = function () {
                         var Transitions = ImageShow.Transitions;
                         var keys = Object.keys(Transitions)
                         var rt = Transitions[keys[ keys.length * Math.random() << 0]];
@@ -120,13 +112,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#ImageRangeViewer").Val(ImgList.Index);
                             ss.S("#LabPlayIndex").Html(ImgList.Index);
                         });
-                    };
-                    document.onkeyup = function (event) {
+                    };*/
+                  /*  document.onkeyup = function (event) {
                         if (event.which == 27 || event.keyCode == 27) {
                             var domis = document.getElementById("ImageShow");
                             domis.removeAttribute("style");
                         }
-                    }
+                    }*/
                     window.onresize = function () {
                         if (window.screenTop && window.screenY) {
                             var domis = document.getElementById("ImageShow");
@@ -135,7 +127,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     };
 
                     ss.S("#BNFullScreen").Click(function () {
-                        ss.S("#ImageShow").CSSText("background-color: black;position: fixed;width: 100%;height: 100%;left:0;top:0;z-index:9999;");
+                        ss.S("#ImageShow").CSS("background-color: black;position: fixed;width: 100%;height: 100%;left:0;top:0;z-index:9999;");
                     });
 
                     ss.S("#BNPlay").Click(function () {
@@ -171,8 +163,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         } else if (this.value !== "") {
                             /* ss.Get("../../../Api/Ajax/Audio/GetMusicAlbumFiles.php", {"AlbumID": this.value}, function (data) {
-                                 
-                                 
+                             
+                             
                              });*/
                         }
                     });
@@ -250,7 +242,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 </main>
                 <aside>
                     <div class="BorderBlock">
-                        <span class="Title" style="display: block ">Library</span>
+                        <div class="TitleCenter">Library</div>
                         <select id="OptImageLibrary" style="width: 99%;">
                             <option>==Select==</option>
                             <option value="-1">* All Image *</option>
@@ -261,7 +253,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     </div>
                     <div class="BorderBlock" style="margin-top: 3px;">
-                        <span class="Title" style="display: block;">Hold Time</span>
+                        <div class="TitleCenter" >Hold Time</div>
                         <select id="OPTHTime" style="width: 100%;box-sizing: border-box;">
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -271,7 +263,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         </select>
                     </div>
                     <div class="BorderBlock" style="margin-top: 3px;">
-                        <span class="Title" style="display: block;">Change Time</span>
+                        <div class="TitleCenter"  >Change Time</div>
                         <select id="OPTCTime" style="width: 100%;box-sizing: border-box;">
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -281,7 +273,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         </select>
                     </div>
                     <div class="BorderBlock" style="margin-top: 3px;">
-                        <span class="Title" style="display: block ">Audio</span>
+                        <div class="TitleCenter" >Audio</div>
                         <select id="OptAudioLibrary" style="width: 99%;">
                             <option>==Select==</option>
                             <option value="-1">* All Audio *</option>
@@ -303,7 +295,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <div id="AudioList"></div>
                     </div>
                     <div class="BorderBlock">
-                        <div class="TitleCenter" style="display: block ">Play</div>
+                        <div class="TitleCenter"  >Play</div>
                         <select id="PlayMode"  style="display: block;width: 100%;box-sizing: border-box;">
                             <option value="0">None</option>
                             <option value="1">Repeat</option>
@@ -361,6 +353,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
     </html>
     <?php
 } else {
-    header("location: ../../../Session/AuthUserID.php");
+    header("location: ../../../../Auth/Login.php");
     session_destroy();
 }

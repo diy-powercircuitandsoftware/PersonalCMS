@@ -363,6 +363,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
     </html>
     <?php
 } else {
-    header("location: ../../../Session/AuthUserID.php");
+    header("location: ../../../../Auth/Login.php");
     session_destroy();
 }

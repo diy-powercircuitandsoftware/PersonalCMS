@@ -40,6 +40,61 @@ class SSQueryFW {
         this.EventListener("click", ...args);
         return  this;
     }
+    CSS(...args) {
+        if (args.length === 0) {
+            var output = [];
+            this.ForEach(this.element, function (el) {
+                var str = el.style.cssText.split(";");
+                var json = {};
+                for (var i in str) {
+                    var css = str[i].split(":");
+                    json[css[0]] = css[1];
+                }
+                output.push(json);
+            });
+            if (output.length === 1) {
+                return output[0];
+            }
+            return output;
+        } else if (args.length === 1) {
+            var input = args[0];
+            var isstring = typeof input === 'string' || input instanceof String;
+            if (isstring && input.indexOf(":") >= 0)
+            {
+                this.ForEach(this.element, function (el) {
+                    el.style.cssText = input;
+                });
+            } else if (isstring && (input.indexOf(":") < 0) && input !== "")
+            {
+                var output = [];
+                this.ForEach(this.element, function (el) {
+                    output.push(el.style[input]);
+                });
+                if (output.length === 1) {
+                    return output[0];
+                }
+            } else if (isstring &&   input === "")
+            {
+                this.ForEach(this.element, function (el) {
+                   el.style[input].cssText="";
+                });
+                return this;
+            } else if (Object.keys(input).length > 0) {
+                for (var key in input) {
+                    this.ForEach(this.element, function (el) {
+                        el.style[key] = input[key];
+                    });
+                }
+                return  this;
+            }
+
+        } else if (args.length === 2) {
+            this.ForEach(this.element, function (el) {
+                el.style[args[0]] = args[1];
+            });
+            return  this;
+        }
+    }
     Data(...args) {
         if (args.length === 1 && (typeof args[0] === 'string' || args[0] instanceof String)) {
             var output = [];
@@ -245,9 +300,9 @@ class SSQueryFW {
     URLParam(...args) {
         var vars = [], hash;
         var hashes = [];
-        if (arguments.length == 0) {
+        if (args.length == 0) {
             hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-        } else if (arguments.length == 1) {
+        } else if (args.length == 1) {
             hashes = args[0].split('&');
         }
         for (var i = 0; i < hashes.length; i++)

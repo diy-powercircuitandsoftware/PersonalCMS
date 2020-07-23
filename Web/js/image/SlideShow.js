@@ -9,7 +9,12 @@ class SlideShow {
         }
         this.FIFO = [];
         this.Running = false;
-        this.Render = new SlideShowRender();
+        this.Render = new SlideShow_RenderEngine();
+        this.ImageList = new SlideShow_ImageList();
+
+    }
+    AddImage(path) {
+        this.ImageList.AddImage(path);
     }
     Start() {
         if (!this.Running) {
@@ -17,40 +22,53 @@ class SlideShow {
         }
     }
     Stop() {
+        this.Render.Stop();
         this.Running = false;
     }
 
 }
 
-class SlideShowImageList {
+class SlideShow_ImageList {
     constructor() {
-        this.Index = 0;
         this.ImageList = [];
     }
-
-}
-class SlideShowMath {
-    Center(rect, ref, ratio = 1) {
-        var w = rect.width * ratio;
-        var h = rect.height * ratio;
-        var x = ref.width / 2 - w / 2;
-        var y = ref.height / 2 - h / 2;
-        return {"x": x, "y": y, "width": w, "height": h, "ratio": ratio};
-    }
-    Rect(x, y, w, h) {
-        return {
-            "x": x,
-            "y": y,
-            "width": w,
-            "height": h
+    AddImage(path) {
+        var xhttp = new XMLHttpRequest();
+        var ref = this;
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                var img = new Image();
+                var bb = new BlobBuilder();
+                bb.append(this.response);
+                var blob = bb.getBlob('image/png');
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    img.src = e.target.result;
+                    ref.ImageList.push(img);
+                    ref.ImageChange(ref.ImageList.length);
+                };
+                reader.readAsDataURL(blob);
+            }
         };
+
+        xhttp.responseType = "arraybuffer";
+        xhttp.open("GET", path, true);
+        xhttp.send();
+
     }
-    Scale(src, dest) {
-        return    Math.min(dest.width / src.width, dest.height / src.height);
+    Clear() { 
+        this.ImageList = [];
+    }
+    GetImage(index) {
+        return  this.ImageList[index]; 
+    }
+    ImageChange() {
+
     }
 
 }
-class SlideShowRender {
+
+class SlideShow_RenderEngine {
     constructor(fps = 60) {
         this.requestID = 0;
         this.fps = fps;
@@ -79,7 +97,97 @@ class SlideShowRender {
         cancelAnimationFrame(this.requestID);
     }
 }
+class SlideShow_TransitionsEngine {
+    constructor(canvassize, image1size, image2size) {
+        this.canvassize = canvassize;
+        this.image1size = image1size;
+        this.image2size = image2size;
+    }
+    Start() {
+        var stack = [];
+        return stack;
+    }
+    Running(time) {
+        var stack = [];
+        return stack;
+    }
+    Finish() {
+        var stack = [];
+        return stack;
+    }
+    Center(rect, ref, ratio = 1) {
+        var w = rect.width * ratio;
+        var h = rect.height * ratio;
+        var x = ref.width / 2 - w / 2;
+        var y = ref.height / 2 - h / 2;
+        return {"x": x, "y": y, "width": w, "height": h, "ratio": ratio};
+    }
+    Rect(x, y, w, h) {
+        return {
+            "x": x,
+            "y": y,
+            "width": w,
+            "height": h
+        };
+    }
+    Scale(src, dest) {
+        return    Math.min(dest.width / src.width, dest.height / src.height);
+    }
+}
+class SlideShow_Transition_FadeOutFadeIn extends SlideShow_TransitionsEngine {
+    Start() {
+
+    }
+    Running(time) {
+        var stack = [];
+        stack.push({
+            "Command": "ClearRect",
+            "x": 0,
+            "y": 0,
+            "width": this.canvassize.width,
+            "height": this.canvassize.height,
+        });
+        if (time < 0.5) {
+            stack.push({
+                "Command": "GlobalAlpha",
+                "Value": 1 - time - 0.4
+            });
+//ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
+        }
+        if (time > 0.5) {
+
+        }
+    }
+    Finish() {
+
+    }
+}
 /*
+ Method.Transitions.FadeOutFadeIn = function (imagea, imageb, s, fps, finish) {
+ var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
+ var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
+ var ctx = Method.getContext('2d');
+ Method.Render(fps, 0, s * 1000, function (r) {
+ 
+ ctx.clearRect(0, 0, Method.width, Method.height);
+ 
+ if (r.ratio < 0.5) {
+ ctx.globalAlpha = 1 - r.ratio - 0.4;
+ ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
+ } else if (r.ratio > 0.5 && r.ratio < 0.9) {
+ ctx.globalAlpha = r.ratio - 0.1;
+ ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
+ } else {
+ ctx.globalAlpha = 1;
+ ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
+ }
+ }, function () {
+ ctx.clearRect(0, 0, Method.width, Method.height);
+ ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
+ finish();
+ });
+ };
+ 
  function SlideShow() {
  var Method = document.createElement("canvas");
  Method.style.cssText = "width:100%";
@@ -203,28 +311,7 @@ class SlideShowRender {
  finish();
  });
  };
- Method.Transitions.FadeOutFadeIn = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- Method.Render(fps, 0, s * 1000, function (r) {
- ctx.clearRect(0, 0, Method.width, Method.height);
- if (r.ratio < 0.5) {
- ctx.globalAlpha = 1 - r.ratio - 0.4;
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- } else if (r.ratio > 0.5 && r.ratio < 0.9) {
- ctx.globalAlpha = r.ratio - 0.1;
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- } else {
- ctx.globalAlpha = 1;
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- }
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
+ 
  Method.Transitions.FromHorizontalCenter = function (imagea, imageb, s, fps, finish) {
  var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
  var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
