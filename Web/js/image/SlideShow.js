@@ -7,18 +7,51 @@ class SlideShow {
         } else {
             this.canvas = document.body.appendChild(document.createElement("CANVAS"));
         }
-        this.FIFO = [];
+
         this.Running = false;
         this.Render = new SlideShow_RenderEngine();
+        this.Render.t = 0;
+        this.Render.maxt = 3 * 1000;
+        this.Render.transitions = null;
+        this.Render.start = function () {};
+        this.Render.end = function () {};
         this.ImageList = new SlideShow_ImageList();
 
     }
     AddImage(path) {
         this.ImageList.AddImage(path);
     }
+    AddTransition(image1index, image2index, te) {
+        
+        if (new te() instanceof SlideShow_TransitionsEngine) {
+            console.log("yes");
+           // this.Render.t = 0;
+            //this.Render.transitions=new te();
+        }
+    }
+    Size(w, h) {
+        this.canvas.width = w;
+        this.canvas.height = h;
+    }
     Start() {
         if (!this.Running) {
-
+            this.Running = true;
+            this.Render.Start();
+            this.Render.SetAnimate(function (v) {
+                if (this.transitions !== null) {
+                    var command = {};
+                    if (this.t === 0) {
+                        command = this.transitions.Start();
+                        this.t = this.t + v;
+                    } else if (this.t > this.maxt) {
+                        command = this.transitions.Finish();
+                        this.t = 0;
+                    } else {
+                        command = this.transitions.Running(this.t / this.maxt);
+                        this.t = this.t + v;
+                    }
+                }
+            });
         }
     }
     Stop() {
@@ -38,14 +71,13 @@ class SlideShow_ImageList {
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 var img = new Image();
-                var bb = new BlobBuilder();
-                bb.append(this.response);
-                var blob = bb.getBlob('image/png');
+                var blob = new Blob([this.response]);
                 var reader = new FileReader();
                 reader.onload = function (e) {
                     img.src = e.target.result;
                     ref.ImageList.push(img);
                     ref.ImageChange(ref.ImageList.length);
+
                 };
                 reader.readAsDataURL(blob);
             }
@@ -56,11 +88,11 @@ class SlideShow_ImageList {
         xhttp.send();
 
     }
-    Clear() { 
+    Clear() {
         this.ImageList = [];
     }
     GetImage(index) {
-        return  this.ImageList[index]; 
+        return  this.ImageList[index];
     }
     ImageChange() {
 
@@ -83,12 +115,13 @@ class SlideShow_RenderEngine {
         const interval = 1000 / this.fps;
         const tolerance = 0.1;
         const animateLoop = (now) => {
-            this.requestID = requestAnimationFrame(animateLoop);
+
             const delta = now - then;
             if (delta >= interval - tolerance) {
                 then = now - (delta % interval);
                 this.animate(delta);
             }
+            this.requestID = requestAnimationFrame(animateLoop);
         };
         this.requestID = requestAnimationFrame(animateLoop);
     }
@@ -136,12 +169,19 @@ class SlideShow_TransitionsEngine {
 }
 class SlideShow_Transition_FadeOutFadeIn extends SlideShow_TransitionsEngine {
     Start() {
-
+        this.CenterA = this.Center(this.image1size, this.canvassize, this.Scale(this.image1size, this.canvassize));
+        this.CenterB = this.Center(this.image2size, this.canvassize, this.Scale(this.image2size, this.canvassize));
+        return{
+            "command": "DrawImage",
+            "image": 1,
+            "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
+            "dest": this.CenterA
+        };
     }
     Running(time) {
         var stack = [];
         stack.push({
-            "Command": "ClearRect",
+            "command": "ClearRect",
             "x": 0,
             "y": 0,
             "width": this.canvassize.width,
@@ -149,10 +189,16 @@ class SlideShow_Transition_FadeOutFadeIn extends SlideShow_TransitionsEngine {
         });
         if (time < 0.5) {
             stack.push({
-                "Command": "GlobalAlpha",
-                "Value": 1 - time - 0.4
+                "command": "GlobalAlpha",
+                "value": 1 - time - 0.4
             });
-//ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
+            stack.push({
+                "command": "DrawImage",
+                "image": 1,
+                "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
+                "dest": this.CenterA
+            });
+
         }
         if (time > 0.5) {
 
