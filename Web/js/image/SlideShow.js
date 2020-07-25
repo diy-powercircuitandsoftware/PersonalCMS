@@ -65,8 +65,16 @@ class SlideShow {
 
                     for (var i in command) {
                         var cmd = command[i];
-                        if (cmd.command == "ClearRect") {
+                        if (cmd.command == "Arc") {
+                            ctx.arc(cmd.x, cmd.y, cmd.r, cmd.sa, cmd.ea, cmd.acw);
+                        } else if (cmd.command == "BeginPath") {
+                            ctx.beginPath();
+                        } else if (cmd.command == "ClearRect") {
                             ctx.clearRect(cmd.x, cmd.y, cmd.width, cmd.height);
+                        } else if (cmd.command == "Clip") {
+                            ctx.clip();
+                        } else if (cmd.command == "ClosePath") {
+                            ctx.closePath();
                         } else if (cmd.command == "DrawImage") {
                             var image = null;
                             if (cmd.image == 1) {
@@ -81,9 +89,17 @@ class SlideShow {
                                         cmd.src.x, cmd.src.y, cmd.src.width, cmd.src.height,
                                         cmd.dest.x, cmd.dest.y, cmd.dest.width, cmd.dest.height);
                             }
- 
+
+                        } else if (cmd.command == "Fill") {
+                            ctx.fill();
                         } else if (cmd.command == "GlobalAlpha") {
                             ctx.globalAlpha = cmd.value;
+                        } else if (cmd.command == "GlobalCompositeOperation") {
+                            ctx.globalCompositeOperation = cmd.value;
+                        } else if (cmd.command == "Restore") {
+                            ctx.restore();
+                        } else if (cmd.command == "Save") {
+                            ctx.save();
                         }
                     }
 
@@ -92,7 +108,7 @@ class SlideShow {
                     if (current < this.ImageList.Count() - 1) {
                         var rndnum = Math.floor(Math.random() * Math.floor(this.transitionslist.length));
                         var img1 = this.ImageList.GetImageSize(current);
-                        var img2 = this.ImageList.GetImageSize(current);
+                        var img2 = this.ImageList.GetImageSize(current + 1);
                         this.transition = new this.transitionslist[rndnum](this.canvas, img1, img2);
                     } else if (current == this.ImageList.Count() - 1) {
                         this.ImageList.index = 0;
@@ -127,7 +143,6 @@ class SlideShow_ImageList {
                     img.src = e.target.result;
                     ref.ImageList.push(img);
                     ref.ImageChange(ref.ImageList.length);
-
                 };
                 reader.readAsDataURL(blob);
             }
@@ -215,9 +230,7 @@ class SlideShow_TransitionsEngine {
         return stack;
     }
     Center(rect, ref, ratio = 1) {
-        if (rect == null) {
-            return {"x": 0, "y": 0, "width": 0, "height": 0, "ratio": 0};
-        }
+
         var w = rect.width * ratio;
         var h = rect.height * ratio;
         var x = ref.width / 2 - w / 2;
@@ -233,9 +246,6 @@ class SlideShow_TransitionsEngine {
         };
     }
     Scale(src, dest) {
-        if (src == null) {
-            return 0;
-        }
         return    Math.min(dest.width / src.width, dest.height / src.height);
     }
 }
@@ -243,7 +253,6 @@ class SlideShow_Transition_FadeOutFadeIn extends SlideShow_TransitionsEngine {
     Start() {
         this.CenterA = this.Center(this.image1size, this.canvassize, this.Scale(this.image1size, this.canvassize));
         this.CenterB = this.Center(this.image2size, this.canvassize, this.Scale(this.image2size, this.canvassize));
-      
         return[{
                 "command": "GlobalAlpha",
                 "value": 1
@@ -264,10 +273,10 @@ class SlideShow_Transition_FadeOutFadeIn extends SlideShow_TransitionsEngine {
             "height": this.canvassize.height,
         });
         if (time < 0.5) {
-          
+
             stack.push({
                 "command": "GlobalAlpha",
-                "value": 1 - (2*time)
+                "value": 1 - (2 * time)
             }, {
                 "command": "DrawImage",
                 "image": 1,
@@ -277,15 +286,14 @@ class SlideShow_Transition_FadeOutFadeIn extends SlideShow_TransitionsEngine {
 
         }
         if (time > 0.5) {
-          
-          stack.push({
+            stack.push({
                 "command": "GlobalAlpha",
-                "value":  (2*time)-1
+                "value": (2 * time) - 1
             }, {
                 "command": "DrawImage",
                 "image": 2,
-                "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
-                "dest": this.CenterA
+                "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
+                "dest": this.CenterB
             });
         }
         return stack;
@@ -294,10 +302,76 @@ class SlideShow_Transition_FadeOutFadeIn extends SlideShow_TransitionsEngine {
         return[{
                 "command": "GlobalAlpha",
                 "value": 1
-            } ];
+            }];
     }
-};
+}
+;
+class SlideShow_Transition_CircleOut extends SlideShow_TransitionsEngine {
+    Start() {
+        this.CenterA = this.Center(this.image1size, this.canvassize, this.Scale(this.image1size, this.canvassize));
+        this.CenterB = this.Center(this.image2size, this.canvassize, this.Scale(this.image2size, this.canvassize));
+        this.MaxCircle = Math.min(this.canvassize.width, this.canvassize.height);
+        return[{
+                "command": "DrawImage",
+                "image": 1,
+                "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
+                "dest": this.CenterA
+            }];
+    }
+    Running(time) {
+        var stack = [];
+        stack.push({
+            "command": "Save"
+        }, {
+            "command": "BeginPath"
+        }, {
+            "command": "Arc",
+            "x": this.canvassize.width / 2,
+            "y": this.canvassize.height / 2,
+            "r": this.MaxCircle * time,
+            "sa": 0,
+            "ea": 2 * Math.PI,
+            "acw": false
+        }, {
+            "command": "ClosePath"
+        }, {
+            "command": "GlobalCompositeOperation",
+            "value": "destination-out"
+        }, {
+            "command": "Fill"
+        }, {
+            "command": "GlobalCompositeOperation",
+            "value": "source-over"
+        }, {
+            "command": "Clip"
+        }, {
+            "command": "DrawImage",
+            "image": 2,
+            "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
+            "dest": this.CenterB
+        }, {
+            "command": "Restore"
+        });
+        return stack;
+    }
+    Finish() {
+        return[{
+                "command": "ClearRect",
+                "x": 0,
+                "y": 0,
+                "width": this.canvassize.width,
+                "height": this.canvassize.height
+            }, {
+                "command": "DrawImage",
+                "image": 2,
+                "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
+                "dest": this.CenterB
+            }];
+    }
+}
+;
 /*
+  
  
  
  function SlideShow() {
@@ -347,29 +421,7 @@ class SlideShow_Transition_FadeOutFadeIn extends SlideShow_TransitionsEngine {
  });
  };
  
- Method.Transitions.CircleOut = function (imagea, imageb, s, fps, finish) {
- var max = Math.min(Method.width, Method.height);
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- ctx.save();
- ctx.beginPath();
- ctx.arc(Method.width / 2, Method.height / 2, max * r.ratio, 0, 2 * Math.PI);
- ctx.closePath();
- ctx.globalCompositeOperation = 'destination-out';
- ctx.fill();
- ctx.globalCompositeOperation = 'source-over';
- ctx.clip();
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
+ 
  
  Method.Transitions.Corner = function (imagea, imageb, s, fps, finish) {
  var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
