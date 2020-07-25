@@ -65,40 +65,40 @@ class SlideShow {
 
                     for (var i in command) {
                         var cmd = command[i];
-                        if (cmd.command == "Arc") {
+                        if (cmd.command === "Arc") {
                             ctx.arc(cmd.x, cmd.y, cmd.r, cmd.sa, cmd.ea, cmd.acw);
-                        } else if (cmd.command == "BeginPath") {
+                        } else if (cmd.command === "BeginPath") {
                             ctx.beginPath();
-                        } else if (cmd.command == "ClearRect") {
+                        } else if (cmd.command === "ClearRect") {
                             ctx.clearRect(cmd.x, cmd.y, cmd.width, cmd.height);
-                        } else if (cmd.command == "Clip") {
+                        } else if (cmd.command === "Clip") {
                             ctx.clip();
-                        } else if (cmd.command == "ClosePath") {
+                        } else if (cmd.command === "ClosePath") {
                             ctx.closePath();
-                        } else if (cmd.command == "DrawImage") {
+                        } else if (cmd.command === "DrawImage") {
                             var image = null;
-                            if (cmd.image == 1) {
+                            if (cmd.image === 1) {
                                 image = this.ImageList.GetImage(this.ImageList.index);
-
-                            } else if (cmd.image == 2) {
+                            } else if (cmd.image === 2) {
                                 image = this.ImageList.GetImage(this.ImageList.index + 1);
-
                             }
-                            if (image != null) {
+                            if (image !== null) {
                                 ctx.drawImage(image,
                                         cmd.src.x, cmd.src.y, cmd.src.width, cmd.src.height,
                                         cmd.dest.x, cmd.dest.y, cmd.dest.width, cmd.dest.height);
                             }
 
-                        } else if (cmd.command == "Fill") {
+                        } else if (cmd.command === "Fill") {
                             ctx.fill();
-                        } else if (cmd.command == "GlobalAlpha") {
+                        } else if (cmd.command === "GlobalAlpha") {
                             ctx.globalAlpha = cmd.value;
-                        } else if (cmd.command == "GlobalCompositeOperation") {
+                        } else if (cmd.command === "GlobalCompositeOperation") {
                             ctx.globalCompositeOperation = cmd.value;
-                        } else if (cmd.command == "Restore") {
+                        }else if (cmd.command === "Rect") {
+                            ctx.rect(cmd.x, cmd.y, cmd.width, cmd.height);
+                        }  else if (cmd.command === "Restore") {
                             ctx.restore();
-                        } else if (cmd.command == "Save") {
+                        } else if (cmd.command === "Save") {
                             ctx.save();
                         }
                     }
@@ -110,7 +110,7 @@ class SlideShow {
                         var img1 = this.ImageList.GetImageSize(current);
                         var img2 = this.ImageList.GetImageSize(current + 1);
                         this.transition = new this.transitionslist[rndnum](this.canvas, img1, img2);
-                    } else if (current == this.ImageList.Count() - 1) {
+                    } else if (current === this.ImageList.Count() - 1) {
                         this.ImageList.index = 0;
                     }
 
@@ -368,10 +368,65 @@ class SlideShow_Transition_CircleOut extends SlideShow_TransitionsEngine {
                 "dest": this.CenterB
             }];
     }
-}
-;
+};
+class SlideShow_Transition_Corner extends SlideShow_TransitionsEngine {
+    Start() {
+        this.CenterA = this.Center(this.image1size, this.canvassize, this.Scale(this.image1size, this.canvassize));
+        this.CenterB = this.Center(this.image2size, this.canvassize, this.Scale(this.image2size, this.canvassize));
+        this.MaxCircle = Math.min(this.canvassize.width, this.canvassize.height);
+        return[{
+                "command": "ClearRect",
+                "x": 0,
+                "y": 0,
+                "width": this.canvassize.width,
+                "height": this.canvassize.height
+            },{
+                "command": "DrawImage",
+                "image": 1,
+                "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
+                "dest": this.CenterA
+            }];
+    }
+    Running(time) {
+        var stack = [];
+        stack.push({
+            "command": "Save"
+        }, {
+            "command": "BeginPath"
+        }, {
+             "command": "Rect",
+                "x": 0,
+                "y": 0,
+                "width": this.canvassize.width*time,
+                "height": this.canvassize.height*time
+        }, {
+            "command": "ClosePath"
+        }, {
+            "command": "GlobalCompositeOperation",
+            "value": "destination-out"
+        }, {
+            "command": "Fill"
+        }, {
+            "command": "GlobalCompositeOperation",
+            "value": "source-over"
+        }, {
+            "command": "Clip"
+        }, {
+            "command": "DrawImage",
+            "image": 2,
+            "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
+            "dest": this.CenterB
+        }, {
+            "command": "Restore"
+        });
+        return stack;
+    }
+    Finish() {
+        return[ ];
+    }
+};
 /*
-  
+   
  
  
  function SlideShow() {
@@ -423,27 +478,6 @@ class SlideShow_Transition_CircleOut extends SlideShow_TransitionsEngine {
  
  
  
- Method.Transitions.Corner = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- ctx.save();
- ctx.beginPath();
- ctx.rect(0, 0, Method.width * r.ratio, Method.height * r.ratio);
- ctx.closePath();
- ctx.globalCompositeOperation = 'destination-out';
- ctx.fill();
- ctx.globalCompositeOperation = 'source-over';
- ctx.clip();
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
  
  };
  Method.Transitions.Eraser = function (imagea, imageb, s, fps, finish) {
