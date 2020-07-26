@@ -43,6 +43,25 @@ class SlideShow {
 
         if (!this.Running) {
             this.Running = true;
+            var syntaxnoarguments = {
+                "BeginPath": "beginPath",
+                "Clip": "clip",
+                "ClosePath": "closePath",
+                "Fill": "fill",
+                "Restore": "restore",
+                "Save": "save"
+            };
+            var syntaxsetter = {
+                "GlobalAlpha": "globalAlpha",
+                "GlobalCompositeOperation": "globalCompositeOperation"
+            };
+            var syntaxpoint = {
+                "MoveTo": "moveTo",
+                "LineTo": "lineTo",
+                "Scale": "scale",
+                "Translate": "translate"
+            };
+
 
             this.Render.SetAnimate(function (v) {
 
@@ -51,7 +70,7 @@ class SlideShow {
                     if (this.t === 0) {
                         command = this.transition.Start();
                         this.t = this.t + v;
-                    } else if (this.t > (this.maxt*1.01)) {
+                    } else if (this.t > (this.maxt * 1.01)) {
                         command = this.transition.Finish();
                         this.transition = null;
                         this.t = 0;
@@ -62,19 +81,21 @@ class SlideShow {
                     }
 
                     var ctx = this.canvas.getContext('2d');
-
                     for (var i in command) {
                         var cmd = command[i];
-                        if (cmd.command === "Arc") {
+
+                        if (syntaxnoarguments.hasOwnProperty(cmd.command)) {
+                            ctx[syntaxnoarguments[cmd.command]]();
+                        } else if (syntaxsetter.hasOwnProperty(cmd.command)) {
+                            ctx[syntaxsetter[cmd.command]] = cmd.value;
+                        } else if (syntaxpoint.hasOwnProperty(cmd.command)) {
+                            ctx[syntaxpoint[cmd.command]](cmd.x, cmd.y);
+                        } 
+                        
+                        else if (cmd.command === "Arc") {
                             ctx.arc(cmd.x, cmd.y, cmd.r, cmd.sa, cmd.ea, cmd.acw);
-                        } else if (cmd.command === "BeginPath") {
-                            ctx.beginPath();
                         } else if (cmd.command === "ClearRect") {
                             ctx.clearRect(cmd.x, cmd.y, cmd.width, cmd.height);
-                        } else if (cmd.command === "Clip") {
-                            ctx.clip();
-                        } else if (cmd.command === "ClosePath") {
-                            ctx.closePath();
                         } else if (cmd.command === "DrawImage") {
                             var image = null;
                             if (cmd.image === 1) {
@@ -88,32 +109,14 @@ class SlideShow {
                                         cmd.dest.x, cmd.dest.y, cmd.dest.width, cmd.dest.height);
                             }
 
-                        } else if (cmd.command === "Fill") {
-                            ctx.fill();
-                        } else if (cmd.command === "GlobalAlpha") {
-                            ctx.globalAlpha = cmd.value;
-                        } else if (cmd.command === "GlobalCompositeOperation") {
-                            ctx.globalCompositeOperation = cmd.value;
-                        } else if (cmd.command === "MoveTo") {
-                            ctx.moveTo(cmd.x, cmd.y);
-                        } else if (cmd.command === "LineTo") {
-                            ctx.lineTo(cmd.x, cmd.y);
                         } else if (cmd.command === "Rect") {
                             if (cmd.fill) {
                                 ctx.fillRect(cmd.x, cmd.y, cmd.width, cmd.height);
                             } else {
                                 ctx.rect(cmd.x, cmd.y, cmd.width, cmd.height);
                             }
-                        } else if (cmd.command === "Restore") {
-                            ctx.restore();
                         } else if (cmd.command === "Rotate") {
                             ctx.rotate(cmd.value);
-                        } else if (cmd.command === "Scale") {
-                            ctx.scale(cmd.x, cmd.y);
-                        } else if (cmd.command === "Save") {
-                            ctx.save();
-                        } else if (cmd.command === "Translate") {
-                            ctx.translate(cmd.x, cmd.y);
                         }
                     }
 
@@ -616,8 +619,6 @@ class SlideShow_Transition_StarOut extends SlideShow_Transition_FillEngine {
 
         }
         stack.push({
-            "command": "ClosePath"
-        }, {
             "command": "Translate",
             "x": -this.canvassize.width / 2,
             "y": -this.canvassize.height / 2
@@ -631,7 +632,7 @@ class SlideShow_Transition_StarOut extends SlideShow_Transition_FillEngine {
 class SlideShow_Transition_ToHorizontalCenter extends SlideShow_Transition_FillEngine {
     Start() {
         super.Start();
-        this.halfheight = this.canvassize.width / 2;
+        this.halfheight = this.canvassize.height / 2;
     }
     Shape(time) {
         return [{
@@ -650,11 +651,199 @@ class SlideShow_Transition_ToHorizontalCenter extends SlideShow_Transition_FillE
                 "height": this.halfheight * time
             }];
     }
-    
+}
+;
+class SlideShow_Transition_FromHorizontalCenter extends SlideShow_Transition_FillEngine {
+    Start() {
+        super.Start();
+        this.halfheight = this.canvassize.height / 2;
+    }
+
+    Shape(time) {
+
+        return [{
+
+                "command": "Rect",
+                "x": 0,
+                "y": this.halfheight,
+                "width": this.canvassize.width,
+                "height": this.halfheight * time
+            }, {
+
+                "command": "Rect",
+                "x": 0,
+                "y": this.halfheight * (1 - time),
+                "width": this.canvassize.width,
+                "height": this.halfheight * time
+            }];
+    }
+}
+;
+class SlideShow_Transition_TopToBottom extends SlideShow_Transition_FillEngine {
+
+    Shape(time) {
+
+        return [{
+                "command": "Rect",
+                "x": 0,
+                "y": 0,
+                "width": this.canvassize.width,
+                "height": this.canvassize.height * time
+            }];
+    }
+}
+;
+class SlideShow_Transition_LeftToRight extends SlideShow_Transition_FillEngine {
+
+    Shape(time) {
+
+        return [{
+                "command": "Rect",
+                "x": 0,
+                "y": 0,
+                "width": this.canvassize.width * time,
+                "height": this.canvassize.height
+            }];
+    }
+}
+;
+class SlideShow_Transition_ToVerticalCenter extends SlideShow_Transition_FillEngine {
+    Start() {
+        super.Start();
+        this.halfwidth = this.canvassize.width / 2;
+    }
+
+    Shape(time) {
+
+        return [{
+                "command": "Rect",
+                "x": this.halfwidth + (this.halfwidth * (1 - time)),
+                "y": 0,
+                "width": this.halfwidth * time,
+                "height": this.canvassize.height
+            }, {
+                "command": "Rect",
+                "x": 0,
+                "y": 0,
+                "width": this.halfwidth * time,
+                "height": this.canvassize.height
+            }];
+    }
+}
+;
+class SlideShow_Transition_VerticalBlind extends SlideShow_Transition_FillEngine {
+    Start() {
+        super.Start();
+        this.bar = 12;
+        this.barwidth = this.canvassize.width / this.bar;
+    }
+    Shape(time) {
+        var stack = [];
+        for (var i = 0; i < this.bar; i++) {
+            stack.push({
+                "command": "Rect",
+                "x": this.barwidth * i,
+                "y": 0,
+                "width": this.barwidth * time,
+                "height": this.canvassize.height
+            });
+        }
+        return stack;
+
+    }
+}
+;
+class SlideShow_Transition_HorizontalBlind extends SlideShow_Transition_FillEngine {
+    Start() {
+        super.Start();
+        this.bar = 12;
+        this.barheight = this.canvassize.height / this.bar;
+    }
+    Shape(time) {
+        var stack = [];
+        for (var i = 0; i < this.bar; i++) {
+            stack.push({
+                "command": "Rect",
+                "x": 0,
+                "y": this.barheight * i,
+                "width": this.canvassize.width,
+                "height": this.barheight * time
+            });
+        }
+        return stack;
+
+    }
+}
+;
+class SlideShow_Transition_HeartOut extends SlideShow_Transition_FillEngine {
+    Start() {
+        super.Start();
+        this.bar = 12;
+        this.barheight = this.canvassize.height / this.bar;
+    }
+    Shape(time) {/*
+     ctx.beginPath();
+     
+     ctx.moveTo(centerx, centery);
+     ctx.quadraticCurveTo(centerx + (r * 0.5), centery - r, centerx + r, centery);
+     ctx.quadraticCurveTo(centerx + (r / 0.90), centery + (r * 0.25), centerx, centery + r);
+     ctx.moveTo(centerx, centery);
+     ctx.quadraticCurveTo(centerx - (r * 0.5), centery - r, centerx - r, centery);
+     ctx.quadraticCurveTo(centerx - (r / 0.90), centery + (r * 0.25), centerx, centery + r);
+     ctx.closePath();
+     */
+        var stack = [];
+        for (var i = 0; i < this.bar; i++) {
+            stack.push({
+                "command": "Rect",
+                "x": 0,
+                "y": this.barheight * i,
+                "width": this.canvassize.width,
+                "height": this.barheight * time
+            });
+        }
+        return stack;
+
+    }
 }
 ;
 //
-/*  
+/*    
+ Method.Transitions.HeartOut = function (imagea, imageb, s, fps, finish) {
+ var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
+ var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
+ var centerx = Method.width / 2;
+ var centerylock = Method.height / 2;
+ var max = Math.max(Method.width, Method.height);
+ var ctx = Method.getContext('2d');
+ ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
+ Method.Render(fps, 0, s * 1000, function (r) {
+ var r = max * r.ratio;
+ var centery = centerylock - (r / 3);
+ ctx.save();
+ ctx.beginPath();
+ 
+ ctx.moveTo(centerx, centery);
+ ctx.quadraticCurveTo(centerx + (r * 0.5), centery - r, centerx + r, centery);
+ ctx.quadraticCurveTo(centerx + (r / 0.90), centery + (r * 0.25), centerx, centery + r);
+ ctx.moveTo(centerx, centery);
+ ctx.quadraticCurveTo(centerx - (r * 0.5), centery - r, centerx - r, centery);
+ ctx.quadraticCurveTo(centerx - (r / 0.90), centery + (r * 0.25), centerx, centery + r);
+ ctx.closePath();
+ 
+ ctx.globalCompositeOperation = 'destination-out';
+ ctx.fill();
+ ctx.globalCompositeOperation = 'source-over';
+ ctx.clip();
+ ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
+ ctx.restore();
+ }, function () {
+ ctx.clearRect(0, 0, Method.width, Method.height);
+ ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
+ finish();
+ });
+ };
+ 
  
  
  
@@ -717,111 +906,10 @@ class SlideShow_Transition_ToHorizontalCenter extends SlideShow_Transition_FillE
  });
  };
  
- Method.Transitions.FromHorizontalCenter = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- var halfheight = Method.height / 2;
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- ctx.save();
- ctx.beginPath();
- ctx.rect(0, halfheight, Method.width, halfheight * r.ratio);
- ctx.rect(0, halfheight * (1 - r.ratio), Method.width, halfheight * r.ratio);
- ctx.closePath();
- ctx.globalCompositeOperation = 'destination-out';
- ctx.fill();
- ctx.globalCompositeOperation = 'source-over';
- ctx.clip();
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
  
- Method.Transitions.HeartOut = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var centerx = Method.width / 2;
- var centerylock = Method.height / 2;
- var max = Math.max(Method.width, Method.height);
- var ctx = Method.getContext('2d');
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- var r = max * r.ratio;
- var centery = centerylock - (r / 3);
- ctx.save();
- ctx.beginPath();
- ctx.moveTo(centerx, centery);
- ctx.quadraticCurveTo(centerx + (r * 0.5), centery - r, centerx + r, centery);
- ctx.quadraticCurveTo(centerx + (r / 0.90), centery + (r * 0.25), centerx, centery + r);
- ctx.moveTo(centerx, centery);
- ctx.quadraticCurveTo(centerx - (r * 0.5), centery - r, centerx - r, centery);
- ctx.quadraticCurveTo(centerx - (r / 0.90), centery + (r * 0.25), centerx, centery + r);
- ctx.closePath();
- ctx.globalCompositeOperation = 'destination-out';
- ctx.fill();
- ctx.globalCompositeOperation = 'source-over';
- ctx.clip();
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
- Method.Transitions.HorizontalBlind = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- var bar = 12;
- var barheight = Method.height / bar;
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- ctx.save();
- ctx.beginPath();
- for (var i = 0; i < bar; i++) {
- ctx.rect(0, barheight * i, Method.width, barheight * r.ratio);
- }
- ctx.closePath();
- ctx.globalCompositeOperation = 'destination-out';
- ctx.fill();
- ctx.globalCompositeOperation = 'source-over';
- ctx.clip();
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
- Method.Transitions.LeftToRight = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- ctx.save();
- ctx.beginPath();
- ctx.rect(Method.width * r.ratio, 0, Method.width * r.ratio, Method.height);
- ctx.closePath();
- ctx.globalCompositeOperation = 'destination-out';
- ctx.fill();
- ctx.globalCompositeOperation = 'source-over';
- ctx.clip();
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
+ 
+ 
+ 
  
  Method.Transitions.Mosaic = function (imagea, imageb, s, fps, finish) {
  var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
@@ -886,80 +974,6 @@ class SlideShow_Transition_ToHorizontalCenter extends SlideShow_Transition_FillE
  };
  
  
- Method.Transitions.ToVerticalCenter = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- var halfwidth = Method.width / 2;
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- ctx.save();
- ctx.beginPath();
- ctx.rect(halfwidth + (halfwidth * (1 - r.ratio)), 0, halfwidth * r.ratio, Method.height);
- ctx.rect(0, 0, halfwidth * r.ratio, Method.height);
- ctx.closePath();
- ctx.globalCompositeOperation = 'destination-out';
- ctx.fill();
- ctx.globalCompositeOperation = 'source-over';
- ctx.clip();
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
- 
- Method.Transitions.TopToBottom = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- ctx.save();
- ctx.beginPath();
- ctx.rect(0, 0, Method.width, Method.height * r.ratio);
- ctx.closePath();
- ctx.globalCompositeOperation = 'destination-out';
- ctx.fill();
- ctx.globalCompositeOperation = 'source-over';
- ctx.clip();
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
- 
- Method.Transitions.VerticalBlind = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- var bar = 12;
- var barwidth = Method.width / bar;
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- ctx.save();
- ctx.beginPath();
- for (var i = 0; i < bar; i++) {
- ctx.rect(barwidth * i, 0, barwidth * r.ratio, Method.height);
- }
- ctx.closePath();
- ctx.globalCompositeOperation = 'destination-out';
- ctx.fill();
- ctx.globalCompositeOperation = 'source-over';
- ctx.clip();
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
  Method.Transitions.ZoomIn = function (imagea, imageb, s, fps, finish) {
  var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
  var ctx = Method.getContext('2d');
