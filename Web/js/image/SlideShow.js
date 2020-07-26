@@ -90,9 +90,7 @@ class SlideShow {
                             ctx[syntaxsetter[cmd.command]] = cmd.value;
                         } else if (syntaxpoint.hasOwnProperty(cmd.command)) {
                             ctx[syntaxpoint[cmd.command]](cmd.x, cmd.y);
-                        } 
-                        
-                        else if (cmd.command === "Arc") {
+                        } else if (cmd.command === "Arc") {
                             ctx.arc(cmd.x, cmd.y, cmd.r, cmd.sa, cmd.ea, cmd.acw);
                         } else if (cmd.command === "ClearRect") {
                             ctx.clearRect(cmd.x, cmd.y, cmd.width, cmd.height);
@@ -117,7 +115,10 @@ class SlideShow {
                             }
                         } else if (cmd.command === "Rotate") {
                             ctx.rotate(cmd.value);
+                        } else if (cmd.command === "QuadraticCurveTo") {
+                            ctx.quadraticCurveTo(cmd.cpx, cmd.cpy, cmd.x, cmd.y);
                         }
+
                     }
 
                 } else {
@@ -353,7 +354,7 @@ class SlideShow_Transition_FadeOutFadeIn extends SlideShow_TransitionsEngine {
             "x": 0,
             "y": 0,
             "width": this.canvassize.width,
-            "height": this.canvassize.height,
+            "height": this.canvassize.height
         });
         if (time < 0.5) {
 
@@ -777,32 +778,72 @@ class SlideShow_Transition_HorizontalBlind extends SlideShow_Transition_FillEngi
 ;
 class SlideShow_Transition_HeartOut extends SlideShow_Transition_FillEngine {
     Start() {
+
+        this.DoubleMaxCanvasSize = Math.max(this.canvassize.width, this.canvassize.height) * 2;
         super.Start();
-        this.bar = 12;
-        this.barheight = this.canvassize.height / this.bar;
+
     }
-    Shape(time) {/*
-     ctx.beginPath();
-     
-     ctx.moveTo(centerx, centery);
-     ctx.quadraticCurveTo(centerx + (r * 0.5), centery - r, centerx + r, centery);
-     ctx.quadraticCurveTo(centerx + (r / 0.90), centery + (r * 0.25), centerx, centery + r);
-     ctx.moveTo(centerx, centery);
-     ctx.quadraticCurveTo(centerx - (r * 0.5), centery - r, centerx - r, centery);
-     ctx.quadraticCurveTo(centerx - (r / 0.90), centery + (r * 0.25), centerx, centery + r);
-     ctx.closePath();
-     */
+    Shape(time) {
         var stack = [];
-        for (var i = 0; i < this.bar; i++) {
-            stack.push({
-                "command": "Rect",
-                "x": 0,
-                "y": this.barheight * i,
-                "width": this.canvassize.width,
-                "height": this.barheight * time
-            });
-        }
+        var d = this.DoubleMaxCanvasSize * time; //The Size of the hearting
+        var k = (this.canvassize.width / 2) - (d / 2); // The Position of the heart
+        var kd4 = k + d / 4;
+        var kd2 = k + d / 2;
+        var kd34 = k + d * 3 / 4;
+        var kd = k + d;
+        stack.push({
+            "command": "MoveTo",
+            "x": k,
+            "y": kd4
+        }, {
+            "command": "QuadraticCurveTo",
+            "cpx": k,
+            "cpy": k,
+            "x": kd4,
+            "y": k
+        }, {
+            "command": "QuadraticCurveTo",
+            "cpx": kd2,
+            "cpy": k,
+            "x": kd2,
+            "y": kd4
+        }, {
+            "command": "QuadraticCurveTo",
+            "cpx": kd2,
+            "cpy": k,
+            "x": kd34,
+            "y": k
+        }, {
+            "command": "QuadraticCurveTo",
+            "cpx": kd,
+            "cpy": k,
+            "x": kd,
+            "y": kd4
+        }, {
+            "command": "QuadraticCurveTo",
+            "cpx": kd,
+            "cpy": kd2,
+            "x": kd34,
+            "y": kd34
+        }, {
+            "command": "LineTo",
+            "x": kd2,
+            "y": kd
+        }, {
+            "command": "LineTo",
+            "x": kd4,
+            "y": kd34
+        }, {
+            "command": "QuadraticCurveTo",
+            "cpx": k,
+            "cpy": kd2,
+            "x": k,
+            "y": kd4
+        });
+
+
         return stack;
+
 
     }
 }
