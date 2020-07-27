@@ -862,7 +862,7 @@ class SlideShow_Transition_RectWipe extends SlideShow_Transition_FillEngine {
 
         var progress = this.Index / this.MaxIndex;
         var out = [];
-        while (progress < time) {
+        while (progress < time) {// time calibration 
 
             if (this.Startx > this.canvassize.width) {
                 this.Starty = this.Starty + this.Tiles;
@@ -902,9 +902,6 @@ class SlideShow_Transition_Mosaic extends SlideShow_Transition_FillEngine {
             }
         }
 
-        this.Starty = 0;
-        this.Startx = 0;
-
         this.Index = 0;
         this.MaxIndex = this.Mosaic.length;
 
@@ -913,7 +910,7 @@ class SlideShow_Transition_Mosaic extends SlideShow_Transition_FillEngine {
 
         var progress = this.Index / this.MaxIndex;
         var out = [];
-        while (progress < time) {
+        while (progress < time) {// time calibration 
             var mosaic = this.Mosaic.splice(this.Mosaic.length * Math.random() | 0, 1)[0];
             if (mosaic !== undefined) {
                 out.push({
@@ -935,83 +932,165 @@ class SlideShow_Transition_Mosaic extends SlideShow_Transition_FillEngine {
 ;
 
 
-//
-/*    
- 
- 
- Method.Transitions.SpinRight = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var max = Math.max(Method.width, Method.height);
- var p = 5;
- var m = 0.5;
- var ctx = Method.getContext('2d');
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- if (r.ratio < 0.8) {
- ctx.save();
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.translate(Method.width / 2, Method.height / 2);
- ctx.rotate((12 * 360 * r.ratio) * Math.PI / 180);
- ctx.translate(-(Method.width / 2), -(Method.height / 2));
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- } else {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- }
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
- 
- };
- 
- 
- Method.Transitions.ZoomIn = function (imagea, imageb, s, fps, finish) {
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- var cx = Method.width / 2;
- var cy = Method.height / 2;
- var maxscale = Method.Math.Scale(imagea, Method);
- Method.Render(fps, 0, s * 1000, function (r) {
- var resize = maxscale + (maxscale * r.ratio);
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.save();
- ctx.translate(cx, cy);
- ctx.scale(resize, resize);
- ctx.drawImage(imagea, -imagea.width / 2, -imagea.height / 2);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
- Method.Transitions.ZoomOut = function (imagea, imageb, s, fps, finish) {
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- var cx = Method.width / 2;
- var cy = Method.height / 2;
- var maxscale = Method.Math.Scale(imagea, Method);
- Method.Render(fps, 0, s * 1000, function (r) {
- var resize = maxscale + (maxscale * (1 - r.ratio));
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.save();
- ctx.translate(cx, cy);
- ctx.scale(resize, resize);
- ctx.drawImage(imagea, -imagea.width / 2, -imagea.height / 2);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
- 
- return Method;
- }
- 
- */
+class SlideShow_Transition_SpinRight extends SlideShow_TransitionsEngine {
+    Start() {
+        this.CenterA = this.Center(this.image1size, this.canvassize, this.Scale(this.image1size, this.canvassize));
+        this.CenterB = this.Center(this.image2size, this.canvassize, this.Scale(this.image2size, this.canvassize));
+        this.CX = this.canvassize.width / 2;
+        this.CY = this.canvassize.height / 2;
+    }
+
+    Running(time) {
+        var stack = [];
+        stack.push({
+            "command": "ClearRect",
+            "x": 0,
+            "y": 0,
+            "width": this.canvassize.width,
+            "height": this.canvassize.height
+
+        });
+        if (time < 0.4) {
+            stack.push({
+                "command": "DrawImage",
+                "image": 1,
+                "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
+                "dest": this.CenterA
+            });
+        } else if (time > 0.4 && time < 0.6) {
+
+            stack.push({
+                "command": "Save",
+
+            }, {
+                "command": "Translate",
+                "x": this.CX,
+                "y": this.CY
+            }, {
+                "command": "Rotate",
+                "value": (12 * 360 * time) * Math.PI / 180
+
+            }, {
+                "command": "Translate",
+                "x": -this.CX,
+                "y": -this.CY
+            }, {
+                "command": "DrawImage",
+                "image": 2,
+                "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
+                "dest": this.CenterB
+            }, {
+                "command": "Restore"
+
+            });
+        } else if (time > 0.6) {
+
+            stack.push({
+                "command": "DrawImage",
+                "image": 2,
+                "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
+                "dest": this.CenterB
+            });
+        }
+
+        return stack;
+    }
+
+}
+;
+
+
+
+
+//https://stackoverflow.com/questions/5189968/zoom-canvas-to-mouse-cursor/5526721#5526721
+class SlideShow_Transition_ZoomInOut extends SlideShow_TransitionsEngine {
+    Start() {
+        this.CenterA = this.Center(this.image1size, this.canvassize, this.Scale(this.image1size, this.canvassize));
+        this.CenterB = this.Center(this.image2size, this.canvassize, this.Scale(this.image2size, this.canvassize));
+        this.CX = this.canvassize.width / 2;
+        this.CY = this.canvassize.height / 2;
+    }
+
+    Running(time) {
+        var stack = [];
+        var progress = 0;
+        var inout = "";
+        stack.push({
+            "command": "Save",
+
+        }, {
+            "command": "ClearRect",
+            "x": 0,
+            "y": 0,
+            "width": this.canvassize.width,
+            "height": this.canvassize.height
+
+        });
+
+
+        if (time < 0.25) {
+            progress = (time - 0) / 0.25;
+            inout = "i";
+        } else if (time > 0.25 && time < 0.5) {
+            progress = (time - 0.25) / 0.25;
+            inout = "o";
+        } else if (time > 0.5 && time < 0.75) {
+            progress = (time - 0.5) / 0.25;
+            inout = "i";
+        } else if (time > 0.75) {
+            progress = (time - 0.75) / 0.25;
+            inout = "o";
+        }
+        stack.push({
+            "command": "Translate",
+            "x": this.CX,
+            "y": this.CY
+        });
+
+
+        if (inout === "i") {
+            stack.push({
+                "command": "Scale",
+                "x": 3 * progress,
+                "y": 3 * progress
+            });
+        } else if (inout === "o") {
+
+            stack.push({
+                "command": "Scale",
+                "x": 3 * (1 - progress),
+                "y": 3 * (1 - progress)
+            });
+        }
+        stack.push({
+            "command": "Translate",
+            "x": -this.CX,
+            "y": -this.CY
+        });
+        if (time < 0.5) {
+            stack.push({
+                "command": "DrawImage",
+                "image": 1,
+                "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
+                "dest": this.CenterA
+            });
+        } else if (time > 0.5) {
+            stack.push({
+                "command": "DrawImage",
+                "image": 2,
+                "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
+                "dest": this.CenterB
+            });
+        }
+
+
+        stack.push({
+            "command": "Restore"
+        });
+
+
+        return stack;
+    }
+
+}
+;
