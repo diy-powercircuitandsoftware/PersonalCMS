@@ -778,10 +778,8 @@ class SlideShow_Transition_HorizontalBlind extends SlideShow_Transition_FillEngi
 ;
 class SlideShow_Transition_HeartOut extends SlideShow_Transition_FillEngine {
     Start() {
-
         this.DoubleMaxCanvasSize = Math.max(this.canvassize.width, this.canvassize.height) * 2;
         super.Start();
-
     }
     Shape(time) {
         var stack = [];
@@ -848,140 +846,97 @@ class SlideShow_Transition_HeartOut extends SlideShow_Transition_FillEngine {
     }
 }
 ;
+
+class SlideShow_Transition_RectWipe extends SlideShow_Transition_FillEngine {
+    Start() {
+        super.Start();
+        this.CountOFTiles = 12;
+        this.Tiles = Math.max(this.canvassize.width, this.canvassize.height) / this.CountOFTiles;
+        this.Starty = 0;
+        this.Startx = 0;
+
+        this.Index = 0;
+        this.MaxIndex = this.CountOFTiles * this.CountOFTiles;
+    }
+    Shape(time) {
+
+        var progress = this.Index / this.MaxIndex;
+        var out = [];
+        while (progress < time) {
+
+            if (this.Startx > this.canvassize.width) {
+                this.Starty = this.Starty + this.Tiles;
+                this.Startx = 0;
+            } else {
+                this.Startx = this.Startx + this.Tiles;
+            }
+            out.push({
+                "command": "Rect",
+                "x": this.Startx,
+                "y": this.Starty,
+                "width": this.Tiles,
+                "height": this.Tiles
+            });
+            this.Index++;
+            progress = this.Index / this.MaxIndex;
+        }
+
+        return out;
+
+    }
+}
+;
+
+class SlideShow_Transition_Mosaic extends SlideShow_Transition_FillEngine {
+    Start() {
+        super.Start();
+        this.CountOFTiles = 12;
+        this.Tiles = Math.max(this.canvassize.width, this.canvassize.height) / this.CountOFTiles;
+        this.Mosaic = [];
+        for (var i = 0; i <= this.CountOFTiles; i++) {
+            for (var j = 0; j <= this.CountOFTiles; j++) {
+                this.Mosaic.push({
+                    "x": j * this.Tiles,
+                    "y": i * this.Tiles
+                });
+            }
+        }
+
+        this.Starty = 0;
+        this.Startx = 0;
+
+        this.Index = 0;
+        this.MaxIndex = this.Mosaic.length;
+
+    }
+    Shape(time) {
+
+        var progress = this.Index / this.MaxIndex;
+        var out = [];
+        while (progress < time) {
+            var mosaic = this.Mosaic.splice(this.Mosaic.length * Math.random() | 0, 1)[0];
+            if (mosaic !== undefined) {
+                out.push({
+                    "command": "Rect",
+                    "x": mosaic.x,
+                    "y": mosaic.y,
+                    "width": this.Tiles,
+                    "height": this.Tiles
+                });
+            }
+            this.Index++;
+            progress = this.Index / this.MaxIndex;
+        }
+
+        return out;
+
+    }
+}
+;
+
+
 //
 /*    
- Method.Transitions.HeartOut = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var centerx = Method.width / 2;
- var centerylock = Method.height / 2;
- var max = Math.max(Method.width, Method.height);
- var ctx = Method.getContext('2d');
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- var r = max * r.ratio;
- var centery = centerylock - (r / 3);
- ctx.save();
- ctx.beginPath();
- 
- ctx.moveTo(centerx, centery);
- ctx.quadraticCurveTo(centerx + (r * 0.5), centery - r, centerx + r, centery);
- ctx.quadraticCurveTo(centerx + (r / 0.90), centery + (r * 0.25), centerx, centery + r);
- ctx.moveTo(centerx, centery);
- ctx.quadraticCurveTo(centerx - (r * 0.5), centery - r, centerx - r, centery);
- ctx.quadraticCurveTo(centerx - (r / 0.90), centery + (r * 0.25), centerx, centery + r);
- ctx.closePath();
- 
- ctx.globalCompositeOperation = 'destination-out';
- ctx.fill();
- ctx.globalCompositeOperation = 'source-over';
- ctx.clip();
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
- 
- 
- 
- 
- function SlideShow() {
- var Method = document.createElement("canvas");
- Method.style.cssText = "width:100%";
- Method.FPS = 60;
- Method.Transitions = {};
- 
- Method.Math.SplitBlock = function (xcount, ycount, width, height) {
- var barwidth = width / xcount;
- var barheight = height / ycount;
- var tilesdata = [];
- for (var yi = 0; yi < ycount; yi++) {
- for (var xi = 0; xi < xcount; xi++) {
- tilesdata.push({
- "x": xi * barwidth,
- "y": yi * barheight,
- "width": barwidth,
- "height": barheight
- });
- }
- }
- return tilesdata;
- };
- 
- 
- 
- 
- 
- 
- };
- Method.Transitions.Eraser = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- var tilesdata = Method.Math.SplitBlock(12, 12, Method.width, Method.height);
- var arrcount = tilesdata.length;
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- ctx.save();
- ctx.beginPath();
- 
- while ((tilesdata.length / arrcount) > (1 - r.ratio)) {
- var index = tilesdata.splice(0, 1)[0];
- ctx.rect(index["x"], index["y"], index["width"], index["height"]);
- }
- 
- ctx.closePath();
- ctx.globalCompositeOperation = 'destination-out';
- ctx.fill();
- ctx.globalCompositeOperation = 'source-over';
- ctx.clip();
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
- 
- 
- 
- 
- 
- 
- Method.Transitions.Mosaic = function (imagea, imageb, s, fps, finish) {
- var CenterA = Method.Math.Center(imagea, Method, Method.Math.Scale(imagea, Method));
- var CenterB = Method.Math.Center(imageb, Method, Method.Math.Scale(imageb, Method));
- var ctx = Method.getContext('2d');
- var tilesdata = Method.Math.SplitBlock(12, 12, Method.width, Method.height);
- var arrcount = tilesdata.length;
- ctx.drawImage(imagea, 0, 0, imagea.width, imagea.height, CenterA.x, CenterA.y, CenterA.width, CenterA.height);
- Method.Render(fps, 0, s * 1000, function (r) {
- ctx.save();
- ctx.beginPath();
- 
- while ((tilesdata.length / arrcount) > (1 - r.ratio)) {
- var index = tilesdata.splice(tilesdata.length * Math.random() | 0, 1)[0];
- ctx.rect(index["x"], index["y"], index["width"], index["height"]);
- }
- 
- ctx.closePath();
- ctx.globalCompositeOperation = 'destination-out';
- ctx.fill();
- ctx.globalCompositeOperation = 'source-over';
- ctx.clip();
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- ctx.restore();
- }, function () {
- ctx.clearRect(0, 0, Method.width, Method.height);
- ctx.drawImage(imageb, 0, 0, imageb.width, imageb.height, CenterB.x, CenterB.y, CenterB.width, CenterB.height);
- finish();
- });
- };
- 
  
  
  Method.Transitions.SpinRight = function (imagea, imageb, s, fps, finish) {
