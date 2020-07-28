@@ -13,14 +13,19 @@ class SlideShow {
         this.Render.ImageList = new SlideShow_ImageList();
         this.Render.ImageList.ref = this;
         this.Render.ImageList.index = 0;
-        this.Render.t = 0;
-        this.Render.maxt = 3 * 1000;
+        this.Render.hold_t = 0;
+        this.Render.hold_maxt = 3 * 1000;
+        this.Render.transition_t = 0;
+        this.Render.transition_maxt = 1 * 1000;
         this.Render.transitionslist = [];
         this.Render.transition = null;
         this.Render.canvas = this.canvas;
 
-        this.Render.ImageList.ImageChange = function (v) {
-            this.ref.ImageChange(v);
+        this.Render.ImageList.OnImageListChange = function (v) {
+            this.ref.OnImageListChange(v);
+        };
+        this.Render.ImageList.OnSelectedImage = function (v) {
+            this.ref.OnSelectedImage(v);
         };
     }
     AddImage(path) {
@@ -31,7 +36,13 @@ class SlideShow {
             this.Render.transitionslist.push(te);
         }
     }
-    ImageChange() {
+    GetImageCount() {
+        return this.Render.ImageList.Count();
+    }
+    OnImageListChange() {
+
+    }
+    OnSelectedImage() {
 
     }
     Size(w, h) {
@@ -61,26 +72,32 @@ class SlideShow {
                 "Scale": "scale",
                 "Translate": "translate"
             };
+            var syntaxrect = {
+                "Rect": "rect",
+                "FillRect": "fillRect",
+                "ClearRect": "clearRect"
+
+            };
 
 
             this.Render.SetAnimate(function (v) {
-
+                var ctx = this.canvas.getContext('2d');
                 if (this.transition !== null) {
                     var command = [];
-                    if (this.t === 0) {
+                    if (this.transition_t === 0) {
                         command = this.transition.Start();
-                        this.t = this.t + v;
-                    } else if (this.t > (this.maxt * 1.01)) {
+                        this.transition_t = this.transition_t + v;
+                    } else if (this.transition_t > (this.transition_maxt * 1.01)) {
                         command = this.transition.Finish();
                         this.transition = null;
-                        this.t = 0;
+                        this.transition_t = 0;
                         this.ImageList.index++;
                     } else {
-                        command = this.transition.Running(this.t / this.maxt);
-                        this.t = this.t + v;
+                        command = this.transition.Running(this.transition_t / this.transition_maxt);
+                        this.transition_t = this.transition_t + v;
                     }
 
-                    var ctx = this.canvas.getContext('2d');
+
                     for (var i in command) {
                         var cmd = command[i];
 
@@ -90,10 +107,10 @@ class SlideShow {
                             ctx[syntaxsetter[cmd.command]] = cmd.value;
                         } else if (syntaxpoint.hasOwnProperty(cmd.command)) {
                             ctx[syntaxpoint[cmd.command]](cmd.x, cmd.y);
+                        } else if (syntaxrect.hasOwnProperty(cmd.command)) {
+                            ctx[syntaxrect[cmd.command]](cmd.x, cmd.y, cmd.width, cmd.height);
                         } else if (cmd.command === "Arc") {
                             ctx.arc(cmd.x, cmd.y, cmd.r, cmd.sa, cmd.ea, cmd.acw);
-                        } else if (cmd.command === "ClearRect") {
-                            ctx.clearRect(cmd.x, cmd.y, cmd.width, cmd.height);
                         } else if (cmd.command === "DrawImage") {
                             var image = null;
                             if (cmd.image === 1) {
@@ -107,12 +124,6 @@ class SlideShow {
                                         cmd.dest.x, cmd.dest.y, cmd.dest.width, cmd.dest.height);
                             }
 
-                        } else if (cmd.command === "Rect") {
-                            if (cmd.fill) {
-                                ctx.fillRect(cmd.x, cmd.y, cmd.width, cmd.height);
-                            } else {
-                                ctx.rect(cmd.x, cmd.y, cmd.width, cmd.height);
-                            }
                         } else if (cmd.command === "Rotate") {
                             ctx.rotate(cmd.value);
                         } else if (cmd.command === "QuadraticCurveTo") {
@@ -122,16 +133,35 @@ class SlideShow {
                     }
 
                 } else {
-                    var current = this.ImageList.index;
-                    if (current < this.ImageList.Count() - 1) {
-                        var rndnum = Math.floor(Math.random() * Math.floor(this.transitionslist.length));
-                        var img1 = this.ImageList.GetImageSize(current);
-                        var img2 = this.ImageList.GetImageSize(current + 1);
-                        this.transition = new this.transitionslist[rndnum](this.canvas, img1, img2);
-                    } else if (current === this.ImageList.Count() - 1) {
-                        this.ImageList.index = 0;
-                    }
 
+                    if (this.hold_t === 0) {
+                        this.rendered_imagea = false;
+                    }
+                    if (this.hold_t > (this.hold_maxt * 1.01)) {
+                        var current = this.ImageList.index;
+                        if (current < this.ImageList.Count() - 1) {
+                            var rndnum = Math.floor(Math.random() * Math.floor(this.transitionslist.length));
+                            var img1 = this.ImageList.GetImageSize(current);
+                            var img2 = this.ImageList.GetImageSize(current + 1);
+                            this.transition = new this.transitionslist[rndnum](this.canvas, img1, img2);
+                        } else if (current === this.ImageList.Count() - 1) {
+                            this.ImageList.index = 0;
+                        }
+                        this.hold_t = 0;
+                    } else {
+                        image = this.ImageList.GetImage(this.ImageList.index);
+                        if (image !== null && !this.rendered_imagea) {
+                            var ratio = Math.min(ctx.canvas.width / image.width, ctx.canvas.height / image.height);
+                            var w = image.width * ratio;
+                            var h = image.height * ratio;
+                            var x = ctx.canvas.width / 2 - w / 2;
+                            var y = ctx.canvas.height / 2 - h / 2;
+                            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                            ctx.drawImage(image, 0, 0, image.width, image.height, x, y, w, h);
+                            this.rendered_imagea = true;
+                        }
+                        this.hold_t = this.hold_t + v;
+                    }
                 }
             });
 
@@ -160,7 +190,7 @@ class SlideShow_ImageList {
                 reader.onload = function (e) {
                     img.src = e.target.result;
                     ref.ImageList.push(img);
-                    ref.ImageChange(ref.ImageList.length);
+                    ref.OnImageListChange(ref.ImageList.length);
                 };
                 reader.readAsDataURL(blob);
             }
@@ -179,6 +209,7 @@ class SlideShow_ImageList {
     }
     GetImage(index) {
         if (index < this.ImageList.length) {
+            this.OnSelectedImage(index);
             return  this.ImageList[index];
         }
         return null;
@@ -193,7 +224,10 @@ class SlideShow_ImageList {
         }
         return  null;
     }
-    ImageChange() {
+    OnImageListChange() {
+
+    }
+    OnSelectedImage() {
 
     }
 
@@ -463,12 +497,12 @@ class SlideShow_Transition_PageTurn extends SlideShow_TransitionsEngine {
         stack.push({
             "command": "Save"
         }, {
-            "command": "Rect",
+            "command": "FillRect",
             "x": 0,
             "y": 0,
             "width": this.canvassize.width,
-            "height": this.canvassize.height,
-            "fill": true
+            "height": this.canvassize.height
+
         }, {
             "command": "DrawImage",
             "image": 2,
@@ -1001,8 +1035,6 @@ class SlideShow_Transition_SpinRight extends SlideShow_TransitionsEngine {
 
 
 
-
-//https://stackoverflow.com/questions/5189968/zoom-canvas-to-mouse-cursor/5526721#5526721
 class SlideShow_Transition_ZoomInOut extends SlideShow_TransitionsEngine {
     Start() {
         this.CenterA = this.Center(this.image1size, this.canvassize, this.Scale(this.image1size, this.canvassize));
@@ -1016,8 +1048,7 @@ class SlideShow_Transition_ZoomInOut extends SlideShow_TransitionsEngine {
         var progress = 0;
         var inout = "";
         stack.push({
-            "command": "Save",
-
+            "command": "Save"
         }, {
             "command": "ClearRect",
             "x": 0,
@@ -1028,17 +1059,19 @@ class SlideShow_Transition_ZoomInOut extends SlideShow_TransitionsEngine {
         });
 
 
-        if (time < 0.25) {
-            progress = (time - 0) / 0.25;
+        if (time < 0.2) {
+            progress = (time - 0) / 0.2;
             inout = "i";
-        } else if (time > 0.25 && time < 0.5) {
-            progress = (time - 0.25) / 0.25;
+        } else if (time > 0.2 && time < 0.4) {
+            progress = (time - 0.2) / 0.2;
             inout = "o";
-        } else if (time > 0.5 && time < 0.75) {
-            progress = (time - 0.5) / 0.25;
+        } else if (time > 0.4 && time < 0.6) {
+            inout = "";
+        } else if (time > 0.6 && time < 0.8) {
+            progress = (time - 0.6) / 0.2;
             inout = "i";
-        } else if (time > 0.75) {
-            progress = (time - 0.75) / 0.25;
+        } else if (time > 0.8) {
+            progress = (time - 0.8) / 0.2;
             inout = "o";
         }
         stack.push({
@@ -1047,19 +1080,20 @@ class SlideShow_Transition_ZoomInOut extends SlideShow_TransitionsEngine {
             "y": this.CY
         });
 
-
-        if (inout === "i") {
+        var size = 3 * progress;
+        var invsize = 3 * (1 - progress);
+        if (inout === "i" && size > 1) {
             stack.push({
                 "command": "Scale",
-                "x": 3 * progress,
-                "y": 3 * progress
+                "x": size,
+                "y": size
             });
-        } else if (inout === "o") {
+        } else if (inout === "o" && invsize > 1) {
 
             stack.push({
                 "command": "Scale",
-                "x": 3 * (1 - progress),
-                "y": 3 * (1 - progress)
+                "x": invsize,
+                "y": invsize
             });
         }
         stack.push({

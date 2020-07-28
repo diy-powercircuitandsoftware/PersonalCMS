@@ -64,8 +64,43 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var AudioSrc = document.getElementById("AudioSrc");
                     var AudioList = new PlayingList(document.getElementById("AudioList"));
                     var ImageShow = new SlideShow(document.getElementById("ImageShow"));
+  
+                ImageShow.Size(800, 600);
+                ImageShow.AddImage("image/1.jpg");
+                ImageShow.AddImage("image/2.jpg");
+                ImageShow.AddImage("image/3.jpg");
+                ImageShow.AddImage("image/4.jpg");
+                ImageShow.AddImage("image/5.jpg");
+ImageShow.AddTransition(SlideShow_Transition_CircleOut);
+                ImageShow.AddTransition(SlideShow_Transition_FadeOutFadeIn);
+                ImageShow.AddTransition(SlideShow_Transition_Corner);
+                ImageShow.AddTransition(SlideShow_Transition_BottomToTop);
+                ImageShow.AddTransition(SlideShow_Transition_PageTurn);
+                ImageShow.AddTransition(SlideShow_Transition_FromVerticalCenter);
+                ImageShow.AddTransition(SlideShow_Transition_RightToLeft);
+                ImageShow.AddTransition(SlideShow_Transition_StarOut);
+                ImageShow.AddTransition(SlideShow_Transition_ToHorizontalCenter);
+                ImageShow.AddTransition(SlideShow_Transition_FromHorizontalCenter);
+                ImageShow.AddTransition(SlideShow_Transition_TopToBottom);
+                ImageShow.AddTransition(SlideShow_Transition_LeftToRight);
+                ImageShow.AddTransition(SlideShow_Transition_ToVerticalCenter);
+                ImageShow.AddTransition(SlideShow_Transition_VerticalBlind);
+                ImageShow.AddTransition(SlideShow_Transition_HorizontalBlind);
+                ImageShow.AddTransition(SlideShow_Transition_HeartOut);
+                ImageShow.AddTransition(SlideShow_Transition_RectWipe);
+                ImageShow.AddTransition(SlideShow_Transition_SpinRight);
+                ImageShow.AddTransition(SlideShow_Transition_ZoomInOut);
 
 
+                ImageShow.OnImageListChange = function (v) {
+                    if (v == 5) {
+                        ImageShow.Start();
+                    }
+                };
+
+                ImageShow.OnSelectedImage = function (v) {
+                    console.log(this.GetImageCount());
+                }
                     /* AudioSrc.addEventListener("ended", function () {
                      var next = AudioList.GetNext();
                      if (next !== null) {
