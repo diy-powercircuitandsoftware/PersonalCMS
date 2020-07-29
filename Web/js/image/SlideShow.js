@@ -14,7 +14,7 @@ class SlideShow {
         this.Render.ImageList.ref = this;
         this.Render.ImageList.index = 0;
         this.Render.hold_t = 0;
-        this.Render.hold_maxt = 3 * 1000;
+        this.Render.hold_maxt = 1 * 1000;
         this.Render.transition_t = 0;
         this.Render.transition_maxt = 1 * 1000;
         this.Render.transitionslist = [];
@@ -36,6 +36,9 @@ class SlideShow {
             this.Render.transitionslist.push(te);
         }
     }
+    Clear() {
+        return this.Render.ImageList.Clear();
+    }
     GetImageCount() {
         return this.Render.ImageList.Count();
     }
@@ -45,6 +48,17 @@ class SlideShow {
     OnSelectedImage() {
 
     }
+    SetHoldTime(v) {
+        if (Number.isInteger(v)) {
+            this.Render.hold_maxt = v;
+        }
+    }
+    SetTransitionTime(v) {
+        if (Number.isInteger(v)) {
+            this.Render.transition_maxt = v;
+        }
+    }
+
     Size(w, h) {
         this.canvas.width = w;
         this.canvas.height = h;

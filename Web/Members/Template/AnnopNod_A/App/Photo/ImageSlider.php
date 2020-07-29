@@ -61,46 +61,46 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
+
                     var AudioSrc = document.getElementById("AudioSrc");
                     var AudioList = new PlayingList(document.getElementById("AudioList"));
                     var ImageShow = new SlideShow(document.getElementById("ImageShow"));
-  
-                ImageShow.Size(800, 600);
-                ImageShow.AddImage("image/1.jpg");
-                ImageShow.AddImage("image/2.jpg");
-                ImageShow.AddImage("image/3.jpg");
-                ImageShow.AddImage("image/4.jpg");
-                ImageShow.AddImage("image/5.jpg");
-ImageShow.AddTransition(SlideShow_Transition_CircleOut);
-                ImageShow.AddTransition(SlideShow_Transition_FadeOutFadeIn);
-                ImageShow.AddTransition(SlideShow_Transition_Corner);
-                ImageShow.AddTransition(SlideShow_Transition_BottomToTop);
-                ImageShow.AddTransition(SlideShow_Transition_PageTurn);
-                ImageShow.AddTransition(SlideShow_Transition_FromVerticalCenter);
-                ImageShow.AddTransition(SlideShow_Transition_RightToLeft);
-                ImageShow.AddTransition(SlideShow_Transition_StarOut);
-                ImageShow.AddTransition(SlideShow_Transition_ToHorizontalCenter);
-                ImageShow.AddTransition(SlideShow_Transition_FromHorizontalCenter);
-                ImageShow.AddTransition(SlideShow_Transition_TopToBottom);
-                ImageShow.AddTransition(SlideShow_Transition_LeftToRight);
-                ImageShow.AddTransition(SlideShow_Transition_ToVerticalCenter);
-                ImageShow.AddTransition(SlideShow_Transition_VerticalBlind);
-                ImageShow.AddTransition(SlideShow_Transition_HorizontalBlind);
-                ImageShow.AddTransition(SlideShow_Transition_HeartOut);
-                ImageShow.AddTransition(SlideShow_Transition_RectWipe);
-                ImageShow.AddTransition(SlideShow_Transition_SpinRight);
-                ImageShow.AddTransition(SlideShow_Transition_ZoomInOut);
+                    var ajax = new Ajax();
+                    ImageShow.Size(800, 600);
+
+                    ImageShow.AddTransition(SlideShow_Transition_CircleOut);
+                    ImageShow.AddTransition(SlideShow_Transition_FadeOutFadeIn);
+                    ImageShow.AddTransition(SlideShow_Transition_Corner);
+                    ImageShow.AddTransition(SlideShow_Transition_BottomToTop);
+                    ImageShow.AddTransition(SlideShow_Transition_PageTurn);
+                    ImageShow.AddTransition(SlideShow_Transition_FromVerticalCenter);
+                    ImageShow.AddTransition(SlideShow_Transition_RightToLeft);
+                    ImageShow.AddTransition(SlideShow_Transition_StarOut);
+                    ImageShow.AddTransition(SlideShow_Transition_ToHorizontalCenter);
+                    ImageShow.AddTransition(SlideShow_Transition_FromHorizontalCenter);
+                    ImageShow.AddTransition(SlideShow_Transition_TopToBottom);
+                    ImageShow.AddTransition(SlideShow_Transition_LeftToRight);
+                    ImageShow.AddTransition(SlideShow_Transition_ToVerticalCenter);
+                    ImageShow.AddTransition(SlideShow_Transition_VerticalBlind);
+                    ImageShow.AddTransition(SlideShow_Transition_HorizontalBlind);
+                    ImageShow.AddTransition(SlideShow_Transition_HeartOut);
+                    ImageShow.AddTransition(SlideShow_Transition_RectWipe);
+                    ImageShow.AddTransition(SlideShow_Transition_SpinRight);
+                    ImageShow.AddTransition(SlideShow_Transition_ZoomInOut);
 
 
-                ImageShow.OnImageListChange = function (v) {
-                    if (v == 5) {
-                        ImageShow.Start();
+                    ImageShow.OnImageListChange = function (v) {
+                        ss.S("#ImageRangeViewer").Attr("max", this.GetImageCount() - 1);
+                        ss.S("#LabArrayCount").Html(this.GetImageCount());
+
+
+                    };
+
+                    ImageShow.OnSelectedImage = function (v) {
+                         ss.S("#ImageRangeViewer").Val(v);
+                         ss.S("#LabPlayIndex").Html(v+1);
+                     
                     }
-                };
-
-                ImageShow.OnSelectedImage = function (v) {
-                    console.log(this.GetImageCount());
-                }
                     /* AudioSrc.addEventListener("ended", function () {
                      var next = AudioList.GetNext();
                      if (next !== null) {
@@ -120,40 +120,39 @@ ImageShow.AddTransition(SlideShow_Transition_CircleOut);
                         }
                     });
                     /*ImgList.OnAfterAddImage = function () {
-                        ss.S("#ImageRangeViewer").Attr("max", this.Count() - 1);
-                        ss.S("#LabArrayCount").Html(this.Count());
-                    };
+                     
+                     };
+                     
+                     ImgList.OnBeforeChangeIndex = function () {
+                     if (ss.S("#ImageRangeViewer").Attr("seek") == "true") {
+                     ImgList.Index = parseInt(ss.S("#ImageRangeViewer").Attr("current"));
+                     ss.S("#ImageRangeViewer").Attr("seek", "");
+                     }
+                     };*/
 
-                    ImgList.OnBeforeChangeIndex = function () {
-                        if (ss.S("#ImageRangeViewer").Attr("seek") == "true") {
-                            ImgList.Index = parseInt(ss.S("#ImageRangeViewer").Attr("current"));
-                            ss.S("#ImageRangeViewer").Attr("seek", "");
-                        }
-                    };*/
-
-                 /*   ImgList.OnChangeIndex = function () {
-                        var Transitions = ImageShow.Transitions;
-                        var keys = Object.keys(Transitions)
-                        var rt = Transitions[keys[ keys.length * Math.random() << 0]];
-                        rt(this.GetPreviousImage(), this.GetCurrentImage(), ss.S("#OPTCTime").Val(), 60, function () {
-                            setTimeout(function () {
-                                if (ss.S("#BNPlay").Attr("playing") == "1") {
-                                    ImgList.Next();
-                                } else {
-                                    ss.S("#BNPlay").Attr("lock", "0");
-                                }
-                            }, parseInt(ss.S("#OPTHTime").Val()) * 1000);
-
-                            ss.S("#ImageRangeViewer").Val(ImgList.Index);
-                            ss.S("#LabPlayIndex").Html(ImgList.Index);
-                        });
-                    };*/
-                  /*  document.onkeyup = function (event) {
-                        if (event.which == 27 || event.keyCode == 27) {
-                            var domis = document.getElementById("ImageShow");
-                            domis.removeAttribute("style");
-                        }
-                    }*/
+                    /*   ImgList.OnChangeIndex = function () {
+                     var Transitions = ImageShow.Transitions;
+                     var keys = Object.keys(Transitions)
+                     var rt = Transitions[keys[ keys.length * Math.random() << 0]];
+                     rt(this.GetPreviousImage(), this.GetCurrentIma  {
+                     setTimeout(function () {
+                     if (ss.S("#BNPlay").Attr("playing") == "1") {
+                     ImgList.Next();
+                     } else {
+                     ss.S("#BNPlay").Attr("lock", "0");
+                     }
+                     },  
+                     
+                     ss.S("#ImageRangeViewer").Val(ImgList.Index);
+                     ss.S("#LabPlayIndex").Html(ImgList.Index);
+                     });
+                     };*/
+                    /*  document.onkeyup = function (event) {
+                     if (event.which == 27 || event.keyCode == 27) {
+                     var domis = document.getElementById("ImageShow");
+                     domis.removeAttribute("style");
+                     }
+                     }*/
                     window.onresize = function () {
                         if (window.screenTop && window.screenY) {
                             var domis = document.getElementById("ImageShow");
@@ -162,22 +161,19 @@ ImageShow.AddTransition(SlideShow_Transition_CircleOut);
                     };
 
                     ss.S("#BNFullScreen").Click(function () {
-                        ss.S("#ImageShow").CSS("background-color: black;position: fixed;width: 100%;height: 100%;left:0;top:0;z-index:9999;");
+                        ss.S("#FrameImageShow").CSS("background-color: black;position: fixed;width: 100%;height: 100%;left:0;top:0;z-index:9999;");
                     });
 
                     ss.S("#BNPlay").Click(function () {
-
-                        if (this.getAttribute("playing") == "1") {
-                            this.setAttribute("playing", "0");
+                        var text = this.innerHTML.toLowerCase();
+                        if (text === "play") {
+                            this.innerHTML = "Stop";
+                            ImageShow.Start();
+                        } else if (text === "stop") {
                             this.innerHTML = "Play";
-                        } else {
-                            this.setAttribute("playing", "1");
-                            this.innerHTML = "Pause";
-                            if (this.getAttribute("lock") == "0") {
-                                this.setAttribute("lock", "1");
-                                ImgList.Next();
-                            }
+                            ImageShow.Stop();
                         }
+
                     });
                     ss.S("#ImageRangeViewer").Change(function () {
                         this.setAttribute("seek", "true");
@@ -204,13 +200,21 @@ ImageShow.AddTransition(SlideShow_Transition_CircleOut);
                         }
                     });
 
+
+    
+                    ss.S("#OPTChangeTime").Change(function () {
+                          ImageShow.SetTransitionTime(parseInt(this.value)*1000);
+                    });
+                    ss.S("#OPTHoldTime").Change(function (v) {
+                        ImageShow.SetHoldTime(parseInt(this.value)*1000);
+                    });
                     ss.S("#OptImageLibrary").Change(function (v) {
                         if (this.value == "-1") {
-                            ss.Get("../../../Api/Ajax/PhotoPlayer/GetAllPhotoList.php", {}, function (data) {
-                                ImgList.ClearImageList();
+                            ajax.Post("../../../../Api/Ajax/Files/SearchFiles.php", {"Path": "/", "Name": "jpg,jpeg,png"}, function (data) {
+                                ImageShow.Clear();
                                 data = JSON.parse(data);
                                 for (var i in data) {
-                                    ImgList.AddImage("../../../Api/Action/Files/DownloadFile.php?id=" + btoa(data[i]["fullpath"]));
+                                    ImageShow.AddImage("../../../../Api/Action/Files/DownloadFiles.php?path=" + (data[i]["fullpath"]));
                                 }
                             });
                         }
@@ -254,12 +258,14 @@ ImageShow.AddTransition(SlideShow_Transition_CircleOut);
                 </nav>
                 <main>
                     <div style="display:block; ">
-                        <div id="ImageShow" style="width: 100%;" >
+                        <div id="FrameImageShow">
+                            <div id="ImageShow" style="margin-left: auto;margin-right: auto;" >
 
+                            </div>
                         </div>
                         <div style="background-color: black;display: flex;flex-direction: row;">
                             <div>
-                                <a id="BNPlay" lock="0" style="text-decoration: none;color: white;cursor: pointer;">Play</a>
+                                <a id="BNPlay"  style="text-decoration: none;color: white;cursor: pointer;">Play</a>
                             </div>
                             <div style=" flex-grow: 1;">
                                 <input id="ImageRangeViewer" type="range" min="0" max="0"    step="1" style="width: 98%;" />
@@ -282,14 +288,12 @@ ImageShow.AddTransition(SlideShow_Transition_CircleOut);
                             <option>==Select==</option>
                             <option value="-1">* All Image *</option>
                         </select>
-                        <ul id="ImageList">
 
-                        </ul>
 
                     </div>
                     <div class="BorderBlock" style="margin-top: 3px;">
                         <div class="TitleCenter" >Hold Time</div>
-                        <select id="OPTHTime" style="width: 100%;box-sizing: border-box;">
+                        <select id="OPTHoldTime" style="width: 100%;box-sizing: border-box;">
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -299,7 +303,7 @@ ImageShow.AddTransition(SlideShow_Transition_CircleOut);
                     </div>
                     <div class="BorderBlock" style="margin-top: 3px;">
                         <div class="TitleCenter"  >Change Time</div>
-                        <select id="OPTCTime" style="width: 100%;box-sizing: border-box;">
+                        <select id="OPTChangeTime" style="width: 100%;box-sizing: border-box;">
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>

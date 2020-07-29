@@ -32,6 +32,40 @@ class SSQueryFW {
         }
         return this;
     }
+    Attr(...args) {
+        if (args.length === 0) {
+            var out = [];
+            this.ForEach(this.element, function (el) {
+                out.push(el.attributes);
+            });
+            if (out.length === 1) {
+                return out[0];
+            }
+            return out;
+
+        } else if (args.length === 1 && (typeof args[0] === 'string' || args[0] instanceof String)) {
+            var out = [];
+            this.ForEach(this.element, function (el) {
+                el.getAttribute(args[0]);
+            });
+            if (out.length === 1) {
+                return out[0];
+            }
+            return out;
+        } else if (args.length === 1 && (typeof args[0] === 'string' || args[0] instanceof Object)) {
+            var obj = args[0];
+            for (var k in obj) {
+                this.ForEach(this.element, function (el) {
+                    el.setAttribute(k, obj[k]);
+                });
+            }
+        } else if (args.length === 2) {
+            this.ForEach(this.element, function (el) {
+                el.setAttribute(args[0], args[1]);
+            });
+        }
+ 
+    }
     Change(...args) {
         this.EventListener("change", ...args);
         return  this;
@@ -73,10 +107,10 @@ class SSQueryFW {
                 if (output.length === 1) {
                     return output[0];
                 }
-            } else if (isstring &&   input === "")
+            } else if (isstring && input === "")
             {
                 this.ForEach(this.element, function (el) {
-                   el.style[input].cssText="";
+                    el.style[input].cssText = "";
                 });
                 return this;
             } else if (Object.keys(input).length > 0) {
