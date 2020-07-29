@@ -16,17 +16,31 @@ class PlayingList {
                 this.Last = e.target;
             }
         });
-          this.list.ref=this;
+        this.list.ref = this;
     }
     AddList(id, name) {
         var li = this.list.appendChild(document.createElement("LI"));
         li.appendChild(document.createTextNode(name));
         li.setAttribute("data-id", id);
-         
+
     }
     Empty() {
         this.list.innerHTML = "";
     }
+    Frist() {
+        if (this.list.Last !== null) {
+            this.list.Last.parentNode.firstChild.click();
+        }
+    }
+    Next() {
+        var ns = this.list.Last.nextElementSibling;
+        if (ns !== null) {
+            ns.click();
+            return true;
+        }
+        return false;
+    }
+
     Select(v) {
         if (typeof v === "function") {
             this.Select = v;

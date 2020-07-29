@@ -97,16 +97,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     };
 
                     ImageShow.OnSelectedImage = function (v) {
-                         ss.S("#ImageRangeViewer").Val(v);
-                         ss.S("#LabPlayIndex").Html(v+1);
-                     
+                        ss.S("#ImageRangeViewer").Val(v);
+                        ss.S("#LabPlayIndex").Html(v + 1);
+
                     }
-                    /* AudioSrc.addEventListener("ended", function () {
-                     var next = AudioList.GetNext();
-                     if (next !== null) {
-                     next.click();
-                     }
-                     });*/
+                    AudioSrc.addEventListener("ended", function () {
+                        if (!AudioList.Next()) {
+                            AudioList.Frist();
+                        }
+
+
+                    });
                     AudioList.Select(function (v) {
                         AudioSrc.pause();
                         AudioSrc.src = "../../../../Api/Action/Files/DownloadFiles.php?path=" + v;
@@ -119,48 +120,25 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         }
                     });
-                    /*ImgList.OnAfterAddImage = function () {
-                     
-                     };
-                     
-                     ImgList.OnBeforeChangeIndex = function () {
-                     if (ss.S("#ImageRangeViewer").Attr("seek") == "true") {
-                     ImgList.Index = parseInt(ss.S("#ImageRangeViewer").Attr("current"));
-                     ss.S("#ImageRangeViewer").Attr("seek", "");
-                     }
-                     };*/
 
-                    /*   ImgList.OnChangeIndex = function () {
-                     var Transitions = ImageShow.Transitions;
-                     var keys = Object.keys(Transitions)
-                     var rt = Transitions[keys[ keys.length * Math.random() << 0]];
-                     rt(this.GetPreviousImage(), this.GetCurrentIma  {
-                     setTimeout(function () {
-                     if (ss.S("#BNPlay").Attr("playing") == "1") {
-                     ImgList.Next();
-                     } else {
-                     ss.S("#BNPlay").Attr("lock", "0");
-                     }
-                     },  
-                     
-                     ss.S("#ImageRangeViewer").Val(ImgList.Index);
-                     ss.S("#LabPlayIndex").Html(ImgList.Index);
-                     });
-                     };*/
-                    /*  document.onkeyup = function (event) {
-                     if (event.which == 27 || event.keyCode == 27) {
-                     var domis = document.getElementById("ImageShow");
-                     domis.removeAttribute("style");
-                     }
-                     }*/
-                    window.onresize = function () {
-                        if (window.screenTop && window.screenY) {
-                            var domis = document.getElementById("ImageShow");
+                    document.onkeyup = function (event) {
+                        event.preventDefault();
+
+                        if (event.keyCode == 27) {
+                            var domis = document.getElementById("FrameImageShow");
                             domis.removeAttribute("style");
+                            ImageShow.Size(800, 600);
                         }
-                    };
+
+                    }
+
 
                     ss.S("#BNFullScreen").Click(function () {
+
+                        var w = window.innerWidth;
+                        var h = window.innerHeight;
+
+                        ImageShow.Size(w, h);
                         ss.S("#FrameImageShow").CSS("background-color: black;position: fixed;width: 100%;height: 100%;left:0;top:0;z-index:9999;");
                     });
 
@@ -179,34 +157,33 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         this.setAttribute("seek", "true");
                         this.setAttribute("current", this.value);
                     });
-                    ss.S("#OptAudioLibrary").Change(function (v) {
 
-                        if (this.value == "-1") {
+                    ajax.Post("../../../../Api/Ajax/Audio/GetPlayList.php", {}, function (data) {
+                        data = JSON.parse(data);
 
-                            ss.Get("../../../Api/Ajax/AudioPlayer/GetAllAudioFilesName.php", {}, function (data) {
-                                data = JSON.parse(data);
-                                AudioList.Empty();
-
-                                for (var i in data) {
-                                    AudioList.AddList(data[i]["name"]).setAttribute("url", data[i]["fullpath"]);
-
-                                }
-                            });
-                        } else if (this.value !== "") {
-                            /* ss.Get("../../../Api/Ajax/Audio/GetMusicAlbumFiles.php", {"AlbumID": this.value}, function (data) {
-                             
-                             
-                             });*/
+                        for (var i in data) {
+                            ss.S("#OptAudioLibrary").Append(data[i], data[i]);
                         }
+                        ss.S("#OptAudioLibrary").Change();
+                    });
+                    ss.S("#OptAudioLibrary").Change(function (v) {
+                        ajax.Get("../../../../Api/Ajax/Audio/GetAudioList.php", {"Name": this.value}, function (data) {
+                            data = JSON.parse(data);
+                            AudioList.Empty();
+                            for (var i in data) {
+                                AudioList.AddList(data [i]["path"], data [i]["name"]);
+                            }
+
+                        });
                     });
 
 
-    
+
                     ss.S("#OPTChangeTime").Change(function () {
-                          ImageShow.SetTransitionTime(parseInt(this.value)*1000);
+                        ImageShow.SetTransitionTime(parseInt(this.value) * 1000);
                     });
                     ss.S("#OPTHoldTime").Change(function (v) {
-                        ImageShow.SetHoldTime(parseInt(this.value)*1000);
+                        ImageShow.SetHoldTime(parseInt(this.value) * 1000);
                     });
                     ss.S("#OptImageLibrary").Change(function (v) {
                         if (this.value == "-1") {
@@ -342,20 +319,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             <option value="3">Random</option>
                         </select>
                     </div>
-                    <div class="BorderBlock">
-                        <div class="TitleCenter" >Volume</div>
-                        <input style="display: block;width: 100%;box-sizing: border-box;"  id="RangeVolume" type="range" min="0" max="1" step="0.1" value="1" />
-                    </div>
-                    <div class="BorderBlock">
-                        <div class="TitleCenter" style="display: block ">Equalizer</div>
-                        <select id="EqualizerPresetsList" style="display: block;width: 100%;box-sizing: border-box;" >
-                        </select>
-                    </div>
-                    <div class="BorderBlock">
-                        <div class="TitleCenter" style="display: block ">Visualizer</div>
-                        <select id="VisualizerList" style="display: block;width: 100%;box-sizing: border-box;" >
-                        </select>
-                    </div>
+
+
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">Event</div>
                         <?php
