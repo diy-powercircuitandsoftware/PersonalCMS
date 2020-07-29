@@ -54,14 +54,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
-                    var audiosrc = document.getElementById("AudioSrc");
+                     var visualizer=new Visualizer(document.getElementById("Panel"));
+                    var audio=new AudioPlayer(document.getElementById("Panel"));
+                    
                     var playlist = new PlayingList(document.getElementById("AudioList"));
 
 
                     playlist.Select(function (v) {
-                        audiosrc.pause();                     
-                        audiosrc.src = "../../../../Api/Action/Files/DownloadFiles.php?path=" + v;
-                        var pp = audiosrc.play();
+                        audio.Stop();                     
+                        audio.Src ( "../../../../Api/Action/Files/DownloadFiles.php?path=" + v);
+                        var pp = audio.Play();
                         if (pp !== undefined) {
                             pp.then(function () {
                                 
@@ -95,20 +97,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     return;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
                     var CanvasVisualizer = document.getElementById("CanvasVisualizer");
                     var audiomanager = new AudioManager();
@@ -230,9 +219,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                 <main>
                     <div style="display: flex;flex-direction: column;">
-                        <div style="height: 80%;width: 100%;">
-                            <canvas id="CanvasVisualizer" style="width: 100%;border-style: solid;border-width: thin;background-color: black;" ></canvas>
-                            <audio id="AudioSrc" style="width: 100%;" controls></audio>
+                        <div id="Panel" style="height: 80%;width: 100%;">
+                            
                         </div>
 
                         <div class="BorderBlock" style="margin-top: 1px;"  >
