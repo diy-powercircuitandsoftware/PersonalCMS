@@ -54,24 +54,29 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
-                     var visualizer=new Visualizer(document.getElementById("Panel"));
-                    var audio=new AudioPlayer(document.getElementById("Panel"));
-                    
+                    var rendervisualizer = new AudioPlayer_Visualizer_RenderEngine(document.getElementById("Panel"), 60);
+                    var audio = new AudioPlayer(document.getElementById("Panel"));
+                    var visualizer = new AudioPlayer_Visualizer(audio, rendervisualizer);
                     var playlist = new PlayingList(document.getElementById("AudioList"));
 
-
+                    rendervisualizer.Size(800, 600);
+                    visualizer.Sine();
                     playlist.Select(function (v) {
-                        audio.Stop();                     
-                        audio.Src ( "../../../../Api/Action/Files/DownloadFiles.php?path=" + v);
+                        audio.Stop();
+                        audio.Src("../../../../Api/Action/Files/DownloadFiles.php?path=" + v);
                         var pp = audio.Play();
                         if (pp !== undefined) {
                             pp.then(function () {
-                                
+                                rendervisualizer.Start();
                             }).catch(function (error) {
-                                
+
                             });
                         }
                     });
+                    audio.End = function () {
+                        rendervisualizer.Stop();
+                        playlist.Next();
+                    };
                     ajax.Post("../../../../Api/Ajax/Audio/GetPlayList.php", {}, function (data) {
                         data = JSON.parse(data);
 
@@ -80,9 +85,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                         ss.S("#OptSelectLib").Change();
                     });
-
-
-
 
                     ss.S("#OptLibrary").Change(function () {
                         ajax.Get("../../../../Api/Ajax/Audio/GetAudioList.php", {"Name": this.value}, function (data) {
@@ -97,25 +99,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     return;
 
- 
 
-                    var CanvasVisualizer = document.getElementById("CanvasVisualizer");
-                    var audiomanager = new AudioManager();
-                    var audiovisualizer = new AudioVisualizer();
-                    var audiolist = document.getElementById("AudioList").appendChild(new PlayingList());
-                    audiovisualizer.SetUp(audiomanager.GetAnalyser(), CanvasVisualizer);
-                    audiomanager.SetUp(AudioSrc);
+
+
                     var Equalizer = audiomanager.Template.Equalizer();
 
-                    audiolist.Click = function (d) {
-                        AudioSrc.src = "../../../Api/Action/Files/DownloadFile.php?id=" + btoa(d.getAttribute("url"));
-                        audiomanager.ResumeCTX();
-                        AudioSrc.play();
-                        if (this.Last !== undefined) {
-                            this.Last.setAttribute("class", "");
-                        }
-                        d.setAttribute("class", "Playing");
-                    };
+
 
                     for (var i in Equalizer.Filter) {
                         var f = audiomanager.AddFilter(Equalizer.Filter[i]);
@@ -137,46 +126,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S(".EqualizerGain").Change();
                     });
 
-                    AudioSrc.addEventListener("ended", function () {
-                        audiomanager.ResumeCTX();
-                        var next = audiolist.GetNext();
-                        var v = ss.S("#PlayMode").Val();
-                        if (v == "0" && (next !== null) && !audiolist.IsLast()) {
-                            next.click();
-                        } else if (v == "1") {
-                            AudioSrc.play();
-                        } else if (v == "2" && (next !== null)) {
-                            next.click();
-                        } else if (v == "3") {
-                            var rndnext = audiolist.GetRandom();
-                            if (rndnext !== null) {
-                                rndnext.click();
-                            }
-                        }
 
-                    });
 
-                    ss.S("#RangeVolume").Click(function (e) {
-                        audiomanager.Volume(this.value);
-                    });
-                    window.onresize = function () {
-                        var Rect = CanvasVisualizer.getBoundingClientRect();
-                        CanvasVisualizer.width = Rect.width;
-                        CanvasVisualizer.height = Rect.height;
-                    };
+
 
                     for (var k in audiovisualizer.Visualizer) {
                         ss.S("#VisualizerList").Append("<option></option>").Val(k).Html(k);
                     }
-                    function DrawVisualizer() {
-                        var v = ss.S("#VisualizerList").Val();
-                        setTimeout(function () {
-                            audiovisualizer.Visualizer[v]();
-                            requestAnimationFrame(DrawVisualizer);
-                        }, (1000 / 25));
 
-                    }
-                    DrawVisualizer();
                     window.onresize();
                     audiomanager.Output();
                 });
@@ -219,8 +176,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                 <main>
                     <div style="display: flex;flex-direction: column;">
-                        <div id="Panel" style="height: 80%;width: 100%;">
-                            
+                        <div id="Panel" style="height: 80%;margin-left: auto;margin-right: auto;background-color: black;">
+
                         </div>
 
                         <div class="BorderBlock" style="margin-top: 1px;"  >
@@ -250,10 +207,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             <option value="3">Random</option>
                         </select>
                     </div>
-                    <div class="BorderBlock">
-                        <div class="TitleCenter" >Volume</div>
-                        <input style="display: block;width: 100%;box-sizing: border-box;"  id="RangeVolume" type="range" min="0" max="1" step="0.1" value="1" />
-                    </div>
+
                     <div class="BorderBlock">
                         <div class="TitleCenter" style="display: block ">Equalizer</div>
                         <select id="EqualizerPresetsList" style="display: block;width: 100%;box-sizing: border-box;" >
