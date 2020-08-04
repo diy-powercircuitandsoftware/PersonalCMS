@@ -60,7 +60,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var playlist = new PlayingList(document.getElementById("AudioList"));
 
                     rendervisualizer.Size(800, 600);
-                    visualizer.Sine();
+
                     playlist.Select(function (v) {
                         audio.Stop();
                         audio.Src("../../../../Api/Action/Files/DownloadFiles.php?path=" + v);
@@ -96,7 +96,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         });
                     });
-
+                    ss.S("#VisualizerList").Change(function () {
+                        visualizer[this.value]();
+                    }).Change();
                     return;
 
 
@@ -128,14 +130,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
 
-
-
-                    for (var k in audiovisualizer.Visualizer) {
-                        ss.S("#VisualizerList").Append("<option></option>").Val(k).Html(k);
-                    }
-
-                    window.onresize();
-                    audiomanager.Output();
                 });
             </script>
         </head>
@@ -216,6 +210,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <div class="BorderBlock">
                         <div class="TitleCenter" style="display: block ">Visualizer</div>
                         <select id="VisualizerList" style="display: block;width: 100%;box-sizing: border-box;" >
+                            <option value="Bar">Bar</option>
+                            <option value="Sine">Sine</option>
                         </select>
                     </div>
                     <div class="BorderBlock" style="margin-top: 1px;">

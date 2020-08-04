@@ -70,8 +70,8 @@ class AudioPlayer_Visualizer {
     Bar() {
         var analyser = this.analyser;
         var canvasctx = this.renderengine.canvas.getContext("2d");
-        // analyser.fftSize="";
-
+         analyser.fftSize=1024;
+        var scale = canvasctx.canvas.height / 255;
         this.renderengine.SetAnimate(function (v) {
             var bufferLength = analyser.frequencyBinCount;
             var dataArray = new Uint8Array(bufferLength);
@@ -81,9 +81,10 @@ class AudioPlayer_Visualizer {
             var barWidth = (canvasctx.canvas.width / bufferLength);
             var barHeight;
             var x = 0;
+
             for (var i = 0; i < bufferLength; i++) {
-                barHeight = dataArray[i];
-                canvasctx.fillRect(x, canvasctx.canvas.height - barHeight / 2, barWidth, barHeight / 2);
+                barHeight = dataArray[i]*scale;
+                canvasctx.fillRect(x, canvasctx.canvas.height - barHeight, barWidth, barHeight);
                 x += barWidth + 1;
             }
         });
@@ -93,7 +94,7 @@ class AudioPlayer_Visualizer {
         var canvasctx = this.renderengine.canvas.getContext("2d");
 
         this.renderengine.SetAnimate(function (v) {
-             
+
             var bufferLength = analyser.frequencyBinCount;
             var dataArray = new Uint8Array(bufferLength);
             var WIDTH = canvasctx.canvas.width;
@@ -122,7 +123,7 @@ class AudioPlayer_Visualizer {
                 x += sliceWidth;
             }
 
-            canvasctx.lineTo(WIDTH, HEIGHT / 2);
+            canvasctx.lineTo(WIDTH, HEIGHT);
             canvasctx.stroke();
         });
 

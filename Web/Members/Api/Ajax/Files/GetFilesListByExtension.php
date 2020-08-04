@@ -10,6 +10,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
     $out=array();
     $vd = new VirtualDirectory($userdb->GetFilesPath( $_SESSION["User"]["id"]));
     if (isset($_POST["Ext"])) {
+        
        $out=($vd->GetFilesList($_POST["Path"], $_POST["Ext"]));
     } else {
        $out=($vd->GetFilesList($_POST["Path"]));

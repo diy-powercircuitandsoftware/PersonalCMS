@@ -83,6 +83,11 @@ class VirtualDirectory {
         } else if (count($args) >= 2 && is_string($args[1])) {
             $ExtensionList = explode(",", $args[1]);
         }
+        if ($ExtensionList!==null){
+            foreach ($ExtensionList as &$value) {
+                $value= strtolower($value);
+            }
+        }
         $Normalize = $this->Normalize($args[0]);
         $Path = $this->DiskDirPath . $Normalize;
         $FileList = array();

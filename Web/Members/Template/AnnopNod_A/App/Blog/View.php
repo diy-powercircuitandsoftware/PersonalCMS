@@ -1,51 +1,49 @@
 <?php
 session_start();
-include_once '../../../../../Class/DB/Config/DB/Config.php';
-include_once '../../../../../Class/DB/Config/DB/Software.php';
-include_once '../../../../../Class/DB/Com/User/SessionManager.php';
-include_once '../../../../../Class/DB/Com/User/Profile.php';
-include_once '../../../../../Class/DB/Com/Blog/Manager.php';
-include_once '../../../../../Class/DB/Com/Category/Viewer.php';
-include_once '../../../../../Class/DB/Com/Events/Viewer.php';
-include_once '../../../../../Class/DB/Com/Module/LoadModule.php';
-include_once '../../../../../Class/DB/Com/User/LoadModule.php';
-include_once '../../../../../Class/FileIO/VirtualDirectory.php';
-$DBConfig = new Config_DB_Config();
-$SC = new Config_DB_Software($DBConfig);
-$Sess = new Com_User_SessionManager($DBConfig);
-$User = new Com_User_Profile($DBConfig);
-$BlogManager = new Com_Blog_Manager($DBConfig);
-$Category = new Com_Category_Viewer($DBConfig);
-$Event = new Com_Events_Viewer($DBConfig);
-$Module = new Com_Module_LoadModule($DBConfig);
-$UModule = new Com_User_LoadModule($DBConfig);
-$DBConfig->Open();
-if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id())) {
+include_once '../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../Class/Core/UI/NAV.php';
+include_once '../../../../../../Class/Core/Module/Database.php';
+include_once '../../../../../../Class/Com/Event/Database.php';
+include_once '../../../../../../Class/Com/Event/Reader.php';
+include_once '../../../../../../Class/Com/Blog/Database.php';
+include_once '../../../../../../Class/Com/Category/Database.php';
+include_once '../../../../../../Class/SDK/Module/Basic.php';
+include_once '../../../../Auth/Action/VerifySession.php';
+
+$config = new Config();
+$uinav = new UINAV();
+$module = new Module_Database($config);
+$category = new Category_Database($config);
+$event = new Event_Reader(new Event_Database($config));
+
+if ($config->IsOnline() && isset($_SESSION["User"])) {
+    $modlist = array();
+    foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
+        include_once $module->ModulePath . $value["dirname"] . "/init.php";
+        $cn = new $value["classname"]();
+        $cn->SetUserID($_SESSION["User"]["id"]);
+        $modlist[] = $cn;
+    }
     ?>
     <!DOCTYPE html>
     <html>
         <head>
             <meta charset="UTF-8">
-            <title><?php echo $SC->GetName(); ?></title>
-           <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
+            <title><?php echo basename(__FILE__, ".php"); ?></title>
+            <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
 
+
             <?php
-            foreach ($UModule->LoadModule($_SESSION["UserID"], Com_User_LoadModule::Layout_Head) as $value) {
-                try {
-                    include_once '../../../../../Class/DB/UserModule/' . $value["filename"];
-                    $mod = new $value["classname"]($UModule);
-                    $mod->LoadConfig($value["config"]);
-                    echo $mod->Execute();
-                } catch (Exception $ex) {
-                    
-                }
+            foreach ($modlist as $value) {
+                echo $value->Execute(Module_SDK_Basic::Layout_Head);
             }
             ?>
             <script src="../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../js/dom/SuperDialog.js"></script>
             <script src="../../../../js/dom/SearchBox.js"></script>
             <script>
+                //BlogZip
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var sd = new SuperDialog();
@@ -102,22 +100,16 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
             </script>
         </head>
         <body  class="HolyGrail">
-            <div id="Header">
-                <div style="width: 50%;">
-                    <a href="../index.php">
-                        <img  src="../../../../../File/Resource/Logo.png"/>
-                    </a>
-                </div>
-                <div  style="width: 50%;text-align: right;">
+            <header class="Header">
+                <div style="width: 50%;"></div>
+                <div style="width: 50%;text-align: right;">
                     <?php
-                    $Dat = $User->GetBasicUserData($_SESSION["UserID"]);
-                    printf('<img  src="../../../Api/Action/Profile/GetUserIcon.php?id=%s" />', $Dat["userid"]);
-                    echo '<span>' . $Dat["alias"] . '</span>';
-                    ?>
-                    <a href="../Config/Config.php">Config</a>
-                    <a href="../../../Session/Action/Logout.php">Logout</a>
+                    printf('<img src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
+                    printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
+                    ?>       
+                    <a class="MenuLink" style="display: inline;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
-            </div>
+            </header>
             <div class="Container">
                 <div class="Nav">
                     <div class="BorderBlock" style="margin-top: 1px;">

@@ -98,7 +98,7 @@ class FilesList {
         var out = [];
         [].forEach.call(this.list.querySelectorAll('[data-domfileslist="Select"]'), function (chk) {
             if (chk.checked) {
-                out.push(chk.parentNode.parentNode.getAttribute("data-path"));
+                               out.push(chk.parentNode.parentNode.getAttribute("data-path"));
             }
         });
         if (args.length === 0) {
