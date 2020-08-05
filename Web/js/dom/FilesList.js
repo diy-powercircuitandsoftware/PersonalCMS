@@ -60,7 +60,7 @@ class FilesList {
     AddFile(name, path, size, date) {
         var icon = "";
         var lastrow = this.list.insertRow(-1);
-       
+
         if (["jpg", "gif", "png", "jpeg"].indexOf(name.split('.').pop().toLowerCase()) >= 0) {
             icon = '<img src="' + this.previewpath + path + '"/>';
         }
@@ -98,7 +98,7 @@ class FilesList {
         var out = [];
         [].forEach.call(this.list.querySelectorAll('[data-domfileslist="Select"]'), function (chk) {
             if (chk.checked) {
-                               out.push(chk.parentNode.parentNode.getAttribute("data-path"));
+                out.push(chk.parentNode.parentNode.getAttribute("data-path"));
             }
         });
         if (args.length === 0) {

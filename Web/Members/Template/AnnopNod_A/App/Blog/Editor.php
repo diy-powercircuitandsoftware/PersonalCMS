@@ -96,7 +96,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             data = JSON.parse(data);
                             for (var i in data) {
                                 if (data[i]["type"] == "dir") {
-                                    FV.AddDir(data[i]["name"], v + "/" + data[i]["name"], data[i]["mtime"]);
+                                    FV.AddDir(data[i]["name"], data[i]["fullpath"], data[i]["mtime"]);
                                 } else if (data[i]["type"] == "file") {
                                     FV.AddFile(data[i]["name"], data[i]["index"], data[i]["size"], data[i]["mtime"]);
                                 } else {
