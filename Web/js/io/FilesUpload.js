@@ -45,9 +45,13 @@ class FilesUpload {
             });
             this.filereader.EndOfFile(function (f) {
                 var fd = new FormData();
+                var param=this.ref.param;
                 fd.append(variables["files"], this.name);
                 fd.append("header", 200);
                 fd.append("path", this.ref.path);
+                for (var k in param){
+                     fd.append(k, param[k]);
+                }
                 this.fd_complete = true;
                 this.ref.ajax.Send(variables["url"], fd);
             });

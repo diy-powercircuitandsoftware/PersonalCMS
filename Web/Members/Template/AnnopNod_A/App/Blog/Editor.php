@@ -49,9 +49,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var ajax = new Ajax();
                     var dialog = new SuperDialog();
 
-                    var FL = new FilesList(document.getElementById("FileRS"));
+                    var FL = new FilesList(document.getElementById("FileList"));
                     var FV = new FilesList(document.getElementById("FileViewer"));
+                    var FU = new FilesUpload({
+                        "url": "../../../../Api/Action/Blog/AddFilesToBlogZip.php",
+                        "files": "file",
+                        "path": "/"
+                    }, {
 
+                    });
 
                     FL.OpenDir(function (v) {
                         ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v, "Ext": "BlogZip"}, function (data) {
@@ -68,7 +74,45 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#CHDIRList").Html((v));
                         });
                     });
+                    FU.Log(function (v) {
+                        ss.S("#PGFile").Val(v.FileProgress);
+                        ss.S("#PGFOA").Val(v.AllProgress);
+                        if (v.Complete) {
+                            ss.S("#BNUpload").Disable(false);
+                            ss.S("#BNCancelUpload").Hide();
+                            FV.OpenDir(FV.CurrentDIR);
+                            dialog.Alert("Upload Complete").ZIndex(999);
+                        } else if (v.Error) {
+                            dialog.Alert("Upload Error").ZIndex(999);
+                            ss.S("#BNUpload").Disable(false);
+                            ss.S("#BNCancelUpload").Hide();
+                        }
+                    });
+                    FV.OpenDir(function (v) {
+                        ajax.Post("../../../../Api/Ajax/Blog/GetFileListFromBlogZip.php", {"Path": this.FilePath, "ZipPath": v}, function (data) {
+                            ss.S("#LabFileName").Html(FV.FilePath + " => " + v);
+                            FV.CurrentDIR = v;
+                            FV.Clear();
+                            data = JSON.parse(data);
+                            for (var i in data) {
+                                if (data[i]["type"] == "dir") {
+                                    FV.AddDir(data[i]["name"], v + "/" + data[i]["name"], data[i]["mtime"]);
+                                } else if (data[i]["type"] == "file") {
+                                    FV.AddFile(data[i]["name"], data[i]["index"], data[i]["size"], data[i]["mtime"]);
+                                } else {
+                                    alert(data[i]["name"]);
+                                }
+                            }
 
+                        });
+                    });
+                    FV.OpenFile(function (v) {
+
+                    });
+
+                    ss.S("#BNCancelUpload").Click(function () {
+                        FU.Abort();
+                    });
                     ss.S("#BNCreateNew").Click(function () {
                         var p = dialog.Prompt("Name", function (v) {
                             ajax.Post("../../../../Api/Ajax/Blog/CreateBlogZip.php", {"Path": FL.CurrentDIR, "Name": v}, function (data) {
@@ -79,6 +123,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         });
                     });
+                    ss.S("#BNHome").Click(function () {
+                        FV.OpenDir("/");
+                    });
                     ss.S("#BNOpenDialog").Click(function () {
                         FL.OpenDir("/");
                         dialog.ImportOkCancel("Open", "#OpenDialog", function (v) {
@@ -88,63 +135,27 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
 
                     });
-
-
-
-
-                    FV.OpenDir(function (v) {
-                           
-                        ajax.Post("../../../../Api/Ajax/Blog/GetFileListFromBlogZip.php", {"Path": this.FilePath, "ZipPath": v}, function (data) {
-                            FV.CurrentDIR = v;
-                            FV.Clear();
-                            data = JSON.parse(data);
-                            for (var i in data) {
-                                  
-                                if (data[i]["type"] == "dir") {
-                                    FV.AddDir(data[i]["name"], v+"/"+data[i]["name"], data[i]["mtime"]);
-                                } else if (data[i]["type"] == "file") {
-                                    FV.AddFile(data[i]["name"], data[i]["index"], data[i]["size"], data[i]["mtime"]);
-                                }
-                                else{
-                                    alert(data[i]["name"]);
-                                }
-                            }
-
-                        });
-                    });
-                    FV.OpenFile(function (v) {
-
-                    });
-                     ss.S("#BNHome").Click(function () {
-                         FV.OpenDir("/");
+                    ss.S("#BNUpload").Change(function () {
+                        if (FV.FilePath !== undefined) {
+                            this.disabled = true;
+                            ss.S("#BNCancelUpload").Show();
+                            FU.SetPath(FV.FilePath);
+                            FU.SetFiles(this.files);
+                            FU.SetParam("uploadto", FV.CurrentDIR);
+                            FU.Send();
+                        }
                     });
                     ss.S("#BNRefresh").Click(function () {
                         FV.OpenDir(FV.CurrentDIR);
                     });
+
+                    return 0;
+
                     //ddddddddddddddddddddddddddddddddddddddd
 
-                    var fileupload = new FilesUpload({
-                        "url": "../../../../Api/Ajax/Files/UploadFiles.php",
-                        "files": "file",
-                        "path": "/"
-                    }, {
 
-                    });
 
-                    fileupload.Log(function (v) {
-                        ss.S("#PGFile").Val(v.FileProgress);
-                        ss.S("#PGFOA").Val(v.AllProgress);
-                        if (v.Complete) {
-                            ss.S("#BNUpload").Disable(false);
-                            ss.S("#BNCancelUpload").Hide();
-                            FL.OpenDir(FL.CurrentDIR);
-                            dialog.Alert("Upload Complete").ZIndex(999);
-                        } else if (v.Error) {
-                            dialog.Alert("Upload Error").ZIndex(999);
-                            ss.S("#BNUpload").Disable(false);
-                            ss.S("#BNCancelUpload").Hide();
-                        }
-                    });
+
 
                     /* FL.Delete = function (v) {
                      dialog.Confirm("Delete This File????", function (name) {
@@ -174,9 +185,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                          
                      */
 
-                    ss.S("#BNCancelUpload").Click(function () {
-                        fileupload.Abort();
-                    });
+
 
                     /* ss.S("#BNDelete").Click(function () {
                      if (FL.GetSelectFiles().length > 0) {
@@ -194,7 +203,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      }
                      });
                      */
-                   
+
                     /* ss.S("#BNNewFolder").Click(function (e) {
                      var p = dialog.Prompt("MKDIR", function (v) {
                      ajax.Post("../../../../Api/Ajax/Files/MKDIR.php", {"path": FL.CurrentDIR + "/" + v}, function (data) {
@@ -203,14 +212,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      });
                      });
                      });*/
-                    
-                    ss.S("#BNUpload").Change(function () {
-                        this.disabled = true;
-                        ss.S("#BNCancelUpload").Show();
-                        fileupload.SetPath(FL.CurrentDIR);
-                        fileupload.SetFiles(this.files);
-                        fileupload.Send();
-                    });
+
+
 
 
 
@@ -284,6 +287,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 </nav>
 
                 <main>
+                    <div id="LabFileName"></div>
                     <div id="FileViewer"></div>
                 </main>
                 <aside>
@@ -360,7 +364,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <button id="BNCreateNew">New</button>
                 </div>
                 <div id="CHDIRList"></div>
-                <div style="width: 100%;box-sizing: border-box;" id="FileRS">
+                <div style="width: 100%;box-sizing: border-box;" id="FileList">
                 </div>
             </div>
 

@@ -18,11 +18,13 @@ class OfficeIO_Blog {
     }
 
     function AddFile($path, $newname) {
-        $this->zip->addFile($path, $newname);
+        $normal=$this->Normalize($newname);
+         
+        $this->zip->addFile($path, ltrim($normal, DIRECTORY_SEPARATOR));
     }
 
     function AddHtml($path, $code) {
-        $this->zip->addFromString($path, $code);
+        $this->zip->addFromString($this->Normalize($path), $code);
     }
 
     function Get($path) {
@@ -34,11 +36,11 @@ class OfficeIO_Blog {
 
         $path = $this->Normalize($path);
 
-        if ($path == "/") {
+      /*  if ($path ==DIRECTORY_SEPARATOR) {
 
             for ($i = 0; $i < $this->zip->numFiles; $i++) {
                 $stat = $this->zip->statIndex($i);
-                $expname = explode("/", $stat["name"]);
+                $expname = explode(DIRECTORY_SEPARATOR, $stat["name"]);
                 $stat["name"] = $expname[0];
                 $stat["type"] = "file";
                 if (isset($out[$expname[0]])) {
@@ -48,11 +50,11 @@ class OfficeIO_Blog {
             }
         } else {
             $out[".."] = array("name" => "..", "mtime" => "0", "size" => 0,"type"=>"dir");
-            $exppath = explode("/", $path);
+            $exppath = explode(DIRECTORY_SEPARATOR, $path);
             $countexppath = count($exppath);
             for ($i = 0; $i < $this->zip->numFiles; $i++) {
                 $stat = $this->zip->statIndex($i);
-                $expname = explode("/", $this->Normalize($stat["name"]));
+                $expname = explode(DIRECTORY_SEPARATOR, $this->Normalize($stat["name"]));
                 if (count($expname) > $countexppath) {
                     $found = false;
                     for ($j = 0; $j < $countexppath; $j++) {
@@ -68,15 +70,15 @@ class OfficeIO_Blog {
                     }
                 }
             }
-        }
+        }*/
 
         return array_values($out);
     }
 
     public function Normalize($Path) {
         $ArrayOut = array();
-        $ReFormat = str_replace(array('/', '\\'), "/", ($Path));
-        $Split = array_filter(explode("/", $ReFormat), 'strlen');
+        $ReFormat = str_replace(array('/', '\\'),DIRECTORY_SEPARATOR, ($Path));
+        $Split = array_filter(explode(DIRECTORY_SEPARATOR, $ReFormat), 'strlen');
         foreach ($Split as $value) {
             if ($value == "..") {
                 array_pop($ArrayOut);
@@ -84,7 +86,7 @@ class OfficeIO_Blog {
                 $ArrayOut[] = ($value);
             }
         }
-        return "/" . implode("/", $ArrayOut);
+        return DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $ArrayOut);
     }
 
 }
