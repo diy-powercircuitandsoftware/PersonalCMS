@@ -26,6 +26,14 @@ class OfficeIO_Blog {
         $this->zip->addFromString($this->Normalize($path), $code);
     }
 
+    function Delete($path) {
+        if (is_string($path)) {
+            return $this->zip->deleteName($path);
+        } elseif (is_int($path)) {
+            return $this->zip->deleteIndex($path);
+        }
+    }
+
     function Get($path) {
         if (is_string($path)) {
             return $this->zip->getFromName($path);
@@ -33,7 +41,7 @@ class OfficeIO_Blog {
             return $this->zip->getFromIndex($path);
         }
     }
-    
+
     function GetStat($path) {
         if (is_string($path)) {
             return $this->zip->statName($path);

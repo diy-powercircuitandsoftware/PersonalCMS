@@ -52,7 +52,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var FL = new FilesList(document.getElementById("FileList"));
                     var FV = new FilesList(document.getElementById("FileViewer"));
                     var FU = new FilesUpload({
-                        "url": "../../../../Api/Action/Blog/AddFilesToBlogZip.php",
+                        "url": "../../../../Api/Ajax/Blog/AddFilesToBlogZip.php",
                         "files": "file",
                         "path": "/"
                     }, {

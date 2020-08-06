@@ -78,12 +78,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     });
                     FL.OpenDir(function (v) {
-                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v, "Ext": ["BlogZip"]}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v, "Ext": "BlogZip"}, function (data) {
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
                                 if (data[i]["type"] == "DIR") {
                                     FL.AddDir(data[i]["name"], data[i]["fullpath"], data[i]["modified"]);
+                                }else if (data[i]["type"] == "FILE") {
+                                    FL.AddFile(data[i]["name"], data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
                                 }
                             }
                             ss.S("#CHDIRList").Html(decodeURIComponent(v));
