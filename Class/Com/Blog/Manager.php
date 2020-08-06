@@ -55,6 +55,18 @@ class Blog_Manager {
         }
     }
 
+    public function GetBlogMetadata($userid, $id) {
+        $data = array();
+        $stmt = $this->bd->prepare('SELECT * FROM blog WHERE userid=:userid AND id=id ;');
+        $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+        $results = $stmt->execute();
+        if ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row;
+        }
+        return $data;
+    }
+
     public function GetBlogList($userid, $startid) {
         $data = array();
         $stmt = $this->bd->prepare('SELECT * FROM blog WHERE userid=:userid AND id>:startid  LIMIT 30; ');
@@ -97,22 +109,21 @@ class Blog_Manager {
         $stmt = $this->bd->prepare('DELETE  FROM blog WHERE userid=:userid AND id IN (' . $this->FilterNumberSQL($idlist) . ') ');
         $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
         $stmt->execute();
-        
-        
-        
+
+
+
         $stmt = $this->bd->prepare('DELETE  FROM blog WHERE userid=:userid AND id IN (' . $this->FilterNumberSQL($idlist) . ') ');
         $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
         $stmt->execute();
-/*
- DELETE FROM blogcategory
-WHERE EXISTS
-  ( SELECT *
-    FROM positions
-    WHERE positions.position_id = employees.position_id );
- */
+        /*
+          DELETE FROM blogcategory
+          WHERE EXISTS
+          ( SELECT *
+          FROM positions
+          WHERE positions.position_id = employees.position_id );
+         */
 
-      //  $stmt = $this->bd->prepare('DELETE  FROM blogcategory WHERE userid=:userid AND blogid IN (' . $this->FilterNumberSQL($idlist) . ') ');
-       
+        //  $stmt = $this->bd->prepare('DELETE  FROM blogcategory WHERE userid=:userid AND blogid IN (' . $this->FilterNumberSQL($idlist) . ') ');
         //$stmt->execute();
     }
 

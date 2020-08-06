@@ -65,7 +65,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 tabletool.InsertRow();
                                 tabletool.InsertCellLastRow('<div style="text-align: center;"><input type="checkbox" class="SelectID" value="' + data[i]["id"] + '" /></div>');
                                 tabletool.InsertCellLastRow(data[i]["title"]);
-
                                 tabletool.InsertCellLastRow(data[i]["htmlfilepath"]);
                                 tabletool.InsertCellLastRow(data[i]["enable"]);
                                 tabletool.InsertCellLastRow(data[i]["public"]);
@@ -84,7 +83,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             for (var i in data) {
                                 if (data[i]["type"] == "DIR") {
                                     FL.AddDir(data[i]["name"], data[i]["fullpath"], data[i]["modified"]);
-                                }else if (data[i]["type"] == "FILE") {
+                                } else if (data[i]["type"] == "FILE") {
                                     FL.AddFile(data[i]["name"], data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
                                 }
                             }
@@ -109,32 +108,32 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 ss.S("#CBoxSelectAll").Val(false);
                             }
                         } else if (e.target.getAttribute("class") == "BNEdit") {
-                            ss.Post("../../../Api/Ajax/BlogManager/GetEditBlog.php", {"ID": e.target.getAttribute("data-id")}, function (edata) {
+                            // {}
+                            ajax.Post("../../../../Api/Ajax/Blog/GetBlogDataForEdit.php", {"id": e.target.getAttribute("data-value")}, function (edata) {
 
                                 edata = JSON.parse(edata);
+                                ss.S(".AjaxSendEdit").ValByName(edata);
+                                  FL.OpenDir("/");
+                                /*   ss.S(".AjaxSendEdit").ValByName(edata)
+                                 ss.S("#EFilePath").Html(edata["htmlfilepath"]);
+                                     
+                                 var kwl = edata["keyword"];
+                                 EKeyword.Empty();
+                                 for (var i = 0; i < kwl.length; i++) {
+                                 EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                     
+                                     
+                                 EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                 EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                 EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                 EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
+                                     
+                                 }*/
 
-                                ss.S(".AjaxSendEdit").ValByName(edata)
-                                ss.S("#EFilePath").Html(edata["htmlfilepath"]);
-
-                                var kwl = edata["keyword"];
-                                EKeyword.Empty();
-                                for (var i = 0; i < kwl.length; i++) {
-                                    EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-
-
-                                    /*  EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                     EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                     EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                     EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                     */
-                                }
-
-                                sd.Import("#Dialog", function () {
-                                    var senddata = ss.S(".AjaxSendEdit").SerializeToJson();
-                                    senddata["filepath"] = FL.GetSelectFiles(0);
-                                    senddata["id"] = e.target.getAttribute("data-id");
-                                    senddata["foreignkey"] = edata.foreign_key;
-                                    senddata["keyword"] = EKeyword.GetList();
+                                sd.ImportOkCancel("Edit", "#Dialog", function () {
+                                    var senddata = ss.S(".AjaxSendEdit").ValByName();
+                                    senddata["htmlfilepath"] = FL.GetSelectFiles(0);
+                                    senddata["keyword"] = EKeyword.GetItems();
 
                                     ss.Post("../../../Api/Ajax/BlogManager/EditBlog.php", senddata, function (d) {
                                         tabletool.DeleteRowAfter(0);
@@ -145,13 +144,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                         ss.S("#EFilePath").Html("");
                                     });
                                 }).ZIndex(999).Title("Edit");
+
                             });
 
-                        } else if (e.target.getAttribute("class") == "fullpathfile") {
-                            ss.Post("../../../Api/Ajax/Editor/GetHtmlData.php", {"FullPath": e.target.getAttribute("data-id")}, function (data) {
-                                data = JSON.parse(data);
-                                sd.Text(data["HTML"], true).Title(data["Name"]).ZIndex(999);
-                            });
                         }
                     });
 
@@ -161,13 +156,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      wsl.Done = (function (data) {
                      data = JSON.parse(data);
                      for (var i = 0; i < data.length; i++) {
-                     
+                         
                      tabletool.InsertRow();
                      tabletool.InsertCellLastRow('<input type="checkbox" class="SelectID" value="' + data[i]["id"] + '" />');
                      tabletool.InsertCellLastRow(data[i]["title"]);
                      tabletool.InsertCellLastRow(data[i]["categoryid"]);
                      tabletool.InsertCellLastRow('<a href="#" class="fullpathfile" data-id="' + data[i]["htmlfilepath"] + '" >' + data[i]["filename"] + '</a>');
-                     
+                         
                      tabletool.InsertCellLastRow('<button class="BNEdit" data-id="' + data[i]["id"] + '">Edit</button>');
                      wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
                      }
