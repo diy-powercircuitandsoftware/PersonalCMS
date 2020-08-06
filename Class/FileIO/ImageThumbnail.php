@@ -24,7 +24,6 @@ function CreateImageThumbnail($Img, $MaxW, $MaxH, $savefilepath = "") {
        header('Content-Type: image/jpeg');
         imagejpeg($thumb);
     } else {
-
         imagejpeg($thumb, $savefilepath);
     }
 

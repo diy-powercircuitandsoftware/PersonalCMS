@@ -99,15 +99,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     FV.AddDir(data[i]["name"], data[i]["fullpath"], data[i]["mtime"]);
                                 } else if (data[i]["type"] == "file") {
                                     FV.AddFile(data[i]["name"], data[i]["index"], data[i]["size"], data[i]["mtime"]);
-                                } else {
-                                    alert(data[i]["name"]);
                                 }
                             }
 
                         });
                     });
                     FV.OpenFile(function (v) {
+                        alert(v);
+                        if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(v.split('.').pop().toLowerCase()) >= 0) {
 
+                            //  dialog.MediaPlayer("../../../../Api/Action/Blog/GetBlogZipFile.php?path=" + FV.FilePath + "&id="+v);
+                        }
                     });
 
                     ss.S("#BNCancelUpload").Click(function () {
@@ -130,6 +132,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         FL.OpenDir("/");
                         dialog.ImportOkCancel("Open", "#OpenDialog", function (v) {
                             FV.FilePath = FL.GetSelectFiles(0);
+                            FV.SetPreviewImage("../../../../Api/Action/Blog/GetBlogZipImagePreview.php?path=" + FV.FilePath + "&id=");
                             FV.OpenDir("/");
                             return true;
                         });

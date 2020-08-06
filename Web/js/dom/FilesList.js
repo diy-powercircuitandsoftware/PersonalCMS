@@ -61,7 +61,7 @@ class FilesList {
         var icon = "";
         var lastrow = this.list.insertRow(-1);
 
-        if (["jpg", "gif", "png", "jpeg"].indexOf(name.split('.').pop().toLowerCase()) >= 0) {
+        if (["jpg", "gif", "png", "jpeg"].indexOf(name.split('.').pop().toLowerCase()) >= 0&&this.previewpath!==undefined) {
             icon = '<img src="' + this.previewpath + path + '"/>';
         }
         lastrow.setAttribute("data-path", path);

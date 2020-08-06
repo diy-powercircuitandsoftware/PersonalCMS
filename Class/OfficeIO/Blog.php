@@ -27,14 +27,15 @@ class OfficeIO_Blog {
     }
 
     function Get($path) {
-        $this->zip->getFromName($path);
+        if (is_string($path)) {
+            return $this->zip->getFromName($path);
+        } elseif (is_int($path)) {
+            return $this->zip->getFromIndex($path);
+        }
     }
 
     function GetFilesList($path) {
-        // ZipArchive::locateName()
-        //zip_entry_open zip_entry_read
         $out = array();
-
         $path = $this->Normalize($path);
         if (in_array($path, array("/", "\\", ""))) {
             for ($i = 0; $i < $this->zip->numFiles; $i++) {
@@ -50,12 +51,10 @@ class OfficeIO_Blog {
                 $out[$expname[0]] = $stat;
             }
         } else {
-
             $exppath = explode(DIRECTORY_SEPARATOR, $path);
             $countexppath = count($exppath);
             for ($i = 0; $i < $this->zip->numFiles; $i++) {
                 $stat = $this->zip->statIndex($i);
-
                 $expname = explode(DIRECTORY_SEPARATOR, $this->Normalize($stat["name"]));
                 if (count($expname) > $countexppath) {
                     $found = false;
