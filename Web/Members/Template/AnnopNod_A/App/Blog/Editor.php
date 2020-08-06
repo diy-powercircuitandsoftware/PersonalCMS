@@ -105,13 +105,34 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
                     });
                     FV.OpenFile(function (v) {
-                        alert(v);
-                        if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(v.split('.').pop().toLowerCase()) >= 0) {
+                        ajax.Post("../../../../Api/Ajax/Blog/GetBlogZipStat.php", {"Path": FV.FilePath, "ID": v}, function (data) {
+                            data = JSON.parse(data);
+                            var ext = data["name"].split('.').pop().toLowerCase();
+                            if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
+                                dialog.MediaPlayer("../../../../Api/Action/Blog/GetBlogZipFile.php?path=" + FV.FilePath + "&id=" + v, ext);
+                            }
+                        });
 
-                            //  dialog.MediaPlayer("../../../../Api/Action/Blog/GetBlogZipFile.php?path=" + FV.FilePath + "&id="+v);
-                        }
                     });
+                    FV.Properties(function (v) {
+                        ajax.Post("../../../../Api/Ajax/Blog/GetBlogZipStat.php", {"Path": FV.FilePath, "ID": v}, function (data) {
+                            data = JSON.parse(data);
+                            var tl = dialog.TableLayout().Title("Properties").ZIndex(999);
+                            tl.AddNewRowElement();
+                            tl.AddNewCellElement("Name", data["name"]);
+                            tl.AddNewRowElement();
+                            tl.AddNewCellElement("Index", data["index"]);
+                            tl.AddNewRowElement();
+                            tl.AddNewCellElement("Size", data["size"]);
+                            tl.AddNewRowElement();
+                            tl.AddNewCellElement("CRC", data["crc"]);
+                            tl.AddNewRowElement();
+                            tl.AddNewCellElement("Modified", data["mtime"]);
+                            tl.AddNewRowElement();
+                            tl.AddNewCellElement("Compression Size", data["comp_size"]);
 
+                        });
+                    });
                     ss.S("#BNCancelUpload").Click(function () {
                         FU.Abort();
                     });

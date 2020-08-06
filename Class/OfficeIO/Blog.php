@@ -33,6 +33,14 @@ class OfficeIO_Blog {
             return $this->zip->getFromIndex($path);
         }
     }
+    
+    function GetStat($path) {
+        if (is_string($path)) {
+            return $this->zip->statName($path);
+        } elseif (is_int($path)) {
+            return $this->zip->statIndex($path);
+        }
+    }
 
     function GetFilesList($path) {
         $out = array();
