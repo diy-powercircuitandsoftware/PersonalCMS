@@ -112,25 +112,21 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ajax.Post("../../../../Api/Ajax/Blog/GetBlogDataForEdit.php", {"id": e.target.getAttribute("data-value")}, function (edata) {
 
                                 edata = JSON.parse(edata);
+                                var category = edata["category"];
+                                var keyword = [];
+                                FL.OpenDir("/");
                                 ss.S(".AjaxSendEdit").ValByName(edata);
-                                //edata category
-                                  FL.OpenDir("/");
-                                  
-                                /*   ss.S(".AjaxSendEdit").ValByName(edata)
-                                 ss.S("#EFilePath").Html(edata["htmlfilepath"]);
-                                     
-                                 var kwl = edata["keyword"];
-                                 EKeyword.Empty();
-                                 for (var i = 0; i < kwl.length; i++) {
-                                 EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                     
-                                     
-                                 EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                 EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                 EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                 EKeyword.AddSelectList(kwl[i]["id"], kwl[i]["name"]);
-                                     
-                                 }*/
+                                for (var i in category) {
+                                    keyword.push(category[i]["keywordid"]);
+                                }
+                                ajax.Post("../../../../Api/Ajax/Category/GetKeywordDataByID.php", {"id": keyword}, function (kdata) {
+                                    kdata = JSON.parse(kdata);
+                                  EKeyword.Empty();
+                                    for (var i in kdata) {
+                                        EKeyword.AddItem(kdata[i]["id"],kdata[i]["name"]);
+                                    }
+                                });
+                                
 
                                 sd.ImportOkCancel("Edit", "#Dialog", function () {
                                     var senddata = ss.S(".AjaxSendEdit").ValByName();
@@ -138,12 +134,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     senddata["keyword"] = EKeyword.GetItems();
 
                                     ss.Post("../../../Api/Ajax/BlogManager/EditBlog.php", senddata, function (d) {
-                                        tabletool.DeleteRowAfter(0);
-                                        wsl.Param["StartID"] = 0;
-                                        wsl.Lock = false;
-                                        wsl.LoadData();
-                                        ss.S(".AjaxSendEdit").Val("");
-                                        ss.S("#EFilePath").Html("");
+                                       ajaxsb.LoadAjax();
                                     });
                                 }).ZIndex(999).Title("Edit");
 
@@ -158,13 +149,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      wsl.Done = (function (data) {
                      data = JSON.parse(data);
                      for (var i = 0; i < data.length; i++) {
-                         
+                     
                      tabletool.InsertRow();
                      tabletool.InsertCellLastRow('<input type="checkbox" class="SelectID" value="' + data[i]["id"] + '" />');
                      tabletool.InsertCellLastRow(data[i]["title"]);
                      tabletool.InsertCellLastRow(data[i]["categoryid"]);
                      tabletool.InsertCellLastRow('<a href="#" class="fullpathfile" data-id="' + data[i]["htmlfilepath"] + '" >' + data[i]["filename"] + '</a>');
-                         
+                     
                      tabletool.InsertCellLastRow('<button class="BNEdit" data-id="' + data[i]["id"] + '">Edit</button>');
                      wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
                      }

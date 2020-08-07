@@ -43,10 +43,8 @@ class Category_Database extends SQLite3 {
     }
 
     public function GetKeywordDataByID($list) {
-
         $data = array();
         $stmt = $this->prepare("SELECT * FROM keyword WHERE id IN(".$this->FitterNumberArray($list).");");
-
         $results = $stmt->execute();
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             $data[] = $row;
