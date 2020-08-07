@@ -113,7 +113,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                                 edata = JSON.parse(edata);
                                 ss.S(".AjaxSendEdit").ValByName(edata);
+                                //edata category
                                   FL.OpenDir("/");
+                                  
                                 /*   ss.S(".AjaxSendEdit").ValByName(edata)
                                  ss.S("#EFilePath").Html(edata["htmlfilepath"]);
                                      

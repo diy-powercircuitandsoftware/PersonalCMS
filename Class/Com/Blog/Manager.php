@@ -38,21 +38,28 @@ class Blog_Manager {
         }
     }
 
-    public function AddBlogKeyword($blogid, $array) {
+    public function AddBlogKeyword($blogid, $keywordid) {
         try {
-
-            $q = ("INSERT INTO blogcategory (blogid,categoryid) VALUES (blogid,categoryid)");
+            $q = ("INSERT INTO blogcategory (blogid,keywordid) VALUES (:blogid,:keywordid)");
             $stmt = $this->bd->prepare($q);
-            $stmt->bindParam(':userid', $userid, SQLITE3_INTEGER);
-            $val = array_values($Prepare);
-            for ($i = 0; $i < count($val); $i++) {
-                $stmt->bindParam($i + 2, $val[$i]);
-            }
+            $stmt->bindParam(':blogid', $blogid, SQLITE3_INTEGER);
+            $stmt->bindParam(':keywordid', $keywordid, SQLITE3_INTEGER);
             $stmt->execute();
             return true;
         } catch (Exception $e) {
             return false;
         }
+    }
+
+    public function GetBlogCategory($id) {
+        $data = array();
+        $stmt = $this->bd->prepare('SELECT * FROM blogcategory WHERE blogid=:id ;');
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+        $results = $stmt->execute();
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+        return $data;
     }
 
     public function GetBlogMetadata($userid, $id) {

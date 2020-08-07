@@ -7,7 +7,9 @@ include_once '../../../../../Class/Com/Blog/Manager.php';
 $config = new Config();
 $blog = new Blog_Manager(new Blog_Database($config));
 if ($config->IsOnline() && isset($_SESSION["User"])) {
-   echo json_encode($blog->GetBlogMetadata($_SESSION["User"]["id"], $_POST["id"]));
+    $out=$blog->GetBlogMetadata($_SESSION["User"]["id"], $_POST["id"]);
+    $out["category"]=$blog->GetBlogCategory( $_POST["id"]);
+   echo json_encode($out);
 }
  
  

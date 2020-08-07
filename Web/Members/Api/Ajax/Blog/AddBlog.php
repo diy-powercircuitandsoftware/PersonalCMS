@@ -24,7 +24,11 @@ if ($config->IsOnline() &&
     }
 
     if ($blog->AddBlog($_SESSION["User"]["id"], $_POST)) {
-        echo $blog->LastInsertID();
+        $lastid= $blog->LastInsertID();
+        foreach ($kw as $value) {
+            $blog->AddBlogKeyword($lastid, $value);
+        }
+        
     }
 }
  
