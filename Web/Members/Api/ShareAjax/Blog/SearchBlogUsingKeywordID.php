@@ -6,23 +6,20 @@ include_once '../../../../../Class/Core/User/Database.php';
 include_once '../../../../../Class/Core/User/Session.php';
 include_once '../../../../../Class/Core/User/Member.php';
 include_once '../../../../../Class/Com/Blog/Database.php';
-include_once '../../../../../Class/Com/Blog/Manager.php';
+include_once '../../../../../Class/Com/Blog/Reader.php';
 $config = new Config();
-$blog = new Blog_Manager(new Blog_Database($config));
+$blog = new Blog_Reader(new Blog_Database($config));
 $userdb = new User_Database($config);
 $session = new User_Session($userdb);
 $userdata = new User_Member($userdb);
 if ($config->IsOnline() &&
         isset($_SESSION["User"]) &&
-        $session->Registered(session_id()) &&
-        $userdata->CanWritable($_SESSION["User"]["id"])
+        $session->Registered(session_id())  
+        && isset($_POST["id"]) 
+        &&isset($_POST["startid"])
 ) {
-    
-
-  /*  if ($blog->DeleteBlogList($_SESSION["User"]["id"], $_POST["ID"])) {
-        
-        
-    }*/
+    echo json_encode($blog->SearchBlogUsingKeywordID($_POST["id"], $_POST["startid"], Blog_Database::Access_Member));
+ 
 }
  
  

@@ -143,27 +143,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     });
 
-                    /*       var wsl = ss.WindowScrollLoad();
-                     wsl.URL = "../../../Api/Ajax/BlogManager/GetBlogList.php";
-                     wsl.Param["StartID"] = 0;
-                     wsl.Done = (function (data) {
-                     data = JSON.parse(data);
-                     for (var i = 0; i < data.length; i++) {
-                     
-                     tabletool.InsertRow();
-                     tabletool.InsertCellLastRow('<input type="checkbox" class="SelectID" value="' + data[i]["id"] + '" />');
-                     tabletool.InsertCellLastRow(data[i]["title"]);
-                     tabletool.InsertCellLastRow(data[i]["categoryid"]);
-                     tabletool.InsertCellLastRow('<a href="#" class="fullpathfile" data-id="' + data[i]["htmlfilepath"] + '" >' + data[i]["filename"] + '</a>');
-                     
-                     tabletool.InsertCellLastRow('<button class="BNEdit" data-id="' + data[i]["id"] + '">Edit</button>');
-                     wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
-                     }
-                     wsl.Lock = false;
-                     });*/
-
-
-
+                      
                     ss.S("#BNAdd").Click(function () {
 
                         ss.S(".AjaxSendEdit").Val("");

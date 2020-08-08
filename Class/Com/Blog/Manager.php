@@ -117,11 +117,7 @@ class Blog_Manager {
         $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
         $stmt->execute();
 
-
-
-        $stmt = $this->bd->prepare('DELETE  FROM blog WHERE userid=:userid AND id IN (' . $this->FilterNumberSQL($idlist) . ') ');
-        $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
-        $stmt->execute();
+ 
         /*
           DELETE FROM blogcategory
           WHERE EXISTS

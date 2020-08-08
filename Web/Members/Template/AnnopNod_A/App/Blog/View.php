@@ -46,8 +46,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
+                    var AjaxSB = new AjaxScrollBar("../../../../Api/ShareAjax/Blog/SearchBlogUsingKeywordID.php");
                     var BlogSB = new SearchBox(document.getElementById("SearchBox"));
-                    BlogSB.ValueChange ( function (v) {
+                    var lastid = 0;
+                    BlogSB.ValueChange(function (v) {
                         ajax.Post("../../../../Api/Ajax/Category/SearchKeyword.php", {"Keyword": v}, function (data) {
                             data = JSON.parse(data);
                             for (var i = 0; i < data.length; i++) {
@@ -57,11 +59,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     BlogSB.Calllback(function (v) {
-                        /* ss.S("#SearchRS,#HtmlReadable").Empty();
-                         wsl.Param["KeywordID"] = v;
-                         wsl.Param["StartID"] = 0;
-                         wsl.Lock = false;
-                         wsl.LoadData();*/
+                        ss.S("#SearchRS,#HtmlReadable").Empty();
+                        lastid = 0;
+                        AjaxSB.Param("id", v);
+                        AjaxSB.Param("startid", lastid);
+                        AjaxSB.LoadAjax();
+
                     });
                     BlogSB.Enter = (function (v) {
                         //  ss.S("#SearchRS,#HtmlReadable").Empty();
@@ -71,29 +74,22 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         // wsl.LoadData();
                     });
 
+                    AjaxSB.AddScrollEvent(function (data) {
+                        try {
 
+                            data = JSON.parse(data);
+                            for (var i in data) {
+                                ss.S("#SearchRS").Append('<div class="BlogList">aaa</div>')
+                                /*
+                                 * <div class="BlogList"><h3><a class="LinkOpen" href="View.php?id=%s">%s</a></h3>%s</div>', $value["id"], $value["title"], $value["description"]
+                                 */
+                                lastid = Math.max(lastid, data[i]["id"]);
+                            }
+                            AjaxSB.Param("startid", lastid);
+                        } catch (e) {
 
-
-
-                    /*  var wsl = ss.WindowScrollLoad();
-                     wsl.URL = "../../../Api/Ajax/Blog/SearchBlogUsingKeywordID.php";
-                     wsl.Param = {"StartID": 0};
-                     wsl.Done = (function (data) {
-                     data = JSON.parse(data);
-                     for (var i = 0; i < data.length; i++) {
-                     var q = ss.S("#SearchRS").Append('<div class="BlogList"></div>');
-                     if (data[i]["haspassword"] === undefined || data[i]["haspassword"] == "0") {
-                     q.Append("<h3></h3>").Append("<a class='LinkOpen'></a>").Url("View.php?id=" + data[i]["id"]).Append(data[i]["title"]);
-                     } else {
-                     q.Append("<h3></h3>").Append("<a class='LinkOpen' href='#' data-password='1' ></a>").Data("id", data[i]["id"]).Append(data[i]["title"]);
-                     }
-                     q.Append(data[i]["description"]);
-                     wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
-                     }
-                     wsl.Lock = false;
-                     });
-                         
-                     wsl.AddEventListener();*/
+                        }
+                    });
 
                 });
             </script>
@@ -164,7 +160,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         <?php
                         foreach ($category->GetAllCategory() as $value) {
-                            printf('<a  class="MenuLink"><a href="View.php?Category=%s">%s</a>', $value["id"], $value["name"]);
+                            printf('<a class="MenuLink" href="View.php?Category=%s">%s</a>', $value["id"], $value["name"]);
                         }
                         ?>
 
