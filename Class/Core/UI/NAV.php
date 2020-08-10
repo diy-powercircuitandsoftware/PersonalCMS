@@ -4,18 +4,21 @@ class UINAV {
 
     public function FindAllMenuFile($path) {
         $out = array();
-        $filter = array(".", "..", "css", "js", "img", ".htaccess");
-        foreach (array_diff(scandir($path), $filter) as $AValue) {
-            $out[$AValue] = array();
-            $subpath = $path . "/" . $AValue;
-            foreach (array_diff(scandir($subpath), $filter) as $BValue) {
-                $lastpath = $subpath . "/" . $BValue;
-                if (is_file($lastpath) && pathinfo($lastpath, PATHINFO_EXTENSION) == "php") {
-                    $dataout = array("name" => pathinfo($lastpath, PATHINFO_FILENAME), "path" => $lastpath);
-                    $out[$AValue][] = $dataout;
+        if (is_dir($path)) {
+
+            foreach (new DirectoryIterator($path) as $mainfile) {
+                if ($mainfile->isDir() && !$mainfile->isDot()) {
+                    $out[$mainfile->getFilename()] = array();
+                    foreach (new DirectoryIterator($mainfile->getPathname()) as $subfile) {
+                        if ($subfile->getExtension() == "php") {
+                            $out[$mainfile->getFilename()][] = array("path" => $mainfile->getFilename()."/".$subfile->getFilename(), "name" => $subfile->getBasename(".php"));
+                        }
+                    }
                 }
             }
+  
         }
+
         return $out;
     }
 
@@ -28,10 +31,6 @@ class UINAV {
             }
         }
         return $out;
-    }
-
-    public function GetFilesList($path) {
-        return array_diff(scandir($path), array(".", "..", ".htaccess"));
     }
 
 }
