@@ -13,19 +13,20 @@ class Blog_Reader {
         $this->bd = $bd;
     }
 
-    public function GetBlogFile($id, $mode = Blog_Database::Access_Public) {
-        $data = array();
+    public function GetBlogFilePath($id, $mode = Blog_Database::Access_Public) {
+        
         $stmt = null;
         if ($mode == Blog_Database::Access_Member) {
-            $stmt = $this->bd->prepare('SELECT * FROM blog WHERE  enable=1 ORDER BY id DESC LIMIT 30; ');
+            $stmt = $this->bd->prepare('SELECT userid,htmlfilepath FROM blog WHERE  enable=1 AND blog.id=:id ; ');
         } else {
-            $stmt = $this->bd->prepare('SELECT * FROM blog WHERE enable=1 AND public=1 ORDER BY id DESC LIMIT 30; ');
+            $stmt = $this->bd->prepare('SELECT userid,htmlfilepath FROM blog WHERE enable=1 AND public=1 AND blog.id=:id ; ');
         }
+          $stmt->bindParam(':id', $id, SQLITE3_INTEGER);
         $results = $stmt->execute();
-        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-            $data[] = $row;
+        if ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+           return $row;
         }
-        return $data;
+         return array();
     }
 
     public function GetLastBlogList($mode = Blog_Database::Access_Public) {

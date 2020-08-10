@@ -32,7 +32,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <title><?php echo basename(__FILE__, ".php"); ?></title>
             <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
-
+            <style>
+                .BlogList{
+                    margin-top: 1px;
+                    border-style: solid;
+                    border-width: thin;
+                }
+            </style>
             <?php
             foreach ($modlist as $value) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
@@ -79,10 +85,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                             data = JSON.parse(data);
                             for (var i in data) {
-                                ss.S("#SearchRS").Append('<div class="BlogList">aaa</div>')
-                                /*
-                                 * <div class="BlogList"><h3><a class="LinkOpen" href="View.php?id=%s">%s</a></h3>%s</div>', $value["id"], $value["title"], $value["description"]
-                                 */
+                               ss.S("#SearchRS").Append('<div class="BlogList"><a class="MenuLink" href="View.php?id='+data[i]["id"]+'">'+data[i]["title"]+'</a>'+data[i]["description"]+'</div>');
+                               
                                 lastid = Math.max(lastid, data[i]["id"]);
                             }
                             AjaxSB.Param("startid", lastid);
@@ -145,7 +149,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <div id="HtmlReadable" style="height: 100%;" >
                         <?php
                         if (isset($_GET["id"])) {
-                            //     printf('<iframe style="%s" src="../../../Api/Action/Blog/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100%;box-sizing: border-box;", $_GET["id"]);
+                                printf('<iframe style="%s" src="../../../../Api/ShareAction/Blog/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100%;box-sizing: border-box;", $_GET["id"]);
                         }
                         ?>
                     </div>

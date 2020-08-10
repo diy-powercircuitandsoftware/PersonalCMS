@@ -12,13 +12,13 @@ class SSQueryFW {
                 this.ForEach(this.element, function (el) {
                     el.innerHTML = el.innerHTML + args[0];
                 });
-                if (this.element.length == 1) {
+               /* if (this.element.length == 1) {
                     this.ForEach(args[0], function (el) {
                         this.element[0].appendChild(el);
                     });
                 } else if (this.element.length > 1) {
 
-                }
+                }*/
             }
 
         } else if (args.length === 2) {
