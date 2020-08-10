@@ -2,7 +2,6 @@
 session_start();
 include_once '../../../../../Class/Core/Config/Config.php';
 include_once '../../../../../Class/Core/User/Database.php';
-include_once '../../../../../Class/Core/User/Session.php';
 include_once '../../../../../Class/Com/Blog/Database.php';
 include_once '../../../../../Class/Com/Blog/Reader.php';
 include_once '../../../../../Class/FileIO/VirtualDirectory.php';
@@ -10,13 +9,11 @@ include_once '../../../../../Class/OfficeIO/Blog.php';
 $config = new Config();
 $blog = new Blog_Reader(new Blog_Database($config));
 $userdb = new User_Database($config);
-$session = new User_Session($userdb);
-if ($config->IsOnline() &&
-        isset($_SESSION["User"]) &&
-        $session->Registered(session_id()) && isset($_GET["id"])
+  
+if ($config->IsOnline() &&  isset($_GET["id"])
 ) {
     $path = "index.html";
-    $data = $blog->GetBlogFilePath($_GET["id"], Blog_Database::Access_Member);
+    $data = $blog->GetBlogFilePath($_GET["id"], Blog_Database::Access_Public);
     $vd = new VirtualDirectory($userdb->GetFilesPath($data["userid"]));
     $blogzip = new OfficeIO_Blog($vd->DiskPath($data["htmlfilepath"]));
     if (isset($_GET["path"])) {

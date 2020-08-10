@@ -15,7 +15,6 @@ $event = new Event_Reader(new Event_Database($config));
 if ($config->IsOnline()) {
     $modlist = array();
     foreach ($module->LoadModule(Module_Database::Access_Public) as $value) {
-
         include_once $module->ModulePath . $value["dirname"] . "/init.php";
         $modlist[] = new $value["classname"]();
     }

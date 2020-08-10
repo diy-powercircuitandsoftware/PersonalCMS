@@ -29,7 +29,8 @@ if ($config->IsOnline()) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo $config->GetName(); ?></title>
-            <link rel="stylesheet" type="text/css" href="../css/Page.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../js/dom/SuperDialog.js"></script>
             <script src="../../../../../js/dom/SearchBox.js"></script>
@@ -42,86 +43,96 @@ if ($config->IsOnline()) {
                 }
             </style>
             <script>
-                var SS = new SSQueryFW();
-
-
-                SS.DocumentReady(function () {
+                var ss = new SSQueryFW();
+                ss.DocumentReady(function () {
+                    var ajax = new Ajax();
+                    var AjaxSB = new AjaxScrollBar("../../../../Api/ShareAjax/Blog/SearchBlogUsingKeywordID.php");
                     var BlogSB = new SearchBox(document.getElementById("SearchBox"));
-                    var Dialog = new SuperDialog();
+                    var lastid = 0;
                     BlogSB.ValueChange(function (v) {
-                        SS.Get("../../../Api/ShareAjax/Keyword/SearchKeyword.php", {"Keyword": v}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Category/SearchKeyword.php", {"Keyword": v}, function (data) {
                             data = JSON.parse(data);
                             for (var i = 0; i < data.length; i++) {
-                                BlogSB.AddList(data[i]["id"], data[i]["name"]);
+                                BlogSB.AddItem(data[i]["id"], data[i]["name"]);
                             }
                         });
                     });
+
                     BlogSB.Calllback(function (v) {
-                        //  SS.S("#Blog_SearchRS,#HtmlReadable").Empty();
-                        // wsl.Param = {"KeywordID": v, "StartID": 0};
+                        ss.S("#SearchRS,#HtmlReadable").Empty();
+                        lastid = 0;
+                        AjaxSB.Param("id", v);
+                        AjaxSB.Param("startid", lastid);
+                        AjaxSB.LoadAjax();
+
+                    });
+                    BlogSB.Enter = (function (v) {
+                        //  ss.S("#SearchRS,#HtmlReadable").Empty();
+                        //  wsl.Param["Keyword"] = v;
+                        // wsl.Param["StartID"] = 0;
                         // wsl.Lock = false;
                         // wsl.LoadData();
                     });
-                    
-                    var wsl =  AjaxScrollBar();
-                    wsl.URL = "../../../Api/ShareAjax/Blog/SearchBlogUsingKeywordID.php";
-                    wsl.Done = (function (data) {
-                        data = JSON.parse(data);
-                        for (var i = 0; i < data.length; i++) {
-                            rs.Append("<h2></h2>").Append("<a></a>").Url("index.php", {"id": data[i]["id"]}).Append(data[i]["title"]);
-                            rs.Append("<span></span>").Append(data[i]["description"]);
-                            wsl.Param["StartID"] = Math.max(parseInt(data[i]["id"]), wsl.Param["StartID"]);
+
+                    AjaxSB.AddScrollEvent(function (data) {
+                        try {
+
+                            data = JSON.parse(data);
+                            for (var i in data) {
+                                ss.S("#SearchRS").Append('<div class="BlogList"><a class="MenuLink" href="Viewer.php?id=' + data[i]["id"] + '">' + data[i]["title"] + '</a>' + data[i]["description"] + '</div>');
+
+                                lastid = Math.max(lastid, data[i]["id"]);
+                            }
+                            AjaxSB.Param("startid", lastid);
+                        } catch (e) {
+
                         }
-                        wsl.Lock = false;
                     });
 
-
-
-                    wsl.AddEventListener();
                 });
             </script>
         </head>
-        <body >
+        <body  class="HolyGrail">
 
 
             <header> 
                 <h1 style="width: 100%;text-align: center;"><?php echo $config->GetName(); ?> Website</h1>
             </header>
-            <div class="LMR157015">
-                <div>
-                    <nav>
+            <div class="HolyGrail-body">
+
+                <nav>
+                    <?php
+                    foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+                            printf('  <a  class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
+                        }
+                        echo '</div>';
+                    }
+                    ?>
+
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Template</div>
                         <?php
-                        foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
-                            echo '<div class="BorderBlock">';
-                            printf(' <div class="TitleCenter">%s</div>', $key);
-                            foreach ($valueA as $valueB) {
-                                printf('  <a  class="MenuLink" href="%s">%s</a>', $valueB["path"], $valueB["name"]);
-                            }
+                        foreach ($uinav->FindAllTemplate("../../../") as $key => $value) {
+                            printf('  <a  class="MenuLink" href="%s">%s</a>', $value, $key);
+                        }
+                        ?>
+                    </div>
+                    <?php
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
                             echo '</div>';
                         }
-                        ?>
+                    }
+                    ?>
+                </nav>
 
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <div class="TitleCenter">Template</div>
-                            <?php
-                            foreach ($uinav->FindAllTemplate("../../../") as $key => $value) {
-                                printf('  <a  class="MenuLink" href="%s">%s</a>', $value, $key);
-                            }
-                            ?>
-                        </div>
-                        <?php
-                        foreach ($modlist as $value) {
-                            if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
-                                echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
-                                printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
-                                echo $value->Execute(Module_SDK_Basic::Layout_Nav);
-                                echo '</div>';
-                            }
-                        }
-                        ?>
-                    </nav>
-                </div>
-                <div>
+                <main>
                     <div style="width: 100%;" id="SearchBox"></div>
                     <div id="SearchRS" >
                         <?php
@@ -137,27 +148,20 @@ if ($config->IsOnline()) {
                               printf('<div class="BlogList"><h3><a class="LinkOpen" href="index.php?id=%s">%s</a></h3>%s</div>', $value["id"], $value["title"], $value["description"]);
                               }
                               } */
-                        } else if (!isset($_GET["id"])) {
-                            foreach ($blog->GetLastBlogList() as $value) {
-                                echo '<div class="BlogList"><a href="?id='.$value["id"].'">';
-                                printf('<h2>%s</h2>',   $value["title"]);
-                                echo $value["description"];
-                                echo '</a></div>';
-                            }
-                        }
+                        }  
                         ?>
                     </div>
                     <div id="HtmlReadable" style="height: 100%;">
                         <?php
                         if (isset($_GET["id"])) {
-                            printf('<iframe style="%s" src="../../../../Api/Action/Blog/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100%;box-sizing: border-box;", $_GET["id"]);
+                            printf('<iframe style="%s" src="../../../../Api/ShareAction/Blog/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100%;box-sizing: border-box;", $_GET["id"]);
                         }
                         ?>
                     </div>
-                </div>
+                </main>
 
-                <div>
-                    <div   class="BorderBlock" style="margin-top: 1px;">
+                <aside>
+                    <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">User</div>
                         <?php
                         foreach ($user->GetUserList() as $value) {
@@ -176,7 +180,7 @@ if ($config->IsOnline()) {
                             }
                             ?>
                         </div>
-                         
+
                     </div>
                     <?php
                     echo '<div class="BorderBlock" style="margin-top: 1px;">';
@@ -197,9 +201,9 @@ if ($config->IsOnline()) {
                         }
                     }
                     ?>
-                </div>
-            </div>
 
+                </aside>
+            </div>
             <footer>
                 <span style="font-weight: 700;display: block;">
                     <?php
