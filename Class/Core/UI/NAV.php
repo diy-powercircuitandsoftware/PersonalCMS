@@ -7,7 +7,6 @@ class UINAV {
         $filter = array(".", "..", "css", "js", "img", ".htaccess");
         foreach (array_diff(scandir($path), $filter) as $AValue) {
             $out[$AValue] = array();
-
             $subpath = $path . "/" . $AValue;
             foreach (array_diff(scandir($subpath), $filter) as $BValue) {
                 $lastpath = $subpath . "/" . $BValue;
