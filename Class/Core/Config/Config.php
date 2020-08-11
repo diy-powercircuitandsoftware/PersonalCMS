@@ -38,6 +38,15 @@ class Config extends SQLite3 {
         return false;
     }
 
+    public function DownloadBigFile() {
+        $results = $this->query("SELECT v FROM config WHERE k='dlbigfile';");
+        $data = $results->fetchArray();
+        if ($data) {
+            return $data["v"];
+        }
+        return "0";
+    }
+
     public function GetDataPath() {
         $results = $this->query(" SELECT v FROM config WHERE k='data';");
         $data = $results->fetchArray();

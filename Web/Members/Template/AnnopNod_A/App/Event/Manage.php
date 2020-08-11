@@ -59,7 +59,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var tabletool = new TableTools();
                     var ajax = new Ajax();
                     var lastid = 0;
-                    var ajaxsb = new AjaxScrollBar("../../../../Api/Ajax/Event/GetEvent.php", {"id": 0});
+                    var ajaxsb = new AjaxScrollBar("../../../../Api/Ajax/Event/GetEvent.php", {"ID": 0});
                     tabletool.Import(document.getElementById("TableOutput"));
                     ajaxsb.AddScrollEvent(function (data) {
                         try {
@@ -88,12 +88,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 ss.S("#CBoxSelectAll").Val(false);
                             }
                         } else if (e.target.getAttribute("class") == "BNEdit") {
-                            ajax.Post("../../../../Api/Ajax/Event/GetEventForEdit.php", {"id": e.target.getAttribute("data-value")}, function (data) {
+                            ajax.Post("../../../../Api/Ajax/Event/GetEventForEdit.php", {"ID": e.target.getAttribute("data-value")}, function (data) {
                                 ss.S(".EventAjaxSend").ValByName(JSON.parse(data));
-                                sd.Import("Edit", "#EventDialog", function () {
-                                    var json = ss.S(".EventAjaxSend").SerializeToJson();
-                                    json["id"] = e.target.getAttribute("data-id");
-                                    ss.Post("../../../Api/Ajax/EventManager/UpdateEventList.php", json, function () {
+                                sd.ImportOkCancel("Edit", "#EventDialog", function () {
+                                    var json = ss.S(".EventAjaxSend").ValByName();
+                                    json["ID"] = e.target.getAttribute("data-value");
+
+                                    ajax.Post("../../../../Api/Ajax/Event/EditEvent.php", json, function () {
                                         location.reload();
                                     });
                                 }).ZIndex(999).Title("Edit");
@@ -162,8 +163,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-                             
- printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/".$valueB["path"], $valueB["name"]);
+
+                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }
@@ -210,7 +211,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <?php
                         foreach ($eventreader->GetComingEvent(Event_Database::Access_Member) as $value) {
                             echo '<div>';
-                            printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                            printf('<a class="MenuLink" href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
                             printf('<div style="color: black;" >%s</div></a>', $value["description"]);
                             echo '</div><hr>';
                         }

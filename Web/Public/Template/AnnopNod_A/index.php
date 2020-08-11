@@ -94,10 +94,10 @@ if ($config->IsOnline()) {
                             <div  style="text-align: left;" class="TitleCenter">Last Blog</div>
                             <?php
                             foreach ($blog->GetLastBlogList(Blog_Database::Access_Public) as $value) {
-                                echo '<div class="DivList"><a href="App/Blog/Viewer.php?id=' . $value["id"] . '">';
-                                printf('<h2>%s</h2>', $value["title"]);
+                                echo '<div class="DivList">';
+                                printf('<a class="MenuLink" href="App/Blog/Viewer.php?id=%d"><h2>%s</h2></a>', intval($value["id"]) ,$value["title"]);
                                 echo $value["description"];
-                                echo '</a></div>';
+                                echo '</div>';
                             }
                             ?>
                         </div>
@@ -115,7 +115,7 @@ if ($config->IsOnline()) {
                     echo '  <div class="TitleCenter">Event</div>';
                     foreach ($event->GetComingEvent(Event_Database::Access_Public) as $value) {
                         echo '<div>';
-                        printf('<a href="Event/index.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                        printf('<a class="MenuLink" href="Event/index.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
                         printf('<div style="color: black;" >%s</div></a>', $value["description"]);
                         echo '</div><hr>';
                     }

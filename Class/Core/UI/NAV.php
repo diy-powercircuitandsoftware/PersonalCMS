@@ -11,14 +11,15 @@ class UINAV {
                     $out[$mainfile->getFilename()] = array();
                     foreach (new DirectoryIterator($mainfile->getPathname()) as $subfile) {
                         if ($subfile->getExtension() == "php") {
-                            $out[$mainfile->getFilename()][] = array("path" => $mainfile->getFilename()."/".$subfile->getFilename(), "name" => $subfile->getBasename(".php"));
+                            $out[$mainfile->getFilename()][] = array("path" => $mainfile->getFilename() . "/" . $subfile->getFilename(), "name" => $subfile->getBasename(".php"));
                         }
                     }
                 }
             }
-  
         }
-
+        unset($out["css"]);
+        unset($out["js"]);
+        unset($out["img"]);
         return $out;
     }
 

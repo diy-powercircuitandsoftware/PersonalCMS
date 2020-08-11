@@ -175,7 +175,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <?php
                         foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
                             echo '<div>';
-                            printf('<a href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                            printf('<a class="MenuLink" href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
                             printf('<div style="color: black;" >%s</div></a>', $value["description"]);
                             echo '</div><hr>';
                         }

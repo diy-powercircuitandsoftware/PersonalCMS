@@ -38,6 +38,27 @@ class Event_Manager {
         }
     }
 
+    public function EditEvent($userid, $id, $param) {
+        try {
+            unset($param["id"]);
+            unset($param["userid"]);
+            $Prepare = $this->DataFilter($param);
+            var_dump($Prepare);
+            $sql = 'UPDATE event SET ' . implode("=?,", array_keys($Prepare)) . '=? WHERE id=:id AND userid=:userid; ';
+            $stmt = $this->ed->prepare($sql);
+            $stmt->bindParam(':id', $id, SQLITE3_INTEGER);
+            $stmt->bindParam(':userid', $userid, SQLITE3_INTEGER);
+            $val = array_values($Prepare);
+            for ($i = 0; $i < count($val); $i++) {
+                $stmt->bindParam($i + 1, $val[$i]);
+            }
+            $stmt->execute();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
     public function DataFilter($param) {
         $out = array();
         $results = $this->ed->query("PRAGMA table_info('event')");
@@ -54,6 +75,7 @@ class Event_Manager {
                         $v = 0;
                     }
                 } else {
+                   
                     $v = $param[$name];
                 }
 
@@ -67,7 +89,7 @@ class Event_Manager {
         $data = array();
         $stmt = $this->ed->prepare('SELECT * FROM event WHERE userid=:userid AND id>:id  LIMIT 30; ');
         $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
-         $stmt->bindValue(':id', $startlist, SQLITE3_INTEGER);
+        $stmt->bindValue(':id', $startlist, SQLITE3_INTEGER);
         $results = $stmt->execute();
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             $data[] = $row;

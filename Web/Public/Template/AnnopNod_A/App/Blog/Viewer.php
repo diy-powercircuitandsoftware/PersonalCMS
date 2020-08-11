@@ -165,7 +165,7 @@ if ($config->IsOnline()) {
                         <div class="TitleCenter">User</div>
                         <?php
                         foreach ($user->GetUserList() as $value) {
-                            printf('<a style="display:block;" href="?userid=%s">%s</a>', $value["id"], $value["alias"]);
+                            printf('<a class="MenuLink" href="?userid=%s">%s</a>', $value["id"], $value["alias"]);
                         }
                         ?>
                     </div>
@@ -176,7 +176,7 @@ if ($config->IsOnline()) {
                         <div>
                             <?php
                             foreach ($category->GetAllCategory() as $value) {
-                                printf('<a style="display:block;" href="?category=%s">%s</a>', $value["id"], $value["name"]);
+                                printf('<a class="MenuLink" href="?category=%s">%s</a>', $value["id"], $value["name"]);
                             }
                             ?>
                         </div>
@@ -187,7 +187,7 @@ if ($config->IsOnline()) {
                     echo '  <div class="TitleCenter">Event</div>';
                     foreach ($event->GetComingEvent(Event_Database::Access_Public) as $value) {
                         echo '<div>';
-                        printf('<a href="Event/index.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                        printf('<a class="MenuLink" href="Event/index.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
                         printf('<div style="color: black;" >%s</div></a>', $value["description"]);
                         echo '</div><hr>';
                     }
