@@ -291,7 +291,7 @@ class SuperDialog {
         return sd;
     }
     MediaPlayer(...args) {
-         var src=args[0];
+        var src = args[0];
         var sd = new Dialog();
         var image = ["gif", "png", "jpg", "jpeg", "webp"];
         var video = ["mp4", "webm"];
@@ -327,8 +327,8 @@ class SuperDialog {
                     }
                 }});
 
-        }  else if (args.length==2){
-              var ext =args[1];
+        } else if (args.length == 2) {
+            var ext = args[1];
             if (image.indexOf(ext) >= 0) {
                 sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><img style="max-width: 100%;max-height: 100%;" src="' + src + '"/></div>');
             } else if (video.indexOf(ext) >= 0) {
@@ -336,7 +336,7 @@ class SuperDialog {
             } else if (audio.indexOf(ext) >= 0) {
                 sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + src + '"></audio></div>');
             }
-        }else {
+        } else {
             var ext = (src.split('.').pop()).toLowerCase();
             if (image.indexOf(ext) >= 0) {
                 sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><img style="max-width: 100%;max-height: 100%;" src="' + src + '"/></div>');
@@ -346,7 +346,7 @@ class SuperDialog {
                 sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + src + '"></audio></div>');
             }
         }
-        
+
     }
     Mutilline(...args) {
         var sd = new Dialog();
@@ -415,6 +415,7 @@ class SuperDialog {
         sd.Content(args[0]);
         sd.Append(sd.ta);
         sd.DestroyAfterClose();
+        sd.Resize(false);
         sd.Show();
         sd.Button({"OK": function () {
                 if (typeof args[1] === "function") {

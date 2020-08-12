@@ -36,19 +36,19 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             }
             ?>
             <script src="../../../../../js/io/Ajax.js"></script>
+            <script src="../../../../../js/io/FilesUpload.js"></script>
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../js/dom/SuperDialog.js"></script>          
             <script src="../../../../../js/dom/TableTools.js"></script>
             <script src="../../../../../js/dom/FilesList.js"></script>
-            <script src="../../../../../js/io/FilesUpload.js"></script>
-            <script src="../../../../../js/image/TakePhoto.js"></script>
+            <script src="../../../../../js/office/WYSIWYG.js"></script>
 
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
                     var dialog = new SuperDialog();
-
+                    var Editor = new WYSIWYG("#EditorDialog");
                     var FL = new FilesList(document.getElementById("FileList"));
                     var FV = new FilesList(document.getElementById("FileViewer"));
                     var FU = new FilesUpload({
@@ -59,6 +59,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     });
 
+                    Editor.Size("800px", "600px");
                     FL.OpenDir(function (v) {
                         ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v, "Ext": "BlogZip"}, function (data) {
                             FL.CurrentDIR = v;
@@ -133,6 +134,21 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         });
                     });
+                    ss.S("#BNAddNewHtmlFile").Click(function () {
+                        if (FV.FilePath !== undefined) {
+                            var p = dialog.Prompt("Name", function (v) {
+                                dialog.ImportOkCancel("Create New:" + FV.CurrentDIR + "/" + v, "#EditorDialog", function (v) {
+                                    ajax.Post("../../../../Api/Ajax/Blog/AddHtmlToBlogZip.php", {"Path": FL.CurrentDIR, "Name": v}, function (data) {
+                                        if (data == "1") {
+                                            FV.OpenDir(FV.CurrentDIR);
+                                        }
+                                    });
+                                });
+                                Editor.DesignMode(true);
+                                return true;
+                            });
+                        }
+                    });
                     ss.S("#BNCancelUpload").Click(function () {
                         FU.Abort();
                     });
@@ -149,6 +165,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNHome").Click(function () {
                         FV.OpenDir("/");
                     });
+
                     ss.S("#BNOpenDialog").Click(function () {
                         FL.OpenDir("/");
                         dialog.ImportOkCancel("Open", "#OpenDialog", function (v) {
@@ -206,7 +223,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      return  true;
                      }).ZIndex(999);
                      });
-                         
+                     
                      */
 
 
@@ -295,8 +312,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-                             
- printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/".$valueB["path"], $valueB["name"]);
+
+                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }
@@ -329,7 +346,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <div class="BorderBlock" >
                             <label class="TitleCenter" style="display: block;">New</label>
                             <a class="MenuLink" id="BNNewFolder"href="#">Folder</a>
-
+                            <a class="MenuLink" id="BNAddNewHtmlFile"href="#">File</a>
                         </div>
                         <div class="BorderBlock" >
                             <label class="TitleCenter" style="display: block;">Manager</label>
@@ -392,6 +409,33 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <div style="width: 100%;box-sizing: border-box;" id="FileList">
                 </div>
             </div>
+            <div id="EditorDialog" style="display: none;">
+                <div>
+                    <img  class="BNCMD" data-cmd="bold"  style="border-style: outset;"  src="../../../../../img/wysiwyg/bold.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="italic"  style="border-style: outset;"  src="../../../../../img/wysiwyg/italic.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="underline"  style="border-style: outset;"  src="../../../../../img/wysiwyg/underline.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="cut"  style="border-style: outset;"  src="../../../../../img/wysiwyg/cut.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="copy"  style="border-style: outset;"  src="../../../../../img/wysiwyg/copy.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="paste"  style="border-style: outset;"  src="../../../../../img/wysiwyg/paste.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="undo"  style="border-style: outset;"  src="../../../../../img/wysiwyg/undo.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="redo"  style="border-style: outset;"  src="../../../../../img/wysiwyg/redo.gif" width="22" height="22"  />
+                    <img class="BNCMD" data-cmd="justifyLeft" style="border-style: outset;" src="../../../../../img/wysiwyg/justifyleft.gif" width="22" height="22" />
+                    <img  class="BNCMD" data-cmd="justifyCenter"   style="border-style: outset;" src="../../../../../img/wysiwyg/justifycenter.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="justifyRight"  style="border-style: outset;"  src="../../../../../img/wysiwyg/justifyright.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="insertUnorderedList"  style="border-style: outset;"  src="../../../../../img/wysiwyg/dottedlist.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="insertOrderedList"  style="border-style: outset;"  src="../../../../../img/wysiwyg/numberedlist.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="indent"  style="border-style: outset;"  src="../../../../../img/wysiwyg/indent.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="outdent"  style="border-style: outset;"  src="../../../../../img/wysiwyg/outdent.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="strikeThrough"  style="border-style: outset;"  src="../../../../../img/wysiwyg/strikethrough.gif" width="22" height="22"   />
+                    <img  class="BNCMD" data-cmd="superscript"  style="border-style: outset;"  src="../../../../../img/wysiwyg/superscript.gif" width="22" height="22"   />
+                    <img  class="BNCMD" data-cmd="subscript"  style="border-style: outset;"  src="../../../../../img/wysiwyg/subscript.gif" width="22" height="22"   />
+                    <img  class="BNInsertCMD" data-cmd="createlink" title="InsertLink" style="border-style: outset;"  src="../../../../../img/wysiwyg/link.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="unlink" title="RemoveLink"  style="border-style: outset;"  src="../../../../../img/wysiwyg/unlink.gif" width="22" height="22"  />
+                    <img  class="BNCMD" data-cmd="removeFormat" title="RemoveFormat"   style="border-style: outset;"  src="../../../../../img/wysiwyg/removeformat.gif" width="22" height="22"  />
+                </div>
+
+            </div>
+
 
 
         </body>
