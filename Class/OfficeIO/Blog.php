@@ -23,7 +23,11 @@ class OfficeIO_Blog {
     }
 
     function AddHtml($path, $code) {
-        $this->zip->addFromString($this->Normalize($path), $code);
+        if (is_string($path)) {
+            $this->zip->addFromString($this->Normalize($path), $code);
+        } elseif (is_int($path)) {
+            $this->zip->addFromString($this->Normalize($this->zip->getNameIndex($path)), $code);
+        }
     }
 
     function Delete($path) {

@@ -112,13 +112,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
                                 dialog.MediaPlayer("../../../../Api/Action/Blog/GetBlogZipFile.php?path=" + FV.FilePath + "&id=" + v, ext);
                             } else if (["htm", "html"].indexOf(ext) >= 0) {
-
-
-                                ajax.Get("../../../../Api/Action/Blog/GetBlogZipFile.php", {"path": FV.FilePath, "id": v}, function (htmldata) {
-
-                                    var dia = dialog.ImportOkCancel("Create New:" + v, "#EditorDialog", function (v) {
-                                      
-                                        ajax.Post("../../../../Api/Ajax/Blog/AddHtmlToBlogZip.php", {"Path": FV.FilePath, "id": v, "Html": Editor.Html()}, function (data) {
+                                ajax.Get("../../../../Api/Action/Blog/GetBlogZipFileHtmlPreview.php", {"path": FV.FilePath, "id": v}, function (htmldata) {
+                                    var dia = dialog.ImportOkCancel("Open", "#EditorDialog", function () {                                     
+                                        ajax.Post("../../../../Api/Ajax/Blog/AddHtmlToBlogZip.php", {"Path": FV.FilePath, "ID": v, "Html": Editor.Html()}, function (data) {
                                             if (data == "1") {
                                                 FV.OpenDir(FV.CurrentDIR);
                                                 dia.Close();
@@ -129,7 +125,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                       Editor.Html(htmldata);
                                     return true;
                                 });
-
                             }
                         });
 
