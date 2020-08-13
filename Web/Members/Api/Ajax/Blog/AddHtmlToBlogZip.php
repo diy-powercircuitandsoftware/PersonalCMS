@@ -19,7 +19,8 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $vd = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
     $blog = new OfficeIO_Blog($vd->DiskPath($_POST["Path"]));
 
-    $blog->AddFile($realpath, $_POST["uploadto"] . "/" . $_POST["file"]);
+    $blog->AddHtml(  $_POST["Name"] , $_POST["Html"]);
+   echo  $blog->Close();
 } else {
     echo '0';
 }

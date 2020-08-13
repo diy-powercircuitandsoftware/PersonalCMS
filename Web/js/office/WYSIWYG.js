@@ -22,6 +22,13 @@ class WYSIWYG {
             this.editor.contentDocument.designMode = "off";
         }
     }
+    Html(...args) {
+        if (args.length === 0) {
+            return  this.editor.contentWindow.document.body.innerHTML;
+        } else {
+            this.editor.contentWindow.document.body.innerHTML = args[0];
+        }
+    }
     Size(w, h) {
         this.editor.style.width = w;
         this.editor.style.height = h;

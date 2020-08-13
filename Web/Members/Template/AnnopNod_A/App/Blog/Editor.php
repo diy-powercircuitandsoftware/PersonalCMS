@@ -111,6 +111,25 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             var ext = data["name"].split('.').pop().toLowerCase();
                             if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
                                 dialog.MediaPlayer("../../../../Api/Action/Blog/GetBlogZipFile.php?path=" + FV.FilePath + "&id=" + v, ext);
+                            } else if (["htm", "html"].indexOf(ext) >= 0) {
+
+
+                                ajax.Get("../../../../Api/Action/Blog/GetBlogZipFile.php", {"path": FV.FilePath, "id": v}, function (htmldata) {
+
+                                    var dia = dialog.ImportOkCancel("Create New:" + v, "#EditorDialog", function (v) {
+                                      
+                                        ajax.Post("../../../../Api/Ajax/Blog/AddHtmlToBlogZip.php", {"Path": FV.FilePath, "id": v, "Html": Editor.Html()}, function (data) {
+                                            if (data == "1") {
+                                                FV.OpenDir(FV.CurrentDIR);
+                                                dia.Close();
+                                            }
+                                        });
+                                    });
+                                    Editor.DesignMode(true);
+                                      Editor.Html(htmldata);
+                                    return true;
+                                });
+
                             }
                         });
 
@@ -137,10 +156,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNAddNewHtmlFile").Click(function () {
                         if (FV.FilePath !== undefined) {
                             var p = dialog.Prompt("Name", function (v) {
-                                dialog.ImportOkCancel("Create New:" + FV.CurrentDIR + "/" + v, "#EditorDialog", function (v) {
-                                    ajax.Post("../../../../Api/Ajax/Blog/AddHtmlToBlogZip.php", {"Path": FL.CurrentDIR, "Name": v}, function (data) {
+                                v = v + ".html";
+                                var Name = FV.CurrentDIR + "/" + v;
+                                var dia = dialog.ImportOkCancel("Create New:" + Name, "#EditorDialog", function (v) {
+                                    Editor.Html("");
+                                    ajax.Post("../../../../Api/Ajax/Blog/AddHtmlToBlogZip.php", {"Path": FV.FilePath, "Name": Name, "Html": Editor.Html()}, function (data) {
                                         if (data == "1") {
                                             FV.OpenDir(FV.CurrentDIR);
+                                            dia.Close();
                                         }
                                     });
                                 });
@@ -223,7 +246,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      return  true;
                      }).ZIndex(999);
                      });
-                     
+                         
                      */
 
 
