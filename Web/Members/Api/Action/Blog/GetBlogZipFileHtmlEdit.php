@@ -17,8 +17,26 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
         $userdata->CanWritable($_SESSION["User"]["id"])) {
     $vd = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
     $blog = new OfficeIO_Blog($vd->DiskPath($_GET["path"]));
-    echo $blog->Get(intval($_GET["id"]));
-     $blog->Close();
+
+  $name="";
+  
+    $fileinfo = new SplFileInfo( ($_GET["name"]));
+  
+    if (in_array(strtolower($fileinfo->getExtension()), array("html", "htm"))) {
+        $dom = new DOMDocument();
+        $dom->loadHTML(  mb_convert_encoding($blog->Get($_GET["name"]), 'HTML-ENTITIES', 'UTF-8'));
+        foreach ($dom->getElementsByTagName('img') as $img) {
+            $x = $img->getAttribute("src");
+            $img->setAttribute("src", $_SERVER["SCRIPT_NAME"] . "?" . http_build_query(array("path" => $_GET["path"], "name" =>$x)));
+            $img->setAttribute("src_ref", $x);
+        }
+        echo $dom->saveHTML();
+    }
+    else  if (in_array(strtolower($fileinfo->getExtension()), array("jpg", "png","gif"))) {
+         echo $blog->Get($_GET["name"]);
+    }
+     
+    $blog->Close();
 } else {
     echo '0';
 }

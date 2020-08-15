@@ -19,8 +19,12 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
         $userdata->CanWritable($_SESSION["User"]["id"])) {
     $vd = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
     $blog = new OfficeIO_Blog($vd->DiskPath($_GET["path"]));
- 
-    CreateStringImageThumbnail($blog->Get(intval($_GET["id"])), 30, 30);
+ if (isset($_GET["id"])){
+       CreateStringImageThumbnail($blog->Get(intval($_GET["id"])), 30, 30);
+ }else if (isset($_GET["name"])){
+       CreateStringImageThumbnail($blog->Get($_GET["name"]), 30, 30);
+ }
+  
     $blog->Close();
 } else {
     echo '0';

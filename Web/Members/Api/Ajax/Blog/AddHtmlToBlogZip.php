@@ -18,10 +18,18 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
 
     $vd = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
     $blog = new OfficeIO_Blog($vd->DiskPath($_POST["Path"]));
+
+    $dom = new DOMDocument();
+    $dom->loadHTML(mb_convert_encoding($_POST["Html"], 'HTML-ENTITIES', 'UTF-8'));
+
+    foreach ($dom->getElementsByTagName('img') as $img) {
+        $x = $img->getAttribute("src_ref");
+        $img->setAttribute("src", $x);
+    }
     if (isset($_POST["Name"])) {
-        $blog->AddHtml($_POST["Name"], $_POST["Html"]);
+        $blog->AddHtml($_POST["Name"], $dom->saveHTML());
     } elseif (isset($_POST["ID"])) {
-        $blog->AddHtml(intval($_POST["ID"]), $_POST["Html"]);
+        $blog->AddHtml(intval($_POST["ID"]), $dom->saveHTML());
     }
 
     echo $blog->Close();

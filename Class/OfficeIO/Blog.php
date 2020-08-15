@@ -46,6 +46,10 @@ class OfficeIO_Blog {
         }
     }
 
+    function GetNameByIndex($index) {
+         return $this->zip->getNameIndex($index);
+    }
+
     function GetStat($path) {
         if (is_string($path)) {
             return $this->zip->statName($path);

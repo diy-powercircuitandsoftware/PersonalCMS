@@ -7,6 +7,7 @@ class WYSIWYG {
         } else {
             this.editor = document.body.appendChild(document.createElement("iframe"));
         }
+       
     }
     BackgroundColor() {
 
@@ -21,6 +22,7 @@ class WYSIWYG {
         } else {
             this.editor.contentDocument.designMode = "off";
         }
+         doc.head.innerHTML='<meta charset="utf-8"/>';
     }
     Html(...args) {
         if (args.length === 0) {

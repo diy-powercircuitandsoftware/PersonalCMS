@@ -99,22 +99,22 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 if (data[i]["type"] == "dir") {
                                     FV.AddDir(data[i]["name"], data[i]["fullpath"], data[i]["mtime"]);
                                 } else if (data[i]["type"] == "file") {
-                                    FV.AddFile(data[i]["name"], data[i]["index"], data[i]["size"], data[i]["mtime"]);
+                                    FV.AddFile(data[i]["name"], data[i]["fullpath"], data[i]["size"], data[i]["mtime"]);
                                 }
                             }
 
                         });
                     });
                     FV.OpenFile(function (v) {
-                        ajax.Post("../../../../Api/Ajax/Blog/GetBlogZipStat.php", {"Path": FV.FilePath, "ID": v}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Blog/GetBlogZipStat.php", {"Path": FV.FilePath, "Name": v}, function (data) {
                             data = JSON.parse(data);
                             var ext = data["name"].split('.').pop().toLowerCase();
                             if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
-                                dialog.MediaPlayer("../../../../Api/Action/Blog/GetBlogZipFile.php?path=" + FV.FilePath + "&id=" + v, ext);
+                                dialog.MediaPlayer("../../../../Api/Action/Blog/GetBlogZipFile.php?path=" + FV.FilePath + "&name=" + v, ext);
                             } else if (["htm", "html"].indexOf(ext) >= 0) {
-                                ajax.Get("../../../../Api/Action/Blog/GetBlogZipFileHtmlPreview.php", {"path": FV.FilePath, "id": v}, function (htmldata) {
-                                    var dia = dialog.ImportOkCancel("Open", "#EditorDialog", function () {                                     
-                                        ajax.Post("../../../../Api/Ajax/Blog/AddHtmlToBlogZip.php", {"Path": FV.FilePath, "ID": v, "Html": Editor.Html()}, function (data) {
+                                ajax.Get("../../../../Api/Action/Blog/GetBlogZipFileHtmlEdit.php", {"path": FV.FilePath, "name": v}, function (htmldata) {
+                                    var dia = dialog.ImportOkCancel("Open=>"+v, "#EditorDialog", function () {                                     
+                                        ajax.Post("../../../../Api/Ajax/Blog/AddHtmlToBlogZip.php", {"Path": FV.FilePath, "Name": v, "Html": Editor.Html()}, function (data) {
                                             if (data == "1") {
                                                 FV.OpenDir(FV.CurrentDIR);
                                                 dia.Close();
@@ -130,7 +130,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     });
                     FV.Properties(function (v) {
-                        ajax.Post("../../../../Api/Ajax/Blog/GetBlogZipStat.php", {"Path": FV.FilePath, "ID": v}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Blog/GetBlogZipStat.php", {"Path": FV.FilePath, "Name": v}, function (data) {
                             data = JSON.parse(data);
                             var tl = dialog.TableLayout().Title("Properties").ZIndex(999);
                             tl.AddNewRowElement();
@@ -188,7 +188,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         FL.OpenDir("/");
                         dialog.ImportOkCancel("Open", "#OpenDialog", function (v) {
                             FV.FilePath = FL.GetSelectFiles(0);
-                            FV.SetPreviewImage("../../../../Api/Action/Blog/GetBlogZipImagePreview.php?path=" + FV.FilePath + "&id=");
+                            FV.SetPreviewImage("../../../../Api/Action/Blog/GetBlogZipImagePreview.php?path=" + FV.FilePath + "&name=");
                             FV.OpenDir("/");
                             return true;
                         });
