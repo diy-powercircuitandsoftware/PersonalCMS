@@ -12,13 +12,13 @@ class SSQueryFW {
                 this.ForEach(this.element, function (el) {
                     el.innerHTML = el.innerHTML + args[0];
                 });
-               /* if (this.element.length == 1) {
-                    this.ForEach(args[0], function (el) {
-                        this.element[0].appendChild(el);
-                    });
-                } else if (this.element.length > 1) {
-
-                }*/
+                /* if (this.element.length == 1) {
+                 this.ForEach(args[0], function (el) {
+                 this.element[0].appendChild(el);
+                 });
+                 } else if (this.element.length > 1) {
+                 
+                 }*/
             }
 
         } else if (args.length === 2) {
@@ -64,7 +64,7 @@ class SSQueryFW {
                 el.setAttribute(args[0], args[1]);
             });
         }
- 
+
     }
     Change(...args) {
         this.EventListener("change", ...args);
@@ -163,10 +163,14 @@ class SSQueryFW {
     DocumentReady(callback) {
         document.addEventListener('DOMContentLoaded', callback);
     }
-    Empty() {
+    Each(cb) {
         this.ForEach(this.element, function (el) {
-            el.innerHTML = "";
+            cb(el);
         });
+        return this;
+    }
+    Empty() {
+
     }
     EventListener(...args) {
         var eventName = args[0];

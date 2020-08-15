@@ -113,7 +113,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 dialog.MediaPlayer("../../../../Api/Action/Blog/GetBlogZipFile.php?path=" + FV.FilePath + "&name=" + v, ext);
                             } else if (["htm", "html"].indexOf(ext) >= 0) {
                                 ajax.Get("../../../../Api/Action/Blog/GetBlogZipFileHtmlEdit.php", {"path": FV.FilePath, "name": v}, function (htmldata) {
-                                    var dia = dialog.ImportOkCancel("Open=>"+v, "#EditorDialog", function () {                                     
+                                    var dia = dialog.ImportOkCancel("Open=>" + v, "#EditorDialog", function () {
                                         ajax.Post("../../../../Api/Ajax/Blog/AddHtmlToBlogZip.php", {"Path": FV.FilePath, "Name": v, "Html": Editor.Html()}, function (data) {
                                             if (data == "1") {
                                                 FV.OpenDir(FV.CurrentDIR);
@@ -122,7 +122,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                         });
                                     });
                                     Editor.DesignMode(true);
-                                      Editor.Html(htmldata);
+                                    Editor.Html(htmldata);
                                     return true;
                                 });
                             }
@@ -169,6 +169,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     ss.S("#BNCancelUpload").Click(function () {
                         FU.Abort();
+                    });
+                    ss.S(".BNCMD").Click(function () {
+                        var cmd = this.getAttribute("data-cmd");
+                        Editor.EXECommand(cmd);
+                        this.style.borderStyle = "inset";
+                        ss.S(".BNCMD").Each(function (dom) {
+                            var cmd = dom.getAttribute("data-cmd");
+                            if (!Editor.EXECommandState(cmd)) {
+                                dom.style.borderStyle = "outset";
+                            }
+                        })
                     });
                     ss.S("#BNCreateNew").Click(function () {
                         var p = dialog.Prompt("Name", function (v) {

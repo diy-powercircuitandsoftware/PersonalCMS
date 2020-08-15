@@ -7,7 +7,7 @@ class WYSIWYG {
         } else {
             this.editor = document.body.appendChild(document.createElement("iframe"));
         }
-       
+
     }
     BackgroundColor() {
 
@@ -22,7 +22,27 @@ class WYSIWYG {
         } else {
             this.editor.contentDocument.designMode = "off";
         }
-         doc.head.innerHTML='<meta charset="utf-8"/>';
+        doc.head.innerHTML = '<meta charset="utf-8"/>';
+    }
+    EXECommand(cmd) {
+        var CommandList = ["bold", "copy", "cut", "decreaseFontSize",
+            "insertHorizontalRule", "increaseFontSize", "indent", "italic",
+            "justifyLeft", "justifyCenter", "justifyRight", "justifyFull",
+            "insertOrderedList", "outdent", "insertParagraph", "paste",
+            "redo", "removeFormat", "unlink", "strikeThrough", "subscript", "superscript", "underline", "undo", "insertUnorderedList"];
+        if (CommandList.indexOf(cmd) >= 0) {
+            this.editor.contentWindow.document.execCommand(cmd, false, false);
+        }
+    }
+    EXECommandState(cmd) {
+        var CommandList = ["bold", "copy", "cut", "decreaseFontSize",
+            "insertHorizontalRule", "increaseFontSize", "indent", "italic",
+            "justifyLeft", "justifyCenter", "justifyRight", "justifyFull",
+            "insertOrderedList", "outdent", "insertParagraph", "paste",
+            "redo", "removeFormat", "unlink", "strikeThrough", "subscript", "superscript", "underline", "undo", "insertUnorderedList"];
+        if (CommandList.indexOf(cmd) >= 0) {
+            return this.editor.contentWindow.document.queryCommandState(cmd);
+        }
     }
     Html(...args) {
         if (args.length === 0) {
@@ -41,6 +61,7 @@ class WYSIWYG {
 
 
 /*
+ Method.EXECommandState = function (cmd) {
  
  
  
@@ -82,26 +103,8 @@ class WYSIWYG {
  };
  
  
- Method.EXECommand = function (cmd) {
- var CommandList = ["bold", "copy", "cut", "decreaseFontSize",
- "insertHorizontalRule", "increaseFontSize", "indent", "italic",
- "justifyLeft", "justifyCenter", "justifyRight", "justifyFull",
- "insertOrderedList", "outdent", "insertParagraph", "paste",
- "redo", "removeFormat", "unlink", "strikeThrough", "subscript", "superscript", "underline", "undo", "insertUnorderedList"];
- if (CommandList.indexOf(cmd) >= 0) {
- this.contentWindow.document.execCommand(cmd, false, false);
- }
- 
  };
- Method.EXECommandState = function (cmd) {
- var CommandList = ["bold", "copy", "cut", "decreaseFontSize",
- "insertHorizontalRule", "increaseFontSize", "indent", "italic",
- "justifyLeft", "justifyCenter", "justifyRight", "justifyFull",
- "insertOrderedList", "outdent", "insertParagraph", "paste",
- "redo", "removeFormat", "unlink", "strikeThrough", "subscript", "superscript", "underline", "undo", "insertUnorderedList"];
- if (CommandList.indexOf(cmd) >= 0) {
- return this.contentWindow.document.queryCommandState(cmd);
- }
+ 
  
  };
  Method.GetTextCount = function ( ) {
