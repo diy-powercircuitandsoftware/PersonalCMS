@@ -59,7 +59,28 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     });
 
+
+
                     Editor.Size("800px", "600px");
+                    Editor.MouseDown = function () {
+
+                        ss.S(".BNCMD").Each(function (dom) {
+                            var cmd = dom.getAttribute("data-cmd");
+                            if (!Editor.EXECommandState(cmd)) {
+                                dom.style.borderStyle = "outset";
+                            }
+                        })
+                    };
+                    Editor.KeyUp = function () {
+
+                        ss.S(".BNCMD").Each(function (dom) {
+                            var cmd = dom.getAttribute("data-cmd");
+                            if (!Editor.EXECommandState(cmd)) {
+                                dom.style.borderStyle = "outset";
+                            }
+                        })
+                    };
+
                     FL.OpenDir(function (v) {
                         ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v, "Ext": "BlogZip"}, function (data) {
                             FL.CurrentDIR = v;
@@ -205,6 +226,20 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
 
                     });
+
+
+
+                    ss.S(".BNInsertCMD").Click(function () {
+                        if (this.getAttribute("data-cmd") == "createlink") {
+                            dialog.DropDown(function (v) {
+
+                            });
+                        }
+                    });
+
+                    ss.S("#BNRefresh").Click(function () {
+                        FV.OpenDir(FV.CurrentDIR);
+                    });
                     ss.S("#BNUpload").Change(function () {
                         if (FV.FilePath !== undefined) {
                             this.disabled = true;
@@ -215,8 +250,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             FU.Send();
                         }
                     });
-                    ss.S("#BNRefresh").Click(function () {
-                        FV.OpenDir(FV.CurrentDIR);
+                    ss.S("#OPTEditorMode").Change(function () {
+
+                        if (this.value == "0") {
+                            ss.S("#HtmlCodeForEditor").Hide();
+                            Editor.Html(ss.S("#HtmlCodeForEditor").Val());
+                            Editor.SetVisible(true);
+                        } else if (this.value == "1") {
+
+                            ss.S("#HtmlCodeForEditor").Show().Val(Editor.Html());
+                            Editor.SetVisible(false);
+
+                        }
                     });
 
                     return 0;
@@ -252,7 +297,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      return  true;
                      }).ZIndex(999);
                      });
-                         
+                     
                      */
 
 
@@ -309,9 +354,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             FL.OpenDir(FL.CurrentDIR);
                             ss.S("#BNPaste").Data({"mode": null, "files": null});
                         });
-
                     });
-
 
 
 
@@ -341,7 +384,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-
                             printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
@@ -461,12 +503,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <img  class="BNInsertCMD" data-cmd="createlink" title="InsertLink" style="border-style: outset;"  src="../../../../../img/wysiwyg/link.gif" width="22" height="22"  />
                     <img  class="BNCMD" data-cmd="unlink" title="RemoveLink"  style="border-style: outset;"  src="../../../../../img/wysiwyg/unlink.gif" width="22" height="22"  />
                     <img  class="BNCMD" data-cmd="removeFormat" title="RemoveFormat"   style="border-style: outset;"  src="../../../../../img/wysiwyg/removeformat.gif" width="22" height="22"  />
+                    <span> 
+                        Mode:
+                        <select id="OPTEditorMode">
+                            <option value="0">Editor</option>
+                            <option value="1">Code</option>
+                        </select>
+                    </span>
                 </div>
-
-            </div>
-
-
-
+                <textarea id="HtmlCodeForEditor" style="display: none;width: 100%;height: 600px;box-sizing: border-box;resize: vertical;"></textarea>
+            </div>         
         </body>
     </html>
     <?php

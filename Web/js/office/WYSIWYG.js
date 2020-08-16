@@ -23,6 +23,14 @@ class WYSIWYG {
             this.editor.contentDocument.designMode = "off";
         }
         doc.head.innerHTML = '<meta charset="utf-8"/>';
+        doc.body.ref = this;
+
+        doc.body.onkeyup = function () {
+            this.ref.KeyUp();
+        };
+        doc.body.onmousedown = function () {
+            this.ref.MouseDown();
+        };
     }
     EXECommand(cmd) {
         var CommandList = ["bold", "copy", "cut", "decreaseFontSize",
@@ -51,9 +59,28 @@ class WYSIWYG {
             this.editor.contentWindow.document.body.innerHTML = args[0];
         }
     }
+    KeyUp(callback) {
+
+    }
+    MouseDown(callback) {
+
+    }
     Size(w, h) {
         this.editor.style.width = w;
         this.editor.style.height = h;
+    }
+    SetVisible(bool) {
+         
+        if (bool) {
+            this.editor.style.display = "";
+            
+        } else   {
+            this.editor.style.display = "none";
+        }
+          
+    }
+    TextCount() {
+        return  this.editor.contentWindow.document.body.textContent.length;
     }
 
 }
@@ -61,9 +88,9 @@ class WYSIWYG {
 
 
 /*
- Method.EXECommandState = function (cmd) {
+ Method.GetTextCount = function ( ) {
  
- 
+ };
  
  
  function WYSIWYG() {
@@ -107,9 +134,7 @@ class WYSIWYG {
  
  
  };
- Method.GetTextCount = function ( ) {
- return  this.contentWindow.document.body.textContent.length;
- };
+ 
  Method.GetValue = function (cmd) {
  if (["backColor", "foreColor"].indexOf(cmd) >= 0) {
  var col = this.contentWindow.document.queryCommandValue(cmd);
@@ -167,13 +192,7 @@ class WYSIWYG {
  }
  return null;
  };
- Method.Html = function (htmlcode) {
- if (arguments.length == 0) {
- return  this.contentWindow.document.body.innerHTML;
- } else {
- this.contentWindow.document.body.innerHTML = htmlcode;
- }
- };
+ 
  Method.InsertCommand = function (cmd, value) {
  var CommandList = ["insertHTML", "insertImage", "insertText"];
  if (CommandList.indexOf(cmd) >= 0) {
@@ -208,20 +227,13 @@ class WYSIWYG {
  }
  return dom;
  }
- Method.KeyUp = function (callback) {
- if (typeof callback === "function") {
- this.contentWindow.document.onkeyup = callback;
- }
- };
+ 
  Method.Load = function (callback) {
  this.onload = function () {
  callback();
  };
  };
- Method.MouseDown = function (callback) {
- if (typeof callback === "function") {
- this.contentWindow.document.onmousedown = callback;
- }
+ 
  };
  Method.RGB2Hex = function (rgb) {
  rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
