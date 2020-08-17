@@ -47,7 +47,7 @@ class OfficeIO_Blog {
     }
 
     function GetNameByIndex($index) {
-         return $this->zip->getNameIndex($index);
+        return $this->zip->getNameIndex($index);
     }
 
     function GetStat($path) {
@@ -56,6 +56,14 @@ class OfficeIO_Blog {
         } elseif (is_int($path)) {
             return $this->zip->statIndex($path);
         }
+    }
+
+    function GetAllFilesName() {
+        $out = array();
+        for ($i = 0; $i < $this->zip->numFiles; $i++) {
+            $out[]=$this->zip->getNameIndex($i);
+        }
+        return $out;
     }
 
     function GetFilesList($path) {

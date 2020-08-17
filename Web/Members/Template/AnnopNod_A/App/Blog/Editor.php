@@ -59,8 +59,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     });
 
-
-
                     Editor.Size("800px", "600px");
                     Editor.MouseDown = function () {
 
@@ -133,7 +131,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
                                 dialog.MediaPlayer("../../../../Api/Action/Blog/GetBlogZipFile.php?path=" + FV.FilePath + "&name=" + v, ext);
                             } else if (["htm", "html"].indexOf(ext) >= 0) {
-                                ajax.Get("../../../../Api/Action/Blog/GetBlogZipFileHtmlEdit.php", {"path": FV.FilePath, "name": v}, function (htmldata) {
+                                ajax.Get("../../../../Api/Ajax/Blog/GetBlogZipFileHtmlEdit.php", {"path": FV.FilePath, "name": v}, function (htmldata) {
                                     var dia = dialog.ImportOkCancel("Open=>" + v, "#EditorDialog", function () {
                                         ajax.Post("../../../../Api/Ajax/Blog/AddHtmlToBlogZip.php", {"Path": FV.FilePath, "Name": v, "Html": Editor.Html()}, function (data) {
                                             if (data == "1") {
@@ -144,6 +142,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     });
                                     Editor.DesignMode(true);
                                     Editor.Html(htmldata);
+                                    ss.S("#HtmlCodeForEditor").Val(htmldata);
                                     return true;
                                 });
                             }
@@ -231,8 +230,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S(".BNInsertCMD").Click(function () {
                         if (this.getAttribute("data-cmd") == "createlink") {
-                            dialog.DropDown(function (v) {
+                            ajax.Get("../../../../Api/Ajax/Blog/GetBlogZipAllFilesName.php", {"path": FV.FilePath}, function (data) {
+                                data = JSON.parse(data);
+                                var dd = dialog.DropDown(function (v) {
 
+                                });
+                                for (var i in data) {
+                                    dd.Add(data[i],data[i]);
+                                }
                             });
                         }
                     });
