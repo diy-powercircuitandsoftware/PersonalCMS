@@ -4,13 +4,13 @@ include_once '../../../../../../Class/Core/Config/Config.php';
 include_once '../../../../../../Class/Core/UI/NAV.php';
 include_once '../../../../../../Class/Core/Module/Database.php';
 include_once '../../../../../../Class/Com/Event/Database.php';
-include_once '../../../../../../Class/Com/Event/Manager.php';
+include_once '../../../../../../Class/Com/Event/Reader.php';
 include_once '../../../../../../Class/SDK/Module/Basic.php';
 include_once '../../../../Auth/Action/VerifySession.php';
 $config = new Config();
 $uinav = new UINAV();
 $module = new Module_Database($config);
-
+$event = new Event_Reader(new Event_Database($config));
 if ($config->IsOnline() && isset($_SESSION["User"])) {
     $modlist = array();
     foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
@@ -75,7 +75,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <h1>Office</h1>
                     <?php
                       foreach (new DirectoryIterator(".") as $mainfile) {
-                          if (!$mainfile->isDot()){
+                          if (!$mainfile->isDot()&&$mainfile->isDir()){
                           printf ('<a class="MenuLink" href="%s">%s</a>',$mainfile->getFilename(),$mainfile->getFilename());}
                          
                       }
@@ -83,6 +83,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ?>
                 </main>
                 <aside>
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Event</div>
+                        <?php
+                        foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
+                            echo '<div>';
+                            printf('<a class="MenuLink" href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
+                            echo '</div><hr>';
+                        }
+                        ?>
+                    </div>
                     <?php
                     foreach ($modlist as $value) {
                         if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
