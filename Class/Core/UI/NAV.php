@@ -5,7 +5,6 @@ class UINAV {
     public function FindAllMenuFile($path) {
         $out = array();
         if (is_dir($path)) {
-
             foreach (new DirectoryIterator($path) as $mainfile) {
                 if ($mainfile->isDir() && !$mainfile->isDot()) {
                     $out[$mainfile->getFilename()] = array();

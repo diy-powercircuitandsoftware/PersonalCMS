@@ -108,6 +108,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#BNCancelUpload").Hide();
                         }
                     });
+
+                    FV.Delete(function (v) {
+                        /*ajax.Post("../../../../Api/Ajax/Blog/GetBlogZipStat.php", {"Path": FV.FilePath, "Name": v}, function (data) {
+                         });*/
+                    });
                     FV.OpenDir(function (v) {
                         ajax.Post("../../../../Api/Ajax/Blog/GetFileListFromBlogZip.php", {"Path": this.FilePath, "ZipPath": v}, function (data) {
                             ss.S("#LabFileName").Html(FV.FilePath + " => " + v);
@@ -230,13 +235,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S(".BNInsertCMD").Click(function () {
                         if (this.getAttribute("data-cmd") == "createlink") {
+                            
                             ajax.Get("../../../../Api/Ajax/Blog/GetBlogZipAllFilesName.php", {"path": FV.FilePath}, function (data) {
                                 data = JSON.parse(data);
                                 var dd = dialog.DropDown(function (v) {
-
+                                    Editor.EXECommand("CreateLink", false, v);
+                                    return true;
                                 });
                                 for (var i in data) {
-                                    dd.Add(data[i],data[i]);
+                                    dd.Add(data[i], data[i]);
                                 }
                             });
                         }
@@ -256,7 +263,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     });
                     ss.S("#OPTEditorMode").Change(function () {
-
                         if (this.value == "0") {
                             ss.S("#HtmlCodeForEditor").Hide();
                             Editor.Html(ss.S("#HtmlCodeForEditor").Val());
@@ -302,7 +308,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      return  true;
                      }).ZIndex(999);
                      });
-                     
+                         
                      */
 
 

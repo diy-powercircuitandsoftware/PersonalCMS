@@ -54,8 +54,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-                             
- printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/".$valueB["path"], $valueB["name"]);
+
+                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }
@@ -74,10 +74,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <main>
                     <h1>Office</h1>
                     <?php
-                    foreach (array_diff(scandir("."),  array(".", "..", "css", "js", "img", ".htaccess")) as $value) {
-                        echo $value;
-                        
-                    }
+                      foreach (new DirectoryIterator(".") as $mainfile) {
+                          if (!$mainfile->isDot()){
+                          printf ('<a class="MenuLink" href="%s">%s</a>',$mainfile->getFilename(),$mainfile->getFilename());}
+                         
+                      }
+                    
                     ?>
                 </main>
                 <aside>

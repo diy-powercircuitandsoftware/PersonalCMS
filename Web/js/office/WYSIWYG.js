@@ -32,15 +32,8 @@ class WYSIWYG {
             this.ref.MouseDown();
         };
     }
-    EXECommand(cmd) {
-        var CommandList = ["bold", "copy", "cut", "decreaseFontSize",
-            "insertHorizontalRule", "increaseFontSize", "indent", "italic",
-            "justifyLeft", "justifyCenter", "justifyRight", "justifyFull",
-            "insertOrderedList", "outdent", "insertParagraph", "paste",
-            "redo", "removeFormat", "unlink", "strikeThrough", "subscript", "superscript", "underline", "undo", "insertUnorderedList"];
-        if (CommandList.indexOf(cmd) >= 0) {
-            this.editor.contentWindow.document.execCommand(cmd, false, false);
-        }
+    EXECommand(...args) {
+         this.editor.contentWindow.document.execCommand(...args);
     }
     EXECommandState(cmd) {
         var CommandList = ["bold", "copy", "cut", "decreaseFontSize",
