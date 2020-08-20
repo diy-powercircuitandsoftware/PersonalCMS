@@ -68,7 +68,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S("#BNNew").Click(function () {
                         sd.Prompt("Enter File Name", function (v) {
-                            ss.Post("../../../../Api/Ajax/PointPoint/SavePointPointFile.php", {"FullPath": (fd.currentdir + "/" + (v) + ".anppf")}, function (data) {
+                            ss.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/CreatePointPointZip.php", {"FullPath": (fd.currentdir + "/" + (v) + ".anppf")}, function (data) {
                                 data = JSON.parse(data);
                                 fd.ChDir(fd.currentdir);
                             });

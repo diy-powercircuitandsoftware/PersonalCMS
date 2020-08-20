@@ -52,7 +52,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var tablesharefile = new TableTools();
                     tablesharefile.Import(document.getElementById("TBShareFile"));
                     var fileupload = new FilesUpload({
-                        "url": "../../../../Api/Ajax/Files/UploadFiles.php",
+                        "url": "../../../../Api/Ajax/Files/Manager/UploadFiles.php",
                         "files": "file",
                         "path": "/"
                     }, {
@@ -76,7 +76,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     FL.Delete = function (v) {
                         dialog.Confirm("Delete This File????", function (name) {
-                            ajax.Post("../../../../Api/Ajax/Files/DeleteFiles.php", {"path": v}, function (data) {
+                            ajax.Post("../../../../Api/Ajax/Files/Manager/DeleteFiles.php", {"path": v}, function (data) {
                                 if (data == "1") {
                                     FL.OpenDir(fileupload.currentdir);
                                 } else {
@@ -132,7 +132,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     FL.Rename(function (v) {
                         dialog.Prompt("Rename", function (name) {
-                            ajax.Post("../../../../Api/Ajax/Files/Rename.php", {"path": v, "newname": name}, function (data) {
+                            ajax.Post("../../../../Api/Ajax/Files/Manager/Rename.php", {"path": v, "newname": name}, function (data) {
                                 FL.OpenDir(fileupload.currentdir);
                             });
                             return  true;
@@ -149,7 +149,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         if (FL.GetSelectFiles().length > 0) {
                             dialog.UnLock(function (p) {
                                 var s = FL.GetSelectFiles();
-                                ajax.Post("../../../../Api/Ajax/Files/DeleteFiles.php", {"path": s, "password": p}, function (data) {
+                                ajax.Post("../../../../Api/Ajax/Files/Manager/DeleteFiles.php", {"path": s, "password": p}, function (data) {
                                     if (data == "1") {
                                         FL.OpenDir(fileupload.currentdir);
                                     } else {
@@ -166,7 +166,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     ss.S("#BNNewFolder").Click(function (e) {
                         var p = dialog.Prompt("MKDIR", function (v) {
-                            ajax.Post("../../../../Api/Ajax/Files/MKDIR.php", {"path": fileupload.currentdir + "/" + v}, function (data) {
+                            ajax.Post("../../../../Api/Ajax/Files/Manager/MKDIR.php", {"path": fileupload.currentdir + "/" + v}, function (data) {
                                 FL.OpenDir(fileupload.currentdir);
                                 p.Close();
                             });
@@ -194,9 +194,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var files = this.getAttribute("data-files");
                         var url = "";
                         if (mode == "cut") {
-                            url = "../../../../Api/Ajax/Files/MoveFiles.php";
+                            url = "../../../../Api/Ajax/Files/Manager/MoveFiles.php";
                         } else if (mode == "copy") {
-                            url = "../../../../Api/Ajax/Files/CopyFiles.php";
+                            url = "../../../../Api/Ajax/Files/Manager/CopyFiles.php";
                         } else {
                             return;
                         }
@@ -222,14 +222,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     ss.S("#BNAddShare").Click(function () {
                         dialog.DropDown(function (v) {
-                            ajax.Post("../../../../Api/Ajax/Files/AddACLS.php", {"Files": FL.GetSelectFiles(), "Access": v}, function (data) {
+                            ajax.Post("../../../../Api/Ajax/Files/ACLS/AddACLS.php", {"Files": FL.GetSelectFiles(), "Access": v}, function (data) {
 
                             });
                         }).CopyOption("#CloneableOption").Title("Add Share");
 
                     });
                     ss.S("#BNShareManager").Click(function () {
-                        ajax.Post("../../../../Api/Ajax/Files/GetACLS.php", {"AccessMode": this.value}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Files/ACLS/GetACLS.php", {"AccessMode": this.value}, function (data) {
                             data = JSON.parse(data);
                             tablesharefile.DeleteRowAfter(0);
                             var changeaccess = {};
@@ -244,7 +244,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 select.value = data[i]["public"];
                             }
                             var d = dialog.ImportOkCancel("Share", "#ShareFileDialog", function () {
-                                ajax.Post("../../../../Api/Ajax/Files/ChangeACLS.php", {"AccessList": changeaccess}, function (data) {
+                                ajax.Post("../../../../Api/Ajax/Files/ACLS/ChangeACLS.php", {"AccessList": changeaccess}, function (data) {
                                     d.Close();
                                 });
                             });

@@ -1,12 +1,12 @@
 <?php
 
 session_start();
-include_once '../../../../../Class/Core/Config/Config.php';
-include_once '../../../../../Class/Core/User/Session.php';
-include_once '../../../../../Class/Core/User/Member.php';
-include_once '../../../../../Class/Core/User/Database.php';
-include_once '../../../../../Class/Com/FilesACLS/Database.php';
-include_once '../../../../../Class/Com/FilesACLS/ShareList.php';
+include_once '../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../Class/Core/User/Session.php';
+include_once '../../../../../../Class/Core/User/Member.php';
+include_once '../../../../../../Class/Core/User/Database.php';
+include_once '../../../../../../Class/Com/FilesACLS/Database.php';
+include_once '../../../../../../Class/Com/FilesACLS/ShareList.php';
 $config = new Config();
 $userdb = new User_Database($config);
 $session = new User_Session($userdb);

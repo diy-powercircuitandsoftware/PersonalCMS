@@ -2,24 +2,24 @@
 
 session_start();
 include_once '../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../Class/FileIO/VirtualDirectory.php';
 include_once '../../../../../../Class/Core/User/Session.php';
 include_once '../../../../../../Class/Core/User/Member.php';
 include_once '../../../../../../Class/Core/User/Database.php';
-include_once '../../../../../../Class/Com/FilesACLS/Database.php';
-include_once '../../../../../../Class/Com/FilesACLS/ShareList.php';
+include_once '../../../../../../Class/OfficeIO/Blog.php';
 $config = new Config();
 $userdb = new User_Database($config);
 $session = new User_Session($userdb);
 $userdata = new User_Member($userdb);
-$acls=new FilesACLS_ShareList(new FilesACLS_Database($config));
-if ($config->IsOnline() && isset($_POST["Access"]) && isset($_POST["Files"]) && isset($_SESSION["User"]) &&
+
+if ($config->IsOnline() && isset($_SESSION["User"]) &&
         $session->Registered(session_id()) &&
         $userdata->CanWritable($_SESSION["User"]["id"])) {
-    
-    foreach ($_POST["Files"] as $value) {
-        $acls->AddShareList($_SESSION["User"]["id"], $value, $_POST["Access"]);
-    }
-    
+    $vd = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
+    $path = $vd->DiskPath($_POST["Path"]) . DIRECTORY_SEPARATOR . $_POST["Name"] . ".PointPointZip";
+    $blog = new OfficeIO_Blog($path);
+    $blog->AddHtml("index.html", " ");
+    echo $blog->Close();
 } else {
     echo '0';
 }
