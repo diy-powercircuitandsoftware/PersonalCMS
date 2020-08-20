@@ -104,9 +104,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
                     });
                     FL.OpenFile(function (v) {
-                        if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(v.split('.').pop().toLowerCase()) >= 0) {
+                        var ext = v.split('.').pop().toLowerCase();
+                        if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
                             dialog.MediaPlayer("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (v));
+                        } else if (ext == "txt") {
+                            dialog.Load("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (v)).Title(v);
                         }
+
                     })
                     FL.OpenDir("/");
 
@@ -228,6 +232,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }).CopyOption("#CloneableOption").Title("Add Share");
 
                     });
+                     ss.S("#BNCompress").Click(function () {
+                        dialog.DropDown(function (v) {
+                            ajax.Post("../../../../Api/Ajax/Files/ACLS/AddACLS.php", {"Files": FL.GetSelectFiles(), "Access": v}, function (data) {
+
+                            });
+                        }) .Title("Compress");
+
+                    });
+                    
+                    
                     ss.S("#BNShareManager").Click(function () {
                         ajax.Post("../../../../Api/Ajax/Files/ACLS/GetACLS.php", {"AccessMode": this.value}, function (data) {
                             data = JSON.parse(data);
@@ -255,9 +269,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
                     /*  
-                         
-                         
-                      
+                     
+                     
+                     
                      ss.S("#BNNewPhoto").Click(function () {
                      var takephoto = new TakePhoto();
                      var cust = dialog.Custom();
@@ -283,14 +297,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      takephoto.ReSet();
                      fl.ChDir(fl.currentdir);
                      });
-                         
+                     
                      });
                      }
                      });
                      });
-                         
-                      
-                         
+                     
+                     
+                     
                      */
 
                 });
@@ -315,8 +329,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-                             
- printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/".$valueB["path"], $valueB["name"]);
+
+                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }
@@ -344,10 +358,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <aside>
                     <div class="BorderBlock" >
                         <label class="TitleCenter" style="display: block;">Action</label>
+                        <a  class="MenuLink" id="BNCompress" href="#">Compress</a>
                         <a  class="MenuLink" id="BNRefresh" href="#">Refresh</a>
-
                         <label class="TitleCenter" style="display: block;">Folder</label>
                         <a  class="MenuLink" id="BNHome" href="#">Home</a>
+
                     </div>
                     <?php
                     if ($_SESSION["User"]["writable"] == 1) {

@@ -23,8 +23,9 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $fileinfo = new SplFileInfo( ($_GET["name"]));
   
     if (in_array(strtolower($fileinfo->getExtension()), array("html", "htm"))) {
+        $html=  mb_convert_encoding($blog->Get($_GET["name"]), 'HTML-ENTITIES', 'UTF-8');
         $dom = new DOMDocument();
-        $dom->loadHTML(  mb_convert_encoding($blog->Get($_GET["name"]), 'HTML-ENTITIES', 'UTF-8'));
+        $dom->loadHTML($html);
         foreach ($dom->getElementsByTagName('img') as $img) {
             $x = $img->getAttribute("src");
             $img->setAttribute("src", $_SERVER["SCRIPT_NAME"] . "?" . http_build_query(array("path" => $_GET["path"], "name" =>$x)));

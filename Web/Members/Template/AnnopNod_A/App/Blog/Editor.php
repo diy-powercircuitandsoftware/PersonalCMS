@@ -178,8 +178,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             var p = dialog.Prompt("Name", function (v) {
                                 v = v + ".html";
                                 var Name = FV.CurrentDIR + "/" + v;
+                                Editor.Html("");
                                 var dia = dialog.ImportOkCancel("Create New:" + Name, "#EditorDialog", function (v) {
-                                    Editor.Html("");
                                     ajax.Post("../../../../Api/Ajax/Blog/Zip/AddHtmlToBlogZip.php", {"Path": FV.FilePath, "Name": Name, "Html": Editor.Html()}, function (data) {
                                         if (data == "1") {
                                             FV.OpenDir(FV.CurrentDIR);
@@ -235,7 +235,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S(".BNInsertCMD").Click(function () {
                         if (this.getAttribute("data-cmd") == "createlink") {
-                            
+
                             ajax.Get("../../../../Api/Ajax/Blog/Zip/GetBlogZipAllFilesName.php", {"path": FV.FilePath}, function (data) {
                                 data = JSON.parse(data);
                                 var dd = dialog.DropDown(function (v) {
@@ -308,7 +308,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      return  true;
                      }).ZIndex(999);
                      });
-                         
+                     
                      */
 
 

@@ -47,6 +47,7 @@ class WYSIWYG {
     }
     Html(...args) {
         if (args.length === 0) {
+           
             return  this.editor.contentWindow.document.body.innerHTML;
         } else {
             this.editor.contentWindow.document.body.innerHTML = args[0];

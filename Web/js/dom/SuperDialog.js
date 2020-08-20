@@ -175,7 +175,15 @@ class SuperDialog {
         sd.AddNewRowElement("Attachment", '<input type="file" name="" />');
         return sd;
     }
-
+    Html(html) {
+        var sd = new Dialog();
+        sd.Title("Html");
+        sd.Content(html);
+        sd.DestroyAfterClose();
+        sd.Show();
+        sd.Size("80%", "80%");
+        return sd;
+    }
     Import(...args) {
 
         var title = args[0];

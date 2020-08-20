@@ -20,6 +20,7 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $blog = new OfficeIO_Blog($vd->DiskPath($_POST["Path"]));
 
     $dom = new DOMDocument();
+     
     $dom->loadHTML(mb_convert_encoding($_POST["Html"], 'HTML-ENTITIES', 'UTF-8'));
 
     foreach ($dom->getElementsByTagName('img') as $img) {

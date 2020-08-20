@@ -18,7 +18,7 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $vd = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
     $path = $vd->DiskPath($_POST["Path"]) . DIRECTORY_SEPARATOR . $_POST["Name"] . ".BlogZip";
     $blog = new OfficeIO_Blog($path);
-    $blog->AddHtml("index.html", " ");
+    $blog->AddHtml("index.html", "<!DOCTYPE html><html><head></head><body></body></html>");
     echo $blog->Close();
 } else {
     echo '0';
