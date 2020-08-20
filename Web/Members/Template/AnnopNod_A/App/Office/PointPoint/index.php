@@ -47,7 +47,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     fd.Multiple(false);
 
                     fd.OpenDir = function (v) {
-                        ajax.Post("../../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v, "Ext": "PointPointZip"}, function (data) {
+                        ajax.Post("../../../../../Api/Ajax/Files/List/GetFilesListByExtension.php", {"Path": v, "Ext": "PointPointZip"}, function (data) {
                             ss.S("#FileLocation").Val((v));
                             fd.Clear();
                             data = JSON.parse(data);

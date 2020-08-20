@@ -59,7 +59,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var tabletool = new TableTools();
                     var ajax = new Ajax();
                     var lastid = 0;
-                    var ajaxsb = new AjaxScrollBar("../../../../Api/Ajax/Event/GetEvent.php", {"ID": 0});
+                    var ajaxsb = new AjaxScrollBar("../../../../Api/Ajax/Event/List/GetEvent.php", {"ID": 0});
                     tabletool.Import(document.getElementById("TableOutput"));
                     ajaxsb.AddScrollEvent(function (data) {
                         try {
@@ -88,13 +88,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 ss.S("#CBoxSelectAll").Val(false);
                             }
                         } else if (e.target.getAttribute("class") == "BNEdit") {
-                            ajax.Post("../../../../Api/Ajax/Event/GetEventForEdit.php", {"ID": e.target.getAttribute("data-value")}, function (data) {
+                            ajax.Post("../../../../Api/Ajax/Event/List/GetEventForEdit.php", {"ID": e.target.getAttribute("data-value")}, function (data) {
                                 ss.S(".EventAjaxSend").ValByName(JSON.parse(data));
                                 sd.ImportOkCancel("Edit", "#EventDialog", function () {
                                     var json = ss.S(".EventAjaxSend").ValByName();
                                     json["ID"] = e.target.getAttribute("data-value");
 
-                                    ajax.Post("../../../../Api/Ajax/Event/EditEvent.php", json, function () {
+                                    ajax.Post("../../../../Api/Ajax/Event/List/EditEvent.php", json, function () {
                                         location.reload();
                                     });
                                 }).ZIndex(999).Title("Edit");
@@ -112,7 +112,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S("#txtstartday,#txtstopday").Val(new Date());
 
                         var i = sd.Import("Add", "#EventDialog", {"OK": function () {
-                                ajax.Post("../../../../Api/Ajax/Event/AddEvent.php", ss.S(".EventAjaxSend").ValByName(), function (data) {
+                                ajax.Post("../../../../Api/Ajax/Event/List/AddEvent.php", ss.S(".EventAjaxSend").ValByName(), function (data) {
                                     if (data == "1") {
                                         location.reload();
                                     }

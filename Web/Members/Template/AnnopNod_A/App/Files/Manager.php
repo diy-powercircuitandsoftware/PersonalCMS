@@ -58,7 +58,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     }, {
 
                     });
-                    FL.SetDownload("../../../../Api/Action/Files/DownloadFiles.php?path=");
+                    FL.SetDownload("../../../../Api/Action/Files/Download/DownloadFiles.php?path=");
                     fileupload.Log(function (v) {
                         ss.S("#PGFile").Val(v.FileProgress);
                         ss.S("#PGFOA").Val(v.AllProgress);
@@ -87,9 +87,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     };
 
                     FL.Multiple(true);
-                    FL.SetPreviewImage("../../../../Api/Action/Files/ImagePreview.php?id=");
+                    FL.SetPreviewImage("../../../../Api/Action/Files/Download/ImagePreview.php?id=");
                     FL.OpenDir(function (v) {
-                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Files/List/GetFilesListByExtension.php", {"Path": v}, function (data) {
                             fileupload.currentdir = v;
                             FL.Clear();
                             data = JSON.parse(data);
@@ -105,13 +105,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     FL.OpenFile(function (v) {
                         if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(v.split('.').pop().toLowerCase()) >= 0) {
-                            dialog.MediaPlayer("../../../../Api/Action/Files/DownloadFiles.php?path=" + (v));
+                            dialog.MediaPlayer("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (v));
                         }
                     })
                     FL.OpenDir("/");
 
                     FL.Properties(function (v) {
-                        ajax.Get("../../../../Api/Ajax/Files/GetPropertiesFile.php", {"path": v}, function (data) {
+                        ajax.Get("../../../../Api/Ajax/Files/List/GetPropertiesFile.php", {"path": v}, function (data) {
                             data = JSON.parse(data);
                             var tl = dialog.TableLayout().Title("Properties").ZIndex(999);
                             tl.AddNewRowElement();
@@ -207,7 +207,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     });
                     ss.S("#TXTSearch").Input(function () {
-                        ajax.Post("../../../../Api/Ajax/Files/SearchFiles.php", {"Path": fileupload.currentdir, "Name": this.value}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Files/List/SearchFiles.php", {"Path": fileupload.currentdir, "Name": this.value}, function (data) {
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {

@@ -52,7 +52,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
-                    var AjaxSB = new AjaxScrollBar("../../../../Api/ShareAjax/Blog/SearchBlogUsingKeywordID.php");
+                    var AjaxSB = new AjaxScrollBar("../../../../Api/Ajax/Blog/Share/SearchBlogUsingKeywordID.php");
                     var BlogSB = new SearchBox(document.getElementById("SearchBox"));
                     var lastid = 0;
                     BlogSB.ValueChange(function (v) {
@@ -150,7 +150,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <div id="HtmlReadable" style="height: 100%;" >
                         <?php
                         if (isset($_GET["id"])) {
-                                printf('<iframe style="%s" src="../../../../Api/ShareAction/Blog/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100%;box-sizing: border-box;", $_GET["id"]);
+                                printf('<iframe style="%s" src="../../../../Api/Action/Blog/Share/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100%;box-sizing: border-box;", $_GET["id"]);
                         }
                         ?>
                     </div>

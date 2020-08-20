@@ -55,7 +55,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                             for (var i in data) {
                                 var ext = (data[i]["ext"]).toLowerCase();
                                 if (["jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
-                                    fd.AddFile(data[i]["name"], data[i]["fullpath"], "../../../../Api/Action/Files/ImagePreview.php?id=" + data[i]["fullpath"], data[i]["size"], data[i]["modified"], data[i]["type"]);
+                                    fd.AddFile(data[i]["name"], data[i]["fullpath"], "../../../../Api/Action/Files/Download/ImagePreview.php?id=" + data[i]["fullpath"], data[i]["size"], data[i]["modified"], data[i]["type"]);
                                 } else {
                                     fd.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"], data[i]["type"]);
                                 }

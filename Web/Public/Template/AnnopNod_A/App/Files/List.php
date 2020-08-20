@@ -73,7 +73,7 @@ if ($config->IsOnline()) {
                     var dialog = new SuperDialog();
                     var SB = new SearchBox(document.getElementById("SearchBox"));
                     var FL = new FilesList(document.getElementById("FilesList"));
- FL.SetPreviewImage("../../../../Api/Action/Files/ImagePreview.php?id=");
+ FL.SetPreviewImage("../../../../Api/Action/Files/Download/ImagePreview.php?id=");
  
                     FL.SetDownload("../../../../Api/Action/Files/Download.php");
                     SB.Input = function (v) {

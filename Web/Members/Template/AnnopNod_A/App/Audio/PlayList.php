@@ -55,10 +55,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var ajax = new Ajax();
                     var FL = new FilesList(document.getElementById("FilesList"));
                     var FilePlayList = new SelectList(document.getElementById("FilePlayList"));
-                    FL.SetDownload("../../../../Api/Action/Files/DownloadFiles.php?path=");
+                    FL.SetDownload("../../../../Api/Action/Files/Download/DownloadFiles.php?path=");
                     FL.Multiple(true);
                     FL.OpenDir(function (v) {
-                        ajax.Post("../../../../Api/Ajax/Files/GetFilesListByExtension.php", {"Path": v, "Ext": "wma,mp3,ogg"}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Files/List/GetFilesListByExtension.php", {"Path": v, "Ext": "wma,mp3,ogg"}, function (data) {
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
@@ -73,13 +73,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     FL.OpenFile(function (v) {
                         if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(v.split('.').pop().toLowerCase()) >= 0) {
-                            sd.MediaPlayer("../../../../Api/Action/Files/DownloadFiles.php?path=" + (v));
+                            sd.MediaPlayer("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (v));
                         }
                     })
                     FL.OpenDir("/");
 
                     function GetPlayList() {
-                        ajax.Post("../../../../Api/Ajax/Audio/GetPlayList.php", {}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Audio/List/GetPlayList.php", {}, function (data) {
                             data = JSON.parse(data);
                             ss.S("#OptSelectLib").Empty();
                             for (var i in data) {
@@ -89,7 +89,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
                     }
                     ss.S("#BNAddFile").Click(function () {
-                        ajax.Post("../../../../Api/Ajax/Audio/AddAudioToPlayList.php", {"Name": ss.S("#OptSelectLib").Val(), "Path": FL.GetSelectFiles()}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Audio/List/AddAudioToPlayList.php", {"Name": ss.S("#OptSelectLib").Val(), "Path": FL.GetSelectFiles()}, function (data) {
                             ss.S("#OptSelectLib").Change();
 
                         });
@@ -97,7 +97,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S("#BNNewPlayList").Click(function () {
                         var p = sd.Prompt("Name:", function (v) {
-                            ajax.Post("../../../../Api/Ajax/Audio/CreatePlayList.php", {"Name": v}, function (data) {
+                            ajax.Post("../../../../Api/Ajax/Audio/List/CreatePlayList.php", {"Name": v}, function (data) {
                                 GetPlayList();
                                 p.Close();
                             });
@@ -105,7 +105,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#OptSelectLib").Change(function () {
-                        ajax.Get("../../../../Api/Ajax/Audio/GetAudioList.php", {"Name": this.value}, function (data) {
+                        ajax.Get("../../../../Api/Ajax/Audio/List/GetAudioList.php", {"Name": this.value}, function (data) {
                             data = JSON.parse(data);
                             FilePlayList.Empty();
                             for (var i in data) {
@@ -118,7 +118,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S("#BNDeletePlayList").Click(function () {
                         sd.Confirm("Delect It????", function () {
-                            ajax.Post("../../../../Api/Ajax/Audio/DeletePlayList.php", {"Name": ss.S("#OptSelectLib").Val()}, function (data) {
+                            ajax.Post("../../../../Api/Ajax/Audio/List/DeletePlayList.php", {"Name": ss.S("#OptSelectLib").Val()}, function (data) {
                                 location.reload();
                             });
                         }).ZIndex(999);
@@ -126,14 +126,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S("#BNEditPlayList").Click(function () {
                         sd.Prompt("Rename", function (v) {
-                            ajax.Post("../../../../Api/Ajax/Audio/RenamePlayList.php", {"Name": ss.S("#OptSelectLib").Val(), "NewName": v}, function (data) {
+                            ajax.Post("../../../../Api/Ajax/Audio/List/RenamePlayList.php", {"Name": ss.S("#OptSelectLib").Val(), "NewName": v}, function (data) {
                                 location.reload();
                             });
                         });
                     });
 
                     ss.S("#BNRemoveFile").Click(function () {
-                        ajax.Post("../../../../Api/Ajax/Audio/DeleteAudioFromPlayList.php", {"Name": ss.S("#OptSelectLib").Val(),"Path": FilePlayList.GetSelectLists()}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Audio/List/DeleteAudioFromPlayList.php", {"Name": ss.S("#OptSelectLib").Val(),"Path": FilePlayList.GetSelectLists()}, function (data) {
 
                             ss.S("#OptSelectLib").Change();
                         });

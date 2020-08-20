@@ -72,7 +72,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                             for (var i in data) {
                                 var ext = (data[i]["ext"]).toLowerCase();
                                 if (["jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
-                                    fl.AddFile(data[i]["name"], data[i]["fullpath"], "../../../Api/Action/Files/ImagePreview.php?id=" + data[i]["fullpath"], data[i]["size"], data[i]["modified"], data[i]["type"]);
+                                    fl.AddFile(data[i]["name"], data[i]["fullpath"], "../../../Api/Action/Files/Download/ImagePreview.php?id=" + data[i]["fullpath"], data[i]["size"], data[i]["modified"], data[i]["type"]);
                                 } else {
                                     fl.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"], data[i]["type"]);
                                 }
@@ -80,7 +80,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                         });
                     };
                     fl.PropertiesFile = function (v) {
-                        ss.Post("../../../Api/Ajax/Files/GetPropertiesFile.php", {"Path": v}, function (data) {
+                        ss.Post("../../../Api/Ajax/Files/List/GetPropertiesFile.php", {"Path": v}, function (data) {
                             data = JSON.parse(data);
                             var tl = sd.TableLayout().Title("Properties").ZIndex(999);
                             tl.AddTableDom("Name", data["name"]);

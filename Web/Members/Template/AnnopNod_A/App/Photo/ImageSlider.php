@@ -110,7 +110,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     AudioList.Select(function (v) {
                         AudioSrc.pause();
-                        AudioSrc.src = "../../../../Api/Action/Files/DownloadFiles.php?path=" + v;
+                        AudioSrc.src = "../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + v;
                         var pp = AudioSrc.play();
                         if (pp !== undefined) {
                             pp.then(function () {
@@ -158,7 +158,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         this.setAttribute("current", this.value);
                     });
 
-                    ajax.Post("../../../../Api/Ajax/Audio/GetPlayList.php", {}, function (data) {
+                    ajax.Post("../../../../Api/Ajax/Audio/List/GetPlayList.php", {}, function (data) {
                         data = JSON.parse(data);
 
                         for (var i in data) {
@@ -167,7 +167,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S("#OptAudioLibrary").Change();
                     });
                     ss.S("#OptAudioLibrary").Change(function (v) {
-                        ajax.Get("../../../../Api/Ajax/Audio/GetAudioList.php", {"Name": this.value}, function (data) {
+                        ajax.Get("../../../../Api/Ajax/Audio/List/GetAudioList.php", {"Name": this.value}, function (data) {
                             data = JSON.parse(data);
                             AudioList.Empty();
                             for (var i in data) {
@@ -187,11 +187,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     ss.S("#OptImageLibrary").Change(function (v) {
                         if (this.value == "-1") {
-                            ajax.Post("../../../../Api/Ajax/Files/SearchFiles.php", {"Path": "/", "Name": "jpg,jpeg,png"}, function (data) {
+                            ajax.Post("../../../../Api/Ajax/Files/List/SearchFiles.php", {"Path": "/", "Name": "jpg,jpeg,png"}, function (data) {
                                 ImageShow.Clear();
                                 data = JSON.parse(data);
                                 for (var i in data) {
-                                    ImageShow.AddImage("../../../../Api/Action/Files/DownloadFiles.php?path=" + (data[i]["fullpath"]));
+                                    ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["fullpath"]));
                                 }
                             });
                         }

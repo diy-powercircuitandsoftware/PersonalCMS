@@ -63,7 +63,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     playlist.Select(function (v) {
                         audio.Stop();
-                        audio.Src("../../../../Api/Action/Files/DownloadFiles.php?path=" + v);
+                        audio.Src("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + v);
                         var pp = audio.Play();
                         if (pp !== undefined) {
                             pp.then(function () {
@@ -77,7 +77,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         rendervisualizer.Stop();
                         playlist.Next();
                     };
-                    ajax.Post("../../../../Api/Ajax/Audio/GetPlayList.php", {}, function (data) {
+                    ajax.Post("../../../../Api/Ajax/Audio/List/GetPlayList.php", {}, function (data) {
                         data = JSON.parse(data);
 
                         for (var i in data) {
@@ -87,7 +87,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#OptLibrary").Change(function () {
-                        ajax.Get("../../../../Api/Ajax/Audio/GetAudioList.php", {"Name": this.value}, function (data) {
+                        ajax.Get("../../../../Api/Ajax/Audio/List/GetAudioList.php", {"Name": this.value}, function (data) {
                             data = JSON.parse(data);
                             playlist.Empty();
                             for (var i in data) {
