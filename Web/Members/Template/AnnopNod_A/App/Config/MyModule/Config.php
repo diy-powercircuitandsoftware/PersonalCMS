@@ -41,7 +41,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                 <div  style="width: 50%;text-align: right;">
                     <?php
                     $Dat = $User->GetBasicUserData($_SESSION["UserID"]);
-                    printf('<img  src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s" />', $Dat["userid"]);
+                    printf('<img  src="../../../../Api/Action/Profile/Basic/GetUserIcon.php?id=%s" />', $Dat["userid"]);
                     echo '<span>' . $Dat["alias"] . '</span>';
                     ?>
                     <a href="../../index.php">MainPage</a>

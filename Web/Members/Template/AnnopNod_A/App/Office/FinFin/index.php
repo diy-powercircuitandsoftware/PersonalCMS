@@ -14,7 +14,6 @@ $event = new Event_Reader(new Event_Database($config));
 if ($config->IsOnline() && isset($_SESSION["User"])) {
     $modlist = array();
     foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
-
         include_once $module->ModulePath . $value["dirname"] . "/init.php";
         $cn = new $value["classname"]();
         $cn->SetUserID($_SESSION["User"]["id"]);
@@ -28,14 +27,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <title>Untitled Document</title>
             <link rel="stylesheet" type="text/css" href="../../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../../css/PersonalCMS.css">
-
-
             <?php
             foreach ($modlist as $value) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
             }
             ?>
-
             <script src="../../../../../../js/dom/SuperDialog.js"></script>
             <script src="../../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../../js/file/FilesList.js"></script>
@@ -78,15 +74,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             </script>
         </head>
         <body class="HolyGrail">
-
             <header class="Header">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <?php
-                    printf('<img src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
+                    printf('<img src="../../../../../Api/Action/Profile/Basic/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
-                    <a class="MenuLink" style="display: inline;" href="../../../../Auth/Action/Logout.php">LogOut</a>
+                    <a class="MenuLink" style="display: inline;" href="../../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
             <div class="HolyGrail-body">
@@ -96,8 +91,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-
-                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
+                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }

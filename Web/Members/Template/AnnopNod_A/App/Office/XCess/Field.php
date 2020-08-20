@@ -224,7 +224,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     <a href="../../index.php">MainPage</a>
                     <?php
                     $Dat = $User->GetBasicUserData($_SESSION["UserID"]);
-                    printf('<img  src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s" />', $Dat["userid"]);
+                    printf('<img  src="../../../../Api/Action/Profile/Basic/GetUserIcon.php?id=%s" />', $Dat["userid"]);
                     echo '<span>' . $Dat["alias"] . '</span>';
                     ?>
                     <a href="../../Config/Config.php">Config</a>

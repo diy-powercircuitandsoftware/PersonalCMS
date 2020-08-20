@@ -93,7 +93,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     EKeyword.Input(function (v) {
                         var ref = this;
-                        ajax.Post("../../../../Api/Ajax/Category/SearchKeyword.php", {"Keyword": v}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Category/List/SearchKeyword.php", {"Keyword": v}, function (data) {
                             ref.RemoveList();
                             data = JSON.parse(data);
                             for (var i = 0; i < data.length; i++) {
@@ -119,7 +119,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 for (var i in category) {
                                     keyword.push(category[i]["keywordid"]);
                                 }
-                                ajax.Post("../../../../Api/Ajax/Category/GetKeywordDataByID.php", {"id": keyword}, function (kdata) {
+                                ajax.Post("../../../../Api/Ajax/Category/List/GetKeywordDataByID.php", {"id": keyword}, function (kdata) {
                                     kdata = JSON.parse(kdata);
                                   EKeyword.Empty();
                                     for (var i in kdata) {
@@ -187,7 +187,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <?php
-                    printf('<img src="../../../../Api/Action/Profile/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
+                    printf('<img src="../../../../Api/Action/Profile/Basic/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
                     <a class="MenuLink" style="display: inline;" href="../../../../Auth/Action/Logout.php">LogOut</a>

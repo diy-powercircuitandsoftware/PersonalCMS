@@ -50,7 +50,7 @@ if ($config->IsOnline()) {
                     var BlogSB = new SearchBox(document.getElementById("SearchBox"));
                     var lastid = 0;
                     BlogSB.ValueChange(function (v) {
-                        ajax.Post("../../../../Api/Ajax/Category/SearchKeyword.php", {"Keyword": v}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Category/List/SearchKeyword.php", {"Keyword": v}, function (data) {
                             data = JSON.parse(data);
                             for (var i = 0; i < data.length; i++) {
                                 BlogSB.AddItem(data[i]["id"], data[i]["name"]);
