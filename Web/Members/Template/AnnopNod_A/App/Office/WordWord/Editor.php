@@ -578,6 +578,6 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
         header("location: NewDoc.php");
     }
 } else {
-    header("location: ../../../../Session/AuthUserID.php");
+   header("location: ../../../../../Auth/Login.php");
     session_destroy();
 }

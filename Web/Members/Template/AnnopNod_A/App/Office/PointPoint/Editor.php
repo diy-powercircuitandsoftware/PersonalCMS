@@ -1,978 +1,905 @@
 <?php
 session_start();
-include_once '../../../../../../Class/DB/Config/DB/Config.php';
-include_once '../../../../../../Class/DB/Config/DB/Software.php';
-include_once '../../../../../../Class/DB/Com/User/SessionManager.php';
-include_once '../../../../../../Class/DB/Com/User/Profile.php';
-include_once '../../../../../../Class/DB/Com/Events/Viewer.php';
-include_once '../../../../../../Class/DB/Com/Module/LoadModule.php';
-include_once '../../../../../../Class/DB/Com/User/LoadModule.php';
-include_once '../../../../../../Class/DB/Com/User/Permission.php';
-$DBConfig = new Config_DB_Config();
-$SC = new Config_DB_Software($DBConfig);
-$Sess = new Com_User_SessionManager($DBConfig);
-$User = new Com_User_Profile($DBConfig);
-$Event = new Com_Events_Viewer($DBConfig);
-$Module = new Com_Module_LoadModule($DBConfig);
-$UModule = new Com_User_LoadModule($DBConfig);
-$Permission = new Com_User_Permission($DBConfig);
-$DBConfig->Open();
-if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id())) {
-    if (isset($_GET["path"])) {
-        ?>
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>Untitled Document</title>
-                <link rel="stylesheet" href="../../css/Page.css">
+include_once '../../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../../Class/Core/UI/NAV.php';
+include_once '../../../../../../../Class/Core/Module/Database.php';
+include_once '../../../../../../../Class/Com/Event/Database.php';
+include_once '../../../../../../../Class/Com/Event/Reader.php';
+include_once '../../../../../../../Class/SDK/Module/Basic.php';
+include_once '../../../../../Auth/Action/VerifySession.php';
+$config = new Config();
+$uinav = new UINAV();
+$module = new Module_Database($config);
+$event = new Event_Reader(new Event_Database($config));
+if ($config->IsOnline() && isset($_SESSION["User"])) {
+    $modlist = array();
+    foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
 
-                <?php
-                foreach ($UModule->LoadModule($_SESSION["UserID"], Com_User_LoadModule::Layout_Head) as $value) {
-                    try {
-                        include_once '../../../../../../Class/DB/UserModule/' . $value["filename"];
-                        $mod = new $value["classname"]($UModule);
-                        $mod->LoadConfig($value["config"]);
-                        echo $mod->Execute();
-                    } catch (Exception $ex) {
-                        
-                    }
+        include_once $module->ModulePath . $value["dirname"] . "/init.php";
+        $cn = new $value["classname"]();
+        $cn->SetUserID($_SESSION["User"]["id"]);
+        $modlist[] = $cn;
+    }
+    ?>
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Untitled Document</title>
+            <link rel="stylesheet" type="text/css" href="../../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../../css/PersonalCMS.css">
+            <?php
+            foreach ($modlist as $value) {
+                echo $value->Execute(Module_SDK_Basic::Layout_Head);
+            }
+            ?>
+            <style>
+                .BNCMDDialog{
+                    cursor: pointer; 
                 }
-                ?>
-                <style>
-                    .BNCMDDialog{
-                        cursor: pointer; 
+                .ToolBoxTab{
+                    margin-top: 1px;
+                    background-color: burlywood;
+                    border-style: solid;
+                    border-width: thin;
+                    display: none;
+                }
+                .TPList{
+                    margin-left: 1px;
+                    margin-top: 1px;
+                    border-style: solid;
+                    border-width: thin;
+                    width: 100px;
+                }
+                .TPPreview{
+                    background-color: white;
+                    height: 100px;
+                    width: 98%;
+                    border-style: solid;
+                    border-width: thin;
+                }
+                .SlidesList{
+                    width: 98%;
+                    margin-left: 1%;
+                    min-height: 100px;
+                    border-style: solid;
+                    border-width: thin;
+                    margin-top: 3px;
+                }
+
+            </style>
+            <script src="../../../../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../../../../js/dom/SSQueryFW.js"></script>
+            <script src="../../../../../../js/office/PointPoint.js"></script>
+            <script>
+                var ss = new SSQueryFW();
+                ss.DocumentReady(function () {
+                    var sd = new SuperDialog();
+                    var pp = new PointPoint();
+
+                    var domeditor = document.getElementById("Editor").appendChild(new pp.Editor());
+                    var de = new pp.DomAnimation();
+                    var anilist = de.GetAnimation();
+                    domeditor.init(800, 600);
+                    domeditor.style.display = "none";
+                    for (var i in anilist) {
+                        ss.S("#AnimationList").Append("<option></option>").Val(anilist[i]).Html(anilist[i]);
                     }
-                    .ToolBoxTab{
-                        margin-top: 1px;
-                        background-color: burlywood;
-                        border-style: solid;
-                        border-width: thin;
-                        display: none;
-                    }
-                    .TPList{
-                        margin-left: 1px;
-                        margin-top: 1px;
-                        border-style: solid;
-                        border-width: thin;
-                        width: 100px;
-                    }
-                    .TPPreview{
-                        background-color: white;
-                        height: 100px;
-                        width: 98%;
-                        border-style: solid;
-                        border-width: thin;
-                    }
-                    .SlidesList{
-                        width: 98%;
-                        margin-left: 1%;
-                        min-height: 100px;
-                        border-style: solid;
-                        border-width: thin;
-                        margin-top: 3px;
+                    if (ss.URLParam()["path"] !== undefined) {
+                        var dpw = sd.PleaseWait().ZIndex(999);
+                        ss.Post("../../../../Api/Ajax/PointPoint/GetMetadata.php", {"path": ss.URLParam()["path"]}, function (data) {
+                            data = JSON.parse(data);
+                            document.title = data["Name"];
+                            for (var i = 1; i <= parseInt(data["Data"].slidescount); i++) {
+                                var pt = document.getElementById("SlidesList").appendChild(new pp.CreateThumbnail(i - 1, i));
+                                pt.setAttribute("class", "SlidesList");
+                                pt.Layer = null;
+                                pt.SlideData = null;
+                                pt.RenderThumbnail("800px", "600px", "Click To Load Data");
+                            }
+                            var SlidesList = document.getElementsByClassName("SlidesList");
+                            if (SlidesList.length > 0) {
+                                SlidesList[0].click();
+                                domeditor.style.display = "block";
+                            }
+                            dpw.Close();
+                        });
                     }
 
-                </style>
-                <script src="../../../../../js/dom/SuperDialog.js"></script>
-                <script src="../../../../../js/dom/SSQueryFW.js"></script>
-                <script src="../../../../../js/pointpoint/PointPoint.js"></script>
-                <script>
-                    var ss = new SSQueryFW();
-                    ss.DocumentReady(function () {
-                        var sd = new SuperDialog();
-                        var pp = new PointPoint();
-
-                        var domeditor = document.getElementById("Editor").appendChild(new pp.Editor());
-                        var de = new pp.DomAnimation();
-                        var anilist = de.GetAnimation();
-                        domeditor.init(800, 600);
-                        domeditor.style.display = "none";
-                        for (var i in anilist) {
-                            ss.S("#AnimationList").Append("<option></option>").Val(anilist[i]).Html(anilist[i]);
+                    domeditor.ChangeLayer = function (layerdata) {
+                        ss.S("#LayerList").Empty();
+                        for (var i = 0; i < layerdata.length; i++) {
+                            ss.S("#LayerList").Append("<li class='LayerList'></li>").Prop("objdata", layerdata[i]).Append(layerdata[i].objtype);
                         }
-                        if (ss.URLParam()["path"] !== undefined) {
-                            var dpw = sd.PleaseWait().ZIndex(999);
-                            ss.Post("../../../../Api/Ajax/PointPoint/GetMetadata.php", {"path": ss.URLParam()["path"]}, function (data) {
-                                data = JSON.parse(data);
-                                document.title = data["Name"];
-                                for (var i = 1; i <= parseInt(data["Data"].slidescount); i++) {
-                                    var pt = document.getElementById("SlidesList").appendChild(new pp.CreateThumbnail(i - 1, i));
-                                    pt.setAttribute("class", "SlidesList");
-                                    pt.Layer = null;
-                                    pt.SlideData = null;
-                                    pt.RenderThumbnail("800px", "600px", "Click To Load Data");
-                                }
-                                var SlidesList = document.getElementsByClassName("SlidesList");
-                                if (SlidesList.length > 0) {
-                                    SlidesList[0].click();
-                                    domeditor.style.display = "block";
-                                }
-                                dpw.Close();
-                            });
+                    };
+                    domeditor.MouseUp = function (e) {
+                        var ga = domeditor.GetAudio();
+                        if (ga === undefined) {
+                            ss.S("#AudioType").Val("0");
+                        } else {
+                            ss.S("#AudioType").Val(ga.AudioType).Change( );
+                            domeditor.ChangeAudioType = function () {
+                                ss.S("#AudioFile").Val(ga.AudioPath);
+                                this.ChangeAudioType = null;
+                            };
+                        }
+                        var gn = domeditor.GetAnimation();
+                        if (gn === undefined) {
+                            ss.S("#AnimationList").Val("0");
+                            ss.S("#AnimationTime").Val(0);
+                        } else {
+                            ss.S("#AnimationList").Val(gn.Animation);
+                            ss.S("#AnimationTime").Val(gn.AnimationTime);
                         }
 
-                        domeditor.ChangeLayer = function (layerdata) {
-                            ss.S("#LayerList").Empty();
-                            for (var i = 0; i < layerdata.length; i++) {
-                                ss.S("#LayerList").Append("<li class='LayerList'></li>").Prop("objdata", layerdata[i]).Append(layerdata[i].objtype);
-                            }
-                        };
-                        domeditor.MouseUp = function (e) {
-                            var ga = domeditor.GetAudio();
-                            if (ga === undefined) {
-                                ss.S("#AudioType").Val("0");
-                            } else {
-                                ss.S("#AudioType").Val(ga.AudioType).Change( );
-                                domeditor.ChangeAudioType = function () {
-                                    ss.S("#AudioFile").Val(ga.AudioPath);
-                                    this.ChangeAudioType = null;
-                                };
-                            }
-                            var gn = domeditor.GetAnimation();
-                            if (gn === undefined) {
-                                ss.S("#AnimationList").Val("0");
-                                ss.S("#AnimationTime").Val(0);
-                            } else {
-                                ss.S("#AnimationList").Val(gn.Animation);
-                                ss.S("#AnimationTime").Val(gn.AnimationTime);
-                            }
-
-                            if (domeditor.LastSlidesList) {
-                                domeditor.LastSlidesList.RenderThumbnail(domeditor.LastSlidesList.SlideData.Width, domeditor.LastSlidesList.SlideData.Height, domeditor.Html());
-                            }
-
-                            this.KeyUp();
-                        };
-                        domeditor.KeyUp = function (e) {
-
-                            ss.S(".BNCMD").ForEach(function (dom) {
-                                var cmd = dom.getAttribute("data-cmd");
-                                if (domeditor.QueryCommandState(cmd)) {
-                                    dom.style.borderStyle = "inset";
-                                } else {
-                                    dom.style.borderStyle = "outset";
-                                }
-                            });
-
-                            ss.S(".OptColor,.OptFont").ForEach(function (dom) {
-                                var cmd = dom.getAttribute("data-cmd");
-                                dom.value = domeditor.CommandValue(cmd);
-                            });
-
-                        };
-
-
-                        ss.S("#AudioFile").Change(function () {
-                            var at = ss.S("#AudioType");
-
-                            if (at.Val() == "1") {//e
-                                ss.S("#AudioPlay").Url("../../../../Api/Action/PointPoint/LoadAudio.php" + ss.JsonToQueryString({"path": ss.URLParam()["path"], "name": this.value}));
-                            } else if (at.Val() == "3") {
-                                ss.S("#AudioPlay").Url("../sound/pointpoint/" + this.value);
-                            }
-
-                            domeditor.SetAudio(at.Val(), this.value);
-
-                        });
-
-                        ss.S("#AudioType").Change(function (e) {
-                            var af = ss.S("#AudioFile");
-                            if (this.value == "1") {
-                                ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": "Audio"}, function (json) {
-                                    json = JSON.parse(json);
-                                    af.Empty();
-                                    for (var k in json) {
-                                        af.Append('<option></option>').Val(json[k]).Html(k);
-                                    }
-                                    if (domeditor.ChangeAudioType) {
-                                        domeditor.ChangeAudioType();
-                                    }
-                                });
-                            } else if (this.value == "3") {
-                                ss.Post("../sound/pointpoint/GetAllFiles.php", {}, function (json) {
-                                    json = JSON.parse(json);
-                                    af.Empty();
-                                    for (var i in json) {
-                                        af.Append('<option></option>').Val(json[i]).Html(json[i]);
-                                    }
-                                    if (domeditor.ChangeAudioType) {
-                                        domeditor.ChangeAudioType();
-                                    }
-                                });
-                            } else {
-                                af.Empty();
-                            }
-                        });
-
-                        ss.S("#BNAddNew").Click(function () {
-                            sd.Import("#AddTPList", function () {
-                                var t = ss.S("INPUT[name='TPType']").Val();
-                                if (t == "Blank") {
-
-                                }
-                                //TPMetadata
-                                ss.Post("../../../../Api/Ajax/PointPoint/TemplateGene.php", {}, function (tpdata) {
-                                    tpdata = JSON.parse(tpdata);
-                                    var pt = document.getElementById("SlidesList").appendChild(new pp.CreateThumbnail(document.getElementsByClassName("SlidesList").length, "Untitle"));
-                                    pt.setAttribute("class", "SlidesList");
-                                    pt.SlideData = tpdata.Metadata;
-                                    pt.Layer = [];
-                                    pt.click();
-                                });
-
-                            }).ZIndex(999).Title("Add New Slide");
-                        });
-
-                        ss.S("#AnimationList,#AnimationTime").Change(function () {
-                            domeditor.SetAnimation(ss.S("#AnimationList").Val(), ss.S("#AnimationTime").Val());
-                        });
-
-                        ss.S(".BNCMDInsert").Click(function () {
-                            var cmd = this.getAttribute("data-cmd");
-                            if (domeditor.LastSlidesList !== undefined) {
-                                if (cmd == "TxtBox") {
-                                    domeditor.AddTextBox();
-                                } else if (cmd == "Image") {
-                                    ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": "Image"}, function (data) {
-                                        data = JSON.parse(data);
-                                        var tl = sd.TableLayout(function () {
-                                            var img = domeditor.AddImage();
-                                            img.src = "../../../../Api/Action/PointPoint/LoadImage.php" + ss.JsonToQueryString({
-                                                "path": ss.URLParam()["path"],
-                                                "imagepath": tl.sel.value,
-                                                "width": tl.w.value,
-                                                "height": tl.h.value
-                                            });
-                                            img.Embed = {
-                                                "FileType": 1,
-                                                "Path": tl.sel.value
-                                            };
-                                            img.Dimension = {
-                                                "Width": tl.w.value,
-                                                "Height": tl.h.value
-                                            };
-                                            return  true;
-                                        }).ZIndex(999).Title("Select Image");
-                                        tl.sel = tl.AddTableDom('<select style="width:100%;box-sizing: border-box;"></select>');
-                                        tl.w = tl.AddTableDom('width', '<input type="number"  value="" />');
-                                        tl.h = tl.AddTableDom('height', '<input type="number"  value="" />');
-                                        var ps = domeditor.PaperSize();
-                                        tl.w.value = parseInt(ps.width) / 2;
-                                        tl.h.value = parseInt(ps.height) / 2;
-                                        for (var k in data) {
-                                            var opt = tl.sel.appendChild(document.createElement("OPTION"));
-                                            opt.innerHTML = k;
-                                            opt.value = data[k];
-                                        }
-
-                                    });
-                                }
-                            }
+                        if (domeditor.LastSlidesList) {
+                            domeditor.LastSlidesList.RenderThumbnail(domeditor.LastSlidesList.SlideData.Width, domeditor.LastSlidesList.SlideData.Height, domeditor.Html());
                         }
-                        );
 
-                        ss.S(".BNCMD").Click(function () {
-                            var cmd = this.getAttribute("data-cmd");
-                            domeditor.EXECCommand(cmd, false, false);
-                            this.style.borderStyle = "inset";
-                            ss.S(".BNCMD").ForEach(function (dom) {
-                                var cmd = dom.getAttribute("data-cmd");
-                                if (!domeditor.QueryCommandState(cmd)) {
-                                    dom.style.borderStyle = "outset";
-                                }
-                            });
-                        });
+                        this.KeyUp();
+                    };
+                    domeditor.KeyUp = function (e) {
 
-                        ss.S(".BNCMDDialog").Click(function () {
-
-                            if (domeditor.selectdom) {
-
-                                if (this.getAttribute("data-cmd") == "ZIndex") {
-                                    sd.Prompt("ZIndex", function (v) {
-                                        domeditor.selectdom.style.zIndex = v;
-
-                                    }).Val(domeditor.selectdom.style.zIndex).ZIndex(999);
-                                } else if (this.getAttribute("data-cmd") == "Rect") {
-                                    sd.PositionDialog(function (dat) {
-                                        domeditor.selectdom.style.left = dat.x + "px";
-                                        domeditor.selectdom.style.top = dat.y + "px";
-                                        if (dat.w == 0) {
-                                            domeditor.selectdom.style.width = "";
-                                        } else {
-                                            domeditor.selectdom.style.width = dat.w + "px";
-                                            ;
-                                        }
-                                        if (dat.h == 0) {
-                                            domeditor.selectdom.style.height = "";
-                                        } else {
-                                            domeditor.selectdom.style.height = dat.h + "px";
-                                            ;
-                                        }
-                                        return true;
-                                    }, parseFloat(domeditor.selectdom.style.left), parseFloat(domeditor.selectdom.style.top), parseFloat(domeditor.selectdom.style.width), parseFloat(domeditor.selectdom.style.height)).ZIndex(999);
-
-
-                                }
-                            }
-                        });
-
-                        ss.S("#BNHiddenUpload").Change(function (e) {
-                            var ajax = ss.Ajax();
-                            var fd = new FormData();
-                            fd.append("FullPath", ss.URLParam()["path"]);
-                            fd.append("UploadFile", this.files[0], this.files[0].name);
-                            ajax.Success = function (data) {
-                                sd.Alert("Upload Complete").ZIndex(999);
-                            };
-
-                            ajax.Post("../../../../Api/Ajax/PointPoint/UploadEmbedFile.php", fd);
-
-                        });
-
-                        ss.S("#BNObjectManager").Click(function (e) {
-                            ss.S("#EmbedType").Change();
-                            var dia = sd.Import("#ObjManagerDialog").ZIndex(999).Title("Object Manager");
-                            dia.ButtonAlign(dia.AlignType.Right);
-                            dia.AddButton("Delete", "Delete");
-                            dia.CallbackResult = function (v) {
-                                if (v == "Delete") {
-                                    ss.Post("../../../../Api/Ajax/PointPoint/DeleteEmbedList.php", {"path": ss.URLParam()["path"], "filepath": ss.S("#EmbedList").Val()}, function (data) {
-                                    });
-                                }
-                            };
-                        });
-                        ss.S("#BNOpen").Click(function () {
-                            var SaveBeforeExit = sd.SaveBeforeExit("Do You Save Before Open Document").ZIndex(999).Title("New Document");
-                            SaveBeforeExit.OnDiscard = function () {
-                                window.onbeforeunload = null;
-                                window.location.replace("MainPage.php");
-
-                            };
-                            SaveBeforeExit.OnSave = function () {
-                                domeditor.AfterSave = function () {
-                                    window.onbeforeunload = null;
-                                    window.location.replace("MainPage.php");
-                                };
-                                ss.S("#BNSave").Click();
-                            };
-                        });
-
-                        ss.S("#BNSave").Click(function () {
-                            var dpw = sd.PleaseWait().ZIndex(999);
-                            var Slides = [];
-                            if (domeditor.LastSlidesList !== undefined) {
-                                domeditor.LastSlidesList.SlideData = domeditor.SlideData;
-                                domeditor.LastSlidesList.Layer = domeditor.Layer;
-                            }
-                            var sl = document.getElementsByClassName("SlidesList");
-                            for (var i = 0; i < sl.length; i++) {
-                                if (sl[i].SlideData !== null) {
-                                    var ll = sl[i].Layer || [];
-                                    var LayerData = [];
-                                    for (var j = 0; j < ll.length; j++) {
-                                        var objdata = {};
-                                        if (ll[j].objtype == "Text") {
-                                            objdata.Type = "Text";
-                                            objdata.Html = ll[j].innerHTML;
-
-                                        } else if (ll[j].objtype == "Image") {
-                                            objdata.Type = "Image";
-                                            objdata.Embed = ll[j].Embed;
-                                            objdata.Dimension = ll[j].Dimension;
-                                        }
-                                        objdata.Css = ll[j].style.cssText;
-                                        objdata.Animation = ll[j].Animation;
-                                        objdata.Audio = ll[j].Audio;
-                                        LayerData.push(objdata);
-                                    }
-                                    sl[i].SlideData.Index = i;
-                                    Slides.push({"metadata": sl[i].SlideData, "Layer": LayerData});
-                                }
-                            }
-
-                            ss.Post("../../../../Api/Ajax/PointPoint/SavePointPointFile.php", {"FullPath": ss.URLParam()["path"], "Data": Slides}, function (data) {
-                                if (data == "1") {
-                                    dpw.Close();
-                                    if (domeditor.AfterSave) {
-                                        domeditor.AfterSave();
-                                    }
-                                } else {
-
-                                }
-                            });
-                        });
-
-                        ss.S("#BNSize").Click(function () {
-                            var tl = sd.TableLayout(function () {
-                                domeditor.PaperSize(tl.wd.value + "px", tl.hd.value + "px");
-                                return  true;
-                            }).ZIndex(999).Title("Size");
-                            tl.wd = tl.AddTableDom('w', '<input type="text" name="" value="" />');
-                            tl.hd = tl.AddTableDom('h', '<input type="text" name="" value="" />');
-                            var whpaper = domeditor.PaperSize();
-                            tl.wd.value = parseInt(whpaper.width);
-                            tl.hd.value = parseInt(whpaper.height);
-                        });
-
-
-                        ss.S(".BNToolBoxTab").Click(function () {
-                            var id = this.getAttribute("data-id");
-                            ss.S(".ToolBoxTab").Hide();
-                            ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
-                        });
-                        ss.S("#BNUpload").Click(function () {
-                            ss.S("#BNHiddenUpload").Click();
-                        });
-                        ss.S("#EmbedType").Change(function (e) {
-                            ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": this.value}, function (data) {
-                                data = JSON.parse(data);
-                                ss.S("#EmbedList").Empty();
-                                for (var k in data) {
-                                    ss.S("#EmbedList").Append("<option></option>").Val(data[k]).Html(k);
-                                }
-                            });
-                        });
-
-                        ss.S("#LayerList").Click(function (e) {
-                            if (e.target.getAttribute("class") == "LayerList") {
-                                domeditor.selectdom = e.target.objdata;
-                            }
-                        });
-
-                        ss.S("#LayerList").DoubleClick(function (e) {
-                            if (e.target.getAttribute("class") == "LayerList") {
-                                if (e.target.objdata.objtype == "Text") {
-                                    sd.TextArea("Html Code", function (v) {
-                                        e.target.objdata.innerHTML = v;
-                                    }).Val(e.target.objdata.innerHTML).ZIndex(999);
-                                }
-                            }
-                        });
-
-                        ss.S(".OptColor,.OptFont").Change(function () {
-                            var cmd = this.getAttribute("data-cmd");
-                            domeditor.EXECCommand(cmd, false, this.value);
-                        });
-
-
-                        ss.S(".SlideExecCommand").Click(function () {
-                            var cmd = this.getAttribute("data-cmd");
-                            if (cmd == "Background") {
-                                sd.Import("#BGDialog", function () {
-                                    var opt = ss.S("#SelBGType").Val();
-                                    if (opt == "none") {
-                                        domeditor.Background("");
-                                    } else if (opt == "color") {
-                                        domeditor.Background(ss.S("#SelBGColor").Val());
-                                    }
-
-                                }).ZIndex(999).Title("Background");
-                            }
-                        });
-
-
-
-                        ss.S("#SlidesList").Click(function (e) {
-
-                            if (e.target.getAttribute("class") == "SlidesList") {
-                                var sndajax = {};
-                                sndajax["path"] = ss.URLParam()["path"];
-                                sndajax["index"] = e.target.getAttribute("data-id");
-                                if (e.target.SlideData == null) {
-                                    ss.Post("../../../../Api/Ajax/PointPoint/GetSlideIndex.php", sndajax, function (data) {
-                                        data = JSON.parse(data);
-                                        domeditor.Clear();
-                                        domeditor.SetAnimation(data.Metadata.Animation.Animation, data.Metadata.Animation.AnimationTime);
-                                        domeditor.SetAudio(data.Metadata.Audio.AudioType, data.Metadata.Audio.AudioPath);
-                                        domeditor.PaperSize(data.Metadata.Dimension.Width, data.Metadata.Dimension.Height);
-                                        e.target.SlideData = domeditor.SlideData;
-                                        var objdata = data.ObjectData;
-                                        for (var i = 0; i < objdata.length; i++) {
-                                            if (objdata[i].ObjectType == "Text") {
-                                                var txtbox = domeditor.AddTextBox(objdata[i].Code, objdata[i].Css);
-                                                txtbox.Animation = objdata[i].Animation;
-                                                txtbox.Audio = objdata[i].Audio;
-                                            } else if (objdata[i].ObjectType == "Image") {
-                                                var path = "";
-                                                if (objdata[i].Embed.FileType == "1") {
-                                                    path = "../../../../Api/Action/PointPoint/LoadImage.php" + ss.JsonToQueryString({
-                                                        "path": ss.URLParam()["path"],
-                                                        "imagepath": objdata[i].Embed.Path,
-                                                        "width": objdata[i].Dimension.Width,
-                                                        "height": objdata[i].Dimension.Height
-                                                    });
-                                                }
-                                                var img = domeditor.AddImage(path, objdata[i].Css);
-                                                img.Embed = objdata[i].Embed;
-                                                img.Dimension = objdata[i].Dimension;
-                                                img.Animation = objdata[i].Animation;
-                                                img.Audio = objdata[i].Audio;
-
-                                            }
-                                        }
-                                        e.target.Layer = domeditor.Layer;
-                                        domeditor.Clear();
-                                        domeditor.style.display = "block";
-                                        domeditor.LastSlidesList = null;
-                                        e.target.click();
-
-                                    });
-                                } else if (e.target.SlideData !== null) {
-                                    if (domeditor.LastSlidesList !== null) {
-                                        domeditor.LastSlidesList.SlideData = domeditor.SlideData;
-                                        domeditor.LastSlidesList.Layer = domeditor.Layer;
-                                    }
-                                    domeditor.Clear();
-                                    domeditor.SetAnimation(e.target.SlideData.Animation.Animation, e.target.SlideData.Animation.AnimationTime);
-                                    domeditor.SetAudio(e.target.SlideData.Audio.AudioType, e.target.SlideData.Audio.AudioPath);
-                                    domeditor.style.display = "block";
-                                    domeditor.Background(e.target.SlideData.BackGround || "");
-                                    domeditor.PaperSize(e.target.SlideData.Width, e.target.SlideData.Height);
-
-                                    var layerlist = e.target.Layer;
-
-                                    for (var i = 0; i < layerlist.length; i++) {
-                                        if (layerlist[i].objtype == "Text") {
-                                            var txt = domeditor.AddTextBox(layerlist[i].innerHTML, layerlist[i].style.cssText);
-                                            txt.Animation = layerlist[i].Animation;
-                                            txt.Audio = layerlist[i].Audio;
-                                        } else if (layerlist[i].objtype == "Image") {
-                                            var img = domeditor.AddImage(layerlist[i].src, layerlist[i].style.cssText);
-                                            img.Embed = layerlist[i].Embed;
-                                            img.Dimension = layerlist[i].Dimension;
-                                            img.Animation = layerlist[i].Animation;
-                                            img.Audio = layerlist[i].Audio;
-                                        }
-                                    }
-                                    e.target.RenderThumbnail(e.target.SlideData.Width, e.target.SlideData.Height, domeditor.Html());
-                                    domeditor.LastSlidesList = e.target;
-                                }
+                        ss.S(".BNCMD").ForEach(function (dom) {
+                            var cmd = dom.getAttribute("data-cmd");
+                            if (domeditor.QueryCommandState(cmd)) {
+                                dom.style.borderStyle = "inset";
                             } else {
-                                var current = e.target;
-                                while (current !== this) {
-                                    if (current.getAttribute("class") == "SlidesList") {
-                                        current.click();
-                                        break;
-                                    }
-                                    current = current.parentNode;
-                                }
+                                dom.style.borderStyle = "outset";
                             }
                         });
+
+                        ss.S(".OptColor,.OptFont").ForEach(function (dom) {
+                            var cmd = dom.getAttribute("data-cmd");
+                            dom.value = domeditor.CommandValue(cmd);
+                        });
+
+                    };
+
+
+                    ss.S("#AudioFile").Change(function () {
+                        var at = ss.S("#AudioType");
+
+                        if (at.Val() == "1") {//e
+                            ss.S("#AudioPlay").Url("../../../../Api/Action/PointPoint/LoadAudio.php" + ss.JsonToQueryString({"path": ss.URLParam()["path"], "name": this.value}));
+                        } else if (at.Val() == "3") {
+                            ss.S("#AudioPlay").Url("../sound/pointpoint/" + this.value);
+                        }
+
+                        domeditor.SetAudio(at.Val(), this.value);
 
                     });
-                </script>
-            </head>
-            <body >
 
-                <div id="Header" style="position: absolute;" >
-                    <div style="width: 50%;">
-                        <a href="../../index.php">
-                            <img  src="../../../../../../File/Resource/Logo.png"/>
-                        </a>
-                    </div>
-                    <div  style="width: 50%;text-align: right;">
-                        <a href="../../index.php">MainPage</a>
-                        <?php
-                        $Dat = $User->GetBasicUserData($_SESSION["UserID"]);
-                        printf('<img  src="../../../../Api/Action/Profile/Basic/GetUserIcon.php?id=%s" />', $Dat["userid"]);
-                        echo '<span>' . $Dat["alias"] . '</span>';
-                        ?>
-                        <a href="../../Config/Config.php">Config</a>
+                    ss.S("#AudioType").Change(function (e) {
+                        var af = ss.S("#AudioFile");
+                        if (this.value == "1") {
+                            ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": "Audio"}, function (json) {
+                                json = JSON.parse(json);
+                                af.Empty();
+                                for (var k in json) {
+                                    af.Append('<option></option>').Val(json[k]).Html(k);
+                                }
+                                if (domeditor.ChangeAudioType) {
+                                    domeditor.ChangeAudioType();
+                                }
+                            });
+                        } else if (this.value == "3") {
+                            ss.Post("../sound/pointpoint/GetAllFiles.php", {}, function (json) {
+                                json = JSON.parse(json);
+                                af.Empty();
+                                for (var i in json) {
+                                    af.Append('<option></option>').Val(json[i]).Html(json[i]);
+                                }
+                                if (domeditor.ChangeAudioType) {
+                                    domeditor.ChangeAudioType();
+                                }
+                            });
+                        } else {
+                            af.Empty();
+                        }
+                    });
 
-                        <a  href="../../../../Session/Action/Logout.php">Logout</a>
-                    </div>
-                </div>
-                <div class="Container" style="">
-                    <div class="Nav">
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <span class="Title" style="display: block;">Audio</span>
-                            <ul>
-                                <li><a href="../../Audio/Player.php">Player</a></li>
-                                <li><a href="../../Audio/PlayList.php">PlayList</a></li>
+                    ss.S("#BNAddNew").Click(function () {
+                        sd.Import("#AddTPList", function () {
+                            var t = ss.S("INPUT[name='TPType']").Val();
+                            if (t == "Blank") {
 
-                            </ul>
-                        </div>
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <span class="Title" style="display: block;">Blog</span>
-                            <ul>
-                                <li><a href="../../Blog/Manage.php">Manage</a></li>
-                                <li><a href="../../Blog/View.php">View</a></li>
-                            </ul>
-                        </div>
-
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <span class="Title" style="display: block;">Event</span>
-                            <ul>
-                                <li><a href="../../Event/Manage.php">Manage</a></li>
-                                <li><a href="../../Event/View.php">View</a></li>
-                            </ul>
-                        </div>
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <span class="Title" style="display: block;">Files</span>
-                            <ul>
-                                <li><a href="../../Files/Manager.php">Manager</a></li>
-                                <li><a href="../../Files/Temp.php">Temp</a></li>
-                                <li><a href="../../Files/Trash.php">Trash</a></li>
-                            </ul>
-                        </div>
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <span class="Title" style="display: block;">Office</span>
-                            <ul>
-                                <li><a href="../FinFin/MainPage.php">FinFin</a></li>
-                                <li><a href="../FlowFlow/MainPage.php">FlowFlow</a></li>
-                                <li><a href="../Image/MainPage.php">Image</a></li>
-                                <li style="font-weight: bold;">PointPoint</li>
-                                <li><a href="../Statistics/MainPage.php">Statistics</a></li>
-                                <li><a href="../WordWord/MainPage.php">WordWord</a></li>
-                                <li><a href="../WYSIWYG/NewDoc.php">WYSIWYG</a></li>
-                                <li><a href="../XCell/MainPage.php">XCell</a></li>
-                                <li><a href="../XCess/MainPage.php">XCess</a></li>
-                            </ul>
-                        </div>
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <span class="Title" style="display: block;">Photo</span>
-                            <ul>
-                                <li><a href="../../Photo/ImageSlider.php">ImageSlider</a></li>
-                                <li><a href="../../Photo/PlayList.php">PlayList</a></li>
-                            </ul>
-                        </div>
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <span class="Title" style="display: block;">Share</span>
-                            <ul>
-                                <li><a href="../../Share/BlogViewer.php">Blog</a></li>
-                                <li><a href="../../Share/EventViewer.php">Event</a></li>
-                            </ul>
-                        </div>
-                        <?php
-                        $Dat = array_merge($Module->LoadModule(Com_Module_LoadModule::Layout_Nav, Config_DB_Config::Access_Mode_Members), $Module->LoadModule(Com_Module_LoadModule::Layout_Nav, Config_DB_Config::Access_Mode_Public));
-                        foreach ($Dat as $value) {
-                            try {
-                                echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                                include_once '../../../../../../Class/DB/Module/' . $value["filename"];
-                                $mod = new $value["classname"]($Module);
-                                printf('<label class="Title">%s</label>', $mod->GetTitle());
-                                $mod->SetModuleID($value["id"]);
-                                $mod->SetModulePage("../../Module/Page.php");
-                                $mod->SetUserID($_SESSION["UserID"]);
-                                echo $mod->Execute();
-                                echo '</div>';
-                            } catch (Exception $ex) {
-                                
                             }
+                            //TPMetadata
+                            ss.Post("../../../../Api/Ajax/PointPoint/TemplateGene.php", {}, function (tpdata) {
+                                tpdata = JSON.parse(tpdata);
+                                var pt = document.getElementById("SlidesList").appendChild(new pp.CreateThumbnail(document.getElementsByClassName("SlidesList").length, "Untitle"));
+                                pt.setAttribute("class", "SlidesList");
+                                pt.SlideData = tpdata.Metadata;
+                                pt.Layer = [];
+                                pt.click();
+                            });
+
+                        }).ZIndex(999).Title("Add New Slide");
+                    });
+
+                    ss.S("#AnimationList,#AnimationTime").Change(function () {
+                        domeditor.SetAnimation(ss.S("#AnimationList").Val(), ss.S("#AnimationTime").Val());
+                    });
+
+                    ss.S(".BNCMDInsert").Click(function () {
+                        var cmd = this.getAttribute("data-cmd");
+                        if (domeditor.LastSlidesList !== undefined) {
+                            if (cmd == "TxtBox") {
+                                domeditor.AddTextBox();
+                            } else if (cmd == "Image") {
+                                ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": "Image"}, function (data) {
+                                    data = JSON.parse(data);
+                                    var tl = sd.TableLayout(function () {
+                                        var img = domeditor.AddImage();
+                                        img.src = "../../../../Api/Action/PointPoint/LoadImage.php" + ss.JsonToQueryString({
+                                            "path": ss.URLParam()["path"],
+                                            "imagepath": tl.sel.value,
+                                            "width": tl.w.value,
+                                            "height": tl.h.value
+                                        });
+                                        img.Embed = {
+                                            "FileType": 1,
+                                            "Path": tl.sel.value
+                                        };
+                                        img.Dimension = {
+                                            "Width": tl.w.value,
+                                            "Height": tl.h.value
+                                        };
+                                        return  true;
+                                    }).ZIndex(999).Title("Select Image");
+                                    tl.sel = tl.AddTableDom('<select style="width:100%;box-sizing: border-box;"></select>');
+                                    tl.w = tl.AddTableDom('width', '<input type="number"  value="" />');
+                                    tl.h = tl.AddTableDom('height', '<input type="number"  value="" />');
+                                    var ps = domeditor.PaperSize();
+                                    tl.w.value = parseInt(ps.width) / 2;
+                                    tl.h.value = parseInt(ps.height) / 2;
+                                    for (var k in data) {
+                                        var opt = tl.sel.appendChild(document.createElement("OPTION"));
+                                        opt.innerHTML = k;
+                                        opt.value = data[k];
+                                    }
+
+                                });
+                            }
+                        }
+                    }
+                    );
+
+                    ss.S(".BNCMD").Click(function () {
+                        var cmd = this.getAttribute("data-cmd");
+                        domeditor.EXECCommand(cmd, false, false);
+                        this.style.borderStyle = "inset";
+                        ss.S(".BNCMD").ForEach(function (dom) {
+                            var cmd = dom.getAttribute("data-cmd");
+                            if (!domeditor.QueryCommandState(cmd)) {
+                                dom.style.borderStyle = "outset";
+                            }
+                        });
+                    });
+
+                    ss.S(".BNCMDDialog").Click(function () {
+
+                        if (domeditor.selectdom) {
+
+                            if (this.getAttribute("data-cmd") == "ZIndex") {
+                                sd.Prompt("ZIndex", function (v) {
+                                    domeditor.selectdom.style.zIndex = v;
+
+                                }).Val(domeditor.selectdom.style.zIndex).ZIndex(999);
+                            } else if (this.getAttribute("data-cmd") == "Rect") {
+                                sd.PositionDialog(function (dat) {
+                                    domeditor.selectdom.style.left = dat.x + "px";
+                                    domeditor.selectdom.style.top = dat.y + "px";
+                                    if (dat.w == 0) {
+                                        domeditor.selectdom.style.width = "";
+                                    } else {
+                                        domeditor.selectdom.style.width = dat.w + "px";
+                                        ;
+                                    }
+                                    if (dat.h == 0) {
+                                        domeditor.selectdom.style.height = "";
+                                    } else {
+                                        domeditor.selectdom.style.height = dat.h + "px";
+                                        ;
+                                    }
+                                    return true;
+                                }, parseFloat(domeditor.selectdom.style.left), parseFloat(domeditor.selectdom.style.top), parseFloat(domeditor.selectdom.style.width), parseFloat(domeditor.selectdom.style.height)).ZIndex(999);
+
+
+                            }
+                        }
+                    });
+
+                    ss.S("#BNHiddenUpload").Change(function (e) {
+                        var ajax = ss.Ajax();
+                        var fd = new FormData();
+                        fd.append("FullPath", ss.URLParam()["path"]);
+                        fd.append("UploadFile", this.files[0], this.files[0].name);
+                        ajax.Success = function (data) {
+                            sd.Alert("Upload Complete").ZIndex(999);
+                        };
+
+                        ajax.Post("../../../../Api/Ajax/PointPoint/UploadEmbedFile.php", fd);
+
+                    });
+
+                    ss.S("#BNObjectManager").Click(function (e) {
+                        ss.S("#EmbedType").Change();
+                        var dia = sd.Import("#ObjManagerDialog").ZIndex(999).Title("Object Manager");
+                        dia.ButtonAlign(dia.AlignType.Right);
+                        dia.AddButton("Delete", "Delete");
+                        dia.CallbackResult = function (v) {
+                            if (v == "Delete") {
+                                ss.Post("../../../../Api/Ajax/PointPoint/DeleteEmbedList.php", {"path": ss.URLParam()["path"], "filepath": ss.S("#EmbedList").Val()}, function (data) {
+                                });
+                            }
+                        };
+                    });
+                    ss.S("#BNOpen").Click(function () {
+                        var SaveBeforeExit = sd.SaveBeforeExit("Do You Save Before Open Document").ZIndex(999).Title("New Document");
+                        SaveBeforeExit.OnDiscard = function () {
+                            window.onbeforeunload = null;
+                            window.location.replace("MainPage.php");
+
+                        };
+                        SaveBeforeExit.OnSave = function () {
+                            domeditor.AfterSave = function () {
+                                window.onbeforeunload = null;
+                                window.location.replace("MainPage.php");
+                            };
+                            ss.S("#BNSave").Click();
+                        };
+                    });
+
+                    ss.S("#BNSave").Click(function () {
+                        var dpw = sd.PleaseWait().ZIndex(999);
+                        var Slides = [];
+                        if (domeditor.LastSlidesList !== undefined) {
+                            domeditor.LastSlidesList.SlideData = domeditor.SlideData;
+                            domeditor.LastSlidesList.Layer = domeditor.Layer;
+                        }
+                        var sl = document.getElementsByClassName("SlidesList");
+                        for (var i = 0; i < sl.length; i++) {
+                            if (sl[i].SlideData !== null) {
+                                var ll = sl[i].Layer || [];
+                                var LayerData = [];
+                                for (var j = 0; j < ll.length; j++) {
+                                    var objdata = {};
+                                    if (ll[j].objtype == "Text") {
+                                        objdata.Type = "Text";
+                                        objdata.Html = ll[j].innerHTML;
+
+                                    } else if (ll[j].objtype == "Image") {
+                                        objdata.Type = "Image";
+                                        objdata.Embed = ll[j].Embed;
+                                        objdata.Dimension = ll[j].Dimension;
+                                    }
+                                    objdata.Css = ll[j].style.cssText;
+                                    objdata.Animation = ll[j].Animation;
+                                    objdata.Audio = ll[j].Audio;
+                                    LayerData.push(objdata);
+                                }
+                                sl[i].SlideData.Index = i;
+                                Slides.push({"metadata": sl[i].SlideData, "Layer": LayerData});
+                            }
+                        }
+
+                        ss.Post("../../../../Api/Ajax/PointPoint/SavePointPointFile.php", {"FullPath": ss.URLParam()["path"], "Data": Slides}, function (data) {
+                            if (data == "1") {
+                                dpw.Close();
+                                if (domeditor.AfterSave) {
+                                    domeditor.AfterSave();
+                                }
+                            } else {
+
+                            }
+                        });
+                    });
+
+                    ss.S("#BNSize").Click(function () {
+                        var tl = sd.TableLayout(function () {
+                            domeditor.PaperSize(tl.wd.value + "px", tl.hd.value + "px");
+                            return  true;
+                        }).ZIndex(999).Title("Size");
+                        tl.wd = tl.AddTableDom('w', '<input type="text" name="" value="" />');
+                        tl.hd = tl.AddTableDom('h', '<input type="text" name="" value="" />');
+                        var whpaper = domeditor.PaperSize();
+                        tl.wd.value = parseInt(whpaper.width);
+                        tl.hd.value = parseInt(whpaper.height);
+                    });
+
+
+                    ss.S(".BNToolBoxTab").Click(function () {
+                        var id = this.getAttribute("data-id");
+                        ss.S(".ToolBoxTab").Hide();
+                        ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
+                    });
+                    ss.S("#BNUpload").Click(function () {
+                        ss.S("#BNHiddenUpload").Click();
+                    });
+                    ss.S("#EmbedType").Change(function (e) {
+                        ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": this.value}, function (data) {
+                            data = JSON.parse(data);
+                            ss.S("#EmbedList").Empty();
+                            for (var k in data) {
+                                ss.S("#EmbedList").Append("<option></option>").Val(data[k]).Html(k);
+                            }
+                        });
+                    });
+
+                    ss.S("#LayerList").Click(function (e) {
+                        if (e.target.getAttribute("class") == "LayerList") {
+                            domeditor.selectdom = e.target.objdata;
+                        }
+                    });
+
+                    ss.S("#LayerList").DoubleClick(function (e) {
+                        if (e.target.getAttribute("class") == "LayerList") {
+                            if (e.target.objdata.objtype == "Text") {
+                                sd.TextArea("Html Code", function (v) {
+                                    e.target.objdata.innerHTML = v;
+                                }).Val(e.target.objdata.innerHTML).ZIndex(999);
+                            }
+                        }
+                    });
+
+                    ss.S(".OptColor,.OptFont").Change(function () {
+                        var cmd = this.getAttribute("data-cmd");
+                        domeditor.EXECCommand(cmd, false, this.value);
+                    });
+
+
+                    ss.S(".SlideExecCommand").Click(function () {
+                        var cmd = this.getAttribute("data-cmd");
+                        if (cmd == "Background") {
+                            sd.Import("#BGDialog", function () {
+                                var opt = ss.S("#SelBGType").Val();
+                                if (opt == "none") {
+                                    domeditor.Background("");
+                                } else if (opt == "color") {
+                                    domeditor.Background(ss.S("#SelBGColor").Val());
+                                }
+
+                            }).ZIndex(999).Title("Background");
+                        }
+                    });
+
+
+
+                    ss.S("#SlidesList").Click(function (e) {
+
+                        if (e.target.getAttribute("class") == "SlidesList") {
+                            var sndajax = {};
+                            sndajax["path"] = ss.URLParam()["path"];
+                            sndajax["index"] = e.target.getAttribute("data-id");
+                            if (e.target.SlideData == null) {
+                                ss.Post("../../../../Api/Ajax/PointPoint/GetSlideIndex.php", sndajax, function (data) {
+                                    data = JSON.parse(data);
+                                    domeditor.Clear();
+                                    domeditor.SetAnimation(data.Metadata.Animation.Animation, data.Metadata.Animation.AnimationTime);
+                                    domeditor.SetAudio(data.Metadata.Audio.AudioType, data.Metadata.Audio.AudioPath);
+                                    domeditor.PaperSize(data.Metadata.Dimension.Width, data.Metadata.Dimension.Height);
+                                    e.target.SlideData = domeditor.SlideData;
+                                    var objdata = data.ObjectData;
+                                    for (var i = 0; i < objdata.length; i++) {
+                                        if (objdata[i].ObjectType == "Text") {
+                                            var txtbox = domeditor.AddTextBox(objdata[i].Code, objdata[i].Css);
+                                            txtbox.Animation = objdata[i].Animation;
+                                            txtbox.Audio = objdata[i].Audio;
+                                        } else if (objdata[i].ObjectType == "Image") {
+                                            var path = "";
+                                            if (objdata[i].Embed.FileType == "1") {
+                                                path = "../../../../Api/Action/PointPoint/LoadImage.php" + ss.JsonToQueryString({
+                                                    "path": ss.URLParam()["path"],
+                                                    "imagepath": objdata[i].Embed.Path,
+                                                    "width": objdata[i].Dimension.Width,
+                                                    "height": objdata[i].Dimension.Height
+                                                });
+                                            }
+                                            var img = domeditor.AddImage(path, objdata[i].Css);
+                                            img.Embed = objdata[i].Embed;
+                                            img.Dimension = objdata[i].Dimension;
+                                            img.Animation = objdata[i].Animation;
+                                            img.Audio = objdata[i].Audio;
+
+                                        }
+                                    }
+                                    e.target.Layer = domeditor.Layer;
+                                    domeditor.Clear();
+                                    domeditor.style.display = "block";
+                                    domeditor.LastSlidesList = null;
+                                    e.target.click();
+
+                                });
+                            } else if (e.target.SlideData !== null) {
+                                if (domeditor.LastSlidesList !== null) {
+                                    domeditor.LastSlidesList.SlideData = domeditor.SlideData;
+                                    domeditor.LastSlidesList.Layer = domeditor.Layer;
+                                }
+                                domeditor.Clear();
+                                domeditor.SetAnimation(e.target.SlideData.Animation.Animation, e.target.SlideData.Animation.AnimationTime);
+                                domeditor.SetAudio(e.target.SlideData.Audio.AudioType, e.target.SlideData.Audio.AudioPath);
+                                domeditor.style.display = "block";
+                                domeditor.Background(e.target.SlideData.BackGround || "");
+                                domeditor.PaperSize(e.target.SlideData.Width, e.target.SlideData.Height);
+
+                                var layerlist = e.target.Layer;
+
+                                for (var i = 0; i < layerlist.length; i++) {
+                                    if (layerlist[i].objtype == "Text") {
+                                        var txt = domeditor.AddTextBox(layerlist[i].innerHTML, layerlist[i].style.cssText);
+                                        txt.Animation = layerlist[i].Animation;
+                                        txt.Audio = layerlist[i].Audio;
+                                    } else if (layerlist[i].objtype == "Image") {
+                                        var img = domeditor.AddImage(layerlist[i].src, layerlist[i].style.cssText);
+                                        img.Embed = layerlist[i].Embed;
+                                        img.Dimension = layerlist[i].Dimension;
+                                        img.Animation = layerlist[i].Animation;
+                                        img.Audio = layerlist[i].Audio;
+                                    }
+                                }
+                                e.target.RenderThumbnail(e.target.SlideData.Width, e.target.SlideData.Height, domeditor.Html());
+                                domeditor.LastSlidesList = e.target;
+                            }
+                        } else {
+                            var current = e.target;
+                            while (current !== this) {
+                                if (current.getAttribute("class") == "SlidesList") {
+                                    current.click();
+                                    break;
+                                }
+                                current = current.parentNode;
+                            }
+                        }
+                    });
+
+                });
+            </script>
+        </head>
+        <body class="HolyGrail">
+
+            <header class="Header">
+                <div style="width: 50%;"></div>
+                <div style="width: 50%;text-align: right;">
+                    <?php
+                    printf('<img src="../../../../../Api/Action/Profile/Basic/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
+                    printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
+                    ?>       
+                    <a class="MenuLink" style="display: inline;" href="../../../../../Auth/Action/Logout.php">LogOut</a>
+                </div>
+            </header>
+            <div class="HolyGrail-body">
+                <nav>
+                    <?php
+                    foreach ($uinav->FindAllMenuFile("../../../App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+
+                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../../App/" . $valueB["path"], $valueB["name"]);
+                        }
+                        echo '</div>';
+                    }
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
+                            echo '</div>';
+                        }
+                    }
+                    ?>     
+                </nav>
+                <main>
+                    <?php
+                    if ($_SESSION["User"]["writable"] == 1) {
+                        ?>
+                        <div style="margin-top: 1px;background-color: burlywood;border-style: solid;border-width: thin;">
+                            <a class="BNToolBoxTab" data-id="Basic" href="#">Basic</a>
+                            <a class="BNToolBoxTab" data-id="Color" href="#">Color</a>
+                            <a class="BNToolBoxTab" data-id="Table" href="#">Table</a>
+                            <a class="BNToolBoxTab" data-id="Insert" href="#">Insert</a>
+                            <a class="BNToolBoxTab" data-id="Slide" href="#">Slide</a>
+                            <a class="BNToolBoxTab" data-id="CSS" href="#">CSS</a>
+                            <a class="BNToolBoxTab" data-id="Animation" href="#">Animation</a>
+                            <a class="BNToolBoxTab" data-id="Audio" href="#">Audio</a>
+                            <a class="BNToolBoxTab" data-id="Player" href="#">Player</a>
+                        </div>
+                        <div>
+                            <div class="ToolBoxTab" data-id="Basic" style="display: block;" >
+                                <img  id="BNAddNew"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/addnew.png" width="22" height="22"  />
+                                <img  id="BNOpen"    style="border-style: outset;"  src="../../../../../../img/wysiwyg/open.gif" width="22" height="22"  />
+                                <img  id="BNSave"    style="border-style: outset;"  src="../../../../../../img/wysiwyg/save.gif" width="22" height="22"  />
+                                <img  id="BNUpload"    style="border-style: outset;" title="UploadEmbedFile"  src="../../../../../../img/wysiwyg/upload.png" width="22" height="22"  />
+                                <img  id="BNObjectManager"    style="border-style: outset;" title="ObjectManager"  src="../../../../../../img/wysiwyg/object.png" width="22" height="22"  />
+                                <img  id="BNSize"    style="border-style: outset;" title="Resize" src="../../../../../../img/wysiwyg/docsize.png" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="bold"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/bold.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="italic"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/italic.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="underline"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/underline.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="cut"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/cut.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="copy"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/copy.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="paste"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/paste.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="undo"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/undo.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="redo"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/redo.gif" width="22" height="22"  />
+                                <img class="BNCMD" data-cmd="justifyLeft" style="border-style: outset;" src="../../../../../../img/wysiwyg/justifyleft.gif" width="22" height="22" />
+                                <img  class="BNCMD" data-cmd="justifyCenter"   style="border-style: outset;" src="../../../../../../img/wysiwyg/justifycenter.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="justifyRight"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/justifyright.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="insertUnorderedList"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/dottedlist.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="insertOrderedList"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/numberedlist.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="indent"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/indent.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="outdent"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/outdent.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="strikeThrough"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/strikethrough.gif" width="22" height="22"   />
+                                <img  class="BNCMD" data-cmd="superscript"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/superscript.gif" width="22" height="22"   />
+                                <img  class="BNCMD" data-cmd="subscript"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/subscript.gif" width="22" height="22"   />
+                                <img  class="BNInsertCMD" data-cmd="createlink" title="InsertLink" style="border-style: outset;"  src="../../../../../../img/wysiwyg/link.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="unlink" title="RemoveLink"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/unlink.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="removeFormat" title="RemoveFormat"   style="border-style: outset;"  src="../../../../../../img/wysiwyg/removeformat.gif" width="22" height="22"  />
+                                <div style="display: inline;">
+                                    <span >Font Size:</span>
+                                    <select class="OptFont" data-cmd="fontSize">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                    </select>
+
+                                </div>
+
+                            </div>
+                            <div class="ToolBoxTab" data-id="Color" style="display: none;">
+                                <div style="display: inline;">
+                                    <span>Background Color:</span>
+                                    <input type="color" class="InputExecCommand" data-cmd="BackgroundColor" />
+
+                                </div>
+                                <div style="display: inline;">
+                                    <span>Font Color:  </span>
+                                    <input type="color" class="OptColor"  data-cmd="foreColor"  />
+
+                                </div>
+                                <div style="display: inline;">
+                                    <span>Hilite  Color: </span>
+                                    <input type="color"  class="OptColor"  data-cmd="hiliteColor" />
+
+                                </div>
+                            </div>
+                            <div class="ToolBoxTab" data-id="Table" style="display: none;">
+                                <img class="BNCMDTable" data-cmd="InsertTable"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/table.gif" width="22" height="22"  />
+                                <img class="BNCMDTable" data-cmd="InsertRow"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/insertrow.png" width="22" height="22"  />
+                                <img class="BNCMDTable" data-cmd="InsertColumn"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/insertcol.png" width="22" height="22"  />
+                                <img class="BNCMDTable" data-cmd="DeleteRow"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/deleterow.png" width="22" height="22"  />
+                                <img class="BNCMDTable" data-cmd="DeleteColumn"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/deletecol.png" width="22" height="22"  />
+                                <div style="display: inline;">
+                                    <span>Border Style:</span>
+                                    <select class="OPTCMDTable" data-cmd="BorderStyle">
+                                        <option value="none">none</option>
+                                        <option value="hidden">hidden</option>
+                                        <option value="dashed">dashed</option>
+                                        <option value="dotted">dotted</option>
+                                        <option value="double">double</option>
+                                        <option value="groove">groove</option>
+                                        <option value="inset">inset</option>
+                                        <option value="outset">outset</option>
+                                        <option value="ridge">ridge</option>
+                                        <option value="solid">solid</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="ToolBoxTab" data-id="Insert" style="display: none;">
+                                <img class="BNCMDInsert" data-cmd="TxtBox"  style="border-style: outset;"  src="../img/pointpoint/txtbox.png" width="22" height="22"  />
+                                <img class="BNCMDInsert" data-cmd="Image"  style="border-style: outset;"  src="../img/pointpoint/pic.png" width="22"  />
+                            </div>
+                            <div class="ToolBoxTab" data-id="Slide" style="display: none;">
+                                <div style="display: inline;">
+                                    <label>Background:</label>
+                                    <input type="button" class="SlideExecCommand" data-cmd="Background" value="Select" />
+                                </div>
+                            </div>
+                            <div class="ToolBoxTab" data-id="Animation" style="display: none;">
+                                <label>Animation:</label>
+                                <select id="AnimationList">
+                                    <option value="">None</option>
+                                </select>
+                                <label>Time:</label>
+                                <input id="AnimationTime" type="number" min="0" value="1" />
+                            </div>
+                            <div class="ToolBoxTab" data-id="Audio" style="display: none;">
+                                <label>Type:</label>
+                                <select id="AudioType">
+                                    <option value="0">None</option>
+                                    <option value="1">Embed</option>
+                                    <option value="3">Resource</option>
+
+                                </select>
+                                <label>Name:</label>
+                                <select id="AudioFile">
+
+                                </select>
+                                <audio id="AudioPlay" src="" controls="controls"></audio>
+
+                            </div>
+                            <div class="ToolBoxTab" data-id="Player" style="display: none;">
+                                <a href="<?php echo 'Player.php?path=' . ($_GET["path"]); ?>" target="_blank"><img style="border-style: outset; border-width: thin;"  src="../img/pointpoint/play.png" width="22" height="22"  /></a>
+                            </div>
+
+                            <div class="ToolBoxTab" data-id="CSS" style="display: none;" >
+                                <span  class="BNCMDDialog" data-cmd="ZIndex" style="border-style: outset;display: inline-block;width: 22px;height: 22px;text-align: center;">Z</span>
+                                <span class="BNCMDDialog" data-cmd="Rect" style="border-style: outset;display: inline-block;width: 22px;height: 22px;text-align: center;">[R]</span>
+                            </div>
+                        </div>
+                        <div id="Editor" style="width: 100%; height: 80vh;border-style: solid;box-sizing: border-box;border-width: thin;overflow: auto;">
+
+                        </div>
+                        <?php
+                    }
+                    ?>
+                </main>
+                <aside>
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Slides</div>
+                        <div id="SlidesList" style="max-height: 40vh;overflow: auto;">
+
+                        </div>
+                    </div>
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Layer</div>
+                        <ul id="LayerList" style="max-height: 40vh;overflow: auto;cursor: pointer;">
+
+                        </ul>
+                    </div>
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Event</div>
+                        <?php
+                        foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
+                            echo '<div>';
+                            printf('<a class="MenuLink" href="../../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
+                            echo '</div><hr>';
                         }
                         ?>
                     </div>
                     <?php
-                    if ($Permission->Writable($_SESSION["UserID"])) {
-                        ?>
-                        <div class="Section" style="box-sizing: border-box;">
-                            <div style="margin-top: 1px;background-color: burlywood;border-style: solid;border-width: thin;">
-                                <a class="BNToolBoxTab" data-id="Basic" href="#">Basic</a>
-                                <a class="BNToolBoxTab" data-id="Color" href="#">Color</a>
-                                <a class="BNToolBoxTab" data-id="Table" href="#">Table</a>
-                                <a class="BNToolBoxTab" data-id="Insert" href="#">Insert</a>
-                                <a class="BNToolBoxTab" data-id="Slide" href="#">Slide</a>
-                                <a class="BNToolBoxTab" data-id="CSS" href="#">CSS</a>
-                                <a class="BNToolBoxTab" data-id="Animation" href="#">Animation</a>
-                                <a class="BNToolBoxTab" data-id="Audio" href="#">Audio</a>
-                                <a class="BNToolBoxTab" data-id="Player" href="#">Player</a>
-                            </div>
-                            <div>
-                                <div class="ToolBoxTab" data-id="Basic" style="display: block;" >
-                                    <img  id="BNAddNew"  style="border-style: outset;"  src="../img/wysiwyg/addnew.png" width="22" height="22"  />
-                                    <img  id="BNOpen"    style="border-style: outset;"  src="../img/wysiwyg/open.gif" width="22" height="22"  />
-                                    <img  id="BNSave"    style="border-style: outset;"  src="../img/wysiwyg/save.gif" width="22" height="22"  />
-                                    <img  id="BNUpload"    style="border-style: outset;" title="UploadEmbedFile"  src="../img/wysiwyg/upload.png" width="22" height="22"  />
-                                    <img  id="BNObjectManager"    style="border-style: outset;" title="ObjectManager"  src="../img/wysiwyg/object.png" width="22" height="22"  />
-                                    <img  id="BNSize"    style="border-style: outset;" title="Resize" src="../img/wysiwyg/docsize.png" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="bold"  style="border-style: outset;"  src="../img/wysiwyg/bold.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="italic"  style="border-style: outset;"  src="../img/wysiwyg/italic.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="underline"  style="border-style: outset;"  src="../img/wysiwyg/underline.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="cut"  style="border-style: outset;"  src="../img/wysiwyg/cut.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="copy"  style="border-style: outset;"  src="../img/wysiwyg/copy.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="paste"  style="border-style: outset;"  src="../img/wysiwyg/paste.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="undo"  style="border-style: outset;"  src="../img/wysiwyg/undo.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="redo"  style="border-style: outset;"  src="../img/wysiwyg/redo.gif" width="22" height="22"  />
-                                    <img class="BNCMD" data-cmd="justifyLeft" style="border-style: outset;" src="../img/wysiwyg/justifyleft.gif" width="22" height="22" />
-                                    <img  class="BNCMD" data-cmd="justifyCenter"   style="border-style: outset;" src="../img/wysiwyg/justifycenter.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="justifyRight"  style="border-style: outset;"  src="../img/wysiwyg/justifyright.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="insertUnorderedList"  style="border-style: outset;"  src="../img/wysiwyg/dottedlist.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="insertOrderedList"  style="border-style: outset;"  src="../img/wysiwyg/numberedlist.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="indent"  style="border-style: outset;"  src="../img/wysiwyg/indent.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="outdent"  style="border-style: outset;"  src="../img/wysiwyg/outdent.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="strikeThrough"  style="border-style: outset;"  src="../img/wysiwyg/strikethrough.gif" width="22" height="22"   />
-                                    <img  class="BNCMD" data-cmd="superscript"  style="border-style: outset;"  src="../img/wysiwyg/superscript.gif" width="22" height="22"   />
-                                    <img  class="BNCMD" data-cmd="subscript"  style="border-style: outset;"  src="../img/wysiwyg/subscript.gif" width="22" height="22"   />
-                                    <img  class="BNInsertCMD" data-cmd="createlink" title="InsertLink" style="border-style: outset;"  src="../img/wysiwyg/link.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="unlink" title="RemoveLink"  style="border-style: outset;"  src="../img/wysiwyg/unlink.gif" width="22" height="22"  />
-                                    <img  class="BNCMD" data-cmd="removeFormat" title="RemoveFormat"   style="border-style: outset;"  src="../img/wysiwyg/removeformat.gif" width="22" height="22"  />
-                                    <div style="display: inline;">
-                                        <span >Font Size:</span>
-                                        <select class="OptFont" data-cmd="fontSize">
-                                            <option value="1">1</option>
-                                            <option value="2">2</option>
-                                            <option value="3">3</option>
-                                            <option value="4">4</option>
-                                            <option value="5">5</option>
-                                            <option value="6">6</option>
-                                            <option value="7">7</option>
-                                        </select>
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Aside);
+                            echo '</div>';
+                        }
+                    }
+                    ?>
 
-                                    </div>
+                </aside>
+            </div>
+            <footer>
+                <span style="font-weight: bold;display: block;">
+                    <?php
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
+                    ?>
+                </span>  
+            </footer>
+            <div class="Container" style="">
 
-                                </div>
-                                <div class="ToolBoxTab" data-id="Color" style="display: none;">
-                                    <div style="display: inline;">
-                                        <span>Background Color:</span>
-                                        <input type="color" class="InputExecCommand" data-cmd="BackgroundColor" />
+                <?php
+                if ($Permission->Writable($_SESSION["UserID"])) {
+                    ?>
+                    <div class="Section" style="box-sizing: border-box;">
 
-                                    </div>
-                                    <div style="display: inline;">
-                                        <span>Font Color:  </span>
-                                        <input type="color" class="OptColor"  data-cmd="foreColor"  />
-
-                                    </div>
-                                    <div style="display: inline;">
-                                        <span>Hilite  Color: </span>
-                                        <input type="color"  class="OptColor"  data-cmd="hiliteColor" />
-
-                                    </div>
-                                </div>
-                                <div class="ToolBoxTab" data-id="Table" style="display: none;">
-                                    <img class="BNCMDTable" data-cmd="InsertTable"  style="border-style: outset;"  src="../img/wysiwyg/table.gif" width="22" height="22"  />
-                                    <img class="BNCMDTable" data-cmd="InsertRow"  style="border-style: outset;"  src="../img/wysiwyg/insertrow.png" width="22" height="22"  />
-                                    <img class="BNCMDTable" data-cmd="InsertColumn"  style="border-style: outset;"  src="../img/wysiwyg/insertcol.png" width="22" height="22"  />
-                                    <img class="BNCMDTable" data-cmd="DeleteRow"  style="border-style: outset;"  src="../img/wysiwyg/deleterow.png" width="22" height="22"  />
-                                    <img class="BNCMDTable" data-cmd="DeleteColumn"  style="border-style: outset;"  src="../img/wysiwyg/deletecol.png" width="22" height="22"  />
-                                    <div style="display: inline;">
-                                        <span>Border Style:</span>
-                                        <select class="OPTCMDTable" data-cmd="BorderStyle">
-                                            <option value="none">none</option>
-                                            <option value="hidden">hidden</option>
-                                            <option value="dashed">dashed</option>
-                                            <option value="dotted">dotted</option>
-                                            <option value="double">double</option>
-                                            <option value="groove">groove</option>
-                                            <option value="inset">inset</option>
-                                            <option value="outset">outset</option>
-                                            <option value="ridge">ridge</option>
-                                            <option value="solid">solid</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="ToolBoxTab" data-id="Insert" style="display: none;">
-                                    <img class="BNCMDInsert" data-cmd="TxtBox"  style="border-style: outset;"  src="../img/pointpoint/txtbox.png" width="22" height="22"  />
-                                    <img class="BNCMDInsert" data-cmd="Image"  style="border-style: outset;"  src="../img/pointpoint/pic.png" width="22"  />
-                                </div>
-                                <div class="ToolBoxTab" data-id="Slide" style="display: none;">
-                                    <div style="display: inline;">
-                                        <label>Background:</label>
-                                        <input type="button" class="SlideExecCommand" data-cmd="Background" value="Select" />
-                                    </div>
-                                </div>
-                                <div class="ToolBoxTab" data-id="Animation" style="display: none;">
-                                    <label>Animation:</label>
-                                    <select id="AnimationList">
-                                        <option value="">None</option>
-                                    </select>
-                                    <label>Time:</label>
-                                    <input id="AnimationTime" type="number" min="0" value="1" />
-                                </div>
-                                <div class="ToolBoxTab" data-id="Audio" style="display: none;">
-                                    <label>Type:</label>
-                                    <select id="AudioType">
-                                        <option value="0">None</option>
-                                        <option value="1">Embed</option>
-                                        <option value="3">Resource</option>
-
-                                    </select>
-                                    <label>Name:</label>
-                                    <select id="AudioFile">
-
-                                    </select>
-                                    <audio id="AudioPlay" src="" controls="controls"></audio>
-
-                                </div>
-                                <div class="ToolBoxTab" data-id="Player" style="display: none;">
-                                    <a href="<?php echo 'Player.php?path=' . ($_GET["path"]); ?>" target="_blank"><img style="border-style: outset; border-width: thin;"  src="../img/pointpoint/play.png" width="22" height="22"  /></a>
-                                </div>
-
-                                <div class="ToolBoxTab" data-id="CSS" style="display: none;" >
-                                    <span  class="BNCMDDialog" data-cmd="ZIndex" style="border-style: outset;display: inline-block;width: 22px;height: 22px;text-align: center;">Z</span>
-                                    <span class="BNCMDDialog" data-cmd="Rect" style="border-style: outset;display: inline-block;width: 22px;height: 22px;text-align: center;">[R]</span>
-                                </div>
-                            </div>
-                            <div id="Editor" style="width: 100%; height: 80vh;border-style: solid;box-sizing: border-box;border-width: thin;overflow: auto;">
-
-                            </div>
-                        </div>
-                        <?php
-                    } else {
-                        echo ' <div class="Section" style="box-sizing: border-box;">
+                    </div>
+                    <?php
+                } else {
+                    echo ' <div class="Section" style="box-sizing: border-box;">
                                     <a  href=" Player.php?path=' . ($_GET["path"]) . '" target="_blank"><img style="border-style: outset; border-width: thin;"  src="../img/pointpoint/play.png" width="22" height="22"  /></a>
                                 <div id="Editor" style="width: 100%; height: 80vh;border-style: solid;box-sizing: border-box;border-width: thin;overflow: auto;">
                             </div> </div>';
-                    }
-                    ?>
-                    <div class="Aside"  >
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <label class="Title">Slides</label>
-                            <div id="SlidesList" style="max-height: 40vh;overflow: auto;">
+                }
+                ?>
+
+            </div>
+
+            <div id="AddTPList" style="display: none;height: 80vh;width: 80vh;">
+                <table>
+                    <tr>
+                        <td>Width</td>
+                        <td><input class="TPMetadata" type="number" name="Width" value="800" /></td>
+                        <td>Height</td>
+                        <td><input class="TPMetadata" type="number" name="Height" value="600" /></td>
+                    </tr>
+                </table>
+
+                <form>
+
+                    <div style="display: flex;flex-direction: row;">
+                        <div class="TPList"  >
+                            <div class="TPPreview">
 
                             </div>
+                            <br>
+                            <input type="radio" name="TPType" value="Blank" />
+                            <label>Blank</label>
                         </div>
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <label class="Title">Layer</label>
-                            <ul id="LayerList" style="max-height: 40vh;overflow: auto;cursor: pointer;">
+                        <div class="TPList"  >
+                            <div class="TPPreview" style="text-align: center;">
+                                <span>Title</span>
+                            </div>
+                            <br>
+                            <input type="radio" name="TPType" value="Title" />
+                            <label>Title</label>
+                        </div>
+                        <div class="TPList" >
+                            <div class="TPPreview" style="text-align: center;">
+                                <span>Title</span>
 
-                            </ul>
+                                <br>
+                                <span>SubTitle</span>
+                            </div>
+                            <br>
+                            <input   type="radio" name="TPType" value="TitleSubTitle" />
+                            <label>Title And SubTitle</label>
                         </div>
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <label class="Title">My Event</label>
-                            <?php
-                            foreach ($Event->GetCurrentMyEvent($_SESSION["UserID"]) as $value) {
-                                echo '<div>';
-                                printf('<a href="../../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                                printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                                echo '</div><hr>';
-                            }
-                            ?>
+                        <div class="TPList" >
+                            <div class="TPPreview" style="text-align: center;">
+                                <span>Title</span>
+                                <br>
+                                <span>Text</span>
+                            </div>
+                            <br>
+                            <input   type="radio" name="TPType" value="TitleText" />
+                            <label>Title And Text</label>
                         </div>
-                        <div class="BorderBlock" style="margin-top: 1px;">
-                            <label class="Title">Other Event</label>
-                            <?php
-                            $Dat = array_merge($Event->GetCurrentEventNotUserID(Config_DB_Config::Access_Mode_Members, $_SESSION["UserID"]), $Event->GetCurrentEventNotUserID(Config_DB_Config::Access_Mode_Public, $_SESSION["UserID"]));
-                            foreach ($Dat as $value) {
-                                echo '<div  >';
-                                printf('<a href="../../Share/EventViewer.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                                printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                                echo '</div><hr>';
-                            }
-                            ?>
-                        </div>
-                        <?php
-                        $Dat = array_merge($Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Members), $Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Public));
-                        foreach ($Dat as $value) {
-                            try {
-                                echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                                include_once '../../../../../../Class/DB/Module/' . $value["filename"];
-                                $mod = new $value["classname"]($Module);
-                                printf('<label class="Title">%s</label>', $mod->GetTitle());
-                                $mod->SetModuleID($value["id"]);
-                                $mod->SetModulePage("../../Module/Page.php");
-                                $mod->SetUserID($_SESSION["UserID"]);
-                                echo $mod->Execute();
-                                echo '</div>';
-                            } catch (Exception $ex) {
-                                
-                            }
-                        }
-                        ?>
                     </div>
-                </div>
+                </form>
+            </div>
 
-                <div id="AddTPList" style="display: none;height: 80vh;width: 80vh;">
-                    <table>
-                        <tr>
-                            <td>Width</td>
-                            <td><input class="TPMetadata" type="number" name="Width" value="800" /></td>
-                            <td>Height</td>
-                            <td><input class="TPMetadata" type="number" name="Height" value="600" /></td>
-                        </tr>
-                    </table>
+            <div style="display: none;" >
+                <input id="BNHiddenUpload" type="file" name="UploadFile" value="" />
+            </div>
+            <table id="ObjManagerDialog" style="display: none;width: 100%;box-sizing: border-box;">
+                <tr>
+                    <td>Object Type:</td>
+                    <td><select id="EmbedType"  style="width: 100%;box-sizing: border-box;">
+                            <option value="Audio">Audio</option>
+                            <option value="Image">Image</option>
+                            <option value="Slides">Slides</option>
+                            <option value="Video">Video</option>
 
-                    <form>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <select id="EmbedList" style="width: 100%;box-sizing: border-box;" multiple="multiple">
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <table id="BGDialog" style="display: none;">
+                <tr>
+                    <td>Background:</td>
+                    <td>
+                        <select id="SelBGType">
+                            <option value="none">none</option>
+                            <option value="color">color</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr class="SelBGColorUI">
+                    <td>Color:</td>
+                    <td><input id="SelBGColor" type="color"  /></td>
+                </tr>
+            </table>
 
-                        <div style="display: flex;flex-direction: row;">
-                            <div class="TPList"  >
-                                <div class="TPPreview">
-
-                                </div>
-                                <br>
-                                <input type="radio" name="TPType" value="Blank" />
-                                <label>Blank</label>
-                            </div>
-                            <div class="TPList"  >
-                                <div class="TPPreview" style="text-align: center;">
-                                    <span>Title</span>
-                                </div>
-                                <br>
-                                <input type="radio" name="TPType" value="Title" />
-                                <label>Title</label>
-                            </div>
-                            <div class="TPList" >
-                                <div class="TPPreview" style="text-align: center;">
-                                    <span>Title</span>
-
-                                    <br>
-                                    <span>SubTitle</span>
-                                </div>
-                                <br>
-                                <input   type="radio" name="TPType" value="TitleSubTitle" />
-                                <label>Title And SubTitle</label>
-                            </div>
-                            <div class="TPList" >
-                                <div class="TPPreview" style="text-align: center;">
-                                    <span>Title</span>
-                                    <br>
-                                    <span>Text</span>
-                                </div>
-                                <br>
-                                <input   type="radio" name="TPType" value="TitleText" />
-                                <label>Title And Text</label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <div style="display: none;" >
-                    <input id="BNHiddenUpload" type="file" name="UploadFile" value="" />
-                </div>
-                <table id="ObjManagerDialog" style="display: none;width: 100%;box-sizing: border-box;">
-                    <tr>
-                        <td>Object Type:</td>
-                        <td><select id="EmbedType"  style="width: 100%;box-sizing: border-box;">
-                                <option value="Audio">Audio</option>
-                                <option value="Image">Image</option>
-                                <option value="Slides">Slides</option>
-                                <option value="Video">Video</option>
-
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <select id="EmbedList" style="width: 100%;box-sizing: border-box;" multiple="multiple">
-                            </select>
-                        </td>
-                    </tr>
-                </table>
-                <table id="BGDialog" style="display: none;">
-                    <tr>
-                        <td>Background:</td>
-                        <td>
-                            <select id="SelBGType">
-                                <option value="none">none</option>
-                                <option value="color">color</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr class="SelBGColorUI">
-                        <td>Color:</td>
-                        <td><input id="SelBGColor" type="color"  /></td>
-                    </tr>
-                </table>
-
-            </body>
-        </html>
-        <?php
-    } else {
-        header("location: MainPage.php");
-    }
+        </body>
+    </html>
+    <?php
 } else {
-    header("location: ../../../../Session/AuthUserID.php");
+    header("location: ../../../../../Auth/Login.php");
     session_destroy();
 }
+
 
 

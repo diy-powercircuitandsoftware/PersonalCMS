@@ -48,7 +48,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     fd.OpenDir = function (v) {
                         ajax.Post("../../../../../Api/Ajax/Files/List/GetFilesListByExtension.php", {"Path": v, "Ext": "PointPointZip"}, function (data) {
-                            ss.S("#FileLocation").Val((v));
+                            fd.CurrentDir = v;
+                            ss.S("#FileLocation").Val(v);
                             fd.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
@@ -67,10 +68,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     };
 
                     ss.S("#BNNew").Click(function () {
-                        sd.Prompt("Enter File Name", function (v) {
-                            ss.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/CreatePointPointZip.php", {"Path": (fd.currentdir + "/" + (v)  )}, function (data) {
+                        var p = sd.Prompt("Enter File Name", function (v) {
+                            ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/CreatePointPointZip.php", {"Path": fd.CurrentDir, "Name": v}, function (data) {
                                 data = JSON.parse(data);
-                                fd.ChDir(fd.currentdir);
+                                fd.OpenDir(fd.CurrentDir);
+                                p.Close();
                             });
                         }).ZIndex(999);
                     });
@@ -160,6 +162,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
     </html>
     <?php
 } else {
-    header("location: ../../../../Session/AuthUserID.php");
+    header("location: ../../../../../Auth/Login.php");
     session_destroy();
 }
+
+  

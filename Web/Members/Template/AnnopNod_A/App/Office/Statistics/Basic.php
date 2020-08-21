@@ -467,6 +467,6 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
     </html>
     <?php
 } else {
-    header("location: ../../../../Session/AuthUserID.php");
+   header("location: ../../../../../Auth/Login.php");
     session_destroy();
 }
