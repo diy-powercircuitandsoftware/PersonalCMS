@@ -23,7 +23,7 @@ class OfficeIO_PointPoint {
                 "version" => "1",
                 "date" => date("Y-m-d")
             )));
-            $this->AddSlideData(new PointPointSlide(800, 600));
+            
         } else {
             $this->zip->open($filename);
         }
@@ -48,9 +48,9 @@ class OfficeIO_PointPoint {
         }
     }
 
-    function AddSlideData(PointPointSlide $pps) {
+    function AddSlideData($svgstring) {
         $name = $this->GetSlidesCount();
-        $this->zip->addFromString(self::Embed_Slides . "/" . $name, serialize($pps->ToArray()));
+        $this->zip->addFromString(self::Embed_Slides . "/" . $name,$svgstring);
     }
 
     function DeleteEmbed($Path) {
@@ -106,120 +106,11 @@ class OfficeIO_PointPoint {
         return unserialize($this->zip->getFromName(self::Embed_Slides . "/" . $index));
     }
 
-    function ReplaceSlide($Index, PointPointSlide $Data) {
+    function ReplaceSlide($Index, $svgstring) {
         $Path = self::Embed_Slides . "/" . $Index;
         $this->zip->deleteName($Path);
-        return $this->zip->addFromString($Path, serialize($Data->ToArray()));
+        return $this->zip->addFromString($Path,$svgstring);
     }
 
 }
-
-class PointPointSlide {
-
-    private $Metadata = array();
-    private $ObjectData = array();
-
-    const File_Type_None = 0;
-    const File_Type_Embed = 1;
-    const File_Type_Url = 2;
-    const File_Type_Resource = 3;
-    const ObjectType_Text = "Text";
-    const ObjectType_Image = "Image";
-    const ObjectType_Video = "Video";
-
-    function __construct($Width = 800, $Height = 600) {
-        $this->Metadata = array(
-            "Animation" => array(
-                "Animation" => "",
-                "AnimationTime" => 0
-            ),
-            "Audio" => array(
-                "AudioPath" => "",
-                "AudioType" => 0
-            ),
-            "Background" => "",
-            "Dimension" => array(
-                "Width" => $Width,
-                "Height" => $Height
-            ),
-            "Name" => "Untitle",
-        );
-    }
-
-    function AddImage($type, $path, $w, $h, $css) {
-        $this->ObjectData[] = array(
-            "Animation" => array(
-                "Animation" => "",
-                "AnimationTime" => self::File_Type_None
-            ),
-            "Audio" => array(
-                "AudioPath" => "",
-                "AudioType" => self::File_Type_None
-            ),
-            "Embed" => array(
-                "FileType" => $type,
-                "Path" => $path
-            ), "Dimension" => array(
-                "Width" => $w,
-                "Height" => $h
-            ),
-            "Css" => $css,
-            "ObjectType" => self::ObjectType_Image
-        );
-        return count($this->ObjectData) - 1;
-    }
-
-    function AddText($html, $css) {
-        $this->ObjectData[] = array(
-            "Animation" => array(
-                "Animation" => "",
-                "AnimationTime" => self::File_Type_None
-            ),
-            "Audio" => array(
-                "AudioPath" => "",
-                "AudioType" => self::File_Type_None
-            ),
-            "Code" => $html,
-            "Css" => $css,
-            "ObjectType" => self::ObjectType_Text
-        );
-        return count($this->ObjectData) - 1;
-    }
-
-    function SetAudio($path, $type) {
-        $this->Metadata["Audio"] = array(
-            "AudioPath" => $path,
-            "AudioType" => intval($type)
-        );
-    }
-
-    function SetAnimation($name, $time) {
-        $this->Metadata["Animation"] = array(
-            "Animation" => $name,
-            "AnimationTime" => intval($time)
-        );
-    }
-
-    function SetBackground($v) {
-        $this->Metadata["Background"] = $v;
-    }
-
-    function SetObjectAnimation($index, $name, $time) {
-        $this->ObjectData[$index]["Animation"] = array(
-            "Animation" => $name,
-            "AnimationTime" => $time
-        );
-    }
-
-    function SetObjectAudio($index, $path, $type) {
-        $this->ObjectData[$index]["Audio"] = array(
-            "AudioPath" => $path,
-            "AudioType" => intval($type)
-        );
-    }
-
-    function ToArray() {
-        return array("Metadata" => $this->Metadata, "ObjectData" => $this->ObjectData);
-    }
-
-}
+ 

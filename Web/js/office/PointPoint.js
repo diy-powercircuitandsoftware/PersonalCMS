@@ -7,66 +7,75 @@ class PointPoint_Editor {
         } else {
             this.editor = document.body.appendChild(document.createElement("DIV"));
         }
+        this.slides = [];
+
     }
+    CanvasSize(...args) {
+        if (args.length === 0) {
+            return {
+                "width": this.editor.style.width,
+                "height": this.editor.style.height
+            };
+        } else if (args.length === 2) {
+            this.editor.style.width = args[0];
+            this.editor.style.height = args[1];
+        }
+    }
+    AddTextBox(slideindex, txt) {
+
+    }
+    GetSlides(){
+        return this.slides;
+    }
+    InsertSlide(...args) {
+        if (args.length === 1 && (args[0] === null || args[0] instanceof PointPoint_Slide)) {
+            this.slides.push(args[0]);
+        }
+    }
+
+    SlideExists(index) {
+        return !(this.slides[index] === undefined || this.slides[index] === null);
+    }
+    Render(index) {
+        if (this.SlideExists(index)) {
+            this.editor.innerHTML = "";
+            this.editor.appendChild(this.slides[index].GetSVG());
+        }
+    }
+
 }
 class PointPoint_Player {
 
 }
-class PointPoint_Player_RenderEngine {
-    constructor(...args) {
-        if (typeof args[0] === 'string' || args[0] instanceof String) {
-            this.canvas = document.querySelector(args[0]).appendChild(document.createElement("CANVAS"));
-        } else if (args[0] instanceof HTMLElement) {
-            this.canvas = args[0].appendChild(document.createElement("CANVAS"));
-        }
-        this.requestID = 0;
-        this.fps = args[1];
-        this.animate = function () {};
-    }
-    SetAnimate(animate) {
-        this.animate = animate;
-    }
-    Size(w, h) {
-        this.canvas.width = w;
-        this.canvas.height = h;
-    }
-    Start() {
-        let then = performance.now();
-        const interval = 1000 / this.fps;
-        const tolerance = 0.1;
-        const animateLoop = (now) => {
 
-            const delta = now - then;
-            if (delta >= interval - tolerance) {
-                then = now - (delta % interval);
-                this.animate(delta);
-            }
-            this.requestID = requestAnimationFrame(animateLoop);
-        };
-        this.requestID = requestAnimationFrame(animateLoop);
-    }
-
-    Stop() {
-        cancelAnimationFrame(this.requestID);
-    }
-}
 class PointPoint_Animation {
 
 }
-class PointPoint_Object {
-    Sound() {
 
-    }
-    Animation() {
-
-    }
-}
 class PointPoint_Slide {
+    constructor( ) {
+        this.slidearea = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    }
+    AddText(txt) {
+
+    }
+    GetSVG() {
+        return  this.slidearea;
+
+    }
+    Size(...args) {
+        if (args.length === 0) {
+            return {
+                "width": this.slidearea.width,
+                "height": this.slidearea.height
+            };
+        } else if (args.length === 2) {
+            this.slidearea.width = args[0];
+            this.slidearea.height = args[1];
+        }
+    }
 
 }
-
-
-
 
 
 

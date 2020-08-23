@@ -37,6 +37,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 .BNCMDDialog{
                     cursor: pointer; 
                 }
+                .BNToolBoxTab{
+                    text-decoration: none;
+                    color: blue;
+                }
                 .ToolBoxTab{
                     margin-top: 1px;
                     background-color: burlywood;
@@ -70,41 +74,58 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             </style>
             <script src="../../../../../../js/dom/SuperDialog.js"></script>
             <script src="../../../../../../js/dom/SSQueryFW.js"></script>
+            <script src="../../../../../../js/io/Ajax.js"></script>
             <script src="../../../../../../js/office/PointPoint.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var sd = new SuperDialog();
-                    var pp = new PointPoint();
+                    var ajax = new Ajax();
 
-                    var domeditor = document.getElementById("Editor").appendChild(new pp.Editor());
-                    var de = new pp.DomAnimation();
-                    var anilist = de.GetAnimation();
-                    domeditor.init(800, 600);
-                    domeditor.style.display = "none";
-                    for (var i in anilist) {
-                        ss.S("#AnimationList").Append("<option></option>").Val(anilist[i]).Html(anilist[i]);
-                    }
+                    var domeditor = new PointPoint_Editor(document.getElementById("Editor"));
+                    var slideindex = 0;
+                    domeditor.CanvasSize("800px", "600px");
+                    //domeditor.style.display = "none";
+                    //  ss.S("#AnimationList").Append("<option></option>").Val(anilist[i]).Html(anilist[i]);
+                    //
                     if (ss.URLParam()["path"] !== undefined) {
                         var dpw = sd.PleaseWait().ZIndex(999);
-                        ss.Post("../../../../Api/Ajax/PointPoint/GetMetadata.php", {"path": ss.URLParam()["path"]}, function (data) {
+                        domeditor.path = ss.URLParam()["path"];
+                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetMetaData.php", {"path": domeditor.path}, function (data) {
                             data = JSON.parse(data);
-                            document.title = data["Name"];
-                            for (var i = 1; i <= parseInt(data["Data"].slidescount); i++) {
-                                var pt = document.getElementById("SlidesList").appendChild(new pp.CreateThumbnail(i - 1, i));
-                                pt.setAttribute("class", "SlidesList");
-                                pt.Layer = null;
-                                pt.SlideData = null;
-                                pt.RenderThumbnail("800px", "600px", "Click To Load Data");
+
+                            ss.S("#SlidesIndexList").Attr("max", data["slidescount"]);
+                            for (var i in parseInt(data["slidescount"])) {
+                                domeditor.InsertSlide(null);
                             }
-                            var SlidesList = document.getElementsByClassName("SlidesList");
-                            if (SlidesList.length > 0) {
-                                SlidesList[0].click();
-                                domeditor.style.display = "block";
-                            }
+
                             dpw.Close();
                         });
+
+                    } else {
+                        window.location.replace("index.php");
                     }
+
+                    ss.S("#BNAddNew").Click(function () {
+                        sd.ImportOkCancel("Add New Slide", "#AddTPList", function () {
+                            var t = ss.S("INPUT[name='TPType']").Val();
+                            if (t == "Blank") {
+                                domeditor.InsertSlide(new PointPoint_Slide());
+                            }
+                            return true;
+
+                        });
+                    });
+
+
+                    ss.S(".BNToolBoxTab").Click(function () {
+                        var id = this.getAttribute("data-id");
+                        ss.S(".ToolBoxTab").Hide();
+                        ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
+                    });
+
+                    return 0;
+
 
                     domeditor.ChangeLayer = function (layerdata) {
                         ss.S("#LayerList").Empty();
@@ -199,24 +220,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     });
 
-                    ss.S("#BNAddNew").Click(function () {
-                        sd.Import("#AddTPList", function () {
-                            var t = ss.S("INPUT[name='TPType']").Val();
-                            if (t == "Blank") {
 
-                            }
-                            //TPMetadata
-                            ss.Post("../../../../Api/Ajax/PointPoint/TemplateGene.php", {}, function (tpdata) {
-                                tpdata = JSON.parse(tpdata);
-                                var pt = document.getElementById("SlidesList").appendChild(new pp.CreateThumbnail(document.getElementsByClassName("SlidesList").length, "Untitle"));
-                                pt.setAttribute("class", "SlidesList");
-                                pt.SlideData = tpdata.Metadata;
-                                pt.Layer = [];
-                                pt.click();
-                            });
-
-                        }).ZIndex(999).Title("Add New Slide");
-                    });
 
                     ss.S("#AnimationList,#AnimationTime").Change(function () {
                         domeditor.SetAnimation(ss.S("#AnimationList").Val(), ss.S("#AnimationTime").Val());
@@ -410,11 +414,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
 
-                    ss.S(".BNToolBoxTab").Click(function () {
-                        var id = this.getAttribute("data-id");
-                        ss.S(".ToolBoxTab").Hide();
-                        ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
-                    });
+
                     ss.S("#BNUpload").Click(function () {
                         ss.S("#BNHiddenUpload").Click();
                     });
@@ -690,8 +690,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 </div>
                             </div>
                             <div class="ToolBoxTab" data-id="Insert" style="display: none;">
-                                <img class="BNCMDInsert" data-cmd="TxtBox"  style="border-style: outset;"  src="../img/pointpoint/txtbox.png" width="22" height="22"  />
-                                <img class="BNCMDInsert" data-cmd="Image"  style="border-style: outset;"  src="../img/pointpoint/pic.png" width="22"  />
+                                <img class="BNCMDInsert" data-cmd="TxtBox"  style="border-style: outset;"  src="../../../../../../img/pointpoint/txtbox.png" width="22" height="22"  />
+                                <img class="BNCMDInsert" data-cmd="Image"  style="border-style: outset;"  src="../../../../../../img/pointpoint/pic.png" width="22"  />
                             </div>
                             <div class="ToolBoxTab" data-id="Slide" style="display: none;">
                                 <div style="display: inline;">
@@ -731,9 +731,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 <span class="BNCMDDialog" data-cmd="Rect" style="border-style: outset;display: inline-block;width: 22px;height: 22px;text-align: center;">[R]</span>
                             </div>
                         </div>
-                        <div id="Editor" style="width: 100%; height: 80vh;border-style: solid;box-sizing: border-box;border-width: thin;overflow: auto;">
+                        <div  style="width: 100%; height: 80vh;border-style: solid;box-sizing: border-box;border-width: thin;overflow: auto;">
+                            <div id="Editor" style="margin-left: auto;margin-right: auto;border-style: solid;width: max-content">
 
+                            </div>
                         </div>
+
                         <?php
                     }
                     ?>
@@ -741,9 +744,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <aside>
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">Slides</div>
-                        <div id="SlidesList" style="max-height: 40vh;overflow: auto;">
-
-                        </div>
+                        <input style="width: 100%;box-sizing: border-box;" type="number" id="SlidesIndexList" min="0" value="0" />
                     </div>
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">Layer</div>
@@ -782,24 +783,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ?>
                 </span>  
             </footer>
-            <div class="Container" style="">
 
-                <?php
-                if ($Permission->Writable($_SESSION["UserID"])) {
-                    ?>
-                    <div class="Section" style="box-sizing: border-box;">
-
-                    </div>
-                    <?php
-                } else {
-                    echo ' <div class="Section" style="box-sizing: border-box;">
-                                    <a  href=" Player.php?path=' . ($_GET["path"]) . '" target="_blank"><img style="border-style: outset; border-width: thin;"  src="../img/pointpoint/play.png" width="22" height="22"  /></a>
-                                <div id="Editor" style="width: 100%; height: 80vh;border-style: solid;box-sizing: border-box;border-width: thin;overflow: auto;">
-                            </div> </div>';
-                }
-                ?>
-
-            </div>
 
             <div id="AddTPList" style="display: none;height: 80vh;width: 80vh;">
                 <table>
