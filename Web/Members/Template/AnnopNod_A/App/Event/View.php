@@ -39,7 +39,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script src="../../../../js/dom/SuperDialog.js"></script>
 
             <script>
-               
+
             </script>
         </head>
         <body  class="HolyGrail">
@@ -60,8 +60,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-                             
- printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/".$valueB["path"], $valueB["name"]);
+
+                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }
@@ -78,16 +78,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <main>
                     <?php
                     if (isset($_GET["id"])) {
-                        $value=$event->ReadEvent($_GET["id"], Event_Database::Access_Member);
-                        
-                            echo "<div>";
-                            echo "<h3 style='color: blue'>" . $value["name"] . "</h3>";
-                            printf('<div>%s</div>', nl2br($value["htmlcode"]));
-                            printf('<div>Start Date:%s</div>', $value["startdate"]);
-                            printf('<div>End Date:%s</div>', $value["stopdate"]);
-                            printf('<div>Place:%s,Latitude:%s,Longitude:%s</div>', $value["placename"], $value["latitude"], $value["longitude"]);
-                            echo "</div>";
-                         
+                        $value = $event->ReadEvent($_GET["id"], Event_Database::Access_Member);
+
+                        echo "<div>";
+                        echo "<h3 style='color: blue'>" . $value["name"] . "</h3>";
+                        printf('<div>%s</div>', nl2br($value["htmlcode"]));
+                        printf('<div>Start Date:%s</div>', $value["startdate"]);
+                        printf('<div>End Date:%s</div>', $value["stopdate"]);
+                        printf('<div>Place:%s,Latitude:%s,Longitude:%s</div>', $value["placename"], $value["latitude"], $value["longitude"]);
+                        echo "</div>";
                     } else {
                         
                     }

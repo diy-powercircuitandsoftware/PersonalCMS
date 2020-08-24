@@ -105,7 +105,21 @@ if ($config->IsOnline()) {
                     ?>
                 </nav>
                 <main>
+                    <?php
+                    if (isset($_GET["id"])) {
+                        $value = $event->ReadEvent($_GET["id"], Event_Database::Access_Public);
 
+                        echo "<div>";
+                        echo "<h3 style='color: blue'>" . $value["name"] . "</h3>";
+                        printf('<div>%s</div>', nl2br($value["htmlcode"]));
+                        printf('<div>Start Date:%s</div>', $value["startdate"]);
+                        printf('<div>End Date:%s</div>', $value["stopdate"]);
+                        printf('<div>Place:%s,Latitude:%s,Longitude:%s</div>', $value["placename"], $value["latitude"], $value["longitude"]);
+                        echo "</div>";
+                    } else {
+                        
+                    }
+                    ?> 
                 </main>
                 <aside>
                     <?php
