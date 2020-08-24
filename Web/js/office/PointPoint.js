@@ -24,7 +24,7 @@ class PointPoint_Editor {
     AddTextBox(slideindex, txt) {
 
     }
-    GetSlides(){
+    GetSlides() {
         return this.slides;
     }
     InsertSlide(...args) {
@@ -32,7 +32,9 @@ class PointPoint_Editor {
             this.slides.push(args[0]);
         }
     }
-
+    SlidesCount() {
+        return this.slides.length;
+    }
     SlideExists(index) {
         return !(this.slides[index] === undefined || this.slides[index] === null);
     }
@@ -53,7 +55,7 @@ class PointPoint_Animation {
 }
 
 class PointPoint_Slide {
-    constructor( ) {
+    constructor(...args) {
         this.slidearea = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     }
     AddText(txt) {
@@ -73,6 +75,16 @@ class PointPoint_Slide {
             this.slidearea.width = args[0];
             this.slidearea.height = args[1];
         }
+    }
+    XMLString(...args) {
+        if (args.length === 0) {
+            var xml = new XMLSerializer();
+            return  xml.serializeToString(this.slidearea);
+        } else if (args.length === 0) {
+            var parser = new DOMParser();
+            this.slidearea = parser.parseFromString(args[0], "svg");
+        }
+
     }
 
 }

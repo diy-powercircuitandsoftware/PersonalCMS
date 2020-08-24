@@ -1,11 +1,11 @@
 <?php
 
-include_once '../../../../../Class/Core/Config/Config.php';
-include_once '../../../../../Class/Com/FilesACLS/Database.php';
-include_once '../../../../../Class/Com/FilesACLS/ShareList.php';
-include_once '../../../../../Class/FileIO/VirtualDirectory.php'; 
-include_once '../../../../../Class/Core/User/Database.php';
-include_once '../../../../../Class/FileIO/ImageThumbnail.php';
+include_once '../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../Class/Com/FilesACLS/Database.php';
+include_once '../../../../../../Class/Com/FilesACLS/ShareList.php';
+include_once '../../../../../../Class/FileIO/VirtualDirectory.php'; 
+include_once '../../../../../../Class/Core/User/Database.php';
+include_once '../../../../../../Class/FileIO/ImageThumbnail.php';
 $config = new Config();
 $acls = new FilesACLS_ShareList(new FilesACLS_Database($config));
 $userdb = new User_Database($config);

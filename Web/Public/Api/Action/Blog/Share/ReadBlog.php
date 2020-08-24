@@ -1,11 +1,11 @@
 <?php
 session_start();
-include_once '../../../../../Class/Core/Config/Config.php';
-include_once '../../../../../Class/Core/User/Database.php';
-include_once '../../../../../Class/Com/Blog/Database.php';
-include_once '../../../../../Class/Com/Blog/Reader.php';
-include_once '../../../../../Class/FileIO/VirtualDirectory.php';
-include_once '../../../../../Class/OfficeIO/Blog.php';
+include_once '../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../Class/Core/User/Database.php';
+include_once '../../../../../../Class/Com/Blog/Database.php';
+include_once '../../../../../../Class/Com/Blog/Reader.php';
+include_once '../../../../../../Class/FileIO/VirtualDirectory.php';
+include_once '../../../../../../Class/OfficeIO/Blog.php';
 $config = new Config();
 $blog = new Blog_Reader(new Blog_Database($config));
 $userdb = new User_Database($config);

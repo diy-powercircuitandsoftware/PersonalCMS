@@ -46,7 +46,7 @@ if ($config->IsOnline()) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
-                    var AjaxSB = new AjaxScrollBar("../../../../Api/ShareAjax/Blog/SearchBlogUsingKeywordID.php");
+                    var AjaxSB = new AjaxScrollBar("../../../../Api/Ajax/Blog/Share/SearchBlogUsingKeywordID.php");
                     var BlogSB = new SearchBox(document.getElementById("SearchBox"));
                     var lastid = 0;
                     BlogSB.ValueChange(function (v) {
@@ -93,8 +93,7 @@ if ($config->IsOnline()) {
             </script>
         </head>
         <body  class="HolyGrail">
-
-
+ 
             <header> 
                 <h1 style="width: 100%;text-align: center;"><?php echo $config->GetName(); ?> Website</h1>
             </header>
@@ -106,7 +105,7 @@ if ($config->IsOnline()) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-                            printf('<a class="MenuLink" href="%s">%s</a>', "../../App/".$valueB["path"], $valueB["name"]);
+                            printf('<a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }
@@ -148,13 +147,13 @@ if ($config->IsOnline()) {
                               printf('<div class="BlogList"><h3><a class="LinkOpen" href="index.php?id=%s">%s</a></h3>%s</div>', $value["id"], $value["title"], $value["description"]);
                               }
                               } */
-                        }  
+                        }
                         ?>
                     </div>
                     <div id="HtmlReadable" style="height: 100%;">
                         <?php
                         if (isset($_GET["id"])) {
-                            printf('<iframe style="%s" src="../../../../Api/ShareAction/Blog/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100%;box-sizing: border-box;", $_GET["id"]);
+                            printf('<iframe style="%s" src="../../../../Api/Action/Blog/Share/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100%;box-sizing: border-box;", $_GET["id"]);
                         }
                         ?>
                     </div>
@@ -187,7 +186,7 @@ if ($config->IsOnline()) {
                     echo '  <div class="TitleCenter">Event</div>';
                     foreach ($event->GetComingEvent(Event_Database::Access_Public) as $value) {
                         echo '<div>';
-                        printf('<a class="MenuLink" href="Event/index.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                        printf('<a class="MenuLink" href="../Event/Viewer.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
                         printf('<div style="color: black;" >%s</div></a>', $value["description"]);
                         echo '</div><hr>';
                     }
@@ -216,5 +215,5 @@ if ($config->IsOnline()) {
     </html>
     <?php
 } else {
-    header("location: ../Error/Offline.php");
+    header("location: ../../../../../../DefaultPages/Offline.php");
 }

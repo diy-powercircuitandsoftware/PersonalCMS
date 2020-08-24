@@ -250,7 +250,7 @@ if ($SC->Online()) {
                     </div>
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <label class="Title">Event</label>
-                        <a href="../Event/index.php">Viewer</a>
+                        <a href="../../Event/Viewer.php">Viewer</a>
                     </div>
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <label class="Title">Files</label>
@@ -347,7 +347,7 @@ if ($SC->Online()) {
                         <?php
                         foreach ($Event->GetCurrentEvent(Config_DB_Config::Access_Mode_Public) as $value) {
                             echo '<div  >';
-                            printf('<a href="../Event/index.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                            printf('<a href="../../Event/Viewer.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
                             printf('<div style="color: black;">%s</div></a>', $value["description"]);
                             echo '</div><hr>';
                         }
@@ -382,6 +382,6 @@ if ($SC->Online()) {
     </html>
     <?php
 } else {
-    header("location: ../Error/Offline.php");
+    header("location: ../../../../../../DefaultPages/Offline.php");
 }
  

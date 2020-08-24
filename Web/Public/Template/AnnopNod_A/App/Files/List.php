@@ -73,9 +73,9 @@ if ($config->IsOnline()) {
                     var dialog = new SuperDialog();
                     var SB = new SearchBox(document.getElementById("SearchBox"));
                     var FL = new FilesList(document.getElementById("FilesList"));
- FL.SetPreviewImage("../../../../Api/Action/Files/Download/ImagePreview.php?id=");
- 
-                    FL.SetDownload("../../../../Api/Action/Files/Download.php");
+                    FL.SetPreviewImage("../../../../Api/Action/Files/Download/ImagePreview.php?id=");
+
+                    FL.SetDownload("../../../../Api/Action/Files/Download/Download.php");
                     SB.Input = function (v) {
                         SS.Get("../../../Api/ShareAjax/User/SearchAlias.php", {"Alias": v}, function (data) {
                             data = JSON.parse(data);
@@ -84,13 +84,13 @@ if ($config->IsOnline()) {
                             }
                         });
                     };
-                    SB.Calllback ( function (v) {
-                         FL.Clear();
+                    SB.Calllback(function (v) {
+                        FL.Clear();
                     });
 
                     FL.OpenDir(function (v) {
 
-                        ajax.Get("../../../../Api/Ajax/Files/GetACLS.php" + v, function (data) {
+                        ajax.Get("../../../../Api/Ajax/Files/Share/GetACLS.php" + v, function (data) {
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
@@ -109,7 +109,7 @@ if ($config->IsOnline()) {
                         var qstringpath = SS.URLParam(v);
                         var ext = qstringpath["?path"].split('.').pop().toLowerCase();
                         if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
-                            dialog.MediaPlayer("../../../../Api/Action/Files/Download.php" + v, ext);
+                            dialog.MediaPlayer("../../../../Api/Action/Files/Download/Download.php" + v, ext);
                         }
                     })
 
@@ -136,7 +136,7 @@ if ($config->IsOnline()) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-                            printf('<a class="MenuLink" href="%s">%s</a>', "../../App/".$valueB["path"], $valueB["name"]);
+                            printf('<a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }
@@ -198,7 +198,7 @@ if ($config->IsOnline()) {
                     echo '  <div class="TitleCenter">Event</div>';
                     foreach ($event->GetComingEvent(Event_Database::Access_Public) as $value) {
                         echo '<div>';
-                        printf('<a class="MenuLink" href="Event/index.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                        printf('<a class="MenuLink" href="../Event/Viewer.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
                         printf('<div style="color: black;" >%s</div></a>', $value["description"]);
                         echo '</div><hr>';
                     }

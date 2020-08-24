@@ -112,18 +112,43 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             if (t == "Blank") {
                                 domeditor.InsertSlide(new PointPoint_Slide());
                             }
+                            ss.S("#SlidesIndexList").Attr("max", domeditor.SlidesCount());
                             return true;
 
                         });
                     });
 
+                    ss.S("#BNSave").Click(function () {
+                        var slides=domeditor.GetSlides();
+                        var svg=[];
+                       for (var i in slides){
+                           var xml = new XMLSerializer();
+                           svg.push( xml.serializeToString(slides[i].GetSVG()));
+                       }
+                       console.log(svg);
+                       /* var dpw = sd.PleaseWait().ZIndex(999);
+                        var Slides = [];
 
+
+                        ss.Post("../../../../Api/Ajax/PointPoint/SavePointPointFile.php", {"FullPath": ss.URLParam()["path"], "Data": Slides}, function (data) {
+                            if (data == "1") {
+                                dpw.Close();
+                                if (domeditor.AfterSave) {
+                                    domeditor.AfterSave();
+                                }
+                            } else {
+
+                            }
+                        });*/
+                    });
                     ss.S(".BNToolBoxTab").Click(function () {
                         var id = this.getAttribute("data-id");
                         ss.S(".ToolBoxTab").Hide();
                         ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
                     });
-
+                    ss.S("#SlidesIndexList").Change(function () {
+                        alert(this.value);
+                    });
                     return 0;
 
 
@@ -356,50 +381,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         };
                     });
 
-                    ss.S("#BNSave").Click(function () {
-                        var dpw = sd.PleaseWait().ZIndex(999);
-                        var Slides = [];
-                        if (domeditor.LastSlidesList !== undefined) {
-                            domeditor.LastSlidesList.SlideData = domeditor.SlideData;
-                            domeditor.LastSlidesList.Layer = domeditor.Layer;
-                        }
-                        var sl = document.getElementsByClassName("SlidesList");
-                        for (var i = 0; i < sl.length; i++) {
-                            if (sl[i].SlideData !== null) {
-                                var ll = sl[i].Layer || [];
-                                var LayerData = [];
-                                for (var j = 0; j < ll.length; j++) {
-                                    var objdata = {};
-                                    if (ll[j].objtype == "Text") {
-                                        objdata.Type = "Text";
-                                        objdata.Html = ll[j].innerHTML;
 
-                                    } else if (ll[j].objtype == "Image") {
-                                        objdata.Type = "Image";
-                                        objdata.Embed = ll[j].Embed;
-                                        objdata.Dimension = ll[j].Dimension;
-                                    }
-                                    objdata.Css = ll[j].style.cssText;
-                                    objdata.Animation = ll[j].Animation;
-                                    objdata.Audio = ll[j].Audio;
-                                    LayerData.push(objdata);
-                                }
-                                sl[i].SlideData.Index = i;
-                                Slides.push({"metadata": sl[i].SlideData, "Layer": LayerData});
-                            }
-                        }
-
-                        ss.Post("../../../../Api/Ajax/PointPoint/SavePointPointFile.php", {"FullPath": ss.URLParam()["path"], "Data": Slides}, function (data) {
-                            if (data == "1") {
-                                dpw.Close();
-                                if (domeditor.AfterSave) {
-                                    domeditor.AfterSave();
-                                }
-                            } else {
-
-                            }
-                        });
-                    });
 
                     ss.S("#BNSize").Click(function () {
                         var tl = sd.TableLayout(function () {
