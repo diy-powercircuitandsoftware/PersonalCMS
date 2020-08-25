@@ -21,7 +21,10 @@ class PointPoint_Editor {
             this.editor.style.height = args[1];
         }
     }
-    AddTextBox(slideindex, txt) {
+    AddTextBox(index, txt, x, y) {
+        this.slides[index].AddText(txt, x, y);
+    }
+    AddImage() {
 
     }
     GetSlides() {
@@ -57,9 +60,19 @@ class PointPoint_Animation {
 class PointPoint_Slide {
     constructor(...args) {
         this.slidearea = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    }
-    AddText(txt) {
+        this.fontsize = 18;
+        this.slidearea.addEventListener('mousedown', function () {
+          
+        });
 
+    }
+    AddText(input, x, y) {
+        var txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        txt.setAttributeNS(null, "x", x);
+        txt.setAttributeNS(null, "y", y);
+        txt.setAttributeNS(null, "font-size", this.fontsize);
+        txt.appendChild(document.createTextNode(input));
+        this.slidearea.appendChild(txt);
     }
     GetSVG() {
         return  this.slidearea;
@@ -67,13 +80,15 @@ class PointPoint_Slide {
     }
     Size(...args) {
         if (args.length === 0) {
-            return {
-                "width": this.slidearea.width,
-                "height": this.slidearea.height
-            };
+            return this.slidearea.getAttribute("viewBox");
+        } else if (args.length === 1) {
+            var w = parseInt(args[0].width);
+            var h = parseInt(args[0].height);
+            this.slidearea.setAttribute("viewBox", "0 0" + " " + w + " " + h);
         } else if (args.length === 2) {
-            this.slidearea.width = args[0];
-            this.slidearea.height = args[1];
+            var w = parseInt(args[0]);
+            var h = parseInt(args[1]);
+            this.slidearea.setAttribute("viewBox", "0 0" + " " + w + " " + h);
         }
     }
     XMLString(...args) {
