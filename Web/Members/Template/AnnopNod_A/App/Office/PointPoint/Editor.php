@@ -110,11 +110,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         sd.ImportOkCancel("Add New Slide", "#AddTPList", function () {
                             var t = ss.S("INPUT[name='TPType']").Val();
                             if (t == "Blank") {
-                                var pps=new PointPoint_Slide();
+                                var pps = new PointPoint_Slide();
                                 pps.Size(domeditor.CanvasSize());
                                 domeditor.InsertSlide(pps);
                             }
                             ss.S("#SlidesIndexList").Attr("max", domeditor.SlidesCount());
+                            ss.S("#SlidesIndexList").Val( domeditor.SlidesCount() ).Change();
                             return true;
 
                         });
@@ -122,8 +123,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S(".BNCMDInsert").Click(function () {
                         var cmd = this.getAttribute("data-cmd");
                         var v = parseInt(ss.S("#SlidesIndexList").Val());
-                        if (cmd == "TxtBox"&&v>0) {
-                            domeditor.AddTextBox(v - 1, "text",100,100);
+                        var diman = domeditor.CanvasSize();
+                        if (cmd == "TxtBox" && v > 0) {
+                            sd.TextArea("Text", function (txt) {
+
+                                domeditor.AddTextBox(v - 1, txt, parseInt(diman.width) / 2, parseInt(diman.height) / 2);
+                                return true;
+                            });
+
+
                         } else if (cmd == "Image") {
                             /*   ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": "Image"}, function (data) {
                              data = JSON.parse(data);
@@ -172,8 +180,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         console.log(svg);
                         /* var dpw = sd.PleaseWait().ZIndex(999);
                          var Slides = [];
-                             
-                             
+                         
+                         
                          ss.Post("../../../../Api/Ajax/PointPoint/SavePointPointFile.php", {"FullPath": ss.URLParam()["path"], "Data": Slides}, function (data) {
                          if (data == "1") {
                          dpw.Close();
@@ -181,7 +189,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                          domeditor.AfterSave();
                          }
                          } else {
-                             
+                         
                          }
                          });*/
                     });
@@ -710,7 +718,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                             </div>
                             <div class="ToolBoxTab" data-id="Player" style="display: none;">
-                                <a href="<?php echo 'Player.php?path=' . ($_GET["path"]); ?>" target="_blank"><img style="border-style: outset; border-width: thin;"  src="../img/pointpoint/play.png" width="22" height="22"  /></a>
+                                <a href="<?php echo 'Player.php?path=' . ($_GET["path"]); ?>" target="_blank"><img style="border-style: outset; border-width: thin;"  src="../../../../../../img/pointpoint/play.png" width="22" height="22"  /></a>
                             </div>
 
                             <div class="ToolBoxTab" data-id="CSS" style="display: none;" >

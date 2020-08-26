@@ -682,6 +682,27 @@ class SuperDialog {
 
         return sd;
     }
+    TextArea(...args) {
+        var sd = new Dialog();
+        sd.ta = document.createElement("textarea");
+        sd.ta.style.cssText = " width: 100%;";
+        sd.Title("Prompt");
+        sd.Content(args[0]);
+        sd.Append(sd.ta);
+        sd.DestroyAfterClose();
+        sd.Resize(false);
+        sd.Show();
+        sd.Button({"OK": function () {
+                if (typeof args[1] === "function") {
+                    if (args[1](sd.ta.value)) {
+                        sd.Close();
+                    }
+                }
+            }, "Cancel": function () {
+                sd.Close();
+            }});
+        return sd;
+    }
     UnLock(callback) {
         var sd = new Dialog();
         sd.Title("Unlock");

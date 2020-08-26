@@ -1,44 +1,34 @@
 <?php
 session_start();
-include_once '../../../../../../Class/DB/Config/DB/Config.php';
-include_once '../../../../../../Class/DB/Config/DB/Software.php';
-include_once '../../../../../../Class/DB/Com/User/SessionManager.php';
-include_once '../../../../../../Class/DB/Com/User/Profile.php';
-include_once '../../../../../../Class/DB/Com/Events/Viewer.php';
-include_once '../../../../../../Class/DB/Com/Module/LoadModule.php';
-include_once '../../../../../../Class/DB/Com/User/LoadModule.php';
-$DBConfig = new Config_DB_Config();
-$SC = new Config_DB_Software($DBConfig);
-$Sess = new Com_User_SessionManager($DBConfig);
-$User = new Com_User_Profile($DBConfig);
-$Event = new Com_Events_Viewer($DBConfig);
-$Module = new Com_Module_LoadModule($DBConfig);
-$UModule = new Com_User_LoadModule($DBConfig);
-$DBConfig->Open();
-if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id())) {
+include_once '../../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../../Class/Core/UI/NAV.php';
+include_once '../../../../../../../Class/Core/Module/Database.php';
+include_once '../../../../../../../Class/Com/Event/Database.php';
+include_once '../../../../../../../Class/Com/Event/Reader.php';
+include_once '../../../../../../../Class/SDK/Module/Basic.php';
+include_once '../../../../../Auth/Action/VerifySession.php';
+$config = new Config();
+$uinav = new UINAV();
+$module = new Module_Database($config);
+$event = new Event_Reader(new Event_Database($config));
+if ($config->IsOnline() && isset($_SESSION["User"])) {
+    $modlist = array();
+    foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
+
+        include_once $module->ModulePath . $value["dirname"] . "/init.php";
+        $cn = new $value["classname"]();
+        $cn->SetUserID($_SESSION["User"]["id"]);
+        $modlist[] = $cn;
+    }
     ?>
     <!DOCTYPE html>
     <html>
         <head>
-            <meta charset="UTF-8">
-            <title>Untitled Document</title>
-
-            <?php
-            foreach ($UModule->LoadModule($_SESSION["UserID"], Com_User_LoadModule::Layout_Head) as $value) {
-                try {
-                    include_once '../../../../../../Class/DB/UserModule/' . $value["filename"];
-                    $mod = new $value["classname"]($UModule);
-                    $mod->LoadConfig($value["config"]);
-                    echo $mod->Execute();
-                } catch (Exception $ex) {
-                    
-                }
-            }
-            ?>
-
-            <script src="../../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../js/pointpoint/PointPoint.js"></script>
-
+             <meta charset="UTF-8">
+            <title>Player</title>
+            <link rel="stylesheet" type="text/css" href="../../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../../css/PersonalCMS.css">
+          
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
@@ -261,7 +251,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                 });
             </script>
         </head>
-        <body style="background-color: black;">
+        <body  class="HolyGrail">
 
             <div style="text-align: right;">
                 <label id="LabPage" style="color: burlywood;font-size: xx-large;">Start</label>

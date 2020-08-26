@@ -8,6 +8,7 @@ class PointPoint_Editor {
             this.editor = document.body.appendChild(document.createElement("DIV"));
         }
         this.slides = [];
+        this.mode = null;
 
     }
     CanvasSize(...args) {
@@ -27,12 +28,23 @@ class PointPoint_Editor {
     AddImage() {
 
     }
+    
     GetSlides() {
         return this.slides;
     }
     InsertSlide(...args) {
         if (args.length === 1 && (args[0] === null || args[0] instanceof PointPoint_Slide)) {
-            this.slides.push(args[0]);
+            var s = args[0];
+            s.AddEvent("click", function () {
+               
+            });
+            s.AddEvent("dblclick", function () {
+              if (this.editor.mode=="edit"){
+                  
+              }
+            });
+            s.editor = this;
+            this.slides.push(s);
         }
     }
     SlidesCount() {
@@ -46,6 +58,9 @@ class PointPoint_Editor {
             this.editor.innerHTML = "";
             this.editor.appendChild(this.slides[index].GetSVG());
         }
+    }
+    SvgEditEvent(){
+        
     }
 
 }
@@ -61,12 +76,13 @@ class PointPoint_Slide {
     constructor(...args) {
         this.slidearea = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.fontsize = 18;
-        this.slidearea.addEventListener('mousedown', function () {
-          
-        });
-
     }
+    AddEvent(...args) {
+        this.slidearea.addEventListener(...args);
+    }
+
     AddText(input, x, y) {
+        //tspan 
         var txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
         txt.setAttributeNS(null, "x", x);
         txt.setAttributeNS(null, "y", y);
