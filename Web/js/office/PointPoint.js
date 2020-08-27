@@ -1,4 +1,6 @@
 class PointPoint_Editor {
+    //https://www.codeproject.com/Articles/609052/Simple-HTML5-SVG-Move-and-Resize-Tool
+
     constructor(...args) {
         if (args.length === 1 && typeof args[0] === 'string' || args[0] instanceof String) {
             this.editor = document.querySelector(args[0]).appendChild(document.createElement("DIV"));
@@ -9,6 +11,7 @@ class PointPoint_Editor {
         }
         this.slides = [];
         this.mode = null;
+        this.modelist = ["edit"];
 
     }
     CanvasSize(...args) {
@@ -22,44 +25,48 @@ class PointPoint_Editor {
             this.editor.style.height = args[1];
         }
     }
+    ChangeMode(m) {
+        this.mode = m;
+    }
+    ClearCanvas() {
+        this.editor.innerHTML = "";
+    }
     AddTextBox(index, txt, x, y) {
         this.slides[index].AddText(txt, x, y);
     }
     AddImage() {
 
     }
-   
+    AddSlideEvent(s) {
+        var ref = this;
+        s.AddEvent("click", function () {
+
+        });
+        s.AddEvent("dblclick", function (e) {
+
+            if (ref.mode == "edit") {
+                if (e.target.tagName == "text") {
+                    ref.SvgEditText(e.target);
+                }
+            }
+        });
+
+    }
     GetSlides() {
         return this.slides;
     }
     InsertSlide(...args) {
         if (args.length === 1 && (args[0] === null || args[0] instanceof PointPoint_Slide)) {
             var s = args[0];
-            s.AddEvent("click", function () {
-
-            });
-            s.AddEvent("dblclick", function () {
-                if (this.editor.mode == "edit") {
-
-                }
-            });
-            s.editor = this;
+            this.AddSlideEvent(s);
             this.slides.push(s);
         }
     }
-    ReplaceSlideAt(index,slide) {
-        if (  slide === null ||slide instanceof PointPoint_Slide) {
-            var s =slide;
-            s.AddEvent("click", function () {
-
-            });
-            s.AddEvent("dblclick", function () {
-                if (this.editor.mode == "edit") {
-
-                }
-            });
-            s.editor = this;
-            this.slides[index]=s;
+    ReplaceSlideAt(index, slide) {
+        if (slide === null || slide instanceof PointPoint_Slide) {
+            var s = slide;
+            this.AddSlideEvent(s);
+            this.slides[index] = s;
         }
     }
     SlidesCount() {
@@ -76,7 +83,7 @@ class PointPoint_Editor {
         }
         return false;
     }
-    SvgEditEvent() {
+    SvgEditText() {
 
     }
 
@@ -107,6 +114,14 @@ class PointPoint_Slide {
         txt.appendChild(document.createTextNode(input));
         this.slidearea.appendChild(txt);
     }
+    GetAllElementsTag() {
+        var out = [];
+        var t = this.slidearea.getElementsByTagName("text");
+        for (var i = 0; i < t.length; i++) {
+            out.push({"type": "text"});
+        }
+        return out;
+    }
     GetSVG() {
         return  this.slidearea;
     }
@@ -136,9 +151,9 @@ class PointPoint_Slide {
             return  xml.serializeToString(this.slidearea);
         } else if (args.length === 1) {
             var parser = new DOMParser();
-            var doc= parser.parseFromString(args[0], "image/svg+xml");
-           this.slidearea =doc.documentElement;
-           
+            var doc = parser.parseFromString(args[0], "image/svg+xml");
+            this.slidearea = doc.documentElement;
+
         }
 
     }

@@ -23,7 +23,7 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
             $doc = new DOMDocument();
             $doc->loadXML($value);
             $index = $doc->getElementsByTagName("svg")->item(0)->attributes->getNamedItem("index")->value;
-            //   $point->EditSlideData($index, $doc->saveXML());
+               $point->EditSlideData($index, $doc->saveXML());
         }
     }
     echo $point->Close();

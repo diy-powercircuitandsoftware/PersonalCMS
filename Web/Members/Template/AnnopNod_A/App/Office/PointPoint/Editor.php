@@ -25,7 +25,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
     <html>
         <head>
             <meta charset="UTF-8">
-            <title>Untitled Document</title>
+            <title> <?php echo $_GET["path"]; ?></title>
             <link rel="stylesheet" type="text/css" href="../../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../../css/PersonalCMS.css">
             <?php
@@ -85,6 +85,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var domeditor = new PointPoint_Editor(document.getElementById("Editor"));
                     var slideindex = 0;
                     domeditor.CanvasSize("800px", "600px");
+                    domeditor.AfterSave = function () {};
                     //domeditor.style.display = "none";
                     //  ss.S("#AnimationList").Append("<option></option>").Val(anilist[i]).Html(anilist[i]);
                     //
@@ -94,12 +95,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetMetaData.php", {"path": domeditor.path}, function (data) {
                             data = JSON.parse(data);
 
-                            ss.S("#SlidesIndexList").Attr("max", data["slidescount"]);
-                            for (var i in parseInt(data["slidescount"])) {
-                                domeditor.InsertSlide(null);
+                            if (data !== null && data["app"] === "PointPoint") {
+                                ss.S("#SlidesIndexList").Attr("max", data["slidescount"]);
+                                for (var i in parseInt(data["slidescount"])) {
+                                    domeditor.InsertSlide(null);
+                                }
+                                dpw.Close();
+                            } else {
+                                window.location.replace("index.php");
                             }
-
-                            dpw.Close();
                         });
 
                     } else {
@@ -127,12 +131,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var diman = domeditor.CanvasSize();
                         if (cmd == "TxtBox" && v > 0) {
                             sd.TextArea("Text", function (txt) {
-
                                 domeditor.AddTextBox(v - 1, txt, parseInt(diman.width) / 2, parseInt(diman.height) / 2);
                                 return true;
                             });
-
-
                         } else if (cmd == "Image") {
                             /*   ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": "Image"}, function (data) {
                              data = JSON.parse(data);
@@ -171,36 +172,43 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     }
                     );
+                    ss.S("#BNOpen").Click(function () {
+                        var SaveBeforeExit = sd.SaveBeforeExit(function (v) {
+                            if (v == 0) {
+                                window.onbeforeunload = null;
+                                window.location.replace("index.php");
+                            } else if (v == 1) {
+                                domeditor.AfterSave = function () {
+
+                                    window.onbeforeunload = null;
+                                    window.location.replace("index.php");
+                                };
+                                ss.S("#BNSave").Click();
+                            }
+                        }).ZIndex(999).Title("Do You Save Before Open Document");
+
+
+                    });
                     ss.S("#BNSave").Click(function () {
                         var slides = domeditor.GetSlides();
                         var svg = [];
                         for (var i in slides) {
-
                             svg.push(slides[i].XMLString());
                         }
+                        var dpw = sd.PleaseWait().ZIndex(999);
                         ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/EditSlideData.php", {"path": domeditor.path, "svg": svg}, function (data) {
-                            data = JSON.parse(data);
-
+                            domeditor.AfterSave();
+                            dpw.Close();
                         });
-                        /* var dpw = sd.PleaseWait().ZIndex(999);
-                         var Slides = [];
-                             
-                             
-                         ss.Post("../../../../Api/Ajax/PointPoint/SavePointPointFile.php", {"FullPath": ss.URLParam()["path"], "Data": Slides}, function (data) {
-                         if (data == "1") {
-                         dpw.Close();
-                         if (domeditor.AfterSave) {
-                         domeditor.AfterSave();
-                         }
-                         } else {
-                             
-                         }
-                         });*/
+
                     });
                     ss.S(".BNToolBoxTab").Click(function () {
                         var id = this.getAttribute("data-id");
                         ss.S(".ToolBoxTab").Hide();
                         ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
+                    });
+                    ss.S("#OPTEditMode").Click(function () {
+                       domeditor.ChangeMode(this.value);
                     });
                     ss.S("#SlidesIndexList").Change(function () {
                         var v = parseInt(this.value);
@@ -219,6 +227,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 });
                             }
 
+                        } else {
+                            domeditor.ClearCanvas();
                         }
                     });
                     return 0;
@@ -395,21 +405,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             }
                         };
                     });
-                    ss.S("#BNOpen").Click(function () {
-                        var SaveBeforeExit = sd.SaveBeforeExit("Do You Save Before Open Document").ZIndex(999).Title("New Document");
-                        SaveBeforeExit.OnDiscard = function () {
-                            window.onbeforeunload = null;
-                            window.location.replace("MainPage.php");
 
-                        };
-                        SaveBeforeExit.OnSave = function () {
-                            domeditor.AfterSave = function () {
-                                window.onbeforeunload = null;
-                                window.location.replace("MainPage.php");
-                            };
-                            ss.S("#BNSave").Click();
-                        };
-                    });
 
 
 
@@ -616,7 +612,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             <a class="BNToolBoxTab" data-id="CSS" href="#">CSS</a>
                             <a class="BNToolBoxTab" data-id="Animation" href="#">Animation</a>
                             <a class="BNToolBoxTab" data-id="Audio" href="#">Audio</a>
-                            <a class="BNToolBoxTab" data-id="Player" href="#">Player</a>
                         </div>
                         <div>
                             <div class="ToolBoxTab" data-id="Basic" style="display: block;" >
@@ -660,7 +655,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     </select>
 
                                 </div>
-
+                                <div>
+                                    <label for="OPTEditMode">Edit Mode:</label>
+                                    <select id="OPTEditMode">
+                                        <option value="">none</option>
+                                        <option value="edit">edit</option>
+                                        <option value="move">move</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="ToolBoxTab" data-id="Color" style="display: none;">
                                 <div style="display: inline;">
@@ -734,9 +736,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 <audio id="AudioPlay" src="" controls="controls"></audio>
 
                             </div>
-                            <div class="ToolBoxTab" data-id="Player" style="display: none;">
-                                <a href="<?php echo 'Player.php?path=' . ($_GET["path"]); ?>" target="_blank"><img style="border-style: outset; border-width: thin;"  src="../../../../../../img/pointpoint/play.png" width="22" height="22"  /></a>
-                            </div>
+
 
                             <div class="ToolBoxTab" data-id="CSS" style="display: none;" >
                                 <span  class="BNCMDDialog" data-cmd="ZIndex" style="border-style: outset;display: inline-block;width: 22px;height: 22px;text-align: center;">Z</span>
@@ -754,6 +754,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ?>
                 </main>
                 <aside>
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Player</div>
+                        <a class="MenuLink" href="<?php echo 'Player.php?path=' . ($_GET["path"]); ?>" target="_blank"> Play</a>
+                    </div>
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">Slides</div>
                         <input style="width: 100%;box-sizing: border-box;" type="number" id="SlidesIndexList" min="0" value="0" />
