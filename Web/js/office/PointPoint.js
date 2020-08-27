@@ -28,7 +28,7 @@ class PointPoint_Editor {
     AddImage() {
 
     }
-    
+   
     GetSlides() {
         return this.slides;
     }
@@ -36,15 +36,30 @@ class PointPoint_Editor {
         if (args.length === 1 && (args[0] === null || args[0] instanceof PointPoint_Slide)) {
             var s = args[0];
             s.AddEvent("click", function () {
-               
+
             });
             s.AddEvent("dblclick", function () {
-              if (this.editor.mode=="edit"){
-                  
-              }
+                if (this.editor.mode == "edit") {
+
+                }
             });
             s.editor = this;
             this.slides.push(s);
+        }
+    }
+    ReplaceSlideAt(index,slide) {
+        if (  slide === null ||slide instanceof PointPoint_Slide) {
+            var s =slide;
+            s.AddEvent("click", function () {
+
+            });
+            s.AddEvent("dblclick", function () {
+                if (this.editor.mode == "edit") {
+
+                }
+            });
+            s.editor = this;
+            this.slides[index]=s;
         }
     }
     SlidesCount() {
@@ -57,10 +72,12 @@ class PointPoint_Editor {
         if (this.SlideExists(index)) {
             this.editor.innerHTML = "";
             this.editor.appendChild(this.slides[index].GetSVG());
+            return true;
         }
+        return false;
     }
-    SvgEditEvent(){
-        
+    SvgEditEvent() {
+
     }
 
 }
@@ -92,7 +109,13 @@ class PointPoint_Slide {
     }
     GetSVG() {
         return  this.slidearea;
-
+    }
+    Index(...args) {
+        if (args.length === 0) {
+            return this.slidearea.getAttribute("index");
+        } else if (args.length === 1) {
+            return this.slidearea.setAttribute("index", args[0]);
+        }
     }
     Size(...args) {
         if (args.length === 0) {
@@ -111,9 +134,11 @@ class PointPoint_Slide {
         if (args.length === 0) {
             var xml = new XMLSerializer();
             return  xml.serializeToString(this.slidearea);
-        } else if (args.length === 0) {
+        } else if (args.length === 1) {
             var parser = new DOMParser();
-            this.slidearea = parser.parseFromString(args[0], "svg");
+            var doc= parser.parseFromString(args[0], "image/svg+xml");
+           this.slidearea =doc.documentElement;
+           
         }
 
     }

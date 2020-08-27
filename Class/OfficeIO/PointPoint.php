@@ -23,7 +23,6 @@ class OfficeIO_PointPoint {
                 "version" => "1",
                 "date" => date("Y-m-d")
             )));
-            
         } else {
             $this->zip->open($filename);
         }
@@ -48,11 +47,6 @@ class OfficeIO_PointPoint {
         }
     }
 
-    function AddSlideData($svgstring) {
-        $name = $this->GetSlidesCount();
-        $this->zip->addFromString(self::Embed_Slides . "/" . $name,$svgstring);
-    }
-
     function DeleteEmbed($Path) {
         $protec = array(
             "Metadata", self::Embed_Audio, self::Embed_Image, self::Embed_Slides, self::Embed_Video
@@ -61,6 +55,11 @@ class OfficeIO_PointPoint {
             return $this->zip->deleteName($Path);
         }
         return FALSE;
+    }
+
+    function EditSlideData($index, $svgstring) {
+
+        $this->zip->addFromString(self::Embed_Slides . "/" . $index, $svgstring);
     }
 
     function GetEmbedData($Path) {
@@ -74,12 +73,12 @@ class OfficeIO_PointPoint {
             $exp = explode("/", $path);
             $as = array_shift($exp);
             if ($as == $EmbedType && count($exp) >= 1) {
-                $Dat[ implode("/", $exp)] =$path;
+                $Dat[implode("/", $exp)] = $path;
             }
         }
         ksort($Dat);
         unset($Dat[""]);
-       
+
         return $Dat;
     }
 
@@ -102,15 +101,8 @@ class OfficeIO_PointPoint {
         return $count;
     }
 
-    function GetSlideIndex($index) {
-        return unserialize($this->zip->getFromName(self::Embed_Slides . "/" . $index));
+    function GetSlideData($index) {
+        return  $this->zip->getFromName(self::Embed_Slides . "/" . $index);
     }
-
-    function ReplaceSlide($Index, $svgstring) {
-        $Path = self::Embed_Slides . "/" . $Index;
-        $this->zip->deleteName($Path);
-        return $this->zip->addFromString($Path,$svgstring);
-    }
-
-}
  
+}

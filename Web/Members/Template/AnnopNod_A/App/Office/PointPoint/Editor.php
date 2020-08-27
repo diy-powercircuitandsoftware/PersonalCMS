@@ -113,9 +113,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 var pps = new PointPoint_Slide();
                                 pps.Size(domeditor.CanvasSize());
                                 domeditor.InsertSlide(pps);
+                                pps.Index(domeditor.SlidesCount() - 1);
                             }
                             ss.S("#SlidesIndexList").Attr("max", domeditor.SlidesCount());
-                            ss.S("#SlidesIndexList").Val( domeditor.SlidesCount() ).Change();
+                            ss.S("#SlidesIndexList").Val(domeditor.SlidesCount()).Change();
                             return true;
 
                         });
@@ -174,14 +175,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var slides = domeditor.GetSlides();
                         var svg = [];
                         for (var i in slides) {
-                            var xml = new XMLSerializer();
-                            svg.push(xml.serializeToString(slides[i].GetSVG()));
+
+                            svg.push(slides[i].XMLString());
                         }
-                        console.log(svg);
+                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/EditSlideData.php", {"path": domeditor.path, "svg": svg}, function (data) {
+                            data = JSON.parse(data);
+
+                        });
                         /* var dpw = sd.PleaseWait().ZIndex(999);
                          var Slides = [];
-                         
-                         
+                             
+                             
                          ss.Post("../../../../Api/Ajax/PointPoint/SavePointPointFile.php", {"FullPath": ss.URLParam()["path"], "Data": Slides}, function (data) {
                          if (data == "1") {
                          dpw.Close();
@@ -189,7 +193,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                          domeditor.AfterSave();
                          }
                          } else {
-                         
+                             
                          }
                          });*/
                     });
@@ -201,7 +205,20 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#SlidesIndexList").Change(function () {
                         var v = parseInt(this.value);
                         if (v !== 0) {
-                            domeditor.Render(v - 1);
+                            v = v - 1;
+                            if (domeditor.SlideExists(v)) {
+                                domeditor.Render(v);
+                            } else {
+                                var dialog = sd.PleaseWait();
+                                ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetSlideData.php", {"path": domeditor.path, "id": v}, function (data) {
+                                    var pps = new PointPoint_Slide();
+                                    pps.XMLString(data);
+                                    domeditor.ReplaceSlideAt(v, pps);
+                                    domeditor.Render(v);
+                                    dialog.Close();
+                                });
+                            }
+
                         }
                     });
                     return 0;
@@ -781,14 +798,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
             <div id="AddTPList" style="display: none;height: 80vh;width: 80vh;">
-                <table>
-                    <tr>
-                        <td>Width</td>
-                        <td><input class="TPMetadata" type="number" name="Width" value="800" /></td>
-                        <td>Height</td>
-                        <td><input class="TPMetadata" type="number" name="Height" value="600" /></td>
-                    </tr>
-                </table>
+
 
                 <form>
 
