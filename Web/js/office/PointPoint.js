@@ -9,6 +9,7 @@ class PointPoint_Editor {
         } else {
             this.editor = document.body.appendChild(document.createElement("DIV"));
         }
+
         this.slides = [];
         this.mode = null;
         this.modelist = ["edit"];
@@ -88,6 +89,43 @@ class PointPoint_Editor {
     }
 
 }
+class PointPoint_SvgTextConverter {
+
+    ToHtml(txt) {
+
+        let div = document.createElement("DIV");
+
+        div.appendChild(txt.cloneNode(true));
+
+        let txttag = div.getElementsByTagName("tspan");
+        for (let i = 0; i < txttag.length; i++) {
+            let spanreplace = document.createElement("span");
+            spanreplace.innerHTML = txttag[i].textContent;
+            txttag[i].parentNode.replaceChild(spanreplace, txttag[i]);
+        }
+
+
+        txttag = div.getElementsByTagName("text");
+        for (let i = 0; i < txttag.length; i++) {
+            let divreplace = document.createElement("div");
+            divreplace.innerHTML = txttag[i].textContent;
+            txttag[i].parentNode.replaceChild(divreplace, txttag[i]);
+        }
+
+
+
+        return div.innerHTML;
+    }
+    ToSvg(html) {
+        let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        let div = document.createElement("DIV");
+        div.innerHTML=html;
+let  txttag = div.getElementsByTagName("div");
+
+
+    }
+
+}
 class PointPoint_Player {
 
 }
@@ -107,6 +145,8 @@ class PointPoint_Slide {
 
     AddText(input, x, y) {
         //tspan 
+        //input is string ?
+        //input is texttag?
         var txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
         txt.setAttributeNS(null, "x", x);
         txt.setAttributeNS(null, "y", y);

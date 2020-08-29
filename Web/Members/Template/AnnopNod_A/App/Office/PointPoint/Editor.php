@@ -90,8 +90,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     //  ss.S("#AnimationList").Append("<option></option>").Val(anilist[i]).Html(anilist[i]);
                     //
                     if (ss.URLParam()["path"] !== undefined) {
+                        var url = ss.URLParam()["path"];
                         var dpw = sd.PleaseWait().ZIndex(999);
-                        domeditor.path = ss.URLParam()["path"];
+
+                        if (url.charAt(url.length - 1) === "#") {
+                            url = url.slice(0, -1);
+                        }
+                        domeditor.path = url;
+
                         ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetMetaData.php", {"path": domeditor.path}, function (data) {
                             data = JSON.parse(data);
 
@@ -109,7 +115,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     } else {
                         window.location.replace("index.php");
                     }
+                    domeditor.SvgEditText = function (svgtext) {
+                        var conv = new PointPoint_SvgTextConverter();
 
+                        ss.S("#TXTEditCode").Html(conv.ToHtml(svgtext));
+                        sd.ImportOkCancel("Edit", "#TXTEditDialog", function () {
+                            //TXTEditCode
+                            return true;
+
+                        });
+
+
+                    };
                     ss.S("#BNAddNew").Click(function () {
                         sd.ImportOkCancel("Add New Slide", "#AddTPList", function () {
                             var t = ss.S("INPUT[name='TPType']").Val();
@@ -130,10 +147,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var v = parseInt(ss.S("#SlidesIndexList").Val());
                         var diman = domeditor.CanvasSize();
                         if (cmd == "TxtBox" && v > 0) {
-                            sd.TextArea("Text", function (txt) {
-                                domeditor.AddTextBox(v - 1, txt, parseInt(diman.width) / 2, parseInt(diman.height) / 2);
+                            ss.S("#TXTEditCode").Html("");
+                            sd.ImportOkCancel("Add Text", "#TXTEditDialog", function () {
+                                var conv = new PointPoint_SvgTextConverter();
+ 
+                                domeditor.AddTextBox(v - 1, conv.ToSvg( ss.S("#TXTEditCode").Html()), parseInt(diman.width) / 2, parseInt(diman.height) / 2);
                                 return true;
+
                             });
+
+
                         } else if (cmd == "Image") {
                             /*   ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": "Image"}, function (data) {
                              data = JSON.parse(data);
@@ -208,7 +231,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
                     });
                     ss.S("#OPTEditMode").Click(function () {
-                       domeditor.ChangeMode(this.value);
+                        domeditor.ChangeMode(this.value);
                     });
                     ss.S("#SlidesIndexList").Change(function () {
                         var v = parseInt(this.value);
@@ -606,55 +629,21 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <div style="margin-top: 1px;background-color: burlywood;border-style: solid;border-width: thin;">
                             <a class="BNToolBoxTab" data-id="Basic" href="#">Basic</a>
                             <a class="BNToolBoxTab" data-id="Color" href="#">Color</a>
-                            <a class="BNToolBoxTab" data-id="Table" href="#">Table</a>
+
                             <a class="BNToolBoxTab" data-id="Insert" href="#">Insert</a>
                             <a class="BNToolBoxTab" data-id="Slide" href="#">Slide</a>
-                            <a class="BNToolBoxTab" data-id="CSS" href="#">CSS</a>
+
                             <a class="BNToolBoxTab" data-id="Animation" href="#">Animation</a>
                             <a class="BNToolBoxTab" data-id="Audio" href="#">Audio</a>
                         </div>
                         <div>
                             <div class="ToolBoxTab" data-id="Basic" style="display: block;" >
-                                <img  id="BNAddNew"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/addnew.png" width="22" height="22"  />
                                 <img  id="BNOpen"    style="border-style: outset;"  src="../../../../../../img/wysiwyg/open.gif" width="22" height="22"  />
                                 <img  id="BNSave"    style="border-style: outset;"  src="../../../../../../img/wysiwyg/save.gif" width="22" height="22"  />
                                 <img  id="BNUpload"    style="border-style: outset;" title="UploadEmbedFile"  src="../../../../../../img/wysiwyg/upload.png" width="22" height="22"  />
                                 <img  id="BNObjectManager"    style="border-style: outset;" title="ObjectManager"  src="../../../../../../img/wysiwyg/object.png" width="22" height="22"  />
                                 <img  id="BNSize"    style="border-style: outset;" title="Resize" src="../../../../../../img/wysiwyg/docsize.png" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="bold"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/bold.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="italic"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/italic.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="underline"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/underline.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="cut"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/cut.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="copy"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/copy.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="paste"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/paste.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="undo"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/undo.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="redo"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/redo.gif" width="22" height="22"  />
-                                <img class="BNCMD" data-cmd="justifyLeft" style="border-style: outset;" src="../../../../../../img/wysiwyg/justifyleft.gif" width="22" height="22" />
-                                <img  class="BNCMD" data-cmd="justifyCenter"   style="border-style: outset;" src="../../../../../../img/wysiwyg/justifycenter.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="justifyRight"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/justifyright.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="insertUnorderedList"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/dottedlist.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="insertOrderedList"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/numberedlist.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="indent"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/indent.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="outdent"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/outdent.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="strikeThrough"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/strikethrough.gif" width="22" height="22"   />
-                                <img  class="BNCMD" data-cmd="superscript"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/superscript.gif" width="22" height="22"   />
-                                <img  class="BNCMD" data-cmd="subscript"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/subscript.gif" width="22" height="22"   />
-                                <img  class="BNInsertCMD" data-cmd="createlink" title="InsertLink" style="border-style: outset;"  src="../../../../../../img/wysiwyg/link.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="unlink" title="RemoveLink"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/unlink.gif" width="22" height="22"  />
-                                <img  class="BNCMD" data-cmd="removeFormat" title="RemoveFormat"   style="border-style: outset;"  src="../../../../../../img/wysiwyg/removeformat.gif" width="22" height="22"  />
-                                <div style="display: inline;">
-                                    <span >Font Size:</span>
-                                    <select class="OptFont" data-cmd="fontSize">
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                    </select>
 
-                                </div>
                                 <div>
                                     <label for="OPTEditMode">Edit Mode:</label>
                                     <select id="OPTEditMode">
@@ -681,31 +670,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                                 </div>
                             </div>
-                            <div class="ToolBoxTab" data-id="Table" style="display: none;">
-                                <img class="BNCMDTable" data-cmd="InsertTable"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/table.gif" width="22" height="22"  />
-                                <img class="BNCMDTable" data-cmd="InsertRow"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/insertrow.png" width="22" height="22"  />
-                                <img class="BNCMDTable" data-cmd="InsertColumn"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/insertcol.png" width="22" height="22"  />
-                                <img class="BNCMDTable" data-cmd="DeleteRow"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/deleterow.png" width="22" height="22"  />
-                                <img class="BNCMDTable" data-cmd="DeleteColumn"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/deletecol.png" width="22" height="22"  />
-                                <div style="display: inline;">
-                                    <span>Border Style:</span>
-                                    <select class="OPTCMDTable" data-cmd="BorderStyle">
-                                        <option value="none">none</option>
-                                        <option value="hidden">hidden</option>
-                                        <option value="dashed">dashed</option>
-                                        <option value="dotted">dotted</option>
-                                        <option value="double">double</option>
-                                        <option value="groove">groove</option>
-                                        <option value="inset">inset</option>
-                                        <option value="outset">outset</option>
-                                        <option value="ridge">ridge</option>
-                                        <option value="solid">solid</option>
-                                    </select>
-                                </div>
-                            </div>
+
                             <div class="ToolBoxTab" data-id="Insert" style="display: none;">
                                 <img class="BNCMDInsert" data-cmd="TxtBox"  style="border-style: outset;"  src="../../../../../../img/pointpoint/txtbox.png" width="22" height="22"  />
                                 <img class="BNCMDInsert" data-cmd="Image"  style="border-style: outset;"  src="../../../../../../img/pointpoint/pic.png" width="22"  />
+                                <img class="BNCMDInsert" data-cmd="InsertTable"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/table.gif" width="22" height="22"  />
                             </div>
                             <div class="ToolBoxTab" data-id="Slide" style="display: none;">
                                 <div style="display: inline;">
@@ -738,10 +707,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             </div>
 
 
-                            <div class="ToolBoxTab" data-id="CSS" style="display: none;" >
-                                <span  class="BNCMDDialog" data-cmd="ZIndex" style="border-style: outset;display: inline-block;width: 22px;height: 22px;text-align: center;">Z</span>
-                                <span class="BNCMDDialog" data-cmd="Rect" style="border-style: outset;display: inline-block;width: 22px;height: 22px;text-align: center;">[R]</span>
-                            </div>
                         </div>
                         <div  style="width: 100%; height: 80vh;border-style: solid;box-sizing: border-box;border-width: thin;overflow: auto;">
                             <div id="Editor" style="margin-left: auto;margin-right: auto;border-style: solid;width: max-content">
@@ -802,10 +767,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
             <div id="AddTPList" style="display: none;height: 80vh;width: 80vh;">
-
-
                 <form>
-
                     <div style="display: flex;flex-direction: row;">
                         <div class="TPList"  >
                             <div class="TPPreview">
@@ -885,6 +847,66 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <td><input id="SelBGColor" type="color"  /></td>
                 </tr>
             </table>
+            <div id="TXTEditDialog" style="display: none;">
+                <img  id="BNAddNew"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/addnew.png" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="bold"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/bold.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="italic"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/italic.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="underline"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/underline.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="cut"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/cut.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="copy"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/copy.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="paste"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/paste.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="undo"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/undo.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="redo"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/redo.gif" width="22" height="22"  />
+                <img class="BNCMD" data-cmd="justifyLeft" style="border-style: outset;" src="../../../../../../img/wysiwyg/justifyleft.gif" width="22" height="22" />
+                <img  class="BNCMD" data-cmd="justifyCenter"   style="border-style: outset;" src="../../../../../../img/wysiwyg/justifycenter.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="justifyRight"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/justifyright.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="insertUnorderedList"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/dottedlist.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="insertOrderedList"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/numberedlist.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="indent"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/indent.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="outdent"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/outdent.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="strikeThrough"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/strikethrough.gif" width="22" height="22"   />
+                <img  class="BNCMD" data-cmd="superscript"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/superscript.gif" width="22" height="22"   />
+                <img  class="BNCMD" data-cmd="subscript"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/subscript.gif" width="22" height="22"   />
+                <img  class="BNInsertCMD" data-cmd="createlink" title="InsertLink" style="border-style: outset;"  src="../../../../../../img/wysiwyg/link.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="unlink" title="RemoveLink"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/unlink.gif" width="22" height="22"  />
+                <img  class="BNCMD" data-cmd="removeFormat" title="RemoveFormat"   style="border-style: outset;"  src="../../../../../../img/wysiwyg/removeformat.gif" width="22" height="22"  />
+                <div style="display: inline;">
+                    <span >Font Size:</span>
+                    <select class="OptFont" data-cmd="fontSize">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                    </select>
+
+                </div>
+                <div id="TXTEditCode" contenteditable="true" style="width: 100%;border-style: solid;min-height: 300px;"></div>
+            </div>
+            <div id="TXTTableEdit" style="display: none;">
+
+                <img class="BNCMDTable" data-cmd="InsertRow"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/insertrow.png" width="22" height="22"  />
+                <img class="BNCMDTable" data-cmd="InsertColumn"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/insertcol.png" width="22" height="22"  />
+                <img class="BNCMDTable" data-cmd="DeleteRow"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/deleterow.png" width="22" height="22"  />
+                <img class="BNCMDTable" data-cmd="DeleteColumn"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/deletecol.png" width="22" height="22"  />
+                <div style="display: inline;">
+                    <span>Border Style:</span>
+                    <select class="OPTCMDTable" data-cmd="BorderStyle">
+                        <option value="none">none</option>
+                        <option value="hidden">hidden</option>
+                        <option value="dashed">dashed</option>
+                        <option value="dotted">dotted</option>
+                        <option value="double">double</option>
+                        <option value="groove">groove</option>
+                        <option value="inset">inset</option>
+                        <option value="outset">outset</option>
+                        <option value="ridge">ridge</option>
+                        <option value="solid">solid</option>
+                    </select>
+                </div>
+            </div>
 
         </body>
     </html>
