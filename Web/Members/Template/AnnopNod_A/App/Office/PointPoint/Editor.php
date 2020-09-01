@@ -103,13 +103,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                             if (data !== null && data["app"] === "PointPoint") {
                                 ss.S("#SlidesIndexList").Attr("max", data["slidescount"]);
-                                for (var i in parseInt(data["slidescount"])) {
+
+                                for (var i = 0; i < data["slidescount"]; i++) {
                                     domeditor.InsertSlide(null);
                                 }
                                 dpw.Close();
                             } else {
                                 window.location.replace("index.php");
                             }
+                            
+                            
                         });
 
                     } else {
@@ -150,8 +153,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#TXTEditCode").Html("");
                             sd.ImportOkCancel("Add Text", "#TXTEditDialog", function () {
                                 var conv = new PointPoint_SvgTextConverter();
- 
-                                domeditor.AddTextBox(v - 1, conv.ToSvg( ss.S("#TXTEditCode").Html()), parseInt(diman.width) / 2, parseInt(diman.height) / 2);
+
+                                domeditor.AddTextBox(v - 1, conv.ToSvg(ss.S("#TXTEditCode").Html()), parseInt(diman.width) / 2, parseInt(diman.height) / 2);
                                 return true;
 
                             });
@@ -216,7 +219,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var slides = domeditor.GetSlides();
                         var svg = [];
                         for (var i in slides) {
-                            svg.push(slides[i].XMLString());
+                            if (slides[i] !== null) {
+                                svg.push(slides[i].XMLString());
+                            }
                         }
                         var dpw = sd.PleaseWait().ZIndex(999);
                         ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/EditSlideData.php", {"path": domeditor.path, "svg": svg}, function (data) {
@@ -672,6 +677,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             </div>
 
                             <div class="ToolBoxTab" data-id="Insert" style="display: none;">
+                                <img  id="BNAddNew"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/addnew.png" width="22" height="22"  />
                                 <img class="BNCMDInsert" data-cmd="TxtBox"  style="border-style: outset;"  src="../../../../../../img/pointpoint/txtbox.png" width="22" height="22"  />
                                 <img class="BNCMDInsert" data-cmd="Image"  style="border-style: outset;"  src="../../../../../../img/pointpoint/pic.png" width="22"  />
                                 <img class="BNCMDInsert" data-cmd="InsertTable"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/table.gif" width="22" height="22"  />
@@ -848,7 +854,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 </tr>
             </table>
             <div id="TXTEditDialog" style="display: none;">
-                <img  id="BNAddNew"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/addnew.png" width="22" height="22"  />
+
                 <img  class="BNCMD" data-cmd="bold"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/bold.gif" width="22" height="22"  />
                 <img  class="BNCMD" data-cmd="italic"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/italic.gif" width="22" height="22"  />
                 <img  class="BNCMD" data-cmd="underline"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/underline.gif" width="22" height="22"  />

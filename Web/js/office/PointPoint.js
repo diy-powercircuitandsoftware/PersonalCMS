@@ -39,29 +39,37 @@ class PointPoint_Editor {
 
     }
     AddSlideEvent(s) {
-        var ref = this;
-        s.AddEvent("click", function () {
+        if (s !== null) {
+            var ref = this;
+            s.AddEvent("click", function () {
 
-        });
-        s.AddEvent("dblclick", function (e) {
+            });
+            s.AddEvent("dblclick", function (e) {
 
-            if (ref.mode == "edit") {
-                if (e.target.tagName == "text") {
-                    ref.SvgEditText(e.target);
+                if (ref.mode == "edit") {
+                    if (e.target.tagName == "text") {
+                        ref.SvgEditText(e.target);
+                    } else if (e.target.tagName == "tspan") {
+                        ref.SvgEditText(e.target.parentNode);
+                    }
+
                 }
-            }
-        });
+            });
+        }
 
     }
     GetSlides() {
         return this.slides;
     }
     InsertSlide(...args) {
+
         if (args.length === 1 && (args[0] === null || args[0] instanceof PointPoint_Slide)) {
             var s = args[0];
             this.AddSlideEvent(s);
             this.slides.push(s);
+
         }
+
     }
     ReplaceSlideAt(index, slide) {
         if (slide === null || slide instanceof PointPoint_Slide) {
@@ -92,35 +100,70 @@ class PointPoint_Editor {
 class PointPoint_SvgTextConverter {
 
     ToHtml(txt) {
-
-        let div = document.createElement("DIV");
-
-        div.appendChild(txt.cloneNode(true));
-
-        let txttag = div.getElementsByTagName("tspan");
+        let xml = new XMLSerializer();
+        var div = document.createElement("DIV");
+        div.innerHTML = xml.serializeToString(txt);
+        var txttag = div.querySelectorAll("tspan");
         for (let i = 0; i < txttag.length; i++) {
-            let spanreplace = document.createElement("span");
-            spanreplace.innerHTML = txttag[i].textContent;
+            let spanreplace = document.createElement("div");
+            spanreplace.innerHTML = txttag[i].innerHTML;
             txttag[i].parentNode.replaceChild(spanreplace, txttag[i]);
         }
-
-
-        txttag = div.getElementsByTagName("text");
+        var txttag = div.querySelectorAll("text");
         for (let i = 0; i < txttag.length; i++) {
             let divreplace = document.createElement("div");
-            divreplace.innerHTML = txttag[i].textContent;
+            divreplace.innerHTML = txttag[i].innerHTML;
+            divreplace.style.position = "absolute";
+           divreplace.style.left = txttag[i].getAttribute("x");
+           divreplace.style.top = txttag[i].getAttribute("y");
             txttag[i].parentNode.replaceChild(divreplace, txttag[i]);
         }
-
-
-
-        return div.innerHTML;
+        div.style.position = "relative";
+        return div.outerHTML;
     }
     ToSvg(html) {
-        let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        let svg = document.createElementNS("http://www.w3.org/2000/svg", "text");
         let div = document.createElement("DIV");
-        div.innerHTML=html;
-let  txttag = div.getElementsByTagName("div");
+        div.style.position = "relative";
+        div.innerHTML = html;
+        document.body.appendChild(div);
+        let startrect = div.getBoundingClientRect();
+        let maxprotection = 10;
+        var c = 0;
+
+        [].forEach.call(div.querySelectorAll("*"), function (q) {
+            let offsets = q.getBoundingClientRect();
+            q.setAttribute("x", offsets.left - startrect.left);
+            q.setAttribute("y", offsets.top - startrect.top);
+            console.log(offsets);
+        });
+
+        while (div.childNodes.length > 0) {
+
+            [].forEach.call(div.querySelectorAll("*"), function (q) {
+                if (q.childNodes.length == 1) {
+
+
+                    let tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+                    tspan.appendChild(document.createTextNode(q.textContent));
+                    tspan.setAttributeNS(null, "x", q.getAttribute("x"));
+                    tspan.setAttributeNS(null, "y", q.getAttribute("y"));
+
+                    svg.appendChild(tspan);
+                    q.parentNode.removeChild(q);
+                }
+                console.log(q);
+            });
+
+            c = c + 1
+            if (c > maxprotection) {
+                break;
+            }
+
+        }
+        document.body.removeChild(div);
+        return svg;
+
 
 
     }
@@ -144,15 +187,28 @@ class PointPoint_Slide {
     }
 
     AddText(input, x, y) {
-        //tspan 
-        //input is string ?
-        //input is texttag?
-        var txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        txt.setAttributeNS(null, "x", x);
-        txt.setAttributeNS(null, "y", y);
-        txt.setAttributeNS(null, "font-size", this.fontsize);
-        txt.appendChild(document.createTextNode(input));
-        this.slidearea.appendChild(txt);
+
+        if (input.tagName == "text") {
+            this.slidearea.appendChild(input);
+            input.setAttributeNS(null, "x", x);
+            input.setAttributeNS(null, "y", y);
+            var tspan = input.getElementsByTagName("tspan");
+            for (let i = 0; i < tspan.length; i++) {
+                var xx = parseInt(tspan[i].getAttributeNS(null, "x"));
+                var yy = parseInt(tspan[i].getAttributeNS(null, "y"));
+                tspan[i].setAttributeNS(null, "x", x + xx);
+                tspan[i].setAttributeNS(null, "y", y + yy);
+            }
+        } else {
+            var txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            txt.setAttributeNS(null, "x", x);
+            txt.setAttributeNS(null, "y", y);
+            txt.setAttributeNS(null, "font-size", this.fontsize);
+            txt.appendChild(document.createTextNode(input));
+            this.slidearea.appendChild(txt);
+        }
+
+
     }
     GetAllElementsTag() {
         var out = [];
