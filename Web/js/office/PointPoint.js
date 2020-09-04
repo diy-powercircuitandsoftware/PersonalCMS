@@ -135,7 +135,7 @@ class PointPoint_SvgTextConverter {
             let offsets = q.getBoundingClientRect();
             q.setAttribute("x", offsets.left - startrect.left);
             q.setAttribute("y", offsets.top - startrect.top);
-            console.log(offsets);
+           
         });
 
         while (div.childNodes.length > 0) {
@@ -152,7 +152,7 @@ class PointPoint_SvgTextConverter {
                     svg.appendChild(tspan);
                     q.parentNode.removeChild(q);
                 }
-                console.log(q);
+               // console.log(q);
             });
 
             c = c + 1

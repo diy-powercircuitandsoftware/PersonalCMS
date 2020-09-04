@@ -123,7 +123,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         ss.S("#TXTEditCode").Html(conv.ToHtml(svgtext));
                         sd.ImportOkCancel("Edit", "#TXTEditDialog", function () {
-                            //TXTEditCode
+                          
+                          svgtext.parentNode.replaceChild(conv.ToSvg(ss.S("#TXTEditCode").Html()),svgtext);
                             return true;
 
                         });
@@ -153,7 +154,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#TXTEditCode").Html("");
                             sd.ImportOkCancel("Add Text", "#TXTEditDialog", function () {
                                 var conv = new PointPoint_SvgTextConverter();
-
                                 domeditor.AddTextBox(v - 1, conv.ToSvg(ss.S("#TXTEditCode").Html()), parseInt(diman.width) / 2, parseInt(diman.height) / 2);
                                 return true;
 
