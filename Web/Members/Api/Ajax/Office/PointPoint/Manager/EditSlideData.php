@@ -18,12 +18,12 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $vd = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
     $path = $vd->DiskPath($_POST["path"]);
     $point = new OfficeIO_PointPoint($path);
-    if (isset($_POST["svg"])) {
-        foreach ($_POST["svg"] as $value) {
+    if (isset($_POST["list"])) {
+        foreach ($_POST["list"] as $value) {
             $doc = new DOMDocument();
             $doc->loadXML($value);
-            $index = $doc->getElementsByTagName("svg")->item(0)->attributes->getNamedItem("index")->value;
-               $point->EditSlideData($index, $doc->saveXML());
+            $index = $doc->getElementsByTagName("root")->item(0)->attributes->getNamedItem("index")->value;
+            $point->EditSlideData($index, $doc->saveXML());
         }
     }
     echo $point->Close();
