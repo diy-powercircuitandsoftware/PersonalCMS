@@ -139,7 +139,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var v = parseInt(ss.S("#SlidesIndexList").Val());
                         var diman = domeditor.CanvasSize();
                         if (cmd == "TxtBox" && v > 0) {
-                           domeditor.AddTextBox(v,"50%", "50%");
+                           domeditor.AddTextBox(v-1,"50%", "50%");
                         } else if (cmd == "Image") {
                             /*   ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": "Image"}, function (data) {
                              data = JSON.parse(data);

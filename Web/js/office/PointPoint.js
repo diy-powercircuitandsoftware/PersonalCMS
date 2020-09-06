@@ -9,7 +9,7 @@ class PointPoint_Editor {
         } else {
             this.editor = document.body.appendChild(document.createElement("DIV"));
         }
-          this.editor.style.position="relative";
+        this.editor.style.position = "relative";
         this.slides = [];
     }
     CanvasSize(...args) {
@@ -24,14 +24,14 @@ class PointPoint_Editor {
         }
     }
 
-    AddTextBox(index,   x, y) {
+    AddTextBox(index, x, y) {
         var txtbox = this.editor.appendChild(document.createElement("DIV"));
         txtbox.innerHTML = "Edit This Text";
         txtbox.contentEditable = "true";
-        txtbox.style.position="absolute";
-        txtbox.style.top=y;
-          txtbox.style.left=x;
-        //  this.slides[index].AddText(txt, x, y);
+        txtbox.style.position = "absolute";
+        txtbox.style.top = y;
+        txtbox.style.left = x;
+        this.slides[index].AddText(txtbox.innerHTML, x, y);
     }
     AddImage() {
 
@@ -60,10 +60,19 @@ class PointPoint_Editor {
     }
     Render(index) {
         this.editor.innerHTML = "";
-        if (this.SlideExists(index)&&index>=0) {
-            var s = this.slides[index].GetSlideData();
-            console.log(s);
-            //  this.editor.appendChild(this.slides[index].GetSlideData());
+        if (this.SlideExists(index) && index >= 0) {
+            var slides = this.slides[index].GetSlideData();
+            var txtele = slides.getElementsByTagName("text");
+
+            for (var i = 0; i < txtele.length; i++) {
+                var txtbox = this.editor.appendChild(document.createElement("DIV"));
+                txtbox.innerHTML = txtele[i].textContent;
+                txtbox.contentEditable = "true";
+                txtbox.style.position = "absolute";
+                txtbox.style.top = txtele[i].getAttribute("y");
+                txtbox.style.left = txtele[i].getAttribute("x");
+            }
+
             return true;
         }
         return false;
@@ -88,7 +97,12 @@ class PointPoint_Slide {
     }
 
     AddText(input, x, y) {
-
+        var txt = document.createElement("text");
+        txt.setAttribute("x", x);
+        txt.setAttribute("y", y);
+        txt.appendChild(document.createTextNode(input));
+        this.slidedata.appendChild(txt);
+        return txt;
 
     }
     GetSlideData() {
