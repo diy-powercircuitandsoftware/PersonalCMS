@@ -31,12 +31,30 @@ class PointPoint_Editor {
         txtbox.style.position = "absolute";
         txtbox.style.top = y;
         txtbox.style.left = x;
-        this.slides[index].AddText(txtbox.innerHTML, x, y);
+        txtbox.ref = this.slides[index].AddText(txtbox.innerHTML, x, y);
+        txtbox.addEventListener("keydown", function () {
+            this.normalize();
+
+            this.ref.textContent = "";
+
+        });
     }
     AddImage() {
 
     }
-
+    EXECommand(...args) {
+        document.execCommand(...args);
+    }
+    EXECommandState(cmd) {
+        /*   var CommandList = ["bold", "copy", "cut", "decreaseFontSize",
+         "insertHorizontalRule", "increaseFontSize", "indent", "italic",
+         "justifyLeft", "justifyCenter", "justifyRight", "justifyFull",
+         "insertOrderedList", "outdent", "insertParagraph", "paste",
+         "redo", "removeFormat", "unlink", "strikeThrough", "subscript", "superscript", "underline", "undo", "insertUnorderedList"];
+         if (CommandList.indexOf(cmd) >= 0) {
+         return this.editor.contentWindow.document.queryCommandState(cmd);
+         }*/
+    }
     GetSlides() {
         return this.slides;
     }
@@ -71,6 +89,30 @@ class PointPoint_Editor {
                 txtbox.style.position = "absolute";
                 txtbox.style.top = txtele[i].getAttribute("y");
                 txtbox.style.left = txtele[i].getAttribute("x");
+                txtbox.ref = txtele[i];
+                txtbox.addEventListener("keydown", function () {
+                    this.normalize();
+                    this.ref.textContent = "";
+                    var tree = document.createTreeWalker(this, NodeFilter.SHOW_TEXT);
+                    while (tree.nextNode()) {
+                        var newnode = document.createElement("text");
+                        var text = tree.currentNode;
+                        //parrentnode to css
+                        this.ref.appendChild(newnode);
+                        newnode.textContent = text.nodeValue;
+                        if (text.parentNode.tagName.toLowerCase() === "b") {
+                            newnode.setAttribute("bold", "true");
+                        }
+                        if (text.parentNode.tagName.toLowerCase() === "i") {
+                            newnode.setAttribute("italic", "true");
+                        }
+                        if (text.parentNode.tagName.toLowerCase() === "u") {
+                            newnode.setAttribute("underline", "true");
+                        }
+
+                    }
+                    console.log(this.ref);
+                });
             }
 
             return true;

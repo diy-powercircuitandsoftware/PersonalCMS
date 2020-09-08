@@ -134,6 +134,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         });
                     });
+                     ss.S(".BNCMD").Click(function () {
+                        var cmd = this.getAttribute("data-cmd");
+                        domeditor.EXECommand(cmd, false, false);
+                        this.style.borderStyle = "inset";
+                       /* ss.S(".BNCMD").ForEach(function (dom) {
+                            var cmd = dom.getAttribute("data-cmd");
+                            if (!domeditor.QueryCommandState(cmd)) {
+                                dom.style.borderStyle = "outset";
+                            }
+                        });*/
+                    });
                     ss.S(".BNCMDInsert").Click(function () {
                         var cmd = this.getAttribute("data-cmd");
                         var v = parseInt(ss.S("#SlidesIndexList").Val());
@@ -337,17 +348,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
 
-                    ss.S(".BNCMD").Click(function () {
-                        var cmd = this.getAttribute("data-cmd");
-                        domeditor.EXECCommand(cmd, false, false);
-                        this.style.borderStyle = "inset";
-                        ss.S(".BNCMD").ForEach(function (dom) {
-                            var cmd = dom.getAttribute("data-cmd");
-                            if (!domeditor.QueryCommandState(cmd)) {
-                                dom.style.borderStyle = "outset";
-                            }
-                        });
-                    });
+                   
 
                     ss.S(".BNCMDDialog").Click(function () {
 
