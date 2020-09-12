@@ -226,7 +226,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S(".ToolBoxTab").Hide();
                         ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
                     });
-                    
+                     ss.S(".OptColor,.OptFont").Change(function () {
+                        var cmd = this.getAttribute("data-cmd");
+                        
+                        domeditor.EXECommand(cmd, false, this.value);
+                    });
                     ss.S("#SlidesIndexList").Change(function () {
                         var v = parseInt(this.value);                       
                             v = v - 1;
@@ -455,10 +459,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     });
 
-                    ss.S(".OptColor,.OptFont").Change(function () {
-                        var cmd = this.getAttribute("data-cmd");
-                        domeditor.EXECCommand(cmd, false, this.value);
-                    });
+                   
 
 
                     ss.S(".SlideExecCommand").Click(function () {

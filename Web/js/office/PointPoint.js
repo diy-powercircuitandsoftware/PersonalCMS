@@ -1,5 +1,4 @@
 class PointPoint_Editor {
-    //https://www.codeproject.com/Articles/609052/Simple-HTML5-SVG-Move-and-Resize-Tool
 
     constructor(...args) {
         if (args.length === 1 && typeof args[0] === 'string' || args[0] instanceof String) {
@@ -32,12 +31,7 @@ class PointPoint_Editor {
         txtbox.style.top = y;
         txtbox.style.left = x;
         txtbox.ref = this.slides[index].AddText(txtbox.innerHTML, x, y);
-        txtbox.addEventListener("keydown", function () {
-            this.normalize();
 
-            this.ref.textContent = "";
-
-        });
     }
     AddImage() {
 
@@ -80,46 +74,109 @@ class PointPoint_Editor {
         this.editor.innerHTML = "";
         if (this.SlideExists(index) && index >= 0) {
             var slides = this.slides[index].GetSlideData();
-            var txtele = slides.getElementsByTagName("text");
-
-            for (var i = 0; i < txtele.length; i++) {
-                var txtbox = this.editor.appendChild(document.createElement("DIV"));
-                txtbox.innerHTML = txtele[i].textContent;
-                txtbox.contentEditable = "true";
-                txtbox.style.position = "absolute";
-                txtbox.style.top = txtele[i].getAttribute("y");
-                txtbox.style.left = txtele[i].getAttribute("x");
-                txtbox.ref = txtele[i];
-                txtbox.addEventListener("keydown", function () {
-                    this.normalize();
-                    this.ref.textContent = "";
-                    var tree = document.createTreeWalker(this, NodeFilter.SHOW_TEXT);
-                    while (tree.nextNode()) {
-                        var newnode = document.createElement("text");
-                        var text = tree.currentNode;
-                        //parrentnode to css
-                        this.ref.appendChild(newnode);
-                        newnode.textContent = text.nodeValue;
-                        if (text.parentNode.tagName.toLowerCase() === "b") {
-                            newnode.setAttribute("bold", "true");
-                        }
-                        if (text.parentNode.tagName.toLowerCase() === "i") {
-                            newnode.setAttribute("italic", "true");
-                        }
-                        if (text.parentNode.tagName.toLowerCase() === "u") {
-                            newnode.setAttribute("underline", "true");
+            var slidesroot = slides.children;
+            for (var i = 0; i < slidesroot.length; i++) {
+                if (slidesroot[i].tagName == "text") {
+                    var txtele = slidesroot[i];
+                    var editor = this.editor.appendChild(this.TextObject2Html(txtele));
+                    editor.ref = txtele;
+                    editor.fnref = this;
+                    editor.addEventListener("input", function () {
+                        var node = (this.fnref.Html2TextObject(this));
+                        for (i = 0; i < this.ref.attributes.length; i++)
+                        {
+                            var a = this.ref.attributes[i];
+                            node.setAttribute(a.name, a.value);
                         }
 
-                    }
-                    console.log(this.ref);
-                });
+                        this.ref.parentNode.replaceChild(node, this.ref);
+                        this.ref = node;
+
+                    });
+
+
+                }
             }
 
             return true;
         }
         return false;
     }
+    Html2TextObject(htmldom) {
 
+        var newnode = document.createElement("text");
+        let tree = document.createTreeWalker(htmldom, NodeFilter.SHOW_TEXT);
+        while (tree.nextNode()) {
+            var subnode = document.createElement("text");
+            var text = tree.currentNode;
+            var parrentnode = text.parentNode;
+
+            subnode.textContent = text.nodeValue;
+            newnode.appendChild(subnode);
+
+            while (parrentnode !== htmldom) {
+                var tagname = parrentnode.tagName.toLowerCase();
+                switch (tagname) {
+                    case "b":
+                        subnode.setAttribute("bold", "true");
+                        break;
+                    case "i":
+                        subnode.setAttribute("italic", "true");
+                        break;
+                    case "u":
+                        subnode.setAttribute("underline", "true");
+                        break;
+                }
+                parrentnode = parrentnode.parentNode;
+            }
+
+
+            subnode.setAttribute("color", window.getComputedStyle(text.parentNode).getPropertyValue("color"));
+            
+        }
+        return newnode;
+    }
+    TextObject2Html(txtele) {
+        var txtbox = document.createElement("DIV");
+        if (txtele.children.length == 0) {
+            var nodee = document.createElement("DIV");
+            txtbox.appendChild(nodee);
+            nodee.textContent = txtele.textContent;
+
+            if (txtele.getAttribute("bold") == "true") {
+                nodee.style.fontWeight = "bold";
+            }
+            if (txtele.getAttribute("italic") == "true") {
+                nodee.style.fontStyle = "italic";
+            }
+            if (txtele.getAttribute("underline") == "true") {
+                nodee.style.textDecoration = "underline";
+            }
+
+        } else {
+            let tree = document.createTreeWalker(txtele, NodeFilter.SHOW_ELEMENT);
+            while (tree.nextNode()) {
+                var nodee = document.createElement("DIV");
+                txtbox.appendChild(nodee);
+                nodee.textContent = tree.currentNode.textContent;
+                if (tree.currentNode.getAttribute("bold") == "true") {
+                    nodee.style.fontWeight = "bold";
+                }
+                if (tree.currentNode.getAttribute("italic") == "true") {
+                    nodee.style.fontStyle = "italic";
+                }
+                if (tree.currentNode.getAttribute("underline") == "true") {
+                    nodee.style.textDecoration = "underline";
+                }
+            }
+        }
+        txtbox.class = "TextBoxEditable";
+        txtbox.contentEditable = "true";
+        txtbox.style.position = "absolute";
+        txtbox.style.top = txtele.getAttribute("y");
+        txtbox.style.left = txtele.getAttribute("x");
+        return txtbox;
+    }
 }
 
 class PointPoint_Player {
