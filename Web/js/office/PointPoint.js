@@ -103,36 +103,52 @@ class PointPoint_Editor {
         return false;
     }
     Html2TextObject(htmldom) {
-
+        var listnode = [];
         var newnode = document.createElement("text");
         let tree = document.createTreeWalker(htmldom, NodeFilter.SHOW_TEXT);
+
+        [].forEach.call(htmldom.querySelectorAll("ul,ol"), function (list) {
+
+        });
+
         while (tree.nextNode()) {
-            var subnode = document.createElement("text");
+
+            var textnode = document.createElement("text");
             var text = tree.currentNode;
             var parrentnode = text.parentNode;
+            var inlist = false;
+            textnode.textContent = text.nodeValue;
 
-            subnode.textContent = text.nodeValue;
-            newnode.appendChild(subnode);
 
             while (parrentnode !== htmldom) {
                 var tagname = parrentnode.tagName.toLowerCase();
                 switch (tagname) {
                     case "b":
-                        subnode.setAttribute("bold", "true");
+                        textnode.setAttribute("bold", "true");
                         break;
                     case "i":
-                        subnode.setAttribute("italic", "true");
+                        textnode.setAttribute("italic", "true");
                         break;
                     case "u":
-                        subnode.setAttribute("underline", "true");
+                        textnode.setAttribute("underline", "true");
+                        break;
+                    case "ol":
+                        inlist = true;
+                        break;
+                    case "ul":
+                        inlist = true;
                         break;
                 }
                 parrentnode = parrentnode.parentNode;
             }
+            textnode.setAttribute("color", window.getComputedStyle(text.parentNode).getPropertyValue("color"));
+          
+            //     inlist = false;
+            newnode.appendChild(textnode);
 
+// if listnode.parrentnode=newnode yes
+//else no append node
 
-            subnode.setAttribute("color", window.getComputedStyle(text.parentNode).getPropertyValue("color"));
-            
         }
         return newnode;
     }
@@ -152,10 +168,13 @@ class PointPoint_Editor {
             if (txtele.getAttribute("underline") == "true") {
                 nodee.style.textDecoration = "underline";
             }
-
+            if (txtele.getAttribute("color") !== null) {
+                nodee.style.color = txtele.getAttribute("color");
+            }
         } else {
             let tree = document.createTreeWalker(txtele, NodeFilter.SHOW_ELEMENT);
             while (tree.nextNode()) {
+                //if list
                 var nodee = document.createElement("DIV");
                 txtbox.appendChild(nodee);
                 nodee.textContent = tree.currentNode.textContent;
@@ -167,6 +186,9 @@ class PointPoint_Editor {
                 }
                 if (tree.currentNode.getAttribute("underline") == "true") {
                     nodee.style.textDecoration = "underline";
+                }
+                if (tree.currentNode.getAttribute("color") !== null) {
+                    nodee.style.color = tree.currentNode.getAttribute("color");
                 }
             }
         }
