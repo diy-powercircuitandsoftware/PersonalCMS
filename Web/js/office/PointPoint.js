@@ -103,11 +103,13 @@ class PointPoint_Editor {
         return false;
     }
     Html2TextObject(htmldom) {
-        var listnode = [];
+
         var newnode = document.createElement("text");
         let tree = document.createTreeWalker(htmldom, NodeFilter.SHOW_TEXT);
 
         [].forEach.call(htmldom.querySelectorAll("ul,ol"), function (list) {
+            list.listref = document.createElement("list");
+
 
         });
 
@@ -117,6 +119,7 @@ class PointPoint_Editor {
             var text = tree.currentNode;
             var parrentnode = text.parentNode;
             var inlist = false;
+
             textnode.textContent = text.nodeValue;
 
 
@@ -133,22 +136,26 @@ class PointPoint_Editor {
                         textnode.setAttribute("underline", "true");
                         break;
                     case "ol":
-                        inlist = true;
+                        inlist = parrentnode.listref;
+                        inlist.setAttribute("type", "ol");
                         break;
                     case "ul":
-                        inlist = true;
+                        inlist = parrentnode.listref;
+                        inlist.setAttribute("type", "ul");
                         break;
                 }
                 parrentnode = parrentnode.parentNode;
             }
             textnode.setAttribute("color", window.getComputedStyle(text.parentNode).getPropertyValue("color"));
-          
-            //     inlist = false;
-            newnode.appendChild(textnode);
 
-// if listnode.parrentnode=newnode yes
-//else no append node
-
+            if (!inlist) {
+                newnode.appendChild(textnode);
+            } else if (inlist.parentNode == null) {
+                inlist.appendChild(textnode)
+                newnode.appendChild(inlist);
+            } else if (inlist.parentNode !== null) {
+                inlist.appendChild(textnode)
+            }
         }
         return newnode;
     }
@@ -171,25 +178,62 @@ class PointPoint_Editor {
             if (txtele.getAttribute("color") !== null) {
                 nodee.style.color = txtele.getAttribute("color");
             }
+
         } else {
-            let tree = document.createTreeWalker(txtele, NodeFilter.SHOW_ELEMENT);
+
+
+            let tree = document.createTreeWalker(txtele, NodeFilter.SHOW_ELEMENT, function (node) {
+                if (node.tagName == "text") {
+                    var parrentnode = node.parentNode;
+                    while (parrentnode !== txtele) {
+                        var tagname = parrentnode.tagName.toLowerCase();
+                        if (tagname == "list") {
+                            return  NodeFilter.FILTER_REJECT;
+                        }
+                        parrentnode = parrentnode.parentNode;
+                    }
+                    return    NodeFilter.FILTER_ACCEPT;
+                }
+                return    NodeFilter.FILTER_ACCEPT;
+
+            });
             while (tree.nextNode()) {
-                //if list
-                var nodee = document.createElement("DIV");
-                txtbox.appendChild(nodee);
-                nodee.textContent = tree.currentNode.textContent;
-                if (tree.currentNode.getAttribute("bold") == "true") {
-                    nodee.style.fontWeight = "bold";
+                //if list for loop 
+                //if parrent list stop
+                
+                if (tree.currentNode.tagName == "text") {
+                    var nodee = document.createElement("DIV");
+                    txtbox.appendChild(nodee);
+                    nodee.textContent = tree.currentNode.textContent;
+                    if (tree.currentNode.getAttribute("bold") == "true") {
+                        nodee.style.fontWeight = "bold";
+                    }
+                    if (tree.currentNode.getAttribute("italic") == "true") {
+                        nodee.style.fontStyle = "italic";
+                    }
+                    if (tree.currentNode.getAttribute("underline") == "true") {
+                        nodee.style.textDecoration = "underline";
+                    }
+                    if (tree.currentNode.getAttribute("color") !== null) {
+                        nodee.style.color = tree.currentNode.getAttribute("color");
+                    }
+                } else if (tree.currentNode.tagName == "list") {
+                    var nodee =null;
+                    if (tree.currentNode.getAttribute("type")=="ol"){
+                            nodee=  document.createElement("ol");
+                    }else{
+                        nodee=  document.createElement("ul");
+                    }
+                   
+                    var child =tree.currentNode.childNodes;
+                    
+                    for (var i = 0; i < child.length; i++) {
+                       nodee.appendChild(document.createElement("li")).innerHTML=child[i].textContent;
+                    }
+ 
+                    txtbox.appendChild(nodee);
                 }
-                if (tree.currentNode.getAttribute("italic") == "true") {
-                    nodee.style.fontStyle = "italic";
-                }
-                if (tree.currentNode.getAttribute("underline") == "true") {
-                    nodee.style.textDecoration = "underline";
-                }
-                if (tree.currentNode.getAttribute("color") !== null) {
-                    nodee.style.color = tree.currentNode.getAttribute("color");
-                }
+
             }
         }
         txtbox.class = "TextBoxEditable";
