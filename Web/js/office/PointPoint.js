@@ -10,6 +10,7 @@ class PointPoint_Editor {
         }
         this.editor.style.position = "relative";
         this.slides = [];
+        this.converter = new PointPoint_HtmlConverter();
     }
     CanvasSize(...args) {
         if (args.length === 0) {
@@ -78,11 +79,14 @@ class PointPoint_Editor {
             for (var i = 0; i < slidesroot.length; i++) {
                 if (slidesroot[i].tagName == "text") {
                     var txtele = slidesroot[i];
-                    var editor = this.editor.appendChild(this.TextObject2Html(txtele));
+                    var editor = this.editor.appendChild(this.converter.TextObject2Html(txtele));
                     editor.ref = txtele;
                     editor.fnref = this;
+                    editor.class = "TextBoxEditable";
+                    editor.contentEditable = "true";
+                    editor.style.position = "absolute";
                     editor.addEventListener("input", function () {
-                        var node = (this.fnref.Html2TextObject(this));
+                        var node = (this.fnref.converter.Html2TextObject(this));
                         for (i = 0; i < this.ref.attributes.length; i++)
                         {
                             var a = this.ref.attributes[i];
@@ -102,6 +106,9 @@ class PointPoint_Editor {
         }
         return false;
     }
+
+}
+class PointPoint_HtmlConverter {
     Html2TextObject(htmldom) {
 
         var newnode = document.createElement("text");
@@ -161,27 +168,16 @@ class PointPoint_Editor {
     }
     TextObject2Html(txtele) {
         var txtbox = document.createElement("DIV");
+        var noderef = [];
         if (txtele.children.length == 0) {
             var nodee = document.createElement("DIV");
             txtbox.appendChild(nodee);
             nodee.textContent = txtele.textContent;
+            nodee.attr = txtele.attributes;
+            noderef.push(nodee);
 
-            if (txtele.getAttribute("bold") == "true") {
-                nodee.style.fontWeight = "bold";
-            }
-            if (txtele.getAttribute("italic") == "true") {
-                nodee.style.fontStyle = "italic";
-            }
-            if (txtele.getAttribute("underline") == "true") {
-                nodee.style.textDecoration = "underline";
-            }
-            if (txtele.getAttribute("color") !== null) {
-                nodee.style.color = txtele.getAttribute("color");
-            }
 
         } else {
-
-
             let tree = document.createTreeWalker(txtele, NodeFilter.SHOW_ELEMENT, function (node) {
                 if (node.tagName == "text") {
                     var parrentnode = node.parentNode;
@@ -198,60 +194,67 @@ class PointPoint_Editor {
 
             });
             while (tree.nextNode()) {
-                //if list for loop 
-                //if parrent list stop
-                
+
                 if (tree.currentNode.tagName == "text") {
                     var nodee = document.createElement("DIV");
                     txtbox.appendChild(nodee);
                     nodee.textContent = tree.currentNode.textContent;
-                    if (tree.currentNode.getAttribute("bold") == "true") {
-                        nodee.style.fontWeight = "bold";
-                    }
-                    if (tree.currentNode.getAttribute("italic") == "true") {
-                        nodee.style.fontStyle = "italic";
-                    }
-                    if (tree.currentNode.getAttribute("underline") == "true") {
-                        nodee.style.textDecoration = "underline";
-                    }
-                    if (tree.currentNode.getAttribute("color") !== null) {
-                        nodee.style.color = tree.currentNode.getAttribute("color");
-                    }
+                    nodee.attr = tree.currentNode.attributes;
+                    noderef.push(nodee);
+
                 } else if (tree.currentNode.tagName == "list") {
-                    var nodee =null;
-                    if (tree.currentNode.getAttribute("type")=="ol"){
-                            nodee=  document.createElement("ol");
-                    }else{
-                        nodee=  document.createElement("ul");
+                    var list = null;
+                    if (tree.currentNode.getAttribute("type") == "ol") {
+                        list = document.createElement("ol");
+                    } else {
+                        list = document.createElement("ul");
                     }
-                   
-                    var child =tree.currentNode.childNodes;
-                    
+
+                    var child = tree.currentNode.childNodes;
+
                     for (var i = 0; i < child.length; i++) {
-                       nodee.appendChild(document.createElement("li")).innerHTML=child[i].textContent;
+                        var nodee = list.appendChild(document.createElement("li")).appendChild(document.createElement("DIV"))
+                        nodee.textContent = child[i].textContent;
+                        nodee.attr = child[i].attributes;
+                        noderef.push(nodee);
+
                     }
- 
-                    txtbox.appendChild(nodee);
+                    list.attr = tree.currentNode.attributes;
+                    noderef.push(list);
+
+                    txtbox.appendChild(list);
                 }
 
             }
         }
-        txtbox.class = "TextBoxEditable";
-        txtbox.contentEditable = "true";
-        txtbox.style.position = "absolute";
+        for (var i = 0; i < noderef.length; i++) {
+
+            if (noderef[i].attr["color"]) {
+                noderef[i].style.color = noderef[i].attr.getNamedItem("color").value;
+            }
+            if (noderef[i].attr["bold"]) {
+
+                noderef[i].style.fontWeight = "bold";
+            }
+            if (noderef[i].attr["italic"]) {
+
+                noderef[i].style.fontStyle = "italic";
+            }
+            if (noderef[i].attr["underline"]) {
+
+                noderef[i].style.textDecoration = "underline";
+            }
+
+
+        }
         txtbox.style.top = txtele.getAttribute("y");
         txtbox.style.left = txtele.getAttribute("x");
         return txtbox;
     }
 }
 
-class PointPoint_Player {
 
-}
 
-class PointPoint_Animation {
-
-}
 
 class PointPoint_Slide {
     constructor( ) {
@@ -307,6 +310,14 @@ class PointPoint_Slide {
         }
 
     }
+}
+
+class PointPoint_Player {
+
+}
+
+class PointPoint_Animation {
+
 }
 
 
