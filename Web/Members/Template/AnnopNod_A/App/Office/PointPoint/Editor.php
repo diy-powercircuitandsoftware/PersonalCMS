@@ -118,7 +118,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     } else {
                         window.location.replace("index.php");
                     }
-                    
+
                     ss.S("#BNAddNew").Click(function () {
                         sd.ImportOkCancel("Add New Slide", "#AddTPList", function () {
                             var t = ss.S("INPUT[name='TPType']").Val();
@@ -134,23 +134,24 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         });
                     });
-                     ss.S(".BNCMD").Click(function () {
+                    ss.S(".BNCMD").Click(function () {
                         var cmd = this.getAttribute("data-cmd");
                         domeditor.EXECommand(cmd, false, false);
                         this.style.borderStyle = "inset";
-                       /* ss.S(".BNCMD").ForEach(function (dom) {
+
+                        ss.S(".BNCMD").Each(function (dom) {
                             var cmd = dom.getAttribute("data-cmd");
                             if (!domeditor.QueryCommandState(cmd)) {
                                 dom.style.borderStyle = "outset";
                             }
-                        });*/
+                        });
                     });
                     ss.S(".BNCMDInsert").Click(function () {
                         var cmd = this.getAttribute("data-cmd");
                         var v = parseInt(ss.S("#SlidesIndexList").Val());
                         var diman = domeditor.CanvasSize();
                         if (cmd == "TxtBox" && v > 0) {
-                           domeditor.AddTextBox(v-1,"50%", "50%");
+                            domeditor.AddTextBox(v - 1, "50%", "50%");
                         } else if (cmd == "Image") {
                             /*   ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": "Image"}, function (data) {
                              data = JSON.parse(data);
@@ -226,27 +227,33 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S(".ToolBoxTab").Hide();
                         ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
                     });
-                     ss.S(".OptColor,.OptFont").Change(function () {
+                    ss.S(".OptColor,.OptFont").Change(function () {
                         var cmd = this.getAttribute("data-cmd");
-                        
+
                         domeditor.EXECommand(cmd, false, this.value);
                     });
+                    ss.S("#OPTSelectMode").Change(function () {
+
+                    });
+
+
+
                     ss.S("#SlidesIndexList").Change(function () {
-                        var v = parseInt(this.value);                       
-                            v = v - 1;
-                            if (domeditor.SlideExists(v)) {
+                        var v = parseInt(this.value);
+                        v = v - 1;
+                        if (domeditor.SlideExists(v)) {
+                            domeditor.Render(v);
+                        } else {
+                            var dialog = sd.PleaseWait();
+                            ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetSlideData.php", {"path": domeditor.path, "id": v}, function (data) {
+                                var pps = new PointPoint_Slide();
+                                pps.XMLString(data);
+                                domeditor.ReplaceSlideAt(v, pps);
                                 domeditor.Render(v);
-                            } else {
-                                var dialog = sd.PleaseWait();
-                                ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetSlideData.php", {"path": domeditor.path, "id": v}, function (data) {
-                                    var pps = new PointPoint_Slide();
-                                    pps.XMLString(data);
-                                    domeditor.ReplaceSlideAt(v, pps);
-                                    domeditor.Render(v);
-                                    dialog.Close();
-                                });
-                            }
-                          
+                                dialog.Close();
+                            });
+                        }
+
                     });
                     return 0;
 
@@ -352,7 +359,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
 
-                   
+
 
                     ss.S(".BNCMDDialog").Click(function () {
 
@@ -459,7 +466,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     });
 
-                   
+
 
 
                     ss.S(".SlideExecCommand").Click(function () {
@@ -624,41 +631,49 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 <img  id="BNUpload"    style="border-style: outset;" title="UploadEmbedFile"  src="../../../../../../img/wysiwyg/upload.png" width="22" height="22"  />
                                 <img  id="BNObjectManager"    style="border-style: outset;" title="ObjectManager"  src="../../../../../../img/wysiwyg/object.png" width="22" height="22"  />
                                 <img  id="BNSize"    style="border-style: outset;" title="Resize" src="../../../../../../img/wysiwyg/docsize.png" width="22" height="22"  />
-<img  class="BNCMD" data-cmd="bold"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/bold.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="italic"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/italic.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="underline"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/underline.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="cut"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/cut.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="copy"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/copy.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="paste"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/paste.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="undo"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/undo.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="redo"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/redo.gif" width="22" height="22"  />
-                <img class="BNCMD" data-cmd="justifyLeft" style="border-style: outset;" src="../../../../../../img/wysiwyg/justifyleft.gif" width="22" height="22" />
-                <img  class="BNCMD" data-cmd="justifyCenter"   style="border-style: outset;" src="../../../../../../img/wysiwyg/justifycenter.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="justifyRight"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/justifyright.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="insertUnorderedList"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/dottedlist.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="insertOrderedList"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/numberedlist.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="indent"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/indent.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="outdent"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/outdent.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="strikeThrough"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/strikethrough.gif" width="22" height="22"   />
-                <img  class="BNCMD" data-cmd="superscript"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/superscript.gif" width="22" height="22"   />
-                <img  class="BNCMD" data-cmd="subscript"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/subscript.gif" width="22" height="22"   />
-                <img  class="BNInsertCMD" data-cmd="createlink" title="InsertLink" style="border-style: outset;"  src="../../../../../../img/wysiwyg/link.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="unlink" title="RemoveLink"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/unlink.gif" width="22" height="22"  />
-                <img  class="BNCMD" data-cmd="removeFormat" title="RemoveFormat"   style="border-style: outset;"  src="../../../../../../img/wysiwyg/removeformat.gif" width="22" height="22"  />
-                <div style="display: inline;">
-                    <span >Font Size:</span>
-                    <select class="OptFont" data-cmd="fontSize">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                    </select>
+                                <img  class="BNCMD" data-cmd="bold"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/bold.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="italic"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/italic.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="underline"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/underline.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="cut"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/cut.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="copy"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/copy.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="paste"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/paste.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="undo"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/undo.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="redo"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/redo.gif" width="22" height="22"  />
+                                <img class="BNCMD" data-cmd="justifyLeft" style="border-style: outset;" src="../../../../../../img/wysiwyg/justifyleft.gif" width="22" height="22" />
+                                <img  class="BNCMD" data-cmd="justifyCenter"   style="border-style: outset;" src="../../../../../../img/wysiwyg/justifycenter.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="justifyRight"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/justifyright.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="insertUnorderedList"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/dottedlist.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="insertOrderedList"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/numberedlist.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="indent"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/indent.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="outdent"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/outdent.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="strikeThrough"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/strikethrough.gif" width="22" height="22"   />
+                                <img  class="BNCMD" data-cmd="superscript"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/superscript.gif" width="22" height="22"   />
+                                <img  class="BNCMD" data-cmd="subscript"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/subscript.gif" width="22" height="22"   />
+                                <img  class="BNInsertCMD" data-cmd="createlink" title="InsertLink" style="border-style: outset;"  src="../../../../../../img/wysiwyg/link.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="unlink" title="RemoveLink"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/unlink.gif" width="22" height="22"  />
+                                <img  class="BNCMD" data-cmd="removeFormat" title="RemoveFormat"   style="border-style: outset;"  src="../../../../../../img/wysiwyg/removeformat.gif" width="22" height="22"  />
+                                <div style="display: inline;">
+                                    <span >Font Size:</span>
+                                    <select class="OptFont" data-cmd="fontSize">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                    </select>
 
-                </div>
-                                 
+                                </div>
+                                <div>
+                                    <span >Mode:</span>
+                                    <select id="OPTSelectMode">
+                                        <option value="0">Edit</option>
+                                        <option value="1">Delete</option>
+                                        <option value="2">Move</option>
+                                    </select>
+                                </div>
+
                             </div>
                             <div class="ToolBoxTab" data-id="Color" style="display: none;">
                                 <div style="display: inline;">
@@ -855,7 +870,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <td><input id="SelBGColor" type="color"  /></td>
                 </tr>
             </table>
-             
+
             <div id="TXTTableEdit" style="display: none;">
 
                 <img class="BNCMDTable" data-cmd="InsertRow"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/insertrow.png" width="22" height="22"  />

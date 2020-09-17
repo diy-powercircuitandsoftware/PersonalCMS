@@ -10,6 +10,7 @@ class PointPoint_Editor {
         }
         this.editor.style.position = "relative";
         this.slides = [];
+        this.mode = null;
         this.converter = new PointPoint_HtmlConverter();
     }
     CanvasSize(...args) {
@@ -40,15 +41,8 @@ class PointPoint_Editor {
     EXECommand(...args) {
         document.execCommand(...args);
     }
-    EXECommandState(cmd) {
-        /*   var CommandList = ["bold", "copy", "cut", "decreaseFontSize",
-         "insertHorizontalRule", "increaseFontSize", "indent", "italic",
-         "justifyLeft", "justifyCenter", "justifyRight", "justifyFull",
-         "insertOrderedList", "outdent", "insertParagraph", "paste",
-         "redo", "removeFormat", "unlink", "strikeThrough", "subscript", "superscript", "underline", "undo", "insertUnorderedList"];
-         if (CommandList.indexOf(cmd) >= 0) {
-         return this.editor.contentWindow.document.queryCommandState(cmd);
-         }*/
+    QueryCommandState(cmd) {
+        return document.queryCommandState(cmd);
     }
     GetSlides() {
         return this.slides;
@@ -92,12 +86,27 @@ class PointPoint_Editor {
                             var a = this.ref.attributes[i];
                             node.setAttribute(a.name, a.value);
                         }
-
                         this.ref.parentNode.replaceChild(node, this.ref);
                         this.ref = node;
 
                     });
+                    editor.addEventListener("mousedown", function () {
+                        if (this.fnref.mode == "move") {
+                            this.moving = true;
+                        }
 
+                    });
+                    editor.addEventListener("mousemove", function () {
+                        if (this.moving) {
+                            console.log("s");
+                        }
+
+
+                    });
+                    editor.addEventListener("mouseup", function () {
+                        this.moving = false;
+
+                    });
 
                 }
             }
@@ -116,8 +125,6 @@ class PointPoint_HtmlConverter {
 
         [].forEach.call(htmldom.querySelectorAll("ul,ol"), function (list) {
             list.listref = document.createElement("list");
-
-
         });
 
         while (tree.nextNode()) {
