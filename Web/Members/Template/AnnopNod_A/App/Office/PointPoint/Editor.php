@@ -233,7 +233,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         domeditor.EXECommand(cmd, false, this.value);
                     });
                     ss.S("#OPTSelectMode").Change(function () {
-
+                        domeditor.mode = this.value;
                     });
 
 
@@ -668,9 +668,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 <div>
                                     <span >Mode:</span>
                                     <select id="OPTSelectMode">
-                                        <option value="0">Edit</option>
-                                        <option value="1">Delete</option>
-                                        <option value="2">Move</option>
+                                        <option value="">Edit</option>
+                                        <option value="delete">Delete</option>
+                                        <option value="move">Move</option>
                                     </select>
                                 </div>
 

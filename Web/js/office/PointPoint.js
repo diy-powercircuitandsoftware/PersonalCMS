@@ -91,13 +91,17 @@ class PointPoint_Editor {
 
                     });
                     editor.addEventListener("mousedown", function () {
-                        if (this.fnref.mode == "move") {
+                        if (this.fnref.mode == "delete") {
+                            this.ref.parentNode.removeChild(this.ref);
+                            this.parentNode.removeChild(this);
+                        } else if (this.fnref.mode == "move") {
                             this.moving = true;
                         }
 
                     });
-                    editor.addEventListener("mousemove", function () {
+                    editor.addEventListener("mousemove", function (e) {
                         if (this.moving) {
+                            e.preventDefault();
                             console.log("s");
                         }
 
@@ -105,7 +109,6 @@ class PointPoint_Editor {
                     });
                     editor.addEventListener("mouseup", function () {
                         this.moving = false;
-
                     });
 
                 }
