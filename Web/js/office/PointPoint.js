@@ -33,6 +33,80 @@ class PointPoint_Editor {
         txtbox.style.top = y;
         txtbox.style.left = x;
         txtbox.ref = this.slides[index].AddText(txtbox.innerHTML, x, y);
+        txtbox.fnref = this;
+
+        txtbox.addEventListener("input", function () {
+            var node = (this.fnref.converter.Html2TextObject(this));
+            for (var i = 0; i < this.ref.attributes.length; i++)
+            {
+                var a = this.ref.attributes[i];
+                node.setAttribute(a.name, a.value);
+            }
+            this.ref.parentNode.replaceChild(node, this.ref);
+            this.ref = node;
+
+        });
+        txtbox.addEventListener("mousedown", function (e) {
+            if (this.fnref.mode == "delete") {
+                this.ref.parentNode.removeChild(this.ref);
+                this.parentNode.removeChild(this);
+            } else if (this.fnref.mode == "move") {
+                this.moving = true;
+                this.movingoffset = {
+                    "x": this.offsetLeft - e.clientX,
+                    "y": this.offsetTop - e.clientY
+                };
+            }
+
+        });
+        txtbox.addEventListener("mousemove", function (e) {
+            if (this.moving) {
+                e.preventDefault();
+                this.style.left = (e.clientX + this.movingoffset.x) + 'px';
+                this.style.top = (e.clientY + this.movingoffset.y) + 'px';
+            }
+
+        });
+        txtbox.addEventListener("mouseup", function () {
+            if (this.moving) {
+                var parentoffset = {
+                    "w": parseInt(this.parentNode.style.width),
+                    "h": parseInt(this.parentNode.style.height)
+                }
+                var currentoffset = {
+                    "x": parseInt(this.style.left),
+                    "y": parseInt(this.style.top)
+                };
+                var newoffset = {
+                    "x": (currentoffset.x / parentoffset.w) * 100,
+                    "y": (currentoffset.y / parentoffset.h) * 100
+                }
+                this.ref.setAttribute("x", newoffset.x + "%");
+                this.ref.setAttribute("y", newoffset.y + "%");
+
+                this.moving = false;
+            }
+
+        });
+        txtbox.addEventListener("mouseout", function () {
+            if (this.moving) {
+                var parentoffset = {
+                    "w": parseInt(this.parentNode.style.width),
+                    "h": parseInt(this.parentNode.style.height)
+                }
+                var currentoffset = {
+                    "x": parseInt(this.style.left),
+                    "y": parseInt(this.style.top)
+                };
+                var newoffset = {
+                    "x": (currentoffset.x / parentoffset.w) * 100,
+                    "y": (currentoffset.y / parentoffset.h) * 100
+                }
+                this.ref.setAttribute("x", newoffset.x + "%");
+                this.ref.setAttribute("y", newoffset.y + "%");
+                this.moving = false;
+            }
+        });
 
     }
     AddImage() {
@@ -48,11 +122,9 @@ class PointPoint_Editor {
         return this.slides;
     }
     InsertSlide(...args) {
-
         if (args.length === 1 && (args[0] === null || args[0] instanceof PointPoint_Slide)) {
             this.slides.push(args[0]);
         }
-
     }
     ReplaceSlideAt(index, slide) {
         if (slide === null || slide instanceof PointPoint_Slide) {
@@ -76,12 +148,11 @@ class PointPoint_Editor {
                     var editor = this.editor.appendChild(this.converter.TextObject2Html(txtele));
                     editor.ref = txtele;
                     editor.fnref = this;
-                    editor.class = "TextBoxEditable";
                     editor.contentEditable = "true";
                     editor.style.position = "absolute";
                     editor.addEventListener("input", function () {
                         var node = (this.fnref.converter.Html2TextObject(this));
-                        for (i = 0; i < this.ref.attributes.length; i++)
+                        for (var iattr = 0; iattr < this.ref.attributes.length; iattr++)
                         {
                             var a = this.ref.attributes[i];
                             node.setAttribute(a.name, a.value);
@@ -90,25 +161,65 @@ class PointPoint_Editor {
                         this.ref = node;
 
                     });
-                    editor.addEventListener("mousedown", function () {
+                    editor.addEventListener("mousedown", function (e) {
                         if (this.fnref.mode == "delete") {
                             this.ref.parentNode.removeChild(this.ref);
                             this.parentNode.removeChild(this);
                         } else if (this.fnref.mode == "move") {
                             this.moving = true;
+                            this.movingoffset = {
+                                "x": this.offsetLeft - e.clientX,
+                                "y": this.offsetTop - e.clientY
+                            };
                         }
 
                     });
                     editor.addEventListener("mousemove", function (e) {
                         if (this.moving) {
                             e.preventDefault();
-                            console.log("s");
+                            this.style.left = (e.clientX + this.movingoffset.x) + 'px';
+                            this.style.top = (e.clientY + this.movingoffset.y) + 'px';
+
                         }
-
-
                     });
                     editor.addEventListener("mouseup", function () {
-                        this.moving = false;
+                        if (this.moving) {
+                            var parentoffset = {
+                                "w": parseInt(this.parentNode.style.width),
+                                "h": parseInt(this.parentNode.style.height)
+                            }
+                            var currentoffset = {
+                                "x": parseInt(this.style.left),
+                                "y": parseInt(this.style.top)
+                            };
+                            var newoffset = {
+                                "x": (currentoffset.x / parentoffset.w) * 100,
+                                "y": (currentoffset.y / parentoffset.h) * 100
+                            }
+                            this.ref.setAttribute("x", newoffset.x + "%");
+                            this.ref.setAttribute("y", newoffset.y + "%");
+                            this.moving = false;
+                        }
+
+                    });
+                    editor.addEventListener("mouseout", function () {
+                        if (this.moving) {
+                            var parentoffset = {
+                                "w": parseInt(this.parentNode.style.width),
+                                "h": parseInt(this.parentNode.style.height)
+                            }
+                            var currentoffset = {
+                                "x": parseInt(this.style.left),
+                                "y": parseInt(this.style.top)
+                            };
+                            var newoffset = {
+                                "x": (currentoffset.x / parentoffset.w) * 100,
+                                "y": (currentoffset.y / parentoffset.h) * 100
+                            }
+                            this.ref.setAttribute("x", newoffset.x + "%");
+                            this.ref.setAttribute("y", newoffset.y + "%");
+                            this.moving = false;
+                        }
                     });
 
                 }
@@ -263,9 +374,6 @@ class PointPoint_HtmlConverter {
     }
 }
 
-
-
-
 class PointPoint_Slide {
     constructor( ) {
         var xmlString = "<root></root>";
@@ -323,7 +431,20 @@ class PointPoint_Slide {
 }
 
 class PointPoint_Player {
-
+    constructor(...args) {
+        if (args.length === 1 && typeof args[0] === 'string' || args[0] instanceof String) {
+            this.canvas = document.querySelector(args[0]).appendChild(document.createElement("canvas"));
+        } else if (args.length === 1 && args[0] instanceof HTMLElement) {
+            this.canvas = args[0].appendChild(document.createElement("canvas"));
+        } else {
+            this.canvas = document.body.appendChild(document.createElement("canvas"));
+        }
+    }
+    AddSlide(s) {
+        if (s instanceof PointPoint_Slide) {
+            this.slides.push(s);
+        }
+    }
 }
 
 class PointPoint_Animation {

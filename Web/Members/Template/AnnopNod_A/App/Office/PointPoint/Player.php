@@ -28,10 +28,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <title>Player</title>
             <link rel="stylesheet" type="text/css" href="../../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../../css/PersonalCMS.css">
-
+            <script src="../../../../../../js/dom/SSQueryFW.js"></script>
+            <script src="../../../../../../js/io/Ajax.js"></script>
+            <script src="../../../../../../js/office/PointPoint.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
+                     var ajax = new Ajax();
+                      var domeditor = new PointPoint_Player(document.getElementById("Render"));
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
                         var dpw = sd.PleaseWait().ZIndex(999);
@@ -73,9 +77,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <label id="LabPage" style="color: burlywood;font-size: xx-large;">Start</label>
             </div>
 
-            <canvas style="border-style: solid;">
+            <div id="Render">
 
-            </canvas>
+            </div>
 
             <div>
                 <label>Goto:</label>
