@@ -188,8 +188,21 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         }
 
-                    }
-                    );
+                    });
+
+                    ss.S("#BNObjectManager").Click(function (e) {
+                        ss.S("#EmbedType").Change();
+                        var dia = sd.Import("Object Manager", "#ObjManagerDialog");
+
+                        dia.AddButton("Delete", "Delete");
+                        dia.CallbackResult = function (v) {
+                            if (v == "Delete") {
+                                ss.Post("../../../../Api/Ajax/PointPoint/DeleteEmbedList.php", {"path": ss.URLParam()["path"], "filepath": ss.S("#EmbedList").Val()}, function (data) {
+                                });
+                            }
+                        };
+                    });
+
                     ss.S("#BNOpen").Click(function () {
                         var SaveBeforeExit = sd.SaveBeforeExit(function (v) {
                             if (v == 0) {
@@ -227,6 +240,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S(".ToolBoxTab").Hide();
                         ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
                     });
+                    ss.S("#EmbedType").Change(function (e) {
+                        ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": this.value}, function (data) {
+                            data = JSON.parse(data);
+                            ss.S("#EmbedList").Empty();
+                            for (var k in data) {
+                                ss.S("#EmbedList").Append("<option></option>").Val(data[k]).Html(k);
+                            }
+                        });
+                    });
                     ss.S(".OptColor,.OptFont").Change(function () {
                         var cmd = this.getAttribute("data-cmd");
 
@@ -236,7 +258,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         domeditor.mode = this.value;
                     });
 
-
+                    ss.S("#BNSize").Click(function () {
+                        sd.Size(function(v){
+                            console.log(v);
+                        });
+                        
+                    });
 
                     ss.S("#SlidesIndexList").Change(function () {
                         var v = parseInt(this.value);
@@ -258,12 +285,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     return 0;
 
 
-                    domeditor.ChangeLayer = function (layerdata) {
-                        ss.S("#LayerList").Empty();
-                        for (var i = 0; i < layerdata.length; i++) {
-                            ss.S("#LayerList").Append("<li class='LayerList'></li>").Prop("objdata", layerdata[i]).Append(layerdata[i].objtype);
-                        }
-                    };
+
                     domeditor.MouseUp = function (e) {
                         var ga = domeditor.GetAudio();
                         if (ga === undefined) {
@@ -365,12 +387,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         if (domeditor.selectdom) {
 
-                            if (this.getAttribute("data-cmd") == "ZIndex") {
-                                sd.Prompt("ZIndex", function (v) {
-                                    domeditor.selectdom.style.zIndex = v;
-
-                                }).Val(domeditor.selectdom.style.zIndex).ZIndex(999);
-                            } else if (this.getAttribute("data-cmd") == "Rect") {
+                            if (this.getAttribute("data-cmd") == "Rect") {
                                 sd.PositionDialog(function (dat) {
                                     domeditor.selectdom.style.left = dat.x + "px";
                                     domeditor.selectdom.style.top = dat.y + "px";
@@ -407,64 +424,21 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     });
 
-                    ss.S("#BNObjectManager").Click(function (e) {
-                        ss.S("#EmbedType").Change();
-                        var dia = sd.Import("#ObjManagerDialog").ZIndex(999).Title("Object Manager");
-                        dia.ButtonAlign(dia.AlignType.Right);
-                        dia.AddButton("Delete", "Delete");
-                        dia.CallbackResult = function (v) {
-                            if (v == "Delete") {
-                                ss.Post("../../../../Api/Ajax/PointPoint/DeleteEmbedList.php", {"path": ss.URLParam()["path"], "filepath": ss.S("#EmbedList").Val()}, function (data) {
-                                });
-                            }
-                        };
-                    });
 
 
 
 
-                    ss.S("#BNSize").Click(function () {
-                        var tl = sd.TableLayout(function () {
-                            domeditor.PaperSize(tl.wd.value + "px", tl.hd.value + "px");
-                            return  true;
-                        }).ZIndex(999).Title("Size");
-                        tl.wd = tl.AddTableDom('w', '<input type="text" name="" value="" />');
-                        tl.hd = tl.AddTableDom('h', '<input type="text" name="" value="" />');
-                        var whpaper = domeditor.PaperSize();
-                        tl.wd.value = parseInt(whpaper.width);
-                        tl.hd.value = parseInt(whpaper.height);
-                    });
+
+
 
 
 
                     ss.S("#BNUpload").Click(function () {
                         ss.S("#BNHiddenUpload").Click();
                     });
-                    ss.S("#EmbedType").Change(function (e) {
-                        ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": this.value}, function (data) {
-                            data = JSON.parse(data);
-                            ss.S("#EmbedList").Empty();
-                            for (var k in data) {
-                                ss.S("#EmbedList").Append("<option></option>").Val(data[k]).Html(k);
-                            }
-                        });
-                    });
 
-                    ss.S("#LayerList").Click(function (e) {
-                        if (e.target.getAttribute("class") == "LayerList") {
-                            domeditor.selectdom = e.target.objdata;
-                        }
-                    });
 
-                    ss.S("#LayerList").DoubleClick(function (e) {
-                        if (e.target.getAttribute("class") == "LayerList") {
-                            if (e.target.objdata.objtype == "Text") {
-                                sd.TextArea("Html Code", function (v) {
-                                    e.target.objdata.innerHTML = v;
-                                }).Val(e.target.objdata.innerHTML).ZIndex(999);
-                            }
-                        }
-                    });
+
 
 
 
@@ -486,92 +460,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
 
-                    ss.S("#SlidesList").Click(function (e) {
-
-                        if (e.target.getAttribute("class") == "SlidesList") {
-                            var sndajax = {};
-                            sndajax["path"] = ss.URLParam()["path"];
-                            sndajax["index"] = e.target.getAttribute("data-id");
-                            if (e.target.SlideData == null) {
-                                ss.Post("../../../../Api/Ajax/PointPoint/GetSlideIndex.php", sndajax, function (data) {
-                                    data = JSON.parse(data);
-                                    domeditor.Clear();
-                                    domeditor.SetAnimation(data.Metadata.Animation.Animation, data.Metadata.Animation.AnimationTime);
-                                    domeditor.SetAudio(data.Metadata.Audio.AudioType, data.Metadata.Audio.AudioPath);
-                                    domeditor.PaperSize(data.Metadata.Dimension.Width, data.Metadata.Dimension.Height);
-                                    e.target.SlideData = domeditor.SlideData;
-                                    var objdata = data.ObjectData;
-                                    for (var i = 0; i < objdata.length; i++) {
-                                        if (objdata[i].ObjectType == "Text") {
-                                            var txtbox = domeditor.AddTextBox(objdata[i].Code, objdata[i].Css);
-                                            txtbox.Animation = objdata[i].Animation;
-                                            txtbox.Audio = objdata[i].Audio;
-                                        } else if (objdata[i].ObjectType == "Image") {
-                                            var path = "";
-                                            if (objdata[i].Embed.FileType == "1") {
-                                                path = "../../../../Api/Action/PointPoint/LoadImage.php" + ss.JsonToQueryString({
-                                                    "path": ss.URLParam()["path"],
-                                                    "imagepath": objdata[i].Embed.Path,
-                                                    "width": objdata[i].Dimension.Width,
-                                                    "height": objdata[i].Dimension.Height
-                                                });
-                                            }
-                                            var img = domeditor.AddImage(path, objdata[i].Css);
-                                            img.Embed = objdata[i].Embed;
-                                            img.Dimension = objdata[i].Dimension;
-                                            img.Animation = objdata[i].Animation;
-                                            img.Audio = objdata[i].Audio;
-
-                                        }
-                                    }
-                                    e.target.Layer = domeditor.Layer;
-                                    domeditor.Clear();
-                                    domeditor.style.display = "block";
-                                    domeditor.LastSlidesList = null;
-                                    e.target.click();
-
-                                });
-                            } else if (e.target.SlideData !== null) {
-                                if (domeditor.LastSlidesList !== null) {
-                                    domeditor.LastSlidesList.SlideData = domeditor.SlideData;
-                                    domeditor.LastSlidesList.Layer = domeditor.Layer;
-                                }
-                                domeditor.Clear();
-                                domeditor.SetAnimation(e.target.SlideData.Animation.Animation, e.target.SlideData.Animation.AnimationTime);
-                                domeditor.SetAudio(e.target.SlideData.Audio.AudioType, e.target.SlideData.Audio.AudioPath);
-                                domeditor.style.display = "block";
-                                domeditor.Background(e.target.SlideData.BackGround || "");
-                                domeditor.PaperSize(e.target.SlideData.Width, e.target.SlideData.Height);
-
-                                var layerlist = e.target.Layer;
-
-                                for (var i = 0; i < layerlist.length; i++) {
-                                    if (layerlist[i].objtype == "Text") {
-                                        var txt = domeditor.AddTextBox(layerlist[i].innerHTML, layerlist[i].style.cssText);
-                                        txt.Animation = layerlist[i].Animation;
-                                        txt.Audio = layerlist[i].Audio;
-                                    } else if (layerlist[i].objtype == "Image") {
-                                        var img = domeditor.AddImage(layerlist[i].src, layerlist[i].style.cssText);
-                                        img.Embed = layerlist[i].Embed;
-                                        img.Dimension = layerlist[i].Dimension;
-                                        img.Animation = layerlist[i].Animation;
-                                        img.Audio = layerlist[i].Audio;
-                                    }
-                                }
-                                e.target.RenderThumbnail(e.target.SlideData.Width, e.target.SlideData.Height, domeditor.Html());
-                                domeditor.LastSlidesList = e.target;
-                            }
-                        } else {
-                            var current = e.target;
-                            while (current !== this) {
-                                if (current.getAttribute("class") == "SlidesList") {
-                                    current.click();
-                                    break;
-                                }
-                                current = current.parentNode;
-                            }
-                        }
-                    });
 
                 });
             </script>
@@ -750,12 +638,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <div class="TitleCenter">Slides</div>
                         <input style="width: 100%;box-sizing: border-box;" type="number" id="SlidesIndexList" min="0" value="0" />
                     </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <div class="TitleCenter">Layer</div>
-                        <ul id="LayerList" style="max-height: 40vh;overflow: auto;cursor: pointer;">
 
-                        </ul>
-                    </div>
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">Event</div>
                         <?php
@@ -853,6 +736,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <select id="EmbedList" style="width: 100%;box-sizing: border-box;" multiple="multiple">
                         </select>
                     </td>
+                </tr>
+                <tr>
+                    <td colspan="2">Press the delete button to delete it.</td>
                 </tr>
             </table>
             <table id="BGDialog" style="display: none;">

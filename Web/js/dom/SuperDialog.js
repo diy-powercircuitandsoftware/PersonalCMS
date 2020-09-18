@@ -500,6 +500,16 @@ class SuperDialog {
         );
         return sd;
     }
+
+    Size(callback) {
+        var sd = this.TableLayout(callback);
+        sd.Title("Size");
+        sd.Resize(false);
+        sd.AddNewRowElement("width ", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
+        sd.AddNewRowElement("height ", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
+        return sd;
+    }
+
     TableLayout(callback) {
         var sd = new Dialog();
         sd.table = document.createElement("TABLE");

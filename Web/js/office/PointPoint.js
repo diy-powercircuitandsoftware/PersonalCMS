@@ -131,6 +131,9 @@ class PointPoint_Editor {
             this.slides[index] = slide;
         }
     }
+    Size(index,w,h) {
+        this.slides[index].Size(w,h);
+    }
     SlidesCount() {
         return this.slides.length;
     }
