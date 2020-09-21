@@ -86,7 +86,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var slideindex = 0;
                     domeditor.CanvasSize("800px", "600px");
                     domeditor.AfterSave = function () {};
-                    //domeditor.style.display = "none";
+                    domeditor.AddEditorEvent("click", function (e) {
+                        if (e.target == this) {
+
+                        } else {
+                            console.log(domeditor.selectitem);
+                        }
+
+                    });
                     //  ss.S("#AnimationList").Append("<option></option>").Val(anilist[i]).Html(anilist[i]);
                     //
                     if (ss.URLParam()["path"] !== undefined) {
@@ -259,10 +266,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#BNSize").Click(function () {
-                        sd.Size(function(v){
+                        sd.Size(function (v) {
                             console.log(v);
                         });
-                        
+
                     });
 
                     ss.S("#SlidesIndexList").Change(function () {

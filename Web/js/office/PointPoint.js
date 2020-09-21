@@ -1,5 +1,12 @@
-class PointPoint_Editor {
+class PointPoint_Animation {
+    GetName() {
 
+    }
+    Render() {
+
+    }
+}
+class PointPoint_Editor {
     constructor(...args) {
         if (args.length === 1 && typeof args[0] === 'string' || args[0] instanceof String) {
             this.editor = document.querySelector(args[0]).appendChild(document.createElement("DIV"));
@@ -11,6 +18,7 @@ class PointPoint_Editor {
         this.editor.style.position = "relative";
         this.slides = [];
         this.mode = null;
+        this.selectitem = null;
         this.converter = new PointPoint_HtmlConverter();
     }
     CanvasSize(...args) {
@@ -23,6 +31,9 @@ class PointPoint_Editor {
             this.editor.style.width = args[0];
             this.editor.style.height = args[1];
         }
+    }
+    AddEditorEvent(...args) {
+        this.editor.addEventListener(...args);
     }
 
     AddTextBox(index, x, y) {
@@ -47,6 +58,7 @@ class PointPoint_Editor {
 
         });
         txtbox.addEventListener("mousedown", function (e) {
+            this.fnref.selectitem = this.ref;
             if (this.fnref.mode == "delete") {
                 this.ref.parentNode.removeChild(this.ref);
                 this.parentNode.removeChild(this);
@@ -131,8 +143,8 @@ class PointPoint_Editor {
             this.slides[index] = slide;
         }
     }
-    Size(index,w,h) {
-        this.slides[index].Size(w,h);
+    Size(index, w, h) {
+        this.slides[index].Size(w, h);
     }
     SlidesCount() {
         return this.slides.length;
@@ -165,6 +177,7 @@ class PointPoint_Editor {
 
                     });
                     editor.addEventListener("mousedown", function (e) {
+                        this.fnref.selectitem = this.ref;
                         if (this.fnref.mode == "delete") {
                             this.ref.parentNode.removeChild(this.ref);
                             this.parentNode.removeChild(this);
@@ -377,6 +390,84 @@ class PointPoint_HtmlConverter {
     }
 }
 
+
+class PointPoint_Player {
+    constructor(...args) {
+        if (args.length === 1 && typeof args[0] === 'string' || args[0] instanceof String) {
+            this.canvas = document.querySelector(args[0]).appendChild(document.createElement("canvas"));
+        } else if (args.length === 1 && args[0] instanceof HTMLElement) {
+            this.canvas = args[0].appendChild(document.createElement("canvas"));
+        } else {
+            this.canvas = document.body.appendChild(document.createElement("canvas"));
+        }
+        this.slides = [];
+        this.slidesindex = 0;
+        this.slidesitemindex = 0;
+        var render = new PointPoint_Player_RenderEngine();
+        render.ref=this;
+        render.SetAnimate(function (v) {
+            if (this.ref.slidesindex < this.ref.slides.length) {
+                var slideobj = this.ref.slides[this.ref.slidesindex];
+                if (slideobj!==null){
+                    
+                }
+            }
+
+        });
+        render.Start();
+    }
+    AddPlayerEvent(...args) {
+        this.canvas.addEventListener(...args);
+    }
+    AddSlide(s) {
+        if (s === null || s instanceof PointPoint_Slide) {
+            this.slides.push(s);
+        }
+    }
+    IsNull(){
+        return  this.slides[this.slidesindex]===null;
+    }
+    NextItem() {
+
+    }
+    NextSlide() {
+        this.slidesitemindex = 0
+    }
+
+}
+
+class PointPoint_Player_RenderEngine {
+    constructor(fps = 60) {
+        this.requestID = 0;
+        this.fps = fps;
+        this.animate = function () {};
+    }
+    SetAnimate(animate) {
+        this.animate = animate;
+    }
+
+    Start() {
+        let then = performance.now();
+        const interval = 1000 / this.fps;
+        const tolerance = 0.1;
+        const animateLoop = (now) => {
+
+            const delta = now - then;
+            if (delta >= interval - tolerance) {
+                then = now - (delta % interval);
+                this.animate(delta);
+            }
+            this.requestID = requestAnimationFrame(animateLoop);
+        };
+        this.requestID = requestAnimationFrame(animateLoop);
+    }
+
+    Stop() {
+        cancelAnimationFrame(this.requestID);
+    }
+}
+
+
 class PointPoint_Slide {
     constructor( ) {
         var xmlString = "<root></root>";
@@ -433,26 +524,14 @@ class PointPoint_Slide {
     }
 }
 
-class PointPoint_Player {
-    constructor(...args) {
-        if (args.length === 1 && typeof args[0] === 'string' || args[0] instanceof String) {
-            this.canvas = document.querySelector(args[0]).appendChild(document.createElement("canvas"));
-        } else if (args.length === 1 && args[0] instanceof HTMLElement) {
-            this.canvas = args[0].appendChild(document.createElement("canvas"));
-        } else {
-            this.canvas = document.body.appendChild(document.createElement("canvas"));
-        }
+
+class PointPoint_LeftToRight_Animation extends PointPoint_Animation {
+    GetName() {
+        return "LeftToRight";
     }
-    AddSlide(s) {
-        if (s instanceof PointPoint_Slide) {
-            this.slides.push(s);
-        }
+    Render() {
+
     }
 }
-
-class PointPoint_Animation {
-
-}
-
 
 

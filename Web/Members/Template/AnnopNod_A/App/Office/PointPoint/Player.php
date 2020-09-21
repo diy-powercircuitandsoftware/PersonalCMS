@@ -28,14 +28,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <title>Player</title>
             <link rel="stylesheet" type="text/css" href="../../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../../css/PersonalCMS.css">
+            <script src="../../../../../../js/dom/SuperDialog.js"></script>
             <script src="../../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../../js/io/Ajax.js"></script>
             <script src="../../../../../../js/office/PointPoint.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
-                     var ajax = new Ajax();
-                      var domeditor = new PointPoint_Player(document.getElementById("Render"));
+                    var ajax = new Ajax();
+                    var sd = new SuperDialog();
+                    var player = new PointPoint_Player(document.getElementById("Render"));
+                    var index = 0;
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
                         var dpw = sd.PleaseWait().ZIndex(999);
@@ -43,16 +46,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         if (url.charAt(url.length - 1) === "#") {
                             url = url.slice(0, -1);
                         }
-                        domeditor.path = url;
+                        player.path = url;
 
-                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetMetaData.php", {"path": domeditor.path}, function (data) {
+                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetMetaData.php", {"path": player.path}, function (data) {
                             data = JSON.parse(data);
 
                             if (data !== null && data["app"] === "PointPoint") {
-                                ss.S("#SlidesIndexList").Attr("max", data["slidescount"]);
 
                                 for (var i = 0; i < data["slidescount"]; i++) {
-                                    domeditor.InsertSlide(null);
+                                    player.AddSlide(null);
+                                    ss.S("#BNGoto").Append(i, i + 1);
+
                                 }
                                 dpw.Close();
                             } else {
@@ -65,9 +69,22 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     } else {
                         window.location.replace("index.php");
                     }
+                    player.AddPlayerEvent("click", function () {
+                        
 
+                        if (player.IsNull()) {
+                            var dialog = sd.PleaseWait();
+                            ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetSlideData.php", {"path": player.path, "id": player.slidesindex}, function (data) {
+                                var pps = new PointPoint_Slide();
+                                pps.XMLString(data);
+                                //  domeditor.ReplaceSlideAt(v, pps);
+                                // domeditor.Render(v);
+                                dialog.Close();
+                            });
+                        }
 
-
+                        ss.S("#LabPage").Html(index);
+                    });
                 });
             </script>
         </head>
@@ -84,7 +101,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <div>
                 <label>Goto:</label>
                 <select id="BNGoto">
-                    <option value="-1">Title</option>
+
 
                 </select>
             </div>
