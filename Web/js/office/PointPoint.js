@@ -431,7 +431,7 @@ class PointPoint_Player {
 
     }
     NextSlide() {
-        this.slidesitemindex = 0
+        this.slidesitemindex = 0;
     }
 
 }
