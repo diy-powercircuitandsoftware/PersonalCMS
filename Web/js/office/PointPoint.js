@@ -404,12 +404,30 @@ class PointPoint_Player {
         this.slidesindex = 0;
         this.slidesitemindex = 0;
         var render = new PointPoint_Player_RenderEngine();
-        render.ref=this;
+        render.ref = this;
         render.SetAnimate(function (v) {
             if (this.ref.slidesindex < this.ref.slides.length) {
+                var ctx = this.ref.canvas.getContext('2d');
                 var slideobj = this.ref.slides[this.ref.slidesindex];
-                if (slideobj!==null){
-                    
+                if (slideobj !== null) {
+                    var root = slideobj.GetSlideData();
+                    if (this.ref.canvas.width == root.getAttribute("width") && this.ref.canvas.height == root.getAttribute("height")) {
+                        var cn = root.childNodes;
+                        // this.ref.slidesitemindex
+                        for (var i = 0; i < Math.min(cn.length,100); i++) {
+                          
+                            if (cn[i].tagName == "text") {
+                               ctx.font = '48px serif';
+                                ctx.fillText(cn[i].textContent, 100, 100);
+                            }
+                        }
+
+
+                    } else {
+                        this.ref.canvas.width = root.getAttribute("width");
+                        this.ref.canvas.height = root.getAttribute("height");
+                    }
+
                 }
             }
 
@@ -424,8 +442,8 @@ class PointPoint_Player {
             this.slides.push(s);
         }
     }
-    IsNull(){
-        return  this.slides[this.slidesindex]===null;
+    IsNull() {
+        return  this.slides[this.slidesindex] === null;
     }
     NextItem() {
 
@@ -433,7 +451,11 @@ class PointPoint_Player {
     NextSlide() {
         this.slidesitemindex = 0;
     }
-
+    ReplaceSlideAt(index, slide) {
+        if (slide === null || slide instanceof PointPoint_Slide) {
+            this.slides[index] = slide;
+        }
+    }
 }
 
 class PointPoint_Player_RenderEngine {

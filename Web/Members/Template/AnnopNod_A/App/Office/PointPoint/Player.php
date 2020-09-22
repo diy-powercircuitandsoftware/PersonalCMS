@@ -77,8 +77,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetSlideData.php", {"path": player.path, "id": player.slidesindex}, function (data) {
                                 var pps = new PointPoint_Slide();
                                 pps.XMLString(data);
-                                //  domeditor.ReplaceSlideAt(v, pps);
-                                // domeditor.Render(v);
+                                player.ReplaceSlideAt(player.slidesindex,pps);
+                                
                                 dialog.Close();
                             });
                         }
@@ -94,7 +94,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <label id="LabPage" style="color: burlywood;font-size: xx-large;">Start</label>
             </div>
 
-            <div id="Render">
+            <div id="Render" style="border-style: solid;max-width: 80vw;max-height: 80vh;margin-left: auto;margin-right: auto;">
 
             </div>
 
