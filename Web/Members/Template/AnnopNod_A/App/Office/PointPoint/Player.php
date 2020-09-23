@@ -82,6 +82,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 dialog.Close();
                             });
                         }
+                        else{
+                            player.NextItem();
+                        }
 
                         ss.S("#LabPage").Html(index);
                     });
@@ -94,7 +97,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <label id="LabPage" style="color: burlywood;font-size: xx-large;">Start</label>
             </div>
 
-            <div id="Render" style="border-style: solid;max-width: 80vw;max-height: 80vh;margin-left: auto;margin-right: auto;">
+            <div id="Render" style="border-style: solid;max-width: 100vw;max-height: 100vh;margin-left: auto;margin-right: auto;">
 
             </div>
 

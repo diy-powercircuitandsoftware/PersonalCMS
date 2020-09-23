@@ -94,8 +94,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
 
                     });
-                    //  ss.S("#AnimationList").Append("<option></option>").Val(anilist[i]).Html(anilist[i]);
-                    //
+                     
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
                         var dpw = sd.PleaseWait().ZIndex(999);
@@ -604,6 +603,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 <label>Animation:</label>
                                 <select id="AnimationList">
                                     <option value="">None</option>
+                                       <option value="PointPoint_LeftToRight_Animation">LeftToRight</option>
                                 </select>
                                 <label>Time:</label>
                                 <input id="AnimationTime" type="number" min="0" value="1" />

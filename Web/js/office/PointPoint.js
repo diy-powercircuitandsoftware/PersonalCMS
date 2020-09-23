@@ -411,14 +411,64 @@ class PointPoint_Player {
                 var slideobj = this.ref.slides[this.ref.slidesindex];
                 if (slideobj !== null) {
                     var root = slideobj.GetSlideData();
-                    if (this.ref.canvas.width == root.getAttribute("width") && this.ref.canvas.height == root.getAttribute("height")) {
+                    var rootwidth = root.getAttribute("width");
+                    var rootheight = root.getAttribute("height");
+                    if (this.ref.canvas.width == rootwidth && this.ref.canvas.height == rootheight) {
+                        ctx.clearRect(0, 0, rootwidth, rootheight);
                         var cn = root.childNodes;
-                        // this.ref.slidesitemindex
-                        for (var i = 0; i < Math.min(cn.length,100); i++) {
-                          
+
+                        for (var i = 0; i < Math.min(cn.length, this.ref.slidesitemindex); i++) {
+
+
                             if (cn[i].tagName == "text") {
-                               ctx.font = '48px serif';
-                                ctx.fillText(cn[i].textContent, 100, 100);
+
+                                var x = (parseInt(rootwidth) / 100) * (parseFloat(cn[i].getAttribute("x")));
+                                var y = (parseInt(rootheight) / 100) * (parseFloat(cn[i].getAttribute("y")));
+                                //animation
+                                var textnode = cn[i].childNodes;
+//x=0;
+                                for (var itn = 0; itn < textnode.length; itn++) {
+
+
+                                    if (textnode[itn].tagName == "text") {
+                                        if (textnode[itn].getAttribute("fontsize") !== null) {
+                                            y = y + parseInt(textnode[itn].getAttribute("fontsize"));
+                                        } else if (cn[i].getAttribute("fontsize") !== null) {
+                                            y = y + parseInt(cn[i].getAttribute("fontsize"));
+                                        } else {
+                                            var metrics = ctx.measureText(textnode[itn].textContent);
+                                            var actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+                                            y = y + actualHeight;
+                                        }
+                                        ctx.fillText(textnode[itn].textContent, x, y);
+                                    } else if (textnode[itn].tagName == "list") {
+                                        var listnode = textnode[itn].childNodes;
+                                        for (var iln = 0; iln < listnode.length; iln++) {
+
+
+                                            if (listnode[iln].getAttribute("fontsize") !== null) {
+                                                y = y + parseInt(listnode[iln].getAttribute("fontsize"));
+                                            } else if (cn[i].getAttribute("fontsize") !== null) {
+                                                y = y + parseInt(cn[i].getAttribute("fontsize"));
+                                            } else {
+                                                var metrics = ctx.measureText(listnode[iln].textContent);
+                                                var actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+                                                y = y + (actualHeight*1.2);
+                                            }
+                                            ctx.fillText(listnode[iln].textContent, x, y);
+
+ 
+
+                                        }
+
+                                    }
+                                    //                                 
+                                }
+                                // ctx.font = '48px serif';
+
+                                //     ctx.fillStyle = cn[i].getAttribute("color");
+//console.log(cn[i]);
+ 
                             }
                         }
 
@@ -446,10 +496,11 @@ class PointPoint_Player {
         return  this.slides[this.slidesindex] === null;
     }
     NextItem() {
-
+        this.slidesitemindex = this.slidesitemindex + 1;
     }
     NextSlide() {
         this.slidesitemindex = 0;
+        this.slidesindex = this.slidesindex + 1;
     }
     ReplaceSlideAt(index, slide) {
         if (slide === null || slide instanceof PointPoint_Slide) {
