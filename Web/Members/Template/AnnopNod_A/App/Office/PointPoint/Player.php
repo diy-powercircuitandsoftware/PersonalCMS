@@ -78,7 +78,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 var pps = new PointPoint_Slide();
                                 pps.XMLString(data);
                                 player.ReplaceSlideAt(player.slidesindex,pps);
-                                
+                                   ss.S("#LabPage").Html(player.slidesindex+1);
                                 dialog.Close();
                             });
                         }
@@ -86,7 +86,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             player.NextItem();
                         }
 
-                        ss.S("#LabPage").Html(index);
+                     
                     });
                 });
             </script>

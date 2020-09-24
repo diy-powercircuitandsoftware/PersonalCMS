@@ -172,6 +172,7 @@ class PointPoint_Editor {
                             var a = this.ref.attributes[i];
                             node.setAttribute(a.name, a.value);
                         }
+
                         this.ref.parentNode.replaceChild(node, this.ref);
                         this.ref = node;
 
@@ -453,11 +454,11 @@ class PointPoint_Player {
                                             } else {
                                                 var metrics = ctx.measureText(listnode[iln].textContent);
                                                 var actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-                                                y = y + (actualHeight*1.2);
+                                                y = y + (actualHeight * 1.2);
                                             }
                                             ctx.fillText(listnode[iln].textContent, x, y);
 
- 
+
 
                                         }
 
@@ -468,7 +469,7 @@ class PointPoint_Player {
 
                                 //     ctx.fillStyle = cn[i].getAttribute("color");
 //console.log(cn[i]);
- 
+
                             }
                         }
 
