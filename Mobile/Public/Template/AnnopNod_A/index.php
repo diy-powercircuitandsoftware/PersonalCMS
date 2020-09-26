@@ -45,7 +45,7 @@ if ($config->IsOnline()) {
             <nav>
                 <?php
                 foreach ($uinav->FindAllMenuFile("App") as $key => $valueA) {
-                    echo '<div class="BorderBlock">';
+                    echo '<div class="MBorderBlock">';
                     printf(' <div class="TitleCenter">%s</div>', $key);
                     foreach ($valueA as $valueB) {
                         printf('  <a  class="MenuLink" href="%s">%s</a>', "App/" . $valueB["path"], $valueB["name"]);
@@ -54,7 +54,7 @@ if ($config->IsOnline()) {
                 }
                 ?>
 
-                <div class="BorderBlock" style="margin-top: 1px;">
+                <div class="MBorderBlock" style="margin-top: 1px;">
                     <div class="TitleCenter">Template</div>
                     <?php
                     foreach ($uinav->FindAllTemplate("../") as $key => $value) {
@@ -65,7 +65,7 @@ if ($config->IsOnline()) {
                 <?php
                 foreach ($modlist as $value) {
                     if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
-                        echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                        echo ' <div class="MBorderBlock" style="margin-top: ๅpx;" >';
                         printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
                         echo $value->Execute(Module_SDK_Basic::Layout_Nav);
                         echo '</div>';
@@ -95,7 +95,7 @@ if ($config->IsOnline()) {
             </main>
             <aside>
                 <?php
-                echo '<div class="BorderBlock" style="margin-top: 1px;">';
+                echo '<div class="MBorderBlock" style="margin-top: 1px;">';
                 echo '  <div class="TitleCenter">Event</div>';
                 foreach ($event->GetComingEvent(Event_Database::Access_Public) as $value) {
                     echo '<div>';
@@ -106,7 +106,7 @@ if ($config->IsOnline()) {
                 echo '</div>';
                 foreach ($modlist as $value) {
                     if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
-                        echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                        echo ' <div class="MBorderBlock" style="margin-top: ๅpx;" >';
                         printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
                         echo $value->Execute(Module_SDK_Basic::Layout_Aside);
                         echo '</div>';

@@ -153,8 +153,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-                             
- printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/".$valueB["path"], $valueB["name"]);
+                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }
@@ -188,8 +187,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <div class="TitleCenter" style="display: block ">Library</div>
                         <select id="OptLibrary" style="display: block;width: 100%;box-sizing: border-box;">
                             <option>==Select==</option>
-
-
                         </select>
                         <div id="AudioList"></div>
                     </div>

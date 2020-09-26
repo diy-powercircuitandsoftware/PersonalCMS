@@ -9,7 +9,14 @@ body{
     border-width: thin;
     width: 98%;
     word-wrap: break-word;
-      margin-top: 1px;
+    margin-top: 1px;
+}
+.MBorderBlock{
+    border-style: solid;
+    border-width: thin;
+   
+    word-wrap: break-word;
+    margin-top: 1px;
 }
 .Header{
     background-color: burlywood;
@@ -21,7 +28,7 @@ body{
     display: block;
 }
 .TitleCenter{
-   font-weight: bold;
+    font-weight: bold;
     background-color: burlywood;
     text-align: center;
 }

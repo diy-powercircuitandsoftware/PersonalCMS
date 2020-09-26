@@ -1,8 +1,104 @@
 <?php
+session_start();
+include_once '../../../../Class/Core/Config/Config.php';
+include_once '../../../../Class/Core/UI/NAV.php';
+include_once '../../../../Class/Core/Module/Database.php';
+include_once '../../../../Class/Com/Event/Database.php';
+include_once '../../../../Class/Com/Event/Reader.php';
+include_once '../../../../Class/SDK/Module/Basic.php';
+include_once '../../Auth/Action/VerifySession.php';
+$config = new Config();
+$uinav = new UINAV();
+$module = new Module_Database($config);
+$event = new Event_Reader(new Event_Database($config));
+if ($config->IsOnline() && isset($_SESSION["User"])) {
+    $modlist = array();
+    foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
 
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+        include_once $module->ModulePath . $value["dirname"] . "/init.php";
+        $cn = new $value["classname"]();
+        $cn->SetUserID($_SESSION["User"]["id"]);
+        $modlist[] = $cn;
+    }
+    ?>
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <meta charset="UTF-8">
+            <title><?php echo basename(__FILE__, ".php"); ?></title>
+             
+            <link rel="stylesheet" type="text/css" href="../../../../Web/css/PersonalCMS.css">
 
+            <?php
+            foreach ($modlist as $value) {
+                echo $value->Execute(Module_SDK_Basic::Layout_Head);
+            }
+            ?>
+        </head>
+        <body> 
+            <header class="TitleCenter">
+               
+                <div style=" text-align: right;">
+                    <?php
+                  
+                    printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
+                    ?>       
+                    <a class="MenuLink" style="display: inline;" href="../../Auth/Action/Logout.php">LogOut</a>
+                </div>
+            </header>
+              <nav>
+                        <?php
+                        foreach ($uinav->FindAllMenuFile("App") as $key => $valueA) {
+                            echo '<div class="MBorderBlock">';
+                            printf(' <div class="TitleCenter">%s</div>', $key);
+                            foreach ($valueA as $valueB) {
+                                printf('  <a class="MenuLink" href="%s">%s</a>', "App/".$valueB["path"], $valueB["name"]);
+                            }
+                            echo '</div>';
+                        }
+                        foreach ($modlist as $value) {
+                            if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                                echo ' <div class="MBorderBlock" style="margin-top: ๅpx;" >';
+                                printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                                echo $value->Execute(Module_SDK_Basic::Layout_Nav);
+                                echo '</div>';
+                            }
+                        }
+                        ?>     
+                    </nav>
+             <aside>
+                    <div class="MBorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Event</div>
+                        <?php
+                        foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
+                            echo '<div>';
+                            printf('<a class="MenuLink" href="App/Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
+                            echo '</div><hr>';
+                        }
+                        ?>
+                    </div>
+                    <?php
+                    foreach ($modlist as $value) {
+                            if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                                echo ' <div class="MBorderBlock" style="margin-top: ๅpx;" >';
+                                printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                                echo $value->Execute(Module_SDK_Basic::Layout_Aside);
+                                echo '</div>';
+                            }
+                        }
+                    ?>
+                </aside>
+              <footer>
+                <span style="font-weight: bold;display: block;">
+                    <?php
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
+                    ?>
+                </span>  
+            </footer>
+        </body>
+    </html>
+    <?php
+} else {
+    header("location: ../../Auth/Login.php");
+}

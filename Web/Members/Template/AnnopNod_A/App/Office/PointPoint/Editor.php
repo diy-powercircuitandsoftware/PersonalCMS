@@ -94,7 +94,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
 
                     });
-                     
+
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
                         var dpw = sd.PleaseWait().ZIndex(999);
@@ -271,6 +271,23 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     });
 
+
+                    ss.S(".SlideExecCommand").Click(function () {
+                        var cmd = this.getAttribute("data-cmd");
+                        if (cmd == "Background") {
+                            sd.ImportOkCancel("Background","#BGDialog", function () {
+                                var opt = ss.S("#SelBGType").Val();
+                                if (opt == "none") {
+                                   // domeditor.Background("");
+                                } else if (opt == "color") {
+                                   // domeditor.Background(ss.S("#SelBGColor").Val());
+                                }
+
+                            }).ZIndex(999).Title("Background");
+                        }
+                    });
+
+
                     ss.S("#SlidesIndexList").Change(function () {
                         var v = parseInt(this.value);
                         v = v - 1;
@@ -288,6 +305,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
 
                     });
+
                     return 0;
 
 
@@ -449,20 +467,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
 
-                    ss.S(".SlideExecCommand").Click(function () {
-                        var cmd = this.getAttribute("data-cmd");
-                        if (cmd == "Background") {
-                            sd.Import("#BGDialog", function () {
-                                var opt = ss.S("#SelBGType").Val();
-                                if (opt == "none") {
-                                    domeditor.Background("");
-                                } else if (opt == "color") {
-                                    domeditor.Background(ss.S("#SelBGColor").Val());
-                                }
 
-                            }).ZIndex(999).Title("Background");
-                        }
-                    });
 
 
 
@@ -603,7 +608,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 <label>Animation:</label>
                                 <select id="AnimationList">
                                     <option value="">None</option>
-                                       <option value="PointPoint_LeftToRight_Animation">LeftToRight</option>
+                                    <option value="PointPoint_LeftToRight_Animation">LeftToRight</option>
                                 </select>
                                 <label>Time:</label>
                                 <input id="AnimationTime" type="number" min="0" value="1" />

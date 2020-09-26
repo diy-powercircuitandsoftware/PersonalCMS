@@ -6,7 +6,7 @@ $config = new Config();
 
 if ($config->IsOnline()) {
     if (IsMobile()) {
-        
+          header("location: Mobile/index.php"); 
     } else {
         header("location: Web/index.php"); 
     }
