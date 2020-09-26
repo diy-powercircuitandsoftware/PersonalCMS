@@ -159,7 +159,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     }
                     foreach ($modlist as $value) {
                         if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
-                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            echo ' <div class="BorderBlock" style="margin-top: 1px;" >';
                             printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
                             echo $value->Execute(Module_SDK_Basic::Layout_Nav);
                             echo '</div>';
@@ -226,7 +226,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <?php
                     foreach ($modlist as $value) {
                         if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
-                            echo ' <div class="BorderBlock" style="margin-top: ๅpx;" >';
+                            echo ' <div class="BorderBlock" style="margin-top: 1px;" >';
                             printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
                             echo $value->Execute(Module_SDK_Basic::Layout_Aside);
                             echo '</div>';

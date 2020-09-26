@@ -28,7 +28,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
             <title><?php echo basename(__FILE__, ".php"); ?></title>
-             
+
             <link rel="stylesheet" type="text/css" href="../../../../Web/css/PersonalCMS.css">
 
             <?php
@@ -39,59 +39,57 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
         </head>
         <body style="background-color: cornsilk;"> 
             <header class="TitleCenter">
-               
+
                 <div style=" text-align: right;">
                     <?php
-                  
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
                     <a class="MenuLink" style="display: inline;" href="../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
-              <nav>
-                        <?php
-                        foreach ($uinav->FindAllMenuFile("App") as $key => $valueA) {
-                            echo '<div class="MBorderBlock">';
-                            printf(' <div class="TitleCenter">%s</div>', $key);
-                            foreach ($valueA as $valueB) {
-                                printf('  <a class="MenuLink" href="%s">%s</a>', "App/".$valueB["path"], $valueB["name"]);
-                            }
-                            echo '</div>';
-                        }
-                        foreach ($modlist as $value) {
-                            if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
-                                echo ' <div class="MBorderBlock" style="margin-top: ๅpx;" >';
-                                printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
-                                echo $value->Execute(Module_SDK_Basic::Layout_Nav);
-                                echo '</div>';
-                            }
-                        }
-                        ?>     
-                    </nav>
-             <aside>
-                    <div class="MBorderBlock" style="margin-top: 1px;">
-                        <div class="TitleCenter">Event</div>
-                        <?php
-                        foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
-                            echo '<div>';
-                            printf('<a class="MenuLink" href="App/Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                            echo '</div><hr>';
-                        }
-                        ?>
-                    </div>
+            <nav>
+                <?php
+                foreach ($uinav->FindAllMenuFile("App") as $key => $valueA) {
+                    echo '<div class="MBorderBlock">';
+                    printf(' <div class="TitleCenter">%s</div>', $key);
+                    foreach ($valueA as $valueB) {
+                        printf('  <a class="MenuLink" href="%s">%s</a>', "App/" . $valueB["path"], $valueB["name"]);
+                    }
+                    echo '</div>';
+                }
+                foreach ($modlist as $value) {
+                    if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                        echo ' <div class="MBorderBlock" style="margin-top: 1px;" >';
+                        printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                        echo $value->Execute(Module_SDK_Basic::Layout_Nav);
+                        echo '</div>';
+                    }
+                }
+                ?>   
+                <div class="MBorderBlock" style="margin-top: 1px;">
+                    <div class="TitleCenter">Event</div>
                     <?php
-                    foreach ($modlist as $value) {
-                            if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
-                                echo ' <div class="MBorderBlock" style="margin-top: ๅpx;" >';
-                                printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
-                                echo $value->Execute(Module_SDK_Basic::Layout_Aside);
-                                echo '</div>';
-                            }
-                        }
+                    foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
+                        echo '<div>';
+                        printf('<a class="MenuLink" href="App/Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                        printf('<div style="color: black;" >%s</div></a>', $value["description"]);
+                        echo '</div><hr>';
+                    }
                     ?>
-                </aside>
-              <footer>
+                </div>
+                <?php
+                foreach ($modlist as $value) {
+                    if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                        echo ' <div class="MBorderBlock" style="margin-top: 1px;" >';
+                        printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                        echo $value->Execute(Module_SDK_Basic::Layout_Aside);
+                        echo '</div>';
+                    }
+                }
+                ?>
+            </nav>
+
+            <footer>
                 <span style="font-weight: bold;display: block;">
                     <?php
                     echo "&COPY;" . date("Y") . " " . $config->GetName();

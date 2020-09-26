@@ -72,32 +72,43 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         });
                     });
+                    ss.S("#BNLockUnlock").Click(function () {
+                        if (this.getAttribute("data-lock") == "1") {
+                            ss.S(".Lockable").Show();
+                            this.setAttribute("data-lock", "0");
+                        } else {
+                            ss.S(".Lockable").Hide();
+                            this.setAttribute("data-lock", "1");
+                        }
+
+
+                    });
                 });
             </script>
         </head>
         <body style="background-color: cornsilk;"> 
             <header>
-
                 <div class="TitleCenter" style=" text-align: right;">
+                    <a id="BNLockUnlock" style="display: inline;"  class="MenuLink"  href="#">Lock/Unlock</a>
                     <?php
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
-                    <a class="MenuLink" style="display: inline;" href="../../../../Auth/Action/Logout.php">LogOut</a>
+                    <a  class="Lockable" style="display: inline;text-decoration: none;color: blue;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
-            <nav>
+            <nav class="Lockable" >
                 <?php
-                foreach ($uinav->FindAllMenuFile("App") as $key => $valueA) {
+                foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
                     echo '<div class="MBorderBlock">';
                     printf(' <div class="TitleCenter">%s</div>', $key);
                     foreach ($valueA as $valueB) {
-                        printf('  <a class="MenuLink" href="%s">%s</a>', "App/" . $valueB["path"], $valueB["name"]);
+                        printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                     }
                     echo '</div>';
                 }
                 foreach ($modlist as $value) {
                     if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
-                        echo ' <div class="MBorderBlock" style="margin-top: ๅpx;" >';
+                        echo ' <div class="MBorderBlock" style="margin-top: 1px;" >';
                         printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
                         echo $value->Execute(Module_SDK_Basic::Layout_Nav);
                         echo '</div>';
@@ -105,14 +116,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 }
                 ?>     
             </nav>
-            <main>
+            <main  style="border-style: solid;border-width: thin;">
                 <select id="OptLibrary" style="display: block;width: 100%;box-sizing: border-box;">
                     <option>==Select==</option>
                 </select>
                 <div id="AudioList"></div>
                 <audio style="width: 100%;" id="Audio" controls="controls"></audio>
             </main>
-            <aside>
+            <aside  class="Lockable">
                 <div class="MBorderBlock" style="margin-top: 1px;">
                     <div class="TitleCenter">Event</div>
                     <?php
@@ -127,7 +138,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <?php
                 foreach ($modlist as $value) {
                     if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
-                        echo ' <div class="MBorderBlock" style="margin-top: ๅpx;" >';
+                        echo ' <div class="MBorderBlock" style="margin-top: 1px;" >';
                         printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
                         echo $value->Execute(Module_SDK_Basic::Layout_Aside);
                         echo '</div>';

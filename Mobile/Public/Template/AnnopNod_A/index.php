@@ -67,17 +67,15 @@ if ($config->IsOnline()) {
                 <?php
                 foreach ($modlist as $value) {
                     if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
-                        echo ' <div class="MBorderBlock" style="margin-top: ๅpx;" >';
+                        echo ' <div class="MBorderBlock" style="margin-top: 1px;" >';
                         printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
                         echo $value->Execute(Module_SDK_Basic::Layout_Nav);
                         echo '</div>';
                     }
                 }
                 ?>
-            </nav>
-            <main>
-                <div>
-                    <div  style="text-align: left;" class="TitleCenter">Last Blog</div>
+                <div class="MBorderBlock" >
+                    <div  class="TitleCenter">Last Blog</div>
                     <?php
                     foreach ($blog->GetLastBlogList(Blog_Database::Access_Public) as $value) {
                         echo '<div class="DivList">';
@@ -87,15 +85,12 @@ if ($config->IsOnline()) {
                     }
                     ?>
                 </div>
-                <div>
-                    <div  style="text-align: left;" class="TitleCenter">Last Files</div>
+                <div class="MBorderBlock" >
+                    <div class="TitleCenter">Last Files</div>
                 </div>
-                <div>
-                    <div  style="text-align: left;" class="TitleCenter">Welcome</div>
+                <div class="MBorderBlock" >
+                    <div  class="TitleCenter">Welcome</div>
                 </div>
-
-            </main>
-            <aside>
                 <?php
                 echo '<div class="MBorderBlock" style="margin-top: 1px;">';
                 echo '  <div class="TitleCenter">Event</div>';
@@ -108,14 +103,15 @@ if ($config->IsOnline()) {
                 echo '</div>';
                 foreach ($modlist as $value) {
                     if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
-                        echo ' <div class="MBorderBlock" style="margin-top: ๅpx;" >';
+                        echo ' <div class="MBorderBlock" style="margin-top: 1px;" >';
                         printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
                         echo $value->Execute(Module_SDK_Basic::Layout_Aside);
                         echo '</div>';
                     }
                 }
                 ?>
-            </aside>
+            </nav>
+
 
             <footer>
                 <span style="font-weight: bold;display: block;">

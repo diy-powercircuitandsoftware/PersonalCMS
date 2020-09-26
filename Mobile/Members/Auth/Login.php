@@ -12,6 +12,8 @@ if (isset($_SESSION["UserID"]) && $config->IsOnline()) {
     <html>
         <head>
             <meta charset="UTF-8">
+             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
             <title>Login</title>
             <style>
 
@@ -25,11 +27,11 @@ if (isset($_SESSION["UserID"]) && $config->IsOnline()) {
                 }
             </style>
         </head>
-        <body>
+        <body style="margin: 0;padding: 0;">
             <form action="Action/AuthUsingUserID.php" method="POST">
                 <label style="background-color: burlywood;width: 100%;display: block;">Login</label>
                 <label>UserID:</label>
-                <input style="width: 98%;" type="text" name="UserID" value="" />
+                <input   type="text" name="UserID" value="" />
                 <label>Password:</label>
                 <input  type="password" name="Password" value="" />
                 <label>Template:</label>
