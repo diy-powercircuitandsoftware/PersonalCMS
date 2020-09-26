@@ -25,6 +25,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
     <html>
         <head>
             <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
             <title><?php echo basename(__FILE__, ".php"); ?></title>
              
             <link rel="stylesheet" type="text/css" href="../../../../Web/css/PersonalCMS.css">
@@ -35,7 +37,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             }
             ?>
         </head>
-        <body> 
+        <body style="background-color: cornsilk;"> 
             <header class="TitleCenter">
                
                 <div style=" text-align: right;">

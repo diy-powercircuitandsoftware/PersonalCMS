@@ -25,6 +25,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
     <html>
         <head>
             <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
             <script src="../../../../../../Web/js/dom/SSQueryFW.js"></script>
             <script src="../../../../../../Web/js/dom/PlayingList.js"></script>
@@ -74,8 +75,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 });
             </script>
         </head>
-        <body> 
-            <header  >
+        <body style="background-color: cornsilk;"> 
+            <header>
 
                 <div class="TitleCenter" style=" text-align: right;">
                     <?php

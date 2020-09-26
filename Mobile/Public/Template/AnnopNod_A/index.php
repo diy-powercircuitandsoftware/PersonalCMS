@@ -23,6 +23,8 @@ if ($config->IsOnline()) {
     <html>
         <head>
             <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
             <title><?php echo $config->GetName(); ?></title>
 
             <link rel="stylesheet" type="text/css" href="../../../../Web/css/PersonalCMS.css">
@@ -37,7 +39,7 @@ if ($config->IsOnline()) {
             }
             ?>
         </head>
-        <body >
+        <body style="background-color: cornsilk;">
 
             <header> 
                 <h1 style="width: 100%;text-align: center;"><?php echo $config->GetName(); ?> Website</h1>
