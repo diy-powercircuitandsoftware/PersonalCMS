@@ -28,7 +28,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
             <script src="../../../../../../Web/js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../../Web/js/dom/PlayingList.js"></script>
+            <script src="../../../../../../Web/js/dom/SearchBox.js"></script>
             <script src="../../../../../../Web/js/io/Ajax.js"></script>
             <link rel="stylesheet" type="text/css" href="../../../../../../Web/css/PersonalCMS.css">
 
@@ -40,46 +40,59 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
+
                     var ajax = new Ajax();
-                    var playlist = new PlayingList(document.getElementById("AudioList"));
-                    var Audio = document.getElementById("Audio");
-                    playlist.Select(function (v) {
-                        Audio.pause();
-                        Audio.src = "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + v;
-                        Audio.play();
+                    var AjaxSB = new AjaxScrollBar("../../../../../../Web/Members/Api/Ajax/Blog/Share/SearchBlogUsingKeywordID.php");
+                    var BlogSB = new SearchBox(document.getElementById("SearchBox"));
 
-                    });
-                    Audio.addEventListener("ended", function () {
-                        playlist.Next();
-                    });
-
-                    ajax.Post("../../../../../../Web/Members/Api/Ajax/Audio/List/GetPlayList.php", {}, function (data) {
-                        data = JSON.parse(data);
-
-                        for (var i in data) {
-                            ss.S("#OptLibrary").Append(data[i], data[i]);
-                        }
-                        ss.S("#OptSelectLib").Change();
-                    });
-
-                    ss.S("#OptLibrary").Change(function () {
-                        ajax.Get("../../../../../../Web/Members/Api/Ajax/Audio/List/GetAudioList.php", {"Name": this.value}, function (data) {
+                    BlogSB.ValueChange(function (v) {
+                        ajax.Post("../../../../../../Web/Members/Api/Ajax/Category/List/SearchKeyword.php", {"Keyword": v}, function (data) {
                             data = JSON.parse(data);
-                            playlist.Empty();
-                            for (var i in data) {
-                                playlist.AddList(data [i]["path"], data [i]["name"]);
+                            for (var i = 0; i < data.length; i++) {
+                                BlogSB.AddItem(data[i]["id"], data[i]["name"]);
                             }
-
                         });
                     });
-                    ss.S("#BNLockUnlock").Click(function () {
+
+                    BlogSB.Calllback(function (v) {
+                        ss.S("#SearchRS,#HtmlReadable").Empty();
+                        lastid = 0;
+                        AjaxSB.Param("id", v);
+                        AjaxSB.Param("startid", lastid);
+                        AjaxSB.LoadAjax();
+
+                    });
+                    BlogSB.Enter = (function (v) {
+                        //  ss.S("#SearchRS,#HtmlReadable").Empty();
+                        //  wsl.Param["Keyword"] = v;
+                        // wsl.Param["StartID"] = 0;
+                        // wsl.Lock = false;
+                        // wsl.LoadData();
+                    });
+                    AjaxSB.AddScrollEvent(function (data) {
+                        try {
+
+                            data = JSON.parse(data);
+                            for (var i in data) {
+                                ss.S("#SearchRS").Append('<div class="BlogList"><a class="MenuLink" href="View.php?id=' + data[i]["id"] + '">' + data[i]["title"] + '</a>' + data[i]["description"] + '</div>');
+
+                                lastid = Math.max(lastid, data[i]["id"]);
+                            }
+                            AjaxSB.Param("startid", lastid);
+                        } catch (e) {
+
+                        }
+                    });
+                       ss.S("#BNShowHideMenu").Click(function () {
                         if (this.getAttribute("data-lock") == "1") {
-                            ss.S(".Lockable").Show();
+                            ss.S("#Menu").Show();
                             this.setAttribute("data-lock", "0");
                         } else {
-                            ss.S(".Lockable").Hide();
+                            ss.S("#Menu").Hide();
                             this.setAttribute("data-lock", "1");
                         }
+
+
                     });
                 });
             </script>
@@ -87,14 +100,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
         <body style="background-color: cornsilk;"> 
             <header>
                 <div class="TitleCenter" style=" text-align: right;">
-                    <a id="BNLockUnlock" style="display: inline;"  class="MenuLink"  href="#">Lock/Unlock</a>
+                    <a id="BNShowHideMenu" style="display: inline;"  class="MenuLink"  href="#">Menu</a>
                     <?php
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
-                    <a  class="Lockable" style="display: inline;text-decoration: none;color: blue;" href="../../../../Auth/Action/Logout.php">LogOut</a>
+                    <a style="display: inline;text-decoration: none;color: blue;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
-            <nav class="Lockable" >
+            <nav id="Menu" style="display: none;">
                 <?php
                 foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
                     echo '<div class="MBorderBlock">';
@@ -115,13 +128,31 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 ?>     
             </nav>
             <main  style="border-style: solid;border-width: thin;">
-                <select id="OptLibrary" style="display: block;width: 100%;box-sizing: border-box;">
-                    <option>==Select==</option>
-                </select>
-                <div id="AudioList"></div>
-                <audio style="width: 100%;" id="Audio" controls="controls"></audio>
+                <div id="SearchBox" class="BorderBlock" style="width:100%;"></div>
+
+                <div id="SearchRS">
+                    <?php
+                    /* if (isset($_GET["Category"])) {
+                      foreach ($BlogManager->GetBlogListByCategoryID($_SESSION["UserID"], $_GET["Category"]) as $value) {
+                      printf('<div class="BlogList"><h3><a class="LinkOpen" href="View.php?id=%s">%s</a></h3>%s</div>', $value["id"], $value["title"], $value["description"]);
+                      }
+                      } else if (!isset($_GET["id"])) {
+                      foreach ($BlogManager->GetSimpleLastBlogList($_SESSION["UserID"]) as $value) {
+                      printf('<div class="BlogList"><h3><a class="LinkOpen" href="View.php?id=%s">%s</a></h3>%s</div>', $value["id"], $value["title"], $value["description"]);
+                      }
+                      } */
+                    ?>
+                </div>
+
+                <div id="HtmlReadable" style="height: 100%;" >
+                    <?php
+                    if (isset($_GET["id"])) {
+                        printf('<iframe style="%s" src="../../../../../../Web/Members/Api/Action/Blog/Share/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100vh;box-sizing: border-box;", $_GET["id"]);
+                    }
+                    ?>
+                </div>
             </main>
-            <aside  class="Lockable">
+            <aside>
                 <div class="MBorderBlock" style="margin-top: 1px;">
                     <div class="TitleCenter">Event</div>
                     <?php

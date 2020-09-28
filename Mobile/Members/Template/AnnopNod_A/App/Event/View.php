@@ -28,7 +28,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
             <script src="../../../../../../Web/js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../../Web/js/dom/PlayingList.js"></script>
+            <script src="../../../../../../Web/js/dom/SearchBox.js"></script>
             <script src="../../../../../../Web/js/io/Ajax.js"></script>
             <link rel="stylesheet" type="text/css" href="../../../../../../Web/css/PersonalCMS.css">
 
@@ -40,46 +40,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
-                    var ajax = new Ajax();
-                    var playlist = new PlayingList(document.getElementById("AudioList"));
-                    var Audio = document.getElementById("Audio");
-                    playlist.Select(function (v) {
-                        Audio.pause();
-                        Audio.src = "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + v;
-                        Audio.play();
-
-                    });
-                    Audio.addEventListener("ended", function () {
-                        playlist.Next();
-                    });
-
-                    ajax.Post("../../../../../../Web/Members/Api/Ajax/Audio/List/GetPlayList.php", {}, function (data) {
-                        data = JSON.parse(data);
-
-                        for (var i in data) {
-                            ss.S("#OptLibrary").Append(data[i], data[i]);
-                        }
-                        ss.S("#OptSelectLib").Change();
-                    });
-
-                    ss.S("#OptLibrary").Change(function () {
-                        ajax.Get("../../../../../../Web/Members/Api/Ajax/Audio/List/GetAudioList.php", {"Name": this.value}, function (data) {
-                            data = JSON.parse(data);
-                            playlist.Empty();
-                            for (var i in data) {
-                                playlist.AddList(data [i]["path"], data [i]["name"]);
-                            }
-
-                        });
-                    });
-                    ss.S("#BNLockUnlock").Click(function () {
+                    ss.S("#BNShowHideMenu").Click(function () {
                         if (this.getAttribute("data-lock") == "1") {
-                            ss.S(".Lockable").Show();
+                            ss.S("#Menu").Show();
                             this.setAttribute("data-lock", "0");
                         } else {
-                            ss.S(".Lockable").Hide();
+                            ss.S("#Menu").Hide();
                             this.setAttribute("data-lock", "1");
                         }
+
+
                     });
                 });
             </script>
@@ -87,14 +57,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
         <body style="background-color: cornsilk;"> 
             <header>
                 <div class="TitleCenter" style=" text-align: right;">
-                    <a id="BNLockUnlock" style="display: inline;"  class="MenuLink"  href="#">Lock/Unlock</a>
+                    <a id="BNShowHideMenu" style="display: inline;"  class="MenuLink"  href="#">Menu</a>
                     <?php
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
-                    <a  class="Lockable" style="display: inline;text-decoration: none;color: blue;" href="../../../../Auth/Action/Logout.php">LogOut</a>
+                    <a style="display: inline;text-decoration: none;color: blue;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
-            <nav class="Lockable" >
+            <nav id="Menu"  style="display: none;">
                 <?php
                 foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
                     echo '<div class="MBorderBlock">';
@@ -115,24 +85,24 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 ?>     
             </nav>
             <main  style="border-style: solid;border-width: thin;">
-                <select id="OptLibrary" style="display: block;width: 100%;box-sizing: border-box;">
-                    <option>==Select==</option>
-                </select>
-                <div id="AudioList"></div>
-                <audio style="width: 100%;" id="Audio" controls="controls"></audio>
+                <?php
+                if (isset($_GET["id"])) {
+                    $value = $event->ReadEvent($_GET["id"], Event_Database::Access_Member);
+
+                    echo "<div>";
+                    echo "<h3 style='color: blue'>" . $value["name"] . "</h3>";
+                    printf('<div>%s</div>', nl2br($value["htmlcode"]));
+                    printf('<div>Start Date:%s</div>', $value["startdate"]);
+                    printf('<div>End Date:%s</div>', $value["stopdate"]);
+                    printf('<div>Place:%s,Latitude:%s,Longitude:%s</div>', $value["placename"], $value["latitude"], $value["longitude"]);
+                    echo "</div>";
+                } else {
+                    
+                }
+                ?> 
             </main>
-            <aside  class="Lockable">
-                <div class="MBorderBlock" style="margin-top: 1px;">
-                    <div class="TitleCenter">Event</div>
-                    <?php
-                    foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
-                        echo '<div>';
-                        printf('<a class="MenuLink" href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                        printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                        echo '</div><hr>';
-                    }
-                    ?>
-                </div>
+            <aside>
+
                 <?php
                 foreach ($modlist as $value) {
                     if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {

@@ -85,8 +85,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                             data = JSON.parse(data);
                             for (var i in data) {
-                               ss.S("#SearchRS").Append('<div class="BlogList"><a class="MenuLink" href="View.php?id='+data[i]["id"]+'">'+data[i]["title"]+'</a>'+data[i]["description"]+'</div>');
-                               
+                                ss.S("#SearchRS").Append('<div class="BlogList"><a class="MenuLink" href="View.php?id=' + data[i]["id"] + '">' + data[i]["title"] + '</a>' + data[i]["description"] + '</div>');
+
                                 lastid = Math.max(lastid, data[i]["id"]);
                             }
                             AjaxSB.Param("startid", lastid);
@@ -116,8 +116,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-                             
- printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/".$valueB["path"], $valueB["name"]);
+                            printf('<a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }
@@ -150,7 +149,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <div id="HtmlReadable" style="height: 100%;" >
                         <?php
                         if (isset($_GET["id"])) {
-                                printf('<iframe style="%s" src="../../../../Api/Action/Blog/Share/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100%;box-sizing: border-box;", $_GET["id"]);
+                            printf('<iframe style="%s" src="../../../../Api/Action/Blog/Share/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100%;box-sizing: border-box;", $_GET["id"]);
                         }
                         ?>
                     </div>
