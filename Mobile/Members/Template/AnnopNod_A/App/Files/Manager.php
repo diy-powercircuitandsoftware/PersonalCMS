@@ -40,49 +40,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
-
-                    var ajax = new Ajax();
-                    var AjaxSB = new AjaxScrollBar("../../../../../../Web/Members/Api/Ajax/Blog/Share/SearchBlogUsingKeywordID.php");
-                    var BlogSB = new SearchBox(document.getElementById("SearchBox"));
-                    var lastid = 0;
-                    BlogSB.ValueChange(function (v) {
-                        ajax.Post("../../../../../../Web/Members/Api/Ajax/Category/List/SearchKeyword.php", {"Keyword": v}, function (data) {
-                            data = JSON.parse(data);
-                            for (var i = 0; i < data.length; i++) {
-                                BlogSB.AddItem(data[i]["id"], data[i]["name"]);
-                            }
-                        });
-                    });
-
-                    BlogSB.Calllback(function (v) {
-                        ss.S("#SearchRS,#HtmlReadable").Empty();
-                        lastid = 0;
-                        AjaxSB.Param("id", v);
-                        AjaxSB.Param("startid", lastid);
-                        AjaxSB.LoadAjax();
-
-                    });
-                    BlogSB.Enter = (function (v) {
-                        //  ss.S("#SearchRS,#HtmlReadable").Empty();
-                        //  wsl.Param["Keyword"] = v;
-                        // wsl.Param["StartID"] = 0;
-                        // wsl.Lock = false;
-                        // wsl.LoadData();
-                    });
-                    AjaxSB.AddScrollEvent(function (data) {
-                        try {
-
-                            data = JSON.parse(data);
-                            for (var i in data) {
-                                ss.S("#SearchRS").Append('<div class="BlogList"><a class="MenuLink" href="View.php?id=' + data[i]["id"] + '">' + data[i]["title"] + '</a>' + data[i]["description"] + '</div>');
-
-                                lastid = Math.max(lastid, data[i]["id"]);
-                            }
-                            AjaxSB.Param("startid", lastid);
-                        } catch (e) {
-
-                        }
-                    });
                     ss.S("#BNShowHideMenu").Click(function () {
                         if (this.getAttribute("data-lock") == "1") {
                             ss.S("#Menu").Show();
@@ -107,7 +64,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <a style="display: inline;text-decoration: none;color: blue;" href="../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
             </header>
-            <nav id="Menu" style="display: none;">
+            <nav id="Menu"  style="display: none;">
                 <?php
                 foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
                     echo '<div class="MBorderBlock">';
@@ -128,42 +85,31 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 ?>     
             </nav>
             <main  style="border-style: solid;border-width: thin;">
-                <div id="SearchBox" class="BorderBlock" style="width:100%;"></div>
-
-                <div id="SearchRS">
+                <div>
+                    <a style="display: inline;" class="MenuLink" href="#">Home</a>
+                    <a style="display: inline;" class="MenuLink" href="#">Open</a>
+                    <a style="display: inline;" class="MenuLink" href="#">Download</a>
                     <?php
-                    /* if (isset($_GET["Category"])) {
-                      foreach ($BlogManager->GetBlogListByCategoryID($_SESSION["UserID"], $_GET["Category"]) as $value) {
-                      printf('<div class="BlogList"><h3><a class="LinkOpen" href="View.php?id=%s">%s</a></h3>%s</div>', $value["id"], $value["title"], $value["description"]);
-                      }
-                      } else if (!isset($_GET["id"])) {
-                      foreach ($BlogManager->GetSimpleLastBlogList($_SESSION["UserID"]) as $value) {
-                      printf('<div class="BlogList"><h3><a class="LinkOpen" href="View.php?id=%s">%s</a></h3>%s</div>', $value["id"], $value["title"], $value["description"]);
-                      }
-                      } */
-                    ?>
-                </div>
-
-                <div id="HtmlReadable" style="height: 100%;" >
-                    <?php
-                    if (isset($_GET["id"])) {
-                        printf('<iframe style="%s" src="../../../../../../Web/Members/Api/Action/Blog/Share/ReadBlog.php?id=%s"></iframe>', "width: 100%;height: 100vh;box-sizing: border-box;", $_GET["id"]);
+                    if ($_SESSION["User"]["writable"] == 1) {
+                        ?>
+                        <a style="display: inline;" class="MenuLink" href="#">Cut</a>
+                        <a style="display: inline;" class="MenuLink" href="#">Copy</a>
+                        <a style="display: inline;" class="MenuLink" href="#">Paste</a>
+                        <a style="display: inline;" class="MenuLink" href="#">Delete</a>
+                        <a style="display: inline;" class="MenuLink" href="#">Rename</a>
+                        <a style="display: inline;" class="MenuLink" href="#">Share</a>
+                        <a style="display: inline;" class="MenuLink" href="#">Upload</a>
+                        <?php
                     }
                     ?>
+
+                </div>
+                <div>
+
                 </div>
             </main>
             <aside>
-                <div class="MBorderBlock" style="margin-top: 1px;">
-                    <div class="TitleCenter">Event</div>
-                    <?php
-                    foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
-                        echo '<div>';
-                        printf('<a class="MenuLink" href="../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                        printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                        echo '</div><hr>';
-                    }
-                    ?>
-                </div>
+
                 <?php
                 foreach ($modlist as $value) {
                     if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {

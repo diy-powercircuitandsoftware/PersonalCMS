@@ -13,11 +13,11 @@ if (!$config->Installed()) {
         <head>
             <meta charset="UTF-8">
             <title><?php echo basename(__FILE__, ".php"); ?></title>
-          <link rel="stylesheet" type="text/css" href="../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../css/PersonalCMS.css">
         </head>
         <body class="HolyGrail"> 
-            
+
             <header class="Header">
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
@@ -26,19 +26,19 @@ if (!$config->Installed()) {
                 </div>
             </header>
             <div class="HolyGrail-body">
-                    <nav>
-                        <?php
-                        foreach ($uinav->FindAllMenuFile("App") as $key => $valueA) {
-                            echo '<div class="BorderBlock">';
-                            printf(' <div class="TitleCenter">%s</div>',$key);
-                            foreach ($valueA as $valueB) {
-                              printf('  <a class="MenuLink" href="%s">%s</a>',$valueB["path"],$valueB["name"]);
-                            }
-                            echo '</div>';
+                <nav>
+                    <?php
+                    foreach ($uinav->FindAllMenuFile("App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+                            printf('  <a class="MenuLink" href="App/%s">%s</a>', $valueB["path"], $valueB["name"]);
                         }
-                        ?>     
-                    </nav>
-                 
+                        echo '</div>';
+                    }
+                    ?>     
+                </nav>
+
                 <main><h1>Main Page</h1></main>
                 <aside></aside>
             </div>
