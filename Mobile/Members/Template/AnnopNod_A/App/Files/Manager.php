@@ -31,7 +31,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script src="../../../../../../Web/js/dom/SearchBox.js"></script>
             <script src="../../../../../../Web/js/io/Ajax.js"></script>
             <link rel="stylesheet" type="text/css" href="../../../../../../Web/css/PersonalCMS.css">
-
+            <style>
+                .LinkDIR{
+                    text-decoration: none;
+                    color: blue; 
+                }
+                .LinkFile{
+                    text-decoration: none;
+                    color: blue;
+                }
+            </style>
             <?php
             foreach ($modlist as $value) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
@@ -40,6 +49,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
+                    var ajax = new Ajax();
+                    var ft = document.getElementById("FilesTable");
                     ss.S("#BNShowHideMenu").Click(function () {
                         if (this.getAttribute("data-lock") == "1") {
                             ss.S("#Menu").Show();
@@ -48,9 +59,50 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#Menu").Hide();
                             this.setAttribute("data-lock", "1");
                         }
-
-
                     });
+                    ft.addEventListener("touchstart", function (e) {
+
+                        if (e.target.getAttribute("class") == "LinkDIR") {
+                            OpenDIR(e.target.getAttribute("data-fullpath"));
+                        } else if (e.target.getAttribute("class") == "LinkFile") {
+
+                        }
+                    });
+                    ft.addEventListener("click", function (e) {
+
+                        if (e.target.getAttribute("class") == "LinkDIR") {
+                            OpenDIR(e.target.getAttribute("data-fullpath"));
+                        } else if (e.target.getAttribute("class") == "LinkFile") {
+
+                        }
+                    });
+                    function OpenDIR(v) {
+                        ajax.Post("../../../../../../Web/Members/Api/Ajax/Files/List/GetFilesListByExtension.php", {"Path": v}, function (data) {
+                            // fileupload.currentdir = v;
+                            ft.innerHTML = "";
+                            data = JSON.parse(data);
+                            for (var i in data) {
+                                var tr = ft.appendChild(document.createElement("TR"));
+                                var chkbox = tr.appendChild(document.createElement("TD")).appendChild(document.createElement("INPUT"));
+                                var a = tr.appendChild(document.createElement("TD")).appendChild(document.createElement("a"));
+                                chkbox.type = "checkbox";
+                                chkbox.setAttribute("data-fullpath", data[i]["fullpath"]);
+                                a.innerHTML = data[i]["name"];
+                                a.style.cssText = "word-break:break-all;";
+                                a.setAttribute("data-fullpath", data[i]["fullpath"]);
+                                a.href = "#";
+                                if (data[i]["type"] == "DIR") {
+                                    a.setAttribute("class", "LinkDIR");
+
+                                } else if (data[i]["type"] == "FILE") {
+                                    a.setAttribute("class", "LinkFile");
+                                }
+                            }
+                            // ss.S("#CHDIRList").Html((v));
+                        });
+                    }
+                    OpenDIR("/");
+
                 });
             </script>
         </head>
@@ -86,8 +138,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             </nav>
             <main  style="border-style: solid;border-width: thin;">
                 <div>
-                    <a style="display: inline;" class="MenuLink" href="#">Home</a>
-                    <a style="display: inline;" class="MenuLink" href="#">Open</a>
+                    <a style="display: inline;" class="MenuLink" href="#">Home</a>               
                     <a style="display: inline;" class="MenuLink" href="#">Download</a>
                     <?php
                     if ($_SESSION["User"]["writable"] == 1) {
@@ -104,9 +155,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ?>
 
                 </div>
-                <div>
+                <table border="1" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody id="FilesTable"  >
 
-                </div>
+                    </tbody>
+
+                </table>
             </main>
             <aside>
 
