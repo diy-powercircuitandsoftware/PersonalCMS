@@ -48,13 +48,7 @@ class PointPoint_Editor {
 
         txtbox.addEventListener("input", function () {
             var node = (this.fnref.converter.Html2TextObject(this));
-            for (var i = 0; i < this.ref.attributes.length; i++)
-            {
-                var a = this.ref.attributes[i];
-                node.setAttribute(a.name, a.value);
-            }
-            this.ref.parentNode.replaceChild(node, this.ref);
-            this.ref = node;
+            this.ref.innerHTML = node.innerHTML;
 
         });
         txtbox.addEventListener("mousedown", function (e) {
@@ -167,14 +161,7 @@ class PointPoint_Editor {
                     editor.style.position = "absolute";
                     editor.addEventListener("input", function () {
                         var node = (this.fnref.converter.Html2TextObject(this));
-                        for (var iattr = 0; iattr < this.ref.attributes.length; iattr++)
-                        {
-                            var a = this.ref.attributes[i];
-                            node.setAttribute(a.name, a.value);
-                        }
-
-                        this.ref.parentNode.replaceChild(node, this.ref);
-                        this.ref = node;
+                        this.ref.innerHTML = node.innerHTML;
 
                     });
                     editor.addEventListener("mousedown", function (e) {
@@ -432,25 +419,45 @@ class PointPoint_Player {
 
 
                                     if (textnode[itn].tagName == "text") {
+                                        if (textnode[itn].getAttribute("color") !== null) {
+                                            ctx.fillStyle = (textnode[itn].getAttribute("color"));
+
+                                        } else if (cn[i].getAttribute("color") !== null) {
+                                            ctx.fillStyle = (cn[i].getAttribute("color"));
+
+                                        }
+
+
+
+
+
+
                                         if (textnode[itn].getAttribute("fontsize") !== null) {
-                                            y = y + parseInt(textnode[itn].getAttribute("fontsize"));
+                                            //  y = y + parseInt(textnode[itn].getAttribute("fontsize"));
                                         } else if (cn[i].getAttribute("fontsize") !== null) {
-                                            y = y + parseInt(cn[i].getAttribute("fontsize"));
+                                            // y = y + parseInt(cn[i].getAttribute("fontsize"));
                                         } else {
                                             var metrics = ctx.measureText(textnode[itn].textContent);
                                             var actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-                                            y = y + actualHeight;
+                                            y = y + (actualHeight * 1.2);
                                         }
                                         ctx.fillText(textnode[itn].textContent, x, y);
+
                                     } else if (textnode[itn].tagName == "list") {
                                         var listnode = textnode[itn].childNodes;
                                         for (var iln = 0; iln < listnode.length; iln++) {
+                                            if (textnode[itn].getAttribute("color") !== null) {
+                                                ctx.fillStyle = (textnode[itn].getAttribute("color"));
 
+                                            } else if (cn[i].getAttribute("color") !== null) {
+                                                ctx.fillStyle = (cn[i].getAttribute("color"));
+
+                                            }
 
                                             if (listnode[iln].getAttribute("fontsize") !== null) {
-                                                y = y + parseInt(listnode[iln].getAttribute("fontsize"));
+                                                // y = y + parseInt(listnode[iln].getAttribute("fontsize"));
                                             } else if (cn[i].getAttribute("fontsize") !== null) {
-                                                y = y + parseInt(cn[i].getAttribute("fontsize"));
+                                                //  y = y + parseInt(cn[i].getAttribute("fontsize"));
                                             } else {
                                                 var metrics = ctx.measureText(listnode[iln].textContent);
                                                 var actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;

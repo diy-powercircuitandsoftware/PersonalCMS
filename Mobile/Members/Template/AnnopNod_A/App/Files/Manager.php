@@ -51,6 +51,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
                     var ft = document.getElementById("FilesTable");
+                    //BNHome BNDownload
                     ss.S("#BNShowHideMenu").Click(function () {
                         if (this.getAttribute("data-lock") == "1") {
                             ss.S("#Menu").Show();
@@ -60,20 +61,36 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             this.setAttribute("data-lock", "1");
                         }
                     });
-                    ft.addEventListener("touchstart", function (e) {
-
-                        if (e.target.getAttribute("class") == "LinkDIR") {
-                            OpenDIR(e.target.getAttribute("data-fullpath"));
-                        } else if (e.target.getAttribute("class") == "LinkFile") {
-
-                        }
+                    ss.S("#BNHome").Click(function () {
+                        OpenDIR("/");
                     });
+
+
                     ft.addEventListener("click", function (e) {
 
                         if (e.target.getAttribute("class") == "LinkDIR") {
                             OpenDIR(e.target.getAttribute("data-fullpath"));
                         } else if (e.target.getAttribute("class") == "LinkFile") {
-
+                            var v = e.target.getAttribute("data-fullpath");
+                            var ext = v.split('.').pop().toLowerCase();
+                            var videopreview = document.getElementById("videopreview");
+                            var audiopreview = document.getElementById("audiopreview");
+                            var imgpreview = document.getElementById("imgpreview");
+                            videopreview.pause();
+                            audiopreview.pause();
+                            videopreview.style.display = "none";
+                            audiopreview.style.display = "none";
+                            imgpreview.style.display = "none";
+                            if (["mp4", "webm"].indexOf(ext) >= 0) {
+                                videopreview.style.display = "";
+                                videopreview.src = "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + v;
+                            } else if (["ogg", "mp3", "wma"].indexOf(ext) >= 0) {
+                                audiopreview.style.display = "";
+                                audiopreview.src = "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + v;
+                            } else if (["jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
+                                imgpreview.style.display = "";
+                                imgpreview.src = "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + v;
+                            }
                         }
                     });
                     function OpenDIR(v) {
@@ -93,7 +110,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 a.href = "#";
                                 if (data[i]["type"] == "DIR") {
                                     a.setAttribute("class", "LinkDIR");
-
                                 } else if (data[i]["type"] == "FILE") {
                                     a.setAttribute("class", "LinkFile");
                                 }
@@ -102,7 +118,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
                     }
                     OpenDIR("/");
-
                 });
             </script>
         </head>
@@ -135,11 +150,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     }
                 }
                 ?>     
-            </nav>
+            </nav> 
             <main  style="border-style: solid;border-width: thin;">
                 <div>
-                    <a style="display: inline;" class="MenuLink" href="#">Home</a>               
-                    <a style="display: inline;" class="MenuLink" href="#">Download</a>
+                    <a id="BNHome" style="display: inline;" class="MenuLink" href="#">Home</a>               
+                    <a  id="BNDownload" style="display: inline;" class="MenuLink" href="#">Download</a>
                     <?php
                     if ($_SESSION["User"]["writable"] == 1) {
                         ?>
@@ -149,7 +164,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <a style="display: inline;" class="MenuLink" href="#">Delete</a>
                         <a style="display: inline;" class="MenuLink" href="#">Rename</a>
                         <a style="display: inline;" class="MenuLink" href="#">Share</a>
-                        <a style="display: inline;" class="MenuLink" href="#">Upload</a>
+                        <div>
+                            <label>Upload:</label>
+                            <progress value="0" max="100"></progress>
+                            <input type="file" name="" />
+                            <button>Cancel</button>
+                        </div>
+
                         <?php
                     }
                     ?>
@@ -165,8 +186,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <tbody id="FilesTable"  >
 
                     </tbody>
-
                 </table>
+                <div>
+                    <video style="display: none;width: 100%;" id="videopreview" controls="controls"></video>
+                    <audio style="display: none;width: 100%;"  id="audiopreview"  controls="controls"></audio>
+                    <img style="display: none;width: 100%;"  id="imgpreview" src=""/>
+                </div>
             </main>
             <aside>
 

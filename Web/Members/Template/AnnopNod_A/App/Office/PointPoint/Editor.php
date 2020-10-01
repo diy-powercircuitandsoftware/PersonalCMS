@@ -90,7 +90,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         if (e.target == this) {
 
                         } else {
-                            console.log(domeditor.selectitem);
+                            if (domeditor.selectitem.getAttribute("audio")){
+                                
+                            }
+                            if (domeditor.selectitem.getAttribute("animation")){
+                                
+                            }
                         }
 
                     });
