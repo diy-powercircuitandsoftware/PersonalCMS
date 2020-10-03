@@ -447,13 +447,14 @@ class PointPoint_Player {
                                         var listnode = textnode[itn].childNodes;
                                         for (var iln = 0; iln < listnode.length; iln++) {
                                             if (textnode[itn].getAttribute("color") !== null) {
+                                                
                                                 ctx.fillStyle = (textnode[itn].getAttribute("color"));
 
                                             } else if (cn[i].getAttribute("color") !== null) {
                                                 ctx.fillStyle = (cn[i].getAttribute("color"));
 
                                             }
-
+                                         
                                             if (listnode[iln].getAttribute("fontsize") !== null) {
                                                 // y = y + parseInt(listnode[iln].getAttribute("fontsize"));
                                             } else if (cn[i].getAttribute("fontsize") !== null) {

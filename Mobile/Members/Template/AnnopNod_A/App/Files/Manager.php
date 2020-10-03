@@ -40,6 +40,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     text-decoration: none;
                     color: blue;
                 }
+                .BNDownload{
+                    text-decoration: none;
+                    color: blue;
+                }
             </style>
             <?php
             foreach ($modlist as $value) {
@@ -51,7 +55,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
                     var ft = document.getElementById("FilesTable");
-                    //BNHome BNDownload
+                    var uploadpath = "/";
                     ss.S("#BNShowHideMenu").Click(function () {
                         if (this.getAttribute("data-lock") == "1") {
                             ss.S("#Menu").Show();
@@ -64,6 +68,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNHome").Click(function () {
                         OpenDIR("/");
                     });
+                    ss.S("#BNUpload").Change(function (e) {
+                        if (e.target.files[0].size < 4194304) {
+                            ajax.Post("../../../../Api/Ajax/Files/Manager/UploadFiles.php", {"file": e.target.files[0], "path": uploadpath}, function () {
+                                OpenDIR(uploadpath);
+                            });
+                        } else {
+                            alert("can not upload over size");
+                        }
+
+                    });
+
 
 
                     ft.addEventListener("click", function (e) {
@@ -92,26 +107,33 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 imgpreview.src = "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + v;
                             }
                         }
+
+
                     });
                     function OpenDIR(v) {
                         ajax.Post("../../../../../../Web/Members/Api/Ajax/Files/List/GetFilesListByExtension.php", {"Path": v}, function (data) {
-                            // fileupload.currentdir = v;
+                            uploadpath = v;
                             ft.innerHTML = "";
                             data = JSON.parse(data);
                             for (var i in data) {
                                 var tr = ft.appendChild(document.createElement("TR"));
                                 var chkbox = tr.appendChild(document.createElement("TD")).appendChild(document.createElement("INPUT"));
-                                var a = tr.appendChild(document.createElement("TD")).appendChild(document.createElement("a"));
+                                var download = tr.appendChild(document.createElement("TD")).appendChild(document.createElement("a"));
+                                var label = tr.appendChild(document.createElement("TD")).appendChild(document.createElement("a"));
                                 chkbox.type = "checkbox";
                                 chkbox.setAttribute("data-fullpath", data[i]["fullpath"]);
-                                a.innerHTML = data[i]["name"];
-                                a.style.cssText = "word-break:break-all;";
-                                a.setAttribute("data-fullpath", data[i]["fullpath"]);
-                                a.href = "#";
+                                chkbox.setAttribute("class", "CheckBoxSelect");
+                                label.innerHTML = data[i]["name"];
+                                label.style.cssText = "word-break:break-all;";
+                                label.setAttribute("data-fullpath", data[i]["fullpath"]);
+                                label.href = "#";
+                                download.setAttribute("class", "BNDownload");
+                                download.innerHTML = "Download";
+                                download.setAttribute("href", "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + data[i]["fullpath"]);
                                 if (data[i]["type"] == "DIR") {
-                                    a.setAttribute("class", "LinkDIR");
+                                    label.setAttribute("class", "LinkDIR");
                                 } else if (data[i]["type"] == "FILE") {
-                                    a.setAttribute("class", "LinkFile");
+                                    label.setAttribute("class", "LinkFile");
                                 }
                             }
                             // ss.S("#CHDIRList").Html((v));
@@ -153,8 +175,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             </nav> 
             <main  style="border-style: solid;border-width: thin;">
                 <div>
-                    <a id="BNHome" style="display: inline;" class="MenuLink" href="#">Home</a>               
-                    <a  id="BNDownload" style="display: inline;" class="MenuLink" href="#">Download</a>
+                    <a id="BNHome" style="display: inline;" class="MenuLink" href="#">Home</a>    
                     <?php
                     if ($_SESSION["User"]["writable"] == 1) {
                         ?>
@@ -167,8 +188,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <div>
                             <label>Upload:</label>
                             <progress value="0" max="100"></progress>
-                            <input type="file" name="" />
-                            <button>Cancel</button>
+                            <input type="file" id="BNUpload"  />
+                            <button id="BNCancelUpload" style="display: none;">Cancel</button>
                         </div>
 
                         <?php
@@ -180,6 +201,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <thead>
                         <tr>
                             <th>Select</th>
+                            <th>Download</th>
                             <th>Name</th>
                         </tr>
                     </thead>
