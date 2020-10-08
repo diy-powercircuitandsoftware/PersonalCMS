@@ -19,7 +19,7 @@ class PointPoint_Editor {
         this.slides = [];
         this.mode = null;
         this.selectitem = null;
-        this.converter = new PointPoint_HtmlConverter();
+
     }
     CanvasSize(...args) {
         if (args.length === 0) {
@@ -37,22 +37,16 @@ class PointPoint_Editor {
     }
 
     AddTextBox(index, x, y) {
-        var txtbox = this.editor.appendChild(document.createElement("DIV"));
-        txtbox.innerHTML = "Edit This Text";
+        var ref = this.slides[index].AddText("Edit This Text", x, y);
+        var txtbox = this.editor.appendChild(ref.cloneNode(true));
+        txtbox.ref = ref;
         txtbox.contentEditable = "true";
-        txtbox.style.position = "absolute";
-        txtbox.style.top = y;
-        txtbox.style.left = x;
-        txtbox.ref = this.slides[index].AddText(txtbox.innerHTML, x, y);
         txtbox.fnref = this;
-
         txtbox.addEventListener("input", function () {
-            var node = (this.fnref.converter.Html2TextObject(this));
-            this.ref.innerHTML = node.innerHTML;
-
+            this.ref.innerHTML = this.innerHTML;
         });
         txtbox.addEventListener("mousedown", function (e) {
-            this.fnref.selectitem = this.ref;
+            this.fnref.selectitem = this;
             if (this.fnref.mode == "delete") {
                 this.ref.parentNode.removeChild(this.ref);
                 this.parentNode.removeChild(this);
@@ -63,7 +57,6 @@ class PointPoint_Editor {
                     "y": this.offsetTop - e.clientY
                 };
             }
-
         });
         txtbox.addEventListener("mousemove", function (e) {
             if (this.moving) {
@@ -71,7 +64,6 @@ class PointPoint_Editor {
                 this.style.left = (e.clientX + this.movingoffset.x) + 'px';
                 this.style.top = (e.clientY + this.movingoffset.y) + 'px';
             }
-
         });
         txtbox.addEventListener("mouseup", function () {
             if (this.moving) {
@@ -87,9 +79,8 @@ class PointPoint_Editor {
                     "x": (currentoffset.x / parentoffset.w) * 100,
                     "y": (currentoffset.y / parentoffset.h) * 100
                 }
-                this.ref.setAttribute("x", newoffset.x + "%");
-                this.ref.setAttribute("y", newoffset.y + "%");
-
+                this.ref.style.left = newoffset.x + "%";
+                this.ref.style.top = newoffset.y + "%";
                 this.moving = false;
             }
 
@@ -108,8 +99,8 @@ class PointPoint_Editor {
                     "x": (currentoffset.x / parentoffset.w) * 100,
                     "y": (currentoffset.y / parentoffset.h) * 100
                 }
-                this.ref.setAttribute("x", newoffset.x + "%");
-                this.ref.setAttribute("y", newoffset.y + "%");
+                this.ref.style.left = newoffset.x + "%";
+                this.ref.style.top = newoffset.y + "%";
                 this.moving = false;
             }
         });
@@ -152,19 +143,26 @@ class PointPoint_Editor {
             var slides = this.slides[index].GetSlideData();
             var slidesroot = slides.children;
             for (var i = 0; i < slidesroot.length; i++) {
-                if (slidesroot[i].tagName == "text") {
+                //  console.log(slidesroot[i]) ;
+                var objmove = null;
+                if (slidesroot[i].getAttribute("data-item") == "text") {
+
                     var txtele = slidesroot[i];
-                    var editor = this.editor.appendChild(this.converter.TextObject2Html(txtele));
+                    var editor = this.editor.appendChild(txtele.cloneNode(true));
                     editor.ref = txtele;
                     editor.fnref = this;
                     editor.contentEditable = "true";
-                    editor.style.position = "absolute";
+
                     editor.addEventListener("input", function () {
-                        var node = (this.fnref.converter.Html2TextObject(this));
-                        this.ref.innerHTML = node.innerHTML;
+
+                        this.ref.innerHTML = this.innerHTML;
 
                     });
-                    editor.addEventListener("mousedown", function (e) {
+                    objmove = editor;
+
+                }
+                if (objmove !== null) {
+                    objmove.addEventListener("mousedown", function (e) {
                         this.fnref.selectitem = this.ref;
                         if (this.fnref.mode == "delete") {
                             this.ref.parentNode.removeChild(this.ref);
@@ -178,7 +176,7 @@ class PointPoint_Editor {
                         }
 
                     });
-                    editor.addEventListener("mousemove", function (e) {
+                    objmove.addEventListener("mousemove", function (e) {
                         if (this.moving) {
                             e.preventDefault();
                             this.style.left = (e.clientX + this.movingoffset.x) + 'px';
@@ -186,7 +184,7 @@ class PointPoint_Editor {
 
                         }
                     });
-                    editor.addEventListener("mouseup", function () {
+                    objmove.addEventListener("mouseup", function () {
                         if (this.moving) {
                             var parentoffset = {
                                 "w": parseInt(this.parentNode.style.width),
@@ -200,13 +198,13 @@ class PointPoint_Editor {
                                 "x": (currentoffset.x / parentoffset.w) * 100,
                                 "y": (currentoffset.y / parentoffset.h) * 100
                             }
-                            this.ref.setAttribute("x", newoffset.x + "%");
-                            this.ref.setAttribute("y", newoffset.y + "%");
+                            this.ref.style.left = newoffset.x + "%";
+                            this.ref.style.top = newoffset.y + "%";
                             this.moving = false;
                         }
 
                     });
-                    editor.addEventListener("mouseout", function () {
+                    objmove.addEventListener("mouseout", function () {
                         if (this.moving) {
                             var parentoffset = {
                                 "w": parseInt(this.parentNode.style.width),
@@ -220,12 +218,11 @@ class PointPoint_Editor {
                                 "x": (currentoffset.x / parentoffset.w) * 100,
                                 "y": (currentoffset.y / parentoffset.h) * 100
                             }
-                            this.ref.setAttribute("x", newoffset.x + "%");
-                            this.ref.setAttribute("y", newoffset.y + "%");
+                            this.ref.style.left = newoffset.x + "%";
+                            this.ref.style.top = newoffset.y + "%";
                             this.moving = false;
                         }
                     });
-
                 }
             }
 
@@ -235,159 +232,19 @@ class PointPoint_Editor {
     }
 
 }
-class PointPoint_HtmlConverter {
-    Html2TextObject(htmldom) {
-
-        var newnode = document.createElement("text");
-        let tree = document.createTreeWalker(htmldom, NodeFilter.SHOW_TEXT);
-
-        [].forEach.call(htmldom.querySelectorAll("ul,ol"), function (list) {
-            list.listref = document.createElement("list");
-        });
-
-        while (tree.nextNode()) {
-
-            var textnode = document.createElement("text");
-            var text = tree.currentNode;
-            var parrentnode = text.parentNode;
-            var inlist = false;
-
-            textnode.textContent = text.nodeValue;
-
-
-            while (parrentnode !== htmldom) {
-                var tagname = parrentnode.tagName.toLowerCase();
-                switch (tagname) {
-                    case "b":
-                        textnode.setAttribute("bold", "true");
-                        break;
-                    case "i":
-                        textnode.setAttribute("italic", "true");
-                        break;
-                    case "u":
-                        textnode.setAttribute("underline", "true");
-                        break;
-                    case "ol":
-                        inlist = parrentnode.listref;
-                        inlist.setAttribute("type", "ol");
-                        break;
-                    case "ul":
-                        inlist = parrentnode.listref;
-                        inlist.setAttribute("type", "ul");
-                        break;
-                }
-                parrentnode = parrentnode.parentNode;
-            }
-            textnode.setAttribute("color", window.getComputedStyle(text.parentNode).getPropertyValue("color"));
-
-            if (!inlist) {
-                newnode.appendChild(textnode);
-            } else if (inlist.parentNode == null) {
-                inlist.appendChild(textnode)
-                newnode.appendChild(inlist);
-            } else if (inlist.parentNode !== null) {
-                inlist.appendChild(textnode)
-            }
-        }
-        return newnode;
-    }
-    TextObject2Html(txtele) {
-        var txtbox = document.createElement("DIV");
-        var noderef = [];
-        if (txtele.children.length == 0) {
-            var nodee = document.createElement("DIV");
-            txtbox.appendChild(nodee);
-            nodee.textContent = txtele.textContent;
-            nodee.attr = txtele.attributes;
-            noderef.push(nodee);
-
-
-        } else {
-            let tree = document.createTreeWalker(txtele, NodeFilter.SHOW_ELEMENT, function (node) {
-                if (node.tagName == "text") {
-                    var parrentnode = node.parentNode;
-                    while (parrentnode !== txtele) {
-                        var tagname = parrentnode.tagName.toLowerCase();
-                        if (tagname == "list") {
-                            return  NodeFilter.FILTER_REJECT;
-                        }
-                        parrentnode = parrentnode.parentNode;
-                    }
-                    return    NodeFilter.FILTER_ACCEPT;
-                }
-                return    NodeFilter.FILTER_ACCEPT;
-
-            });
-            while (tree.nextNode()) {
-
-                if (tree.currentNode.tagName == "text") {
-                    var nodee = document.createElement("DIV");
-                    txtbox.appendChild(nodee);
-                    nodee.textContent = tree.currentNode.textContent;
-                    nodee.attr = tree.currentNode.attributes;
-                    noderef.push(nodee);
-
-                } else if (tree.currentNode.tagName == "list") {
-                    var list = null;
-                    if (tree.currentNode.getAttribute("type") == "ol") {
-                        list = document.createElement("ol");
-                    } else {
-                        list = document.createElement("ul");
-                    }
-
-                    var child = tree.currentNode.childNodes;
-
-                    for (var i = 0; i < child.length; i++) {
-                        var nodee = list.appendChild(document.createElement("li")).appendChild(document.createElement("DIV"))
-                        nodee.textContent = child[i].textContent;
-                        nodee.attr = child[i].attributes;
-                        noderef.push(nodee);
-
-                    }
-                    list.attr = tree.currentNode.attributes;
-                    noderef.push(list);
-
-                    txtbox.appendChild(list);
-                }
-
-            }
-        }
-        for (var i = 0; i < noderef.length; i++) {
-
-            if (noderef[i].attr["color"]) {
-                noderef[i].style.color = noderef[i].attr.getNamedItem("color").value;
-            }
-            if (noderef[i].attr["bold"]) {
-
-                noderef[i].style.fontWeight = "bold";
-            }
-            if (noderef[i].attr["italic"]) {
-
-                noderef[i].style.fontStyle = "italic";
-            }
-            if (noderef[i].attr["underline"]) {
-
-                noderef[i].style.textDecoration = "underline";
-            }
-
-
-        }
-        txtbox.style.top = txtele.getAttribute("y");
-        txtbox.style.left = txtele.getAttribute("x");
-        return txtbox;
-    }
-}
-
 
 class PointPoint_Player {
     constructor(...args) {
         if (args.length === 1 && typeof args[0] === 'string' || args[0] instanceof String) {
-            this.canvas = document.querySelector(args[0]).appendChild(document.createElement("canvas"));
+            this.div = document.querySelector(args[0]).appendChild(document.createElement("div"));
         } else if (args.length === 1 && args[0] instanceof HTMLElement) {
-            this.canvas = args[0].appendChild(document.createElement("canvas"));
+            this.div = args[0].appendChild(document.createElement("div"));
         } else {
-            this.canvas = document.body.appendChild(document.createElement("canvas"));
+            this.div = document.body.appendChild(document.createElement("div"));
         }
+        var domlist = this.div.appendChild(document.createElement("div"));
+        var canvas = this.div.appendChild(document.createElement("canvas"));
+        //
         this.slides = [];
         this.slidesindex = 0;
         this.slidesitemindex = 0;
@@ -419,56 +276,6 @@ class PointPoint_Player {
 
 
                                     if (textnode[itn].tagName == "text") {
-                                        if (textnode[itn].getAttribute("color") !== null) {
-                                            ctx.fillStyle = (textnode[itn].getAttribute("color"));
-
-                                        } else if (cn[i].getAttribute("color") !== null) {
-                                            ctx.fillStyle = (cn[i].getAttribute("color"));
-
-                                        }
-
-
-
-
-
-
-                                        if (textnode[itn].getAttribute("fontsize") !== null) {
-                                            //  y = y + parseInt(textnode[itn].getAttribute("fontsize"));
-                                        } else if (cn[i].getAttribute("fontsize") !== null) {
-                                            // y = y + parseInt(cn[i].getAttribute("fontsize"));
-                                        } else {
-                                            var metrics = ctx.measureText(textnode[itn].textContent);
-                                            var actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-                                            y = y + (actualHeight * 1.2);
-                                        }
-                                        ctx.fillText(textnode[itn].textContent, x, y);
-
-                                    } else if (textnode[itn].tagName == "list") {
-                                        var listnode = textnode[itn].childNodes;
-                                        for (var iln = 0; iln < listnode.length; iln++) {
-                                            if (textnode[itn].getAttribute("color") !== null) {
-                                                
-                                                ctx.fillStyle = (textnode[itn].getAttribute("color"));
-
-                                            } else if (cn[i].getAttribute("color") !== null) {
-                                                ctx.fillStyle = (cn[i].getAttribute("color"));
-
-                                            }
-                                         
-                                            if (listnode[iln].getAttribute("fontsize") !== null) {
-                                                // y = y + parseInt(listnode[iln].getAttribute("fontsize"));
-                                            } else if (cn[i].getAttribute("fontsize") !== null) {
-                                                //  y = y + parseInt(cn[i].getAttribute("fontsize"));
-                                            } else {
-                                                var metrics = ctx.measureText(listnode[iln].textContent);
-                                                var actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-                                                y = y + (actualHeight * 1.2);
-                                            }
-                                            ctx.fillText(listnode[iln].textContent, x, y);
-
-
-
-                                        }
 
                                     }
                                     //                                 
@@ -552,17 +359,18 @@ class PointPoint_Player_RenderEngine {
 
 class PointPoint_Slide {
     constructor( ) {
-        var xmlString = "<root></root>";
-        var parser = new DOMParser();
-        this.slidedata = parser.parseFromString(xmlString, "text/xml").documentElement;
 
+        this.slidedata = document.createElement("DIV");
+        this.slidedata.style.position = "relative";
     }
 
     AddText(input, x, y) {
-        var txt = document.createElement("text");
-        txt.setAttribute("x", x);
-        txt.setAttribute("y", y);
+        var txt = document.createElement("DIV");
+        txt.style.position = "absolute";
+        txt.style.left = x;
+        txt.style.top = y;
         txt.appendChild(document.createTextNode(input));
+        txt.setAttribute("data-item", "text");
         this.slidedata.appendChild(txt);
         return txt;
 
@@ -572,38 +380,41 @@ class PointPoint_Slide {
     }
     Index(...args) {
         if (args.length === 0) {
-            return this.slidedata.getAttribute("index");
+            return this.slidedata.getAttribute("data-index");
         } else if (args.length === 1) {
-            return this.slidedata.setAttribute("index", args[0]);
+            return this.slidedata.setAttribute("data-index", args[0]);
         }
     }
-
+    Serialize(...args) {
+        if (args.length === 0) {
+            return  {
+                "Html": this.slidedata.innerHTML,
+                "Width": this.slidedata.style.width,
+                "Height": this.slidedata.style.height,
+                "Index": this.slidedata.getAttribute("data-index")
+            }
+        } else if (args.length === 1) {
+            this.slidedata.innerHTML = args[0]["Html"];
+            this.slidedata.style.width = args[0]["Width"];
+            this.slidedata.style.height = args[0]["Height"];
+            this.slidedata.setAttribute("data-index", args[0]["Index"]);
+        }
+    }
     Size(...args) {
         if (args.length === 0) {
             return {
-                "width": this.slidedata.getAttribute("width"),
-                "height": this.slidedata.getAttribute("height")
+                "width": this.slidedata.style.width,
+                "height": this.slidedata.style.height
             };
         } else if (args.length === 1) {
-            this.slidedata.setAttribute("width", parseInt(args[0].width));
-            this.slidedata.setAttribute("height", parseInt(args[0].height));
+            this.slidedata.style.width = args[0].width;
+            this.slidedata.style.height = args[0].height;
         } else if (args.length === 2) {
-            this.slidedata.setAttribute("width", parseInt(args[0]));
-            this.slidedata.setAttribute("height", parseInt(args[1]));
+            this.slidedata.style.width = args[0];
+            this.slidedata.style.height = args[1];
         }
     }
-    XMLString(...args) {
-        if (args.length === 0) {
-            var xml = new XMLSerializer();
-            return  xml.serializeToString(this.slidedata);
-        } else if (args.length === 1) {
-            var parser = new DOMParser();
-            var doc = parser.parseFromString(args[0], "text/xml");
-            this.slidedata = doc.documentElement;
 
-        }
-
-    }
 }
 
 

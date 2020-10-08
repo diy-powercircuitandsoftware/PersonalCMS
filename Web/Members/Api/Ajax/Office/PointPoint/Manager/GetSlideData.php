@@ -17,7 +17,7 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $vd = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
     $path = $vd->DiskPath($_POST["path"])  ;
     $point = new OfficeIO_PointPoint($path);
-      echo ( $point->GetSlideData($_POST["id"]));
+    echo json_encode( unserialize( $point->GetSlideData($_POST["id"])));
       $point->Close();
 } else {
     echo '0';

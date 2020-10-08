@@ -56,6 +56,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var ajax = new Ajax();
                     var ft = document.getElementById("FilesTable");
                     var uploadpath = "/";
+                    var videopreview = document.getElementById("videopreview");
+                    var audiopreview = document.getElementById("audiopreview");
+                    var imgpreview = document.getElementById("imgpreview");
                     ss.S("#BNShowHideMenu").Click(function () {
                         if (this.getAttribute("data-lock") == "1") {
                             ss.S("#Menu").Show();
@@ -65,6 +68,36 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             this.setAttribute("data-lock", "1");
                         }
                     });
+                    ss.S("#BNClosePreview").Click(function () {
+                        ss.S("#TableShowFiles").Show();
+                        ss.S("#BNClosePreview").Hide();
+                        videopreview.pause();
+                        audiopreview.pause();
+                        videopreview.style.display = "none";
+                        audiopreview.style.display = "none";
+                        imgpreview.style.display = "none";
+                    });
+
+
+                    ss.S("#BNDelete").Click(function () {
+                        var id = [];
+                        [].forEach.call(document.querySelectorAll(".CheckBoxSelect"), function (chkbox) {
+                            if (chkbox.checked) {
+                                id.push(chkbox.getAttribute("data-fullpath"));
+                            }
+                        });
+                        /*  ajax.Post("../../../../Api/Ajax/Files/Manager/DeleteFiles.php", {"path": v}, function (data) {
+                         if (data == "1") {
+                         FL.OpenDir(fileupload.currentdir);
+                         } else {
+                         dialog.Alert(data);
+                         }
+                         });*/
+
+
+                        console.log(id);
+                    });
+
                     ss.S("#BNHome").Click(function () {
                         OpenDIR("/");
                     });
@@ -78,37 +111,37 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
 
                     });
-
-
-
                     ft.addEventListener("click", function (e) {
-
                         if (e.target.getAttribute("class") == "LinkDIR") {
                             OpenDIR(e.target.getAttribute("data-fullpath"));
                         } else if (e.target.getAttribute("class") == "LinkFile") {
                             var v = e.target.getAttribute("data-fullpath");
                             var ext = v.split('.').pop().toLowerCase();
-                            var videopreview = document.getElementById("videopreview");
-                            var audiopreview = document.getElementById("audiopreview");
-                            var imgpreview = document.getElementById("imgpreview");
+
                             videopreview.pause();
                             audiopreview.pause();
                             videopreview.style.display = "none";
                             audiopreview.style.display = "none";
                             imgpreview.style.display = "none";
                             if (["mp4", "webm"].indexOf(ext) >= 0) {
+                                ss.S("#TableShowFiles").Hide();
+                                ss.S("#BNClosePreview").Show();
                                 videopreview.style.display = "";
                                 videopreview.src = "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + v;
                             } else if (["ogg", "mp3", "wma"].indexOf(ext) >= 0) {
+                                ss.S("#TableShowFiles").Hide();
+                                ss.S("#BNClosePreview").Show();
                                 audiopreview.style.display = "";
                                 audiopreview.src = "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + v;
                             } else if (["jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
+                                ss.S("#TableShowFiles").Hide();
+                                ss.S("#BNClosePreview").Show();
                                 imgpreview.style.display = "";
                                 imgpreview.src = "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + v;
                             }
+                            //                          
+                            //
                         }
-
-
                     });
                     function OpenDIR(v) {
                         ajax.Post("../../../../../../Web/Members/Api/Ajax/Files/List/GetFilesListByExtension.php", {"Path": v}, function (data) {
@@ -182,14 +215,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <a style="display: inline;" class="MenuLink" href="#">Cut</a>
                         <a style="display: inline;" class="MenuLink" href="#">Copy</a>
                         <a style="display: inline;" class="MenuLink" href="#">Paste</a>
-                        <a style="display: inline;" class="MenuLink" href="#">Delete</a>
+                        <a id="BNDelete" style="display: inline;" class="MenuLink" href="#">Delete</a>
                         <a style="display: inline;" class="MenuLink" href="#">Rename</a>
                         <a style="display: inline;" class="MenuLink" href="#">Share</a>
                         <div>
                             <label>Upload:</label>
-                            <progress value="0" max="100"></progress>
                             <input type="file" id="BNUpload"  />
-                            <button id="BNCancelUpload" style="display: none;">Cancel</button>
                         </div>
 
                         <?php
@@ -197,7 +228,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ?>
 
                 </div>
-                <table border="1" style="width: 100%;">
+                <table id="TableShowFiles" border="1" style="width: 100%;">
                     <thead>
                         <tr>
                             <th>Select</th>
@@ -210,6 +241,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     </tbody>
                 </table>
                 <div>
+                    <div style="text-align: right;">
+                        <a id="BNClosePreview" href="#" style="text-decoration: none;color: blue;">X</a>
+                    </div>
                     <video style="display: none;width: 100%;" id="videopreview" controls="controls"></video>
                     <audio style="display: none;width: 100%;"  id="audiopreview"  controls="controls"></audio>
                     <img style="display: none;width: 100%;"  id="imgpreview" src=""/>

@@ -57,9 +57,9 @@ class OfficeIO_PointPoint {
         return FALSE;
     }
 
-    function EditSlideData($index, $svgstring) {
+    function EditSlideData($index, $string) {
 
-        $this->zip->addFromString(self::Embed_Slides . "/" . $index, $svgstring);
+        $this->zip->addFromString(self::Embed_Slides . "/" . $index, $string);
     }
 
     function GetEmbedData($Path) {

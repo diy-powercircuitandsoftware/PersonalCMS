@@ -87,16 +87,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     domeditor.CanvasSize("800px", "600px");
                     domeditor.AfterSave = function () {};
                     domeditor.AddEditorEvent("click", function (e) {
-                        if (e.target == this) {
-
-                        } else {
-                            if (domeditor.selectitem.getAttribute("audio")){
-                                
-                            }
-                            if (domeditor.selectitem.getAttribute("animation")){
-                                
-                            }
-                        }
+                        /* if (e.target == this) {
+                         
+                         } else {
+                         if (domeditor.selectitem.getAttribute("audio")){
+                         
+                         }
+                         if (domeditor.selectitem.getAttribute("animation")){
+                         
+                         }
+                         }*/
 
                     });
 
@@ -204,7 +204,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNObjectManager").Click(function (e) {
                         ss.S("#EmbedType").Change();
                         var dia = sd.Import("Object Manager", "#ObjManagerDialog");
-
                         dia.AddButton("Delete", "Delete");
                         dia.CallbackResult = function (v) {
                             if (v == "Delete") {
@@ -215,7 +214,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#BNOpen").Click(function () {
-                        var SaveBeforeExit = sd.SaveBeforeExit(function (v) {
+                        sd.SaveBeforeExit(function (v) {
                             if (v == 0) {
                                 window.onbeforeunload = null;
                                 window.location.replace("index.php");
@@ -236,7 +235,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var list = [];
                         for (var i in slides) {
                             if (slides[i] !== null) {
-                                list.push(slides[i].XMLString());
+                                list.push(slides[i].Serialize());
                             }
                         }
                         var dpw = sd.PleaseWait().ZIndex(999);
@@ -280,12 +279,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S(".SlideExecCommand").Click(function () {
                         var cmd = this.getAttribute("data-cmd");
                         if (cmd == "Background") {
-                            sd.ImportOkCancel("Background","#BGDialog", function () {
+                            sd.ImportOkCancel("Background", "#BGDialog", function () {
                                 var opt = ss.S("#SelBGType").Val();
                                 if (opt == "none") {
-                                   // domeditor.Background("");
+                                    // domeditor.Background("");
                                 } else if (opt == "color") {
-                                   // domeditor.Background(ss.S("#SelBGColor").Val());
+                                    // domeditor.Background(ss.S("#SelBGColor").Val());
                                 }
 
                             }).ZIndex(999).Title("Background");
@@ -302,7 +301,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             var dialog = sd.PleaseWait();
                             ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetSlideData.php", {"path": domeditor.path, "id": v}, function (data) {
                                 var pps = new PointPoint_Slide();
-                                pps.XMLString(data);
+                                pps.Serialize(JSON.parse(data));
                                 domeditor.ReplaceSlideAt(v, pps);
                                 domeditor.Render(v);
                                 dialog.Close();

@@ -14,12 +14,13 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
         $session->Registered(session_id()) &&
         $userdata->CanWritable($_SESSION["User"]["id"]) &&
         isset($_POST["path"])) {
-    
+
     $vd = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
     $dp = $vd->DiskPath($_POST["path"]);
     if (is_writable($dp)) {
-        move_uploaded_file($_FILES['file']['tmp_name'],$dp . "/" . preg_replace('/\s/', '_', ($_FILES['file']['name'])));
-        
+        echo move_uploaded_file($_FILES['file']['tmp_name'], $dp . "/" . preg_replace('/\s/', '_', ($_FILES['file']['name'])));
+    } else {
+        echo '0';
     }
 } else {
     echo '0';
