@@ -242,66 +242,67 @@ class PointPoint_Player {
         } else {
             this.div = document.body.appendChild(document.createElement("div"));
         }
-        var domlist = this.div.appendChild(document.createElement("div"));
-        var canvas = this.div.appendChild(document.createElement("canvas"));
-        //
+        this.domlist = this.div.appendChild(document.createElement("div"));
+        this.canvas = this.div.appendChild(document.createElement("canvas"));
+
         this.slides = [];
-        this.slidesindex = 0;
+        this.slidesindex = -1;
         this.slidesitemindex = 0;
-        var render = new PointPoint_Player_RenderEngine();
-        render.ref = this;
-        render.SetAnimate(function (v) {
-            if (this.ref.slidesindex < this.ref.slides.length) {
-                var ctx = this.ref.canvas.getContext('2d');
-                var slideobj = this.ref.slides[this.ref.slidesindex];
-                if (slideobj !== null) {
-                    var root = slideobj.GetSlideData();
-                    var rootwidth = root.getAttribute("width");
-                    var rootheight = root.getAttribute("height");
-                    if (this.ref.canvas.width == rootwidth && this.ref.canvas.height == rootheight) {
-                        ctx.clearRect(0, 0, rootwidth, rootheight);
-                        var cn = root.childNodes;
-
-                        for (var i = 0; i < Math.min(cn.length, this.ref.slidesitemindex); i++) {
-
-
-                            if (cn[i].tagName == "text") {
-
-                                var x = (parseInt(rootwidth) / 100) * (parseFloat(cn[i].getAttribute("x")));
-                                var y = (parseInt(rootheight) / 100) * (parseFloat(cn[i].getAttribute("y")));
-                                //animation
-                                var textnode = cn[i].childNodes;
-//x=0;
-                                for (var itn = 0; itn < textnode.length; itn++) {
-
-
-                                    if (textnode[itn].tagName == "text") {
-
-                                    }
-                                    //                                 
-                                }
-                                // ctx.font = '48px serif';
-
-                                //     ctx.fillStyle = cn[i].getAttribute("color");
-//console.log(cn[i]);
-
-                            }
-                        }
-
-
-                    } else {
-                        this.ref.canvas.width = root.getAttribute("width");
-                        this.ref.canvas.height = root.getAttribute("height");
-                    }
-
-                }
-            }
-
-        });
-        render.Start();
+        this.domlist.style.position = "relative";
+        /* var render = new PointPoint_Player_RenderEngine();
+         render.ref = this;
+         render.SetAnimate(function (v) {
+         if (this.ref.slidesindex < this.ref.slides.length) {
+         var ctx = this.ref.canvas.getContext('2d');
+         
+         if (slideobj !== null) {
+         var root = slideobj.GetSlideData();
+         var rootwidth = root.getAttribute("width");
+         var rootheight = root.getAttribute("height");
+         if (this.ref.canvas.width == rootwidth && this.ref.canvas.height == rootheight) {
+         ctx.clearRect(0, 0, rootwidth, rootheight);
+         var cn = root.childNodes;
+         
+         for (var i = 0; i < Math.min(cn.length, this.ref.slidesitemindex); i++) {
+         
+         
+         if (cn[i].tagName == "text") {
+         
+         var x = (parseInt(rootwidth) / 100) * (parseFloat(cn[i].getAttribute("x")));
+         var y = (parseInt(rootheight) / 100) * (parseFloat(cn[i].getAttribute("y")));
+         //animation
+         var textnode = cn[i].childNodes;
+         //x=0;
+         for (var itn = 0; itn < textnode.length; itn++) {
+         
+         
+         if (textnode[itn].tagName == "text") {
+         
+         }
+         //                                 
+         }
+         // ctx.font = '48px serif';
+         
+         //     ctx.fillStyle = cn[i].getAttribute("color");
+         //console.log(cn[i]);
+         
+         }
+         }
+         
+         
+         } else {
+         this.ref.canvas.width = root.getAttribute("width");
+         this.ref.canvas.height = root.getAttribute("height");
+         }
+         
+         }
+         }
+         
+         });
+         render.Start();*/
     }
     AddPlayerEvent(...args) {
-        this.canvas.addEventListener(...args);
+        this.div.addEventListener(...args);
     }
     AddSlide(s) {
         if (s === null || s instanceof PointPoint_Slide) {
@@ -312,11 +313,27 @@ class PointPoint_Player {
         return  this.slides[this.slidesindex] === null;
     }
     NextItem() {
-        this.slidesitemindex = this.slidesitemindex + 1;
+        if (this.slidesindex >= 0) {
+            var sd = this.slides[this.slidesindex].GetSlideData();
+            this.domlist.style.width = sd.style.width;
+            this.domlist.style.height = sd.style.height;
+            var cn = Array.from(sd.childNodes);
+            if (this.slidesitemindex < cn.length) {
+                this.domlist.appendChild(cn[ this.slidesitemindex].cloneNode(true));
+                this.slidesitemindex++;
+                return true;
+            }
+        }
+        return false;      
     }
     NextSlide() {
-        this.slidesitemindex = 0;
-        this.slidesindex = this.slidesindex + 1;
+        this.domlist.innerHTML = "";
+        if (this.slidesindex < this.slides.length - 1) {
+            this.slidesindex++;
+            this.slidesitemindex = 0;
+            return true;
+        }
+        return false;
     }
     ReplaceSlideAt(index, slide) {
         if (slide === null || slide instanceof PointPoint_Slide) {

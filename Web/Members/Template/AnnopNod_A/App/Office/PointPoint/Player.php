@@ -69,24 +69,25 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     } else {
                         window.location.replace("index.php");
                     }
-                    player.AddPlayerEvent("click", function () {
-                        
 
+                    player.AddPlayerEvent("click", function () {
                         if (player.IsNull()) {
                             var dialog = sd.PleaseWait();
                             ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetSlideData.php", {"path": player.path, "id": player.slidesindex}, function (data) {
+                                var data = JSON.parse(data);
                                 var pps = new PointPoint_Slide();
-                                pps.XMLString(data);
-                                player.ReplaceSlideAt(player.slidesindex,pps);
-                                   ss.S("#LabPage").Html(player.slidesindex+1);
+                                pps.Serialize(data);
+                                player.ReplaceSlideAt(player.slidesindex, pps);
+                                ss.S("#LabPage").Html(player.slidesindex + 1);
                                 dialog.Close();
+                                 
                             });
-                        }
-                        else{
-                            player.NextItem();
+                        } else {
+                            if (!player.NextItem()) {
+                                player.NextSlide();
+                            }
                         }
 
-                     
                     });
                 });
             </script>
