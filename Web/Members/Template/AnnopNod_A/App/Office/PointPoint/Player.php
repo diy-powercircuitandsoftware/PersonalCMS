@@ -38,7 +38,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var ajax = new Ajax();
                     var sd = new SuperDialog();
                     var player = new PointPoint_Player(document.getElementById("Render"));
-                    var index = 0;
+                    
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
                         var dpw = sd.PleaseWait().ZIndex(999);
@@ -84,7 +84,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             });
                         } else {
                             if (!player.NextItem()) {
-                                player.NextSlide();
+                                if (! player.NextSlide()){
+                                    
+                                }
                             }
                         }
 

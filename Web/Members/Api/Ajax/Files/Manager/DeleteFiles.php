@@ -15,7 +15,7 @@ if ($config->IsOnline() && isset($_POST["path"]) && isset($_SESSION["User"]) &&
         $userdata->CanWritable($_SESSION["User"]["id"]) 
 ) {
     $vd = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
-    if (isset($_POST["password"])&&$userdata->AuthByPassword($_SESSION["User"]["id"], $_POST["password"])) {
+    if (isset($_POST["password"])&&$userdata->AuthByPassword($_SESSION["User"]["id"], $_POST["password"])==User_Member::Auth_Complete) {
         foreach ($_POST["path"] as $value) {
             $vd->DeleteFile($value);
         }

@@ -83,7 +83,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var ajax = new Ajax();
 
                     var domeditor = new PointPoint_Editor(document.getElementById("Editor"));
-                    var slideindex = 0;
+             
                     domeditor.CanvasSize("800px", "600px");
                     domeditor.AfterSave = function () {};
                     domeditor.AddEditorEvent("click", function (e) {

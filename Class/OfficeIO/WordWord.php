@@ -17,7 +17,7 @@ class OfficeIO_WordWord {
                 "version" => "1",
                 "date" => date("Y-m-d")
             )));
-            $this->AddDoc(new WordWordDoc());
+             
         } else {
             $this->zip->open($filename);
         }
@@ -40,9 +40,9 @@ class OfficeIO_WordWord {
         }
     }
 
-    function AddDoc(WordWordDoc $wwd) {
+    function AddDoc($html) {
         $name = $this->GetDocCount();
-        $this->zip->addFromString("Doc/" . $name, serialize($wwd->DocData));
+        $this->zip->addFromString("Doc/" . $name, $html);
     }
 
     function DeleteImage($name) {
@@ -55,10 +55,10 @@ class OfficeIO_WordWord {
 
     function GetImageList() {
 
-        $Dat = array();
+        /*$Dat = array();
         for ($i = 0; $i < $this->zip->numFiles; $i++) {
             $path = $this->zip->getNameIndex($i);
-            $fp = $this->GetFirstDirName($path);
+            $fp = $this-><--------------------->($path);
             if ($fp == "Image") {
                 $bn = basename($path);
                 if ($bn !== $fp) {
@@ -66,31 +66,26 @@ class OfficeIO_WordWord {
                 }
             }
         }
-        return $Dat;
+        return $Dat;*/
     }
 
     function GetDocCount() {
         $count = -1;
         for ($i = 0; $i < $this->zip->numFiles; $i++) {
             $path = $this->zip->getNameIndex($i);
-            if ($this->GetFirstDirName($path) == "Doc") {
+            $exp = explode("/", $path);
+            $as = array_shift($exp);
+            if ($as == "Doc") {
                 $count++;
             }
         }
         return $count;
     }
 
-    function GetFirstDirName($Text) {
-        $exp = explode("/", $Text);
-        if (substr($Text, 0, 1) == "/") {
-            return $exp[1];
-        } else {
-            return $exp[0];
-        }
-    }
+    
 
     function GetDoc($index) {
-        return unserialize($this->zip->getFromName("Doc/" . $index));
+        return $this->zip->getFromName("Doc/" . $index);
     }
 
     function GetMetadata() {
@@ -99,57 +94,11 @@ class OfficeIO_WordWord {
         return $dat;
     }
 
-    function ReplaceDoc($Index, PointPointSlide $Data) {
+    function ReplaceDoc($Index,$html) {
         $Path = "Doc/" . $Index;
         $this->zip->deleteName($Path);
-        return $this->zip->addFromString($Path, serialize($Data->SlideData));
+        return $this->zip->addFromString($Path,$html);
     }
 
 }
-
-class WordWordDoc {
-   
-
-    public $DocData = array();
-
-    const File_Type_None = 0;
-    const File_Type_Embed = 1;
-    const File_Type_Url = 2;
-    const Orientation_Landscape = -1;
-    const Orientation_None = 0;
-    const Orientation_Portrait = 1;
-
-    function __construct() {
-        $this->DocData = array(
-            "Background" => "",
-            "Html" => "",
-            "Object" => array(),
-            "Orientation" => self::Orientation_Portrait,
-            "Size" => array(
-                "Width" => 21.0,
-                "Height" => 29.7,
-                "Unit" => "cm",
-            )
-        );
-    }
-
-    function AddImage($type, $path, $w, $h, $css) {
-        $this->DocData["Object"][] = array(
-            "Css" => $css,
-            "FileType" => $type,
-            "Path" => $path,
-            "Width" => $w,
-            "Height" => $h,
-            "ObjectType" => "Image"
-        );
-    }
-
-    function SetText($html) {
-          $this->DocData["Html"]= $html;
-    }
-
-    function SetBackground($v) {
-        $this->DocData["Background"] = $v;
-    }
-
-}
+ 

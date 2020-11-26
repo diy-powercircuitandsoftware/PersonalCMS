@@ -25,7 +25,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
     <html>
         <head>
             <meta charset="UTF-8">
-            <title>Untitled Document</title>
+            <title>Open Document</title>
             <link rel="stylesheet" type="text/css" href="../../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../../css/PersonalCMS.css">
             <?php
@@ -70,7 +70,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNNew").Click(function () {
                         var p = sd.Prompt("Enter File Name", function (v) {
                             ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/CreatePointPointZip.php", {"Path": fd.CurrentDir, "Name": v}, function (data) {
-                                data = JSON.parse(data);
+                                
                                 fd.OpenDir(fd.CurrentDir);
                                 p.Close();
                             });
