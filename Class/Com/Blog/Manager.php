@@ -51,6 +51,27 @@ class Blog_Manager {
         }
     }
 
+    public function EditBlog($userid, $array) {
+        try {
+            $id = $array["id"];
+            unset($array["id"]);
+            $Prepare = $this->DataFilter($array);
+            $mix = implode("=?,", array_keys($Prepare)) . "=?";
+            $q = "UPDATE blog SET " . $mix . " WHERE id=:id AND userid=:userid;";
+            $stmt = $this->bd->prepare($q);   
+            $val = array_values($Prepare);
+            for ($i = 0; $i < count($val); $i++) {
+                $stmt->bindParam($i+1, $val[$i]);
+            }
+            $stmt->bindParam(":id", $id, SQLITE3_INTEGER);
+            $stmt->bindParam(":userid", $userid, SQLITE3_INTEGER);
+            $stmt->execute();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
     public function GetBlogCategory($id) {
         $data = array();
         $stmt = $this->bd->prepare('SELECT * FROM blogcategory WHERE blogid=:id ;');
@@ -64,7 +85,7 @@ class Blog_Manager {
 
     public function GetBlogMetadata($userid, $id) {
         $data = array();
-        $stmt = $this->bd->prepare('SELECT * FROM blog WHERE userid=:userid AND id=id ;');
+        $stmt = $this->bd->prepare('SELECT * FROM blog WHERE userid=:userid AND id=:id ;');
         $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
         $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
         $results = $stmt->execute();
@@ -117,7 +138,7 @@ class Blog_Manager {
         $stmt->bindValue(':userid', $userid, SQLITE3_INTEGER);
         $stmt->execute();
 
- 
+
         /*
           DELETE FROM blogcategory
           WHERE EXISTS

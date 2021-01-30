@@ -22,14 +22,14 @@ if ($config->IsOnline() &&
         $kw = $_POST["keyword"];
         unset($_POST["keyword"]);
     }
-
-    if ($blog->AddBlog($_SESSION["User"]["id"], $_POST)) {
+$blog->EditBlog($_SESSION["User"]["id"], $_POST);
+  /*  if ($blog->AddBlog($_SESSION["User"]["id"], $_POST)) {
         $lastid= $blog->LastInsertID();
         foreach ($kw as $value) {
             $blog->AddBlogKeyword($lastid, $value);
         }
         
-    }
+    }*/
     echo '1';
 }
 else{

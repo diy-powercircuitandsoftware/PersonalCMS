@@ -42,14 +42,14 @@ class User_Member {
     }
 
     public function GetProfileData($userid) {
-        $stmt = $this->ud->prepare('SELECT id,alias,writable FROM user WHERE id=:id; ');
+        $stmt = $this->ud->prepare('SELECT id,alias,name,lastname,writable FROM user WHERE id=:id; ');
         $stmt->bindValue(':id', $userid, SQLITE3_INTEGER);
         $results = $stmt->execute();
         return $results->fetchArray(SQLITE3_ASSOC);
     }
 
     public function GetUserData($userid) {
-        $stmt = $this->ud->prepare('SELECT id,alias,phone,email,address,addday,writable,enable FROM user WHERE id=:id; ');
+        $stmt = $this->ud->prepare('SELECT id,alias,name,lastname,phone,email,address,addday,writable,enable FROM user WHERE id=:id; ');
         $stmt->bindValue(':id', $userid, SQLITE3_INTEGER);
         $results = $stmt->execute();
         return $results->fetchArray(SQLITE3_ASSOC);
@@ -57,7 +57,7 @@ class User_Member {
 
     public function GetUserList($startid = 0) {
         $data = array();
-        $stmt = $this->ud->prepare('SELECT id,alias,enable,writable,email,phone FROM user WHERE id>:id LIMIT 32; ');
+        $stmt = $this->ud->prepare('SELECT id,alias,name,lastname,enable,writable,email,phone FROM user WHERE id>:id LIMIT 32; ');
         $stmt->bindValue(':id', $startid, SQLITE3_INTEGER);
         $results = $stmt->execute();
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
@@ -114,7 +114,7 @@ class User_Member {
 
 
         $data = array();
-        $results = $this->ud->query('SELECT id,alias,enable,writable,email,phone FROM user WHERE ' . $field . ' LIKE "' . $searchdata . '"   ');
+        $results = $this->ud->query('SELECT id,alias,name,lastname,enable,writable,email,phone FROM user WHERE ' . $field . ' LIKE "' . $searchdata . '"   ');
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             $data[] = $row;
         }

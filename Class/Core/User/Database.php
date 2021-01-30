@@ -41,6 +41,8 @@ class User_Database extends SQLite3 {
         $install[0] = ('
     CREATE TABLE IF NOT EXISTS user (
     id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    name     VARCHAR (100)  NOT NULL ,
+    lastname VARCHAR (1000) NOT NULL ,
     alias    VARCHAR (50),
     password VARCHAR (1000),
     icon     VARCHAR (512),

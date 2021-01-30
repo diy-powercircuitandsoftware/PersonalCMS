@@ -108,7 +108,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 ss.S("#CBoxSelectAll").Val(false);
                             }
                         } else if (e.target.getAttribute("class") == "BNEdit") {
-                            // {}
+
                             ajax.Post("../../../../Api/Ajax/Blog/List/GetBlogDataForEdit.php", {"id": e.target.getAttribute("data-value")}, function (edata) {
 
                                 edata = JSON.parse(edata);
@@ -121,20 +121,25 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 }
                                 ajax.Post("../../../../Api/Ajax/Category/List/GetKeywordDataByID.php", {"id": keyword}, function (kdata) {
                                     kdata = JSON.parse(kdata);
-                                  EKeyword.Empty();
+                                    EKeyword.Empty();
                                     for (var i in kdata) {
-                                        EKeyword.AddItem(kdata[i]["id"],kdata[i]["name"]);
+                                        EKeyword.AddItem(kdata[i]["id"], kdata[i]["name"]);
                                     }
                                 });
-                                
 
-                                sd.ImportOkCancel("Edit", "#Dialog", function () {
+
+                                var s = sd.ImportOkCancel("Edit", "#Dialog", function () {
                                     var senddata = ss.S(".AjaxSendEdit").ValByName();
+                                    senddata["id"] = e.target.getAttribute("data-value");
                                     senddata["htmlfilepath"] = FL.GetSelectFiles(0);
                                     senddata["keyword"] = EKeyword.GetItems();
 
-                                    ss.Post("../../../../Api/Ajax/Blog/List/EditBlog.php", senddata, function (d) {
-                                       ajaxsb.LoadAjax();
+                                    ajax.Post("../../../../Api/Ajax/Blog/List/EditBlog.php", senddata, function (d) {
+                                        lastid = 0;
+                                        ajaxsb.Param("id", lastid);
+                                        tabletool.DeleteRowAfter(0);
+                                        ajaxsb.LoadAjax();
+                                        s.Close();
                                     });
                                 }).ZIndex(999).Title("Edit");
 
@@ -143,22 +148,22 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     });
 
-                      
+
                     ss.S("#BNAdd").Click(function () {
 
                         ss.S(".AjaxSendEdit").Val("");
                         ss.S("#EFilePath").Html("");
                         EKeyword.Empty();
                         FL.OpenDir("/");
-                        sd.ImportOkCancel("Add", "#Dialog", function () {
+                        var s = sd.ImportOkCancel("Add", "#Dialog", function () {
 
                             var senddata = ss.S(".AjaxSendEdit").ValByName();
                             senddata["htmlfilepath"] = FL.GetSelectFiles(0);
                             senddata["keyword"] = EKeyword.GetItems();
 
                             ajax.Post("../../../../Api/Ajax/Blog/List/AddBlog.php", senddata, function (d) {
-                                tabletool.DeleteRowAfter(0);
-
+                                ajaxsb.LoadAjax();
+                                s.Close();
                             });
                         }).ZIndex(999);
 
@@ -167,10 +172,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         sd.Confirm("Do You Delect It", function () {
                             var v = ss.S(".SelectID").Val();
                             ajax.Post("../../../../Api/Ajax/Blog/List/DeleteBlog.php", {"ID": v}, function () {
-                                /* tabletool.DeleteRowAfter(0);
-                                 wsl.Param["StartID"] = 0;
-                                 wsl.Lock = false;
-                                 wsl.LoadData();*/
+                                lastid = 0;
+                                ajaxsb.Param("id", lastid);
+                                tabletool.DeleteRowAfter(0);
+                                ajaxsb.LoadAjax();
                             });
                         }).ZIndex(999);
                     });
@@ -200,8 +205,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-                             
- printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/".$valueB["path"], $valueB["name"]);
+
+                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }
