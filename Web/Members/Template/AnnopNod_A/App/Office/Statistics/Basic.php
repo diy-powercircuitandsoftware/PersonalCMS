@@ -1,29 +1,47 @@
 <?php
 session_start();
-include_once '../../../../../../Class/DB/Config/DB/Config.php';
-include_once '../../../../../../Class/DB/Config/DB/Software.php';
-include_once '../../../../../../Class/DB/Com/User/SessionManager.php';
-include_once '../../../../../../Class/DB/Com/User/Profile.php';
-include_once '../../../../../../Class/DB/Com/Events/Viewer.php';
-include_once '../../../../../../Class/DB/Com/Module/LoadModule.php';
-include_once '../../../../../../Class/DB/Com/User/LoadModule.php';
-include_once '../../../../../../Class/DB/Com/User/Permission.php';
-$DBConfig = new Config_DB_Config();
-$SC = new Config_DB_Software($DBConfig);
-$Sess = new Com_User_SessionManager($DBConfig);
-$User = new Com_User_Profile($DBConfig);
-$Event = new Com_Events_Viewer($DBConfig);
-$Module = new Com_Module_LoadModule($DBConfig);
-$UModule = new Com_User_LoadModule($DBConfig);
-$Permission = new Com_User_Permission($DBConfig);
-$DBConfig->Open();
-if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id())) {
+include_once '../../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../../Class/Core/UI/NAV.php';
+include_once '../../../../../../../Class/Core/Module/Database.php';
+include_once '../../../../../../../Class/Com/Event/Database.php';
+include_once '../../../../../../../Class/Com/Event/Reader.php';
+include_once '../../../../../../../Class/SDK/Module/Basic.php';
+include_once '../../../../../Auth/Action/VerifySession.php';
+$config = new Config();
+$uinav = new UINAV();
+$module = new Module_Database($config);
+$event = new Event_Reader(new Event_Database($config));
+if ($config->IsOnline() && isset($_SESSION["User"])) {
+    $modlist = array();
+    foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
+
+        include_once $module->ModulePath . $value["dirname"] . "/init.php";
+        $cn = new $value["classname"]();
+        $cn->SetUserID($_SESSION["User"]["id"]);
+        $modlist[] = $cn;
+    }
     ?>
     <!DOCTYPE html>
     <html>
         <head>
             <meta charset="UTF-8">
-            <title>Untitled Document</title>
+            <title>Open Document</title>
+            <link rel="stylesheet" type="text/css" href="../../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../../css/PersonalCMS.css">
+            <?php
+            foreach ($modlist as $value) {
+                echo $value->Execute(Module_SDK_Basic::Layout_Head);
+            }
+            ?>
+
+            <script src="../../../../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../../../../js/dom/SSQueryFW.js"></script>
+
+            <script src="../../../../../../js/io/Ajax.js"></script>
+            <script src="../../../../../../js/office/SimpleSheet.js"></script>
+            <script src="../../../../../../js/office/Statistical/Basic.js"></script>
+            <script src="../../../../../../js/office/Statistical/BellChart.js"></script>
+            <script src="../../../../../../js/office/Statistical/Chart.js"></script>
             <style>
                 .BNShowDialog{
                     border-style: outset;
@@ -61,40 +79,30 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     margin-left: 1px;
                     min-height: 22px;
                     min-width: 22px;
-                }
-            </style>
-            <link rel="stylesheet" href="../../css/Page.css">
-            <?php
-            foreach ($UModule->LoadModule($_SESSION["UserID"], Com_User_LoadModule::Layout_Head) as $value) {
-                try {
-                    include_once '../../../../../../Class/DB/UserModule/' . $value["filename"];
-                    $mod = new $value["classname"]($UModule);
-                    $mod->LoadConfig($value["config"]);
-                    echo $mod->Execute();
-                } catch (Exception $ex) {
                     
                 }
-            }
-            ?>
-            <script src="../../../../../js/dom/SuperDialog.js"></script>
-            <script src="../../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../js/statistical/SpreadSheet.js"></script>
-            <script src="../../../../../js/statistical/Statistical.js"></script>
-            <script src="../../../../../js/statistical/BellChart.js"></script>
-            <script src="../../../../../js/statistical/Chart.js"></script>
+            </style>
+
+
+
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ExecChart = new Chart(document.getElementById("ImageOutput"));
                     var sd = new SuperDialog();
-                    var stat = new Statistical();
-                    var ssh = document.getElementById("SpreadSheet").appendChild(new SpreadSheet(12, 24));
-                    var bc = new BellChart(document.getElementById("ImageOutput"));
+                    var stat = new Statistical_Basic();
+                    var ssh = new SimpleSheet("#SpreadSheet");
+                    
+                      ssh.SetRowCol(10,10);
+                        //    ssh.SetRowCol(5,5);
+                //    var bc = new BellChart(document.getElementById("ImageOutput"));
 
+
+return;
                     //ssh.AddRow(1);
                     //http://ie.eng.cmu.ac.th/IE2014/elearnings/2015_01/183/Minitab.pdf
                     //http://www.stvc.ac.th/elearning/stat/csu5.html
-                    if (ss.URLParam()["path"] !== undefined) {
+                 /*   if (ss.URLParam()["path"] !== undefined) {
                         var dpw = sd.PleaseWait().ZIndex(999);
                         ss.Post("../../../../Api/Ajax/CSV/GetCSVData.php", {"path": ss.URLParam()["path"]}, function (data) {
                             data = JSON.parse(data);
@@ -102,7 +110,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                             document.title = data["name"];
                             dpw.Close();
                         });
-                    }
+                    }*/
 
 
                     ss.S("#BNClear").Click(function () {
@@ -236,116 +244,51 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                 });
             </script>
         </head>
-        <body >
-
-            <div id="Header" style="position: absolute;" >
-                <div style="width: 50%;">
-                    <a href="../../index.php">
-                        <img  src="../../../../../../File/Resource/Logo.png"/>
-                    </a>
-                </div>
-                <div  style="width: 50%;text-align: right;">
-                    <a href="../../index.php">MainPage</a>
+        <body class="HolyGrail">
+            <header class="Header">
+                <div style="width: 50%;"></div>
+                <div style="width: 50%;text-align: right;">
                     <?php
-                    $Dat = $User->GetBasicUserData($_SESSION["UserID"]);
-                    printf('<img  src="../../../../Api/Action/Profile/Basic/GetUserIcon.php?id=%s" />', $Dat["userid"]);
-                    echo '<span>' . $Dat["alias"] . '</span>';
-                    ?>
-                    <a href="../../Config/Config.php">Config</a>
-
-                    <a  href="../../../../Session/Action/Logout.php">Logout</a>
+                    printf('<img src="../../../../../Api/Action/Profile/Basic/GetUserIcon.php?id=%s"/>', $_SESSION["User"]["id"]);
+                    printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
+                    ?>       
+                    <a class="MenuLink" style="display: inline;" href="../../../../../Auth/Action/Logout.php">LogOut</a>
                 </div>
-            </div>
-            <div class="Container">
-                <div class="Nav">
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Audio</span>
-                        <ul>
-                            <li><a href="../../Audio/Player.php">Player</a></li>
-                            <li><a href="../../Audio/PlayList.php">PlayList</a></li>
+            </header>
 
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Blog</span>
-                        <ul>
-                            <li><a href="../../Blog/Manage.php">Manage</a></li>
-                            <li><a href="../../Blog/View.php">View</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Event</span>
-                        <ul>
-                            <li><a href="../../Event/Manage.php">Manage</a></li>
-                            <li><a href="../../Event/View.php">View</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Files</span>
-                        <ul>
-                            <li><a href="../../Files/Manager.php">Manager</a></li>
-                            <li><a href="../../Files/Temp.php">Temp</a></li>
-                            <li><a href="../../Files/Trash.php">Trash</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Office</span>
-                        <ul>
-                            <li><a href="../FinFin/MainPage.php">FinFin</a></li>
-                            <li><a href="../FlowFlow/MainPage.php">FlowFlow</a></li>
-                            <li><a href="../Image/MainPage.php">Image</a></li>
-                            <li><a href="../PointPoint/MainPage.php">PointPoint</a></li>
-                            <li style="font-weight: bold;">Statistics</li>
-                            <li><a href="../WordWord/MainPage.php">WordWord</a></li>
-                            <li><a href="../WYSIWYG/NewDoc.php">WYSIWYG</a></li>
-                            <li><a href="../XCell/MainPage.php">XCell</a></li>
-                            <li><a href="../XCess/MainPage.php">XCess</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Photo</span>
-                        <ul>
-                            <li><a href="../../Photo/ImageSlider.php">ImageSlider</a></li>
-                            <li><a href="../../Photo/PlayList.php">PlayList</a></li>
-                        </ul>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <span class="Title" style="display: block;">Share</span>
-                        <ul>
-                            <li><a href="../../Share/BlogViewer.php">Blog</a></li>
-                            <li><a href="../../Share/EventViewer.php">Event</a></li>
-                        </ul>
-                    </div>
+            <div class="HolyGrail-body">
+                <nav>
                     <?php
-                    $Dat = array_merge($Module->LoadModule(Com_Module_LoadModule::Layout_Nav, Config_DB_Config::Access_Mode_Members), $Module->LoadModule(Com_Module_LoadModule::Layout_Nav, Config_DB_Config::Access_Mode_Public));
-                    foreach ($Dat as $value) {
-                        try {
-                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                            include_once '../../../../../../Class/DB/Module/' . $value["filename"];
-                            $mod = new $value["classname"]($Module);
-                            printf('<label class="Title">%s</label>', $mod->GetTitle());
-                            $mod->SetModuleID($value["id"]);
-                            $mod->SetModulePage("../../Module/Page.php");
-                            $mod->SetUserID($_SESSION["UserID"]);
-                            echo $mod->Execute();
+                    foreach ($uinav->FindAllMenuFile("../../../App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+
+                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../../App/" . $valueB["path"], $valueB["name"]);
+                        }
+                        echo '</div>';
+                    }
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                            echo ' <div class="BorderBlock" style="margin-top: 1px;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
                             echo '</div>';
-                        } catch (Exception $ex) {
-                            
                         }
                     }
-                    ?>
-                </div>
-                <div  class="Section" style="box-sizing: border-box;">
+                    ?>     
+                </nav>
+                <main>
                     <div style="background-color: burlywood;border-style: solid;border-width: thin;">
 
-                        <img id="BNOpen"  style="border-style: outset;" src="../img/wysiwyg/open.gif" width="22" height="22">
+                        <img id="BNOpen"  style="border-style: outset;" src="../../../../../../img/io/open.gif" width="22" height="22">
                         <?php
-                        if (isset($_GET["path"]) && $Permission->Writable($_SESSION["UserID"])) {
-                            echo '<img id="BNSave"  style="border-style: outset;" src="../img/wysiwyg/save.gif" width="22" height="22">';
+                       
+                        if (isset($_GET["path"])  &&$_SESSION["User"]["writable"] == 1) {
+                            echo '<img id="BNSave"  style="border-style: outset;" src="../../../../../../img/io/save.gif" width="22" height="22">';
                         }
                         ?>
-                        <img id="BNClear" style="border-style: outset;" src="../img/wysiwyg/removeformat.gif" width="22" height="22">
+                        <img id="BNClear" style="border-style: outset;" src="../../../../../../img/wysiwyg/removeformat.gif" width="22" height="22">
 
                     </div>
 
@@ -369,12 +312,12 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                         <button   data-cmd="Quantile" data-input="q:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">Quantile</button>
                     </div>
                     <div style="background-color: burlywood;border-style: solid;border-width: thin;margin-top: 1px;">
-                        <img id="OpenDialogBellChart" class="BNBolder"  src="../img/statistics/bellchart.png" />
-                        <img data-cmd="DrawPieChart" class="BNExeCellChart" src="../img/statistics/piechart.png" />
-                        <img data-cmd="DrawRingChart" class="BNExeCellChart" src="../img/statistics/donutchart.png" />
-                        <img data-cmd="DrawBarChart" class="BNExeCellChart" src="../img/statistics/barchart.png" />
-                        <img data-cmd="DrawLineChart" class="BNExeCellChart" src="../img/statistics/linechart.png" />
-                        <img data-cmd="DrawDotChart" class="BNExeCellChart" src="../img/statistics/dotchart.png" />
+                        <img id="OpenDialogBellChart" class="BNBolder"  src="../../../../../../img/statistics/bellchart.png" />
+                        <img data-cmd="DrawPieChart" class="BNExeCellChart" src="../../../../../../img/statistics/piechart.png" />
+                        <img data-cmd="DrawRingChart" class="BNExeCellChart" src="../../../../../../img/statistics/donutchart.png" />
+                        <img data-cmd="DrawBarChart" class="BNExeCellChart" src="../../../../../../img/statistics/barchart.png" />
+                        <img data-cmd="DrawLineChart" class="BNExeCellChart" src="../../../../../../img/statistics/linechart.png" />
+                        <img data-cmd="DrawDotChart" class="BNExeCellChart" src="../../../../../../img/statistics/dotchart.png" />
                     </div>
                     <div id="SpreadSheet" style="overflow-y: auto;">
 
@@ -393,55 +336,36 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
 
                     </div>
 
-                </div>
-                <div class="Aside"  >
+                </main>
+                <aside>
 
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <label class="Title">Statistics</label>
                         <a href="#">Basic</a>
                     </div>
                     <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">My Event</label>
+                        <div class="TitleCenter">Event</div>
                         <?php
-                        foreach ($Event->GetCurrentMyEvent($_SESSION["UserID"]) as $value) {
+                        foreach ($event->GetComingEvent(Event_Database::Access_Member) as $value) {
                             echo '<div>';
-                            printf('<a href="../../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                            printf('<div style="color: black;" >%s</div></a>', $value["description"]);
-                            echo '</div><hr>';
-                        }
-                        ?>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Other Event</label>
-                        <?php
-                        $Dat = array_merge($Event->GetCurrentEventNotUserID(Config_DB_Config::Access_Mode_Members, $_SESSION["UserID"]), $Event->GetCurrentEventNotUserID(Config_DB_Config::Access_Mode_Public, $_SESSION["UserID"]));
-                        foreach ($Dat as $value) {
-                            echo '<div  >';
-                            printf('<a href="../../Share/EventViewer.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                            printf('<a class="MenuLink" href="../../Event/View.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
                             printf('<div style="color: black;" >%s</div></a>', $value["description"]);
                             echo '</div><hr>';
                         }
                         ?>
                     </div>
                     <?php
-                    $Dat = array_merge($Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Members), $Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Public));
-                    foreach ($Dat as $value) {
-                        try {
-                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                            include_once '../../../../../../Class/DB/Module/' . $value["filename"];
-                            $mod = new $value["classname"]($Module);
-                            printf('<label class="Title">%s</label>', $mod->GetTitle());
-                            $mod->SetModuleID($value["id"]);
-                            $mod->SetModulePage("../../Module/Page.php");
-                            $mod->SetUserID($_SESSION["UserID"]);
-                            echo $mod->Execute();
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                            echo ' <div class="BorderBlock" style="margin-top: 1px;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Aside);
                             echo '</div>';
-                        } catch (Exception $ex) {
-                            
                         }
                     }
                     ?>
-                </div>
+                </aside>
+
             </div>
 
             <table id="BellChartDialog" style="display: none;width: 98%;">
@@ -467,6 +391,6 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
     </html>
     <?php
 } else {
-   header("location: ../../../../../Auth/Login.php");
+    header("location: ../../../../../Auth/Login.php");
     session_destroy();
 }

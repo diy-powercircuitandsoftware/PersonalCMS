@@ -38,7 +38,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var ajax = new Ajax();
                     var sd = new SuperDialog();
                     var player = new PointPoint_Player(document.getElementById("Render"));
-                    
+
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
                         var dpw = sd.PleaseWait().ZIndex(999);
@@ -71,26 +71,34 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     }
 
                     player.AddPlayerEvent("click", function () {
-                        if (player.IsNull()) {
+                        if (player.IsNull()&&!player.EndOfSlides()) {
                             var dialog = sd.PleaseWait();
                             ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetSlideData.php", {"path": player.path, "id": player.slidesindex}, function (data) {
                                 var data = JSON.parse(data);
-                                var pps = new PointPoint_Slide();
-                                pps.Serialize(data);
-                                player.ReplaceSlideAt(player.slidesindex, pps);
-                                ss.S("#LabPage").Html(player.slidesindex + 1);
+                                if (data) {
+                                    var pps = new PointPoint_Slide();
+                                    pps.Serialize(data);
+                                    player.ReplaceSlideAt(player.slidesindex, pps);
+                                    ss.S("#LabPage").Html(player.slidesindex + 1);
+
+                                }
                                 dialog.Close();
-                                 
                             });
-                        } else {
+                        } else   {
                             if (!player.NextItem()) {
-                                if (! player.NextSlide()){
-                                    
+                                if (!player.NextSlide()) {
+                                     ss.S("#LabPage").Html("End of Presentation");
                                 }
                             }
                         }
-
                     });
+                    
+                       ss.S("#BNGoto").Change(function (){
+                           player.SetSlide(parseInt(this.value));
+                       });
+                    
+                    
+                    
                 });
             </script>
         </head>

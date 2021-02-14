@@ -251,8 +251,8 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     </div>
                     <div>
                         <div class="ToolBoxTab" data-id="Basic" style="display: block;" >
-                            <img  id="BNOpen"    style="border-style: outset;"  src="../img/wysiwyg/open.gif" width="22" height="22"  />
-                            <img  id="BNSave"    style="border-style: outset;"  src="../img/wysiwyg/save.gif" width="22" height="22"  />
+                            <img  id="BNOpen"    style="border-style: outset;"  src="../img/io/open.gif" width="22" height="22"  />
+                            <img  id="BNSave"    style="border-style: outset;"  src="../img/io/save.gif" width="22" height="22"  />
                         </div>
                         <div class="ToolBoxTab" data-id="Color" style="display: none;" >
                             <span>foreground:</span>    <input id="FGColor" type="color"   value="#000000">

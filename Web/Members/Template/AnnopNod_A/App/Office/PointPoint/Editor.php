@@ -529,8 +529,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         </div>
                         <div>
                             <div class="ToolBoxTab" data-id="Basic" style="display: block;" >
-                                <img  id="BNOpen"    style="border-style: outset;"  src="../../../../../../img/wysiwyg/open.gif" width="22" height="22"  />
-                                <img  id="BNSave"    style="border-style: outset;"  src="../../../../../../img/wysiwyg/save.gif" width="22" height="22"  />
+                                <img  id="BNOpen"    style="border-style: outset;"  src="../../../../../../img/io/open.gif" width="22" height="22"  />
+                                <img  id="BNSave"    style="border-style: outset;"  src="../../../../../../img/io/save.gif" width="22" height="22"  />
                                 <img  id="BNUpload"    style="border-style: outset;" title="UploadEmbedFile"  src="../../../../../../img/wysiwyg/upload.png" width="22" height="22"  />
                                 <img  id="BNObjectManager"    style="border-style: outset;" title="ObjectManager"  src="../../../../../../img/wysiwyg/object.png" width="22" height="22"  />
                                 <img  id="BNSize"    style="border-style: outset;" title="Resize" src="../../../../../../img/wysiwyg/docsize.png" width="22" height="22"  />

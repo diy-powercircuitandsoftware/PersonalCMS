@@ -309,6 +309,9 @@ class PointPoint_Player {
             this.slides.push(s);
         }
     }
+    EndOfSlides() {
+        return  this.slidesindex >= this.slides.length;
+    }
     IsNull() {
         return  this.slides[this.slidesindex] === null;
     }
@@ -324,7 +327,7 @@ class PointPoint_Player {
                 return true;
             }
         }
-        return false;      
+        return false;
     }
     NextSlide() {
         this.domlist.innerHTML = "";
@@ -339,6 +342,14 @@ class PointPoint_Player {
         if (slide === null || slide instanceof PointPoint_Slide) {
             this.slides[index] = slide;
         }
+    }
+    SetSlide(index) {
+        if (index < this.slides.length - 1) {
+            this.domlist.innerHTML = "";
+            this.slidesindex = index;
+            this.slidesitemindex =0;
+        }
+
     }
 }
 

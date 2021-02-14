@@ -320,8 +320,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <div>
                         <div class="ToolBoxTab" data-id="Basic" style="display: block;" >
                             <img  id="BNAddNew"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/addnew.png" width="22" height="22"  />
-                            <img  id="BNOpen"    style="border-style: outset;"  src="../../../../../../img/wysiwyg/open.gif" width="22" height="22"  />
-                            <img  id="BNSave"    style="border-style: outset;"  src="../../../../../../img/wysiwyg/save.gif" width="22" height="22"  />
+                            <img  id="BNOpen"    style="border-style: outset;"  src="../../../../../../img/io/open.gif" width="22" height="22"  />
+                            <img  id="BNSave"    style="border-style: outset;"  src="../../../../../../img/io/save.gif" width="22" height="22"  />
                             <img  id="BNUpload"    style="border-style: outset;"  src="../../../../../../img/wysiwyg/upload.png" width="22" height="22"  />
                             <a href="<?php echo "../../../../Api/Action/Files/DownloadFile.php?id=" . base64_encode($_GET["path"]); ?>" download style="cursor: default;text-decoration: none;color: black;">   <img  style="border-style: outset;"  src="../../../../../../img/wysiwyg/download.png" width="22" height="22"  /></a>
                             <img  class="BNCMD" data-cmd="bold"  style="border-style: outset;"  src="../../../../../../img/wysiwyg/bold.gif" width="22" height="22"  />
