@@ -9,10 +9,60 @@ class SimpleSheet {
         }
         this.Sheet.border = "1";
         this.Sheet.style.textAlign = "center";
-        this.Sheet.style.tableLayout = "fixed";
+        this.Sheet.style.tableLayout = "auto";
         this.Sheet.style.width = "100%";
+        this.Sheet.addEventListener("keyup", function (e) {
+            if (e.keyCode == 13) {
+                var maxrow = this.rows.length;
+
+                var rowindex = (e.target.parentNode.parentNode.rowIndex);
+                var cellindex = (e.target.parentNode.cellIndex);
+
+                if (rowindex + 1 < maxrow) {
+                    var maxcell = this.rows[rowindex + 1].cells.length;
+                    if (cellindex < maxcell) {
+                        this.rows[rowindex + 1].cells[cellindex].querySelector('input[type=text]').focus();
+                    }
+                } else if (rowindex >= 1) {
+                    rowindex = 1;
+                    var maxcell = this.rows[rowindex].cells.length;
+                    if (cellindex + 1 < maxcell) {
+                        this.rows[rowindex ].cells[cellindex + 1].querySelector('input[type=text]').focus();
+                    }
+                }
+            }
+        });
     }
-    SetRowCol(r, c) {
+
+    ClearAll() {
+        [].forEach.call(this.Sheet.querySelectorAll('input[type=text]'), function (inp) {
+            inp.value = "";
+        });
+    }
+    CSS(...args) {
+        if (args.length == 0) {
+            return  this.Sheet.style.cssText;
+        }
+        else if (args.length == 1&&(typeof args[0] === 'string' ||  args[0]  instanceof String)) {
+              this.Sheet.style.cssText= args[0] ;
+        }
+         else if (args.length == 2 ) {
+              this.Sheet.style[args[0]]= args[1] ;
+        }
+    }
+    GetAllNumber() {
+        var Out = [];
+        [].forEach.call(this.Sheet.querySelectorAll('input[type=text]'), function (inp) {
+            var reg = /^-?\d+\.?\d*$/;
+            if (reg.test(inp.value)) {
+                Out.push(parseFloat(inp.value));
+            }
+
+        });
+        return Out;
+    }
+    ;
+            SetRowCol(r, c) {
         var rowlen = this.Sheet.rows.length - 1;
         if (rowlen < r) {
             for (var i = rowlen; i < r; i++) {
@@ -31,6 +81,7 @@ class SimpleSheet {
                     var newcell = this.Sheet.rows[row].insertCell(-1);
                     if (row > 0) {
                         newcell.innerHTML = '<input style="width: 100%;box-sizing: border-box;" type="text" name="" value="" />';
+
                     } else {
                         newcell.innerHTML = "Cell_" + (i + 1);
                     }
@@ -43,10 +94,7 @@ class SimpleSheet {
                 }
             }
         }
-
         this.Sheet.rows[0].cells[0].innerHTML = "";
-
-
     }
 
 }
@@ -56,29 +104,6 @@ function SpreadSheet(c, r) {
     Method.border = "1";
     Method.style.textAlign = "center";
 
-
-
-    Method.addEventListener("keyup", function (e) {
-        if (e.keyCode == 13) {
-            var maxrow = this.rows.length;
-
-            var rowindex = (e.target.parentNode.parentNode.rowIndex);
-            var cellindex = (e.target.parentNode.cellIndex);
-
-            if (rowindex + 1 < maxrow) {
-                var maxcell = this.rows[rowindex + 1].cells.length;
-                if (cellindex < maxcell) {
-                    this.rows[rowindex + 1].cells[cellindex].querySelector('input[type=text]').focus();
-                }
-            } else if (rowindex >= 1) {
-                rowindex = 1;
-                var maxcell = this.rows[rowindex].cells.length;
-                if (cellindex + 1 < maxcell) {
-                    this.rows[rowindex ].cells[cellindex + 1].querySelector('input[type=text]').focus();
-                }
-            }
-        }
-    });
     Method.AddPasteCSV = function () {
         Method.addEventListener("paste", function (e) {
             var clipboardData, pastedData;
@@ -99,11 +124,7 @@ function SpreadSheet(c, r) {
             return false;
         });
     }
-    Method.ClearAll = function () {
-        [].forEach.call(this.querySelectorAll('input[type=text]'), function (inp) {
-            inp.value = "";
-        });
-    };
+
     Method.ExportToCSVArray = function () {
         var rowdata = this.rows;
         var dataout = [];
@@ -116,18 +137,7 @@ function SpreadSheet(c, r) {
         }
         return dataout;
     };
-    Method.GetAllNumber = function () {
-        var Out = [];
 
-        [].forEach.call(this.querySelectorAll('input[type=text]'), function (inp) {
-            var reg = /^-?\d+\.?\d*$/;
-            if (reg.test(inp.value)) {
-                Out.push(parseFloat(inp.value));
-            }
-
-        });
-        return Out;
-    };
     Method.GetNumberAtCell = function (cellindex) {
         var Out = [];
         var r = this.rows;

@@ -455,6 +455,14 @@ class SuperDialog {
         sd.AddNewRowElement("Phone", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
         return sd;
     }
+     RowCol(callback) {
+        var sd = this.TableLayout(callback);
+        sd.Title("Row/Column");
+        sd.Resize(false);
+        sd.AddNewRowElement("Row", '<input type="number" min="0" style="width:100%;box-sizing: border-box;" value="" />');
+        sd.AddNewRowElement("Column", '<input type="number" min="0"  style="width:100%;box-sizing: border-box;" value="" />');
+        return sd;
+    }
     Quiz(question, callback) {
         var sd = this.TableLayout(callback);
         sd.Title("Quiz");

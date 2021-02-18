@@ -168,7 +168,6 @@ class Statistical_Basic {
             t = 1 - p;
             theSign = 1;
         }
-
         v = Math.sqrt(-2.0 * Math.log(t));
         var x = 2.515517 + (v * (0.802853 + v * 0.010328));
         var y = 1 + (v * (1.432788 + v * (0.189269 + v * 0.001308)));

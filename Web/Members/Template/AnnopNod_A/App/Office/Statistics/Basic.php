@@ -14,7 +14,6 @@ $event = new Event_Reader(new Event_Database($config));
 if ($config->IsOnline() && isset($_SESSION["User"])) {
     $modlist = array();
     foreach ($module->LoadModule(Module_Database::Access_Member) as $value) {
-
         include_once $module->ModulePath . $value["dirname"] . "/init.php";
         $cn = new $value["classname"]();
         $cn->SetUserID($_SESSION["User"]["id"]);
@@ -36,7 +35,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
             <script src="../../../../../../js/dom/SuperDialog.js"></script>
             <script src="../../../../../../js/dom/SSQueryFW.js"></script>
-
             <script src="../../../../../../js/io/Ajax.js"></script>
             <script src="../../../../../../js/office/SimpleSheet.js"></script>
             <script src="../../../../../../js/office/Statistical/Basic.js"></script>
@@ -79,44 +77,37 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     margin-left: 1px;
                     min-height: 22px;
                     min-width: 22px;
-                    
+
                 }
             </style>
-
-
 
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
-                    var ExecChart = new Chart(document.getElementById("ImageOutput"));
+                    var chart = new Chart(document.getElementById("ImageOutput"));
                     var sd = new SuperDialog();
                     var stat = new Statistical_Basic();
                     var ssh = new SimpleSheet("#SpreadSheet");
-                    
-                      ssh.SetRowCol(10,10);
-                        //    ssh.SetRowCol(5,5);
-                //    var bc = new BellChart(document.getElementById("ImageOutput"));
-
-
-return;
-                    //ssh.AddRow(1);
+                    var bc = new BellChart(document.getElementById("ImageOutput"));
+                    ssh.SetRowCol(12, 12);
+                    ssh.CSS("position", "absolute");
                     //http://ie.eng.cmu.ac.th/IE2014/elearnings/2015_01/183/Minitab.pdf
                     //http://www.stvc.ac.th/elearning/stat/csu5.html
-                 /*   if (ss.URLParam()["path"] !== undefined) {
-                        var dpw = sd.PleaseWait().ZIndex(999);
-                        ss.Post("../../../../Api/Ajax/CSV/GetCSVData.php", {"path": ss.URLParam()["path"]}, function (data) {
-                            data = JSON.parse(data);
-                            ssh.ImportFromCSV(data["csvdata"]);
-                            document.title = data["name"];
-                            dpw.Close();
-                        });
-                    }*/
+                    /*   if (ss.URLParam()["path"] !== undefined) {
+                     var dpw = sd.PleaseWait().ZIndex(999);
+                     ss.Post("../../../../Api/Ajax/CSV/GetCSVData.php", {"path": ss.URLParam()["path"]}, function (data) {
+                     data = JSON.parse(data);
+                     ssh.ImportFromCSV(data["csvdata"]);
+                     document.title = data["name"];
+                     dpw.Close();
+                     });
+                     }*/
 
 
                     ss.S("#BNClear").Click(function () {
                         if (ss.URLParam()["path"] !== undefined) {
                             sd.Confirm("Do You Clear Data", function () {
-                                ssh.Reset();
+                                ssh.ClearAll();
                             }).ZIndex(999);
                         } else {
                             ssh.Reset();
@@ -124,11 +115,11 @@ return;
 
                     });
                     ss.S("#BNClearOutput").Click(function () {
-                        ss.S("#TXTOutput").Html("");
+                        ss.S("#TXTOutput").Val("");
                     });
 
                     ss.S(".BNExec").Click(function () {
-                        ss.S("#TXTOutput").Html(ss.S("#TXTOutput").Html() + "<br>" + this.getAttribute("data-cmd") + "=" + stat[this.getAttribute("data-cmd")](ssh.GetAllNumber()));
+                        ss.S("#TXTOutput").Val(ss.S("#TXTOutput").Val() + "\n" + this.getAttribute("data-cmd") + "=" + stat[this.getAttribute("data-cmd")](ssh.GetAllNumber()));
                     });
 
                     ss.S(".BNExecMultiple").Click(function () {
@@ -145,7 +136,7 @@ return;
                                 var spreadsheetarrayindex = parseInt(ssaindex);
                                 argss.splice(spreadsheetarrayindex, 0, ssh.GetAllNumber());
                             }
-                            ss.S("#TXTOutput").Html(ss.S("#TXTOutput").Html() + "<br>" + cmd + "=" + stat[cmd].apply(stat, argss));
+                            ss.S("#TXTOutput").Val(ss.S("#TXTOutput").Val() + "\n" + cmd + "=" + stat[cmd].apply(stat, argss));
                             return true;
                         }).ZIndex(999).Title(this.getAttribute("data-cmd"));
                         t.args = [];
@@ -153,7 +144,11 @@ return;
                         for (var i = 0; i < sp.length; i++) {
                             var spclock = sp[i].split(":");
                             if (spclock[1] == "number") {
-                                t.args.push(t.AddTableDom(spclock[0] + ":", '<input type="number"  />'));
+                                var input = document.createElement("INPUT");
+                                input.type = "number";
+                                input.style.width = "99%";
+                                t.AddNewRowElement(spclock[0], input);
+                                t.args.push(input);
                             }
                         }
 
@@ -161,22 +156,11 @@ return;
                     ss.S(".BNExeCellChart").Click(function () {
 
                         var cmd = this.getAttribute("data-cmd");
-                        var t = sd.TableLayout(function () {
-                            //   console.log(ssh.GetNumberAtCell(t.cell1.value));
-                            if (t.option.value = "0") {
-                                var dat = ssh.GetAllNumber();
-                                for (var i = 0; i < dat.length; i++) {
-                                    ExecChart.SetData(i + 1, dat[i]);
-                                }
-
-                            }
-                            ExecChart[cmd]();
-                            return true;
-
-                        }).ZIndex(999).Title(this.getAttribute("data-cmd"));
-                        t.option = t.AddTableDom('Plot', '<select style="width: 100%;box-sizing: border-box;"><option value="0">All Data</option><option value="1">Average By Cell</option><option value="2">Start Cell AS Label</option></select>');
-                        t.cell1 = t.AddTableDom('Start Cell Index', '<input style="width: 100%;box-sizing: border-box;" type="number" min="1" value="" />');
-                        t.cell2 = t.AddTableDom('Stop Cell Index', '<input style="width: 100%;box-sizing: border-box;" type="number" min="1" value="" />');
+                        var dat = ssh.GetAllNumber();
+                        for (var i = 0; i < dat.length; i++) {
+                            chart.SetData(i + 1, dat[i]);
+                        }
+                        chart[cmd]();
 
                     });
                     ss.S("#BNOpen").Click(function () {
@@ -195,6 +179,16 @@ return;
                             ss.S("#BNSave").Click();
                         };
                     });
+
+                    ss.S("#BNResize").Click(function () {
+
+                        sd.RowCol(function (v) {
+                            ssh.SetRowCol(v.Row, v.Column);
+                            return true;
+                        });
+
+                    });
+
                     ss.S("#BNSave").Click(function () {
                         var dpw = sd.PleaseWait().ZIndex(999);
                         ss.Post("../../../../Api/Ajax/CSV/SaveCSVFile.php", {"path": ss.URLParam()["path"], "csvdata": ssh.ExportToCSVArray()}, function (data) {
@@ -209,14 +203,15 @@ return;
                         });
                     });
                     ss.S("#OpenDialogBellChart").Click(function () {
-                        sd.Import("#BellChartDialog", function () {
+                        sd.ImportOkCancel("BellChart", "#BellChartDialog", function () {
+
                             var sv = ss.S("#BellChartSelect").Val();
                             var za21 = stat.ConfidenceLevelTOZA2(parseFloat(ss.S("#BellChartCL1").Val()) / 100);
                             var za22 = stat.ConfidenceLevelTOZA2(parseFloat(ss.S("#BellChartCL2").Val()) / 100);
                             var arrdata = ssh.GetAllNumber();
                             var m = stat.Average(arrdata);
                             var sd = stat.StandardDeviation(arrdata);
-                            var txtout = ss.S("#TXTOutput").Html() + "<br>";
+                            var txtout = ss.S("#TXTOutput").Val() + "\n";
                             if (sv == "1")
                             {
                                 bc.Above(za21, m, sd);
@@ -234,7 +229,8 @@ return;
                                 bc.Outside(za22, za21, m, sd);
                                 txtout = txtout + "Bell Outside=" + (stat.Bell_Outside(za21, za22, arrdata));
                             }
-                            ss.S("#TXTOutput").Html(txtout);
+                            ss.S("#TXTOutput").Val(txtout);
+                            return true;
                         }).ZIndex(999).Title("Bell Curve");
                     });
 
@@ -278,18 +274,17 @@ return;
                     }
                     ?>     
                 </nav>
-                <main>
+                <main >
                     <div style="background-color: burlywood;border-style: solid;border-width: thin;">
 
                         <img id="BNOpen"  style="border-style: outset;" src="../../../../../../img/io/open.gif" width="22" height="22">
                         <?php
-                       
-                        if (isset($_GET["path"])  &&$_SESSION["User"]["writable"] == 1) {
+                        if (isset($_GET["path"]) && $_SESSION["User"]["writable"] == 1) {
                             echo '<img id="BNSave"  style="border-style: outset;" src="../../../../../../img/io/save.gif" width="22" height="22">';
                         }
                         ?>
                         <img id="BNClear" style="border-style: outset;" src="../../../../../../img/wysiwyg/removeformat.gif" width="22" height="22">
-
+                        <img id="BNResize" style="border-style: outset;" src="../../../../../../img/pointpoint/resize.jpg" width="22" height="22">
                     </div>
 
                     <div style="background-color: burlywood;border-style: solid;border-width: thin;">
@@ -319,30 +314,32 @@ return;
                         <img data-cmd="DrawLineChart" class="BNExeCellChart" src="../../../../../../img/statistics/linechart.png" />
                         <img data-cmd="DrawDotChart" class="BNExeCellChart" src="../../../../../../img/statistics/dotchart.png" />
                     </div>
-                    <div id="SpreadSheet" style="overflow-y: auto;">
+                    <div id="SpreadSheet" style="overflow:auto;width: 100%; height: 100%;position: relative;">
 
                     </div>
-                    <div  style="border-style: solid;border-width: thin;">
-                        <div style="display: none;display: flex;flex-direction: row;">
-                            <div style="width: 50%;"><label>Output:</label></div>
-                            <div  style="width: 50%;text-align: right;"><a id="BNClearOutput" href="#">Clear</a></div>
-                        </div>
-
-
-                        <div id="TXTOutput" style=" min-height: 300px;background-color: white;border-style: solid;border-width: thin;"></div>
+                    <div  style="border-style: solid;border-width: thin;">        
                         <label>Chart:</label>
                         <canvas id="ImageOutput" width="800" height="600" style="width: 100%;border-style: solid;border-width: thin; "></canvas>
-
-
                     </div>
 
                 </main>
                 <aside>
 
                     <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Statistics</label>
-                        <a href="#">Basic</a>
+                        <div class="TitleCenter">Statistics</div>
+                        <a class="MenuLink" href="#">Basic</a>
                     </div>
+
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Output</div>
+                        <div style="text-align: right;">
+                            <a id="BNClearOutput" class="MenuLink"  href="#">Clear</a>
+                        </div>
+
+                        <textarea id="TXTOutput" style=" resize: vertical;width: 100%;box-sizing: border-box;min-height: 200px;"></textarea>
+                    </div>
+
+
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">Event</div>
                         <?php
