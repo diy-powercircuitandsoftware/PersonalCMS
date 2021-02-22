@@ -1,32 +1,11 @@
 class Statistical_Basic {
+    //https://github.com/chen0040/js-stats/blob/master/src/jsstats.js
+    //https://stackoverflow.com/questions/36575743/how-do-i-convert-probability-into-z-score
+    ////https://github.com/errcw/gaussian
     Average(arr) {
         return  this.Sum(arr) / arr.length;
     }
-    Bell_Above(za2, arr) {
-        var z = this.Z(Math.abs(parseFloat(za2)), arr);
-        return Math.round(this.ZTable(z) * 10000) / 10000;
-    }
-    Bell_Below(za2, arr) {
-        var z = this.Z(Math.abs(parseFloat(za2)), arr);
-        var p = 1 - this.ZTable(z);
-        return Math.round(p * 10000) / 10000;
-    }
-    Bell_Between(za2l, za2u, arr) {
-        var z1 = this.Z((parseFloat(za2l)), arr);
-        var z2 = this.Z((parseFloat(za2u)), arr);
-        var zp = this.ZTable(z2) - this.ZTable(z1);
-        return Math.round(zp * 10000) / 10000;
-    }
-    Bell_Outside(za2l, za2u, arr) {
-        var z1 = this.Z((parseFloat(za2l)), arr);
-        var z2 = this.Z((parseFloat(za2u)), arr);
-        var zp = this.ZTable(z1) + (1 - this.ZTable(z2));
-        return Math.round(zp * 10000) / 10000;
-    }
-    ConfidenceLevelTOZA2(CL) {
-        var a2 = (1 - CL) / 2;
-        return this.ZTableInvert(a2);
-    }
+
     GeometricMean(arr) {
         return Math.pow(arr.reduce(function (a, b) {
             return a * b;
@@ -77,23 +56,78 @@ class Statistical_Basic {
         }
         return mode;
     }
+    ND_CDF(x, arr) {
+        var z = (x - this.Average(arr)) / (Math.SQRT2 * this.StandardDeviation(arr));
+        return 0.5 + 0.5 * this.ND_ErrorFN(z);
+    }
+    ND_CDFInv(p, arr) {
+        var Z = Math.SQRT2 * this.ND_ErrorFNInv(2 * p - 1);
 
+        return Z * this.StandardDeviation(arr) + this.Average(arr);
+    }
+    ND_ErrorFN(z) {
+        var t = 1.0 / (1.0 + 0.5 * Math.abs(z));
+        // use Horner's method
+        var ans = 1 - t * Math.exp(-z * z - 1.26551223 +
+                t * (1.00002368 +
+                        t * (0.37409196 +
+                                t * (0.09678418 +
+                                        t * (-0.18628806 +
+                                                t * (0.27886807 +
+                                                        t * (-1.13520398 +
+                                                                t * (1.48851587 +
+                                                                        t * (-0.82215223 +
+                                                                                t * (0.17087277))))))))));
+        if (z >= 0)
+            return ans;
+        else
+            return -ans;
+    }
+    ND_ErrorFNInv(x) {
+
+        var a = 0.147;
+        var the_sign_of_x;
+        if (x == 0)
+        {
+            return 0;
+        }
+        if (x > 0)
+        {
+            the_sign_of_x = 1;
+        } else
+        {
+            the_sign_of_x = -1;
+        }
+
+        var ln_1minus_x_sqrd = Math.log(1 - x * x);
+        var ln_1minusxx_by_a = ln_1minus_x_sqrd / a;
+        var ln_1minusxx_by_2 = ln_1minus_x_sqrd / 2;
+        var ln_etc_by2_plus2 = ln_1minusxx_by_2 + (2 / (Math.PI * a));
+        var first_sqrt = Math.sqrt((ln_etc_by2_plus2 * ln_etc_by2_plus2) - ln_1minusxx_by_a);
+        var second_sqrt = Math.sqrt(first_sqrt - ln_etc_by2_plus2);
+        return second_sqrt * the_sign_of_x;
+
+    }
     Quantile(q, arr) {
         arr.sort(function (a, b) {
             return a - b;
         });
-        var pos = ((arr.length + 1) * q);
-        var fraction = pos - Math.floor(pos);
-        if (fraction == 0) {
-            return arr[pos - 1];
+        var pos = (arr.length - 1) * q;
+        var base = Math.floor(pos);
+        if (arr[base + 1] !== undefined) {
+            return arr[base] + (pos - base) * (arr[base + 1] - arr[base]);
         } else {
-            var diff = arr[Math.floor(pos)] - arr[Math.floor(pos) - 1];
-            var arithmetic = diff * fraction;
-            return arr[Math.floor(pos) - 1] + arithmetic;
+            return arr[base];
         }
-
     }
-
+    PDF(x, arr) {
+        var m = this.StandardDeviation(arr) * Math.sqrt(2 * Math.PI);
+        var e = Math.exp(-Math.pow(x - this.Average(arr), 2) / (2 * this.Variance(arr)));
+        return e / m;
+    }
+    PPF(x, arr) {
+        return  this.Average(arr) - this.StandardDeviation(arr) * Math.sqrt(2) * this.ND_ErrorFNInv(2 * x);
+    }
     PopulationStandardDeviation(arr) {
         var m = this.Average(arr);
         return Math.sqrt(arr.reduce(function (sq, n) {
@@ -129,50 +163,5 @@ class Statistical_Basic {
     Z(v, arr) {
         return  (v - this.Average(arr)) / this.StandardDeviation(arr);
     }
-
-    ZTable(z) {
-        if (z < -7) {
-            return 0.0;
-        }
-        if (z > 7) {
-            return 1.0;
-        }
-        z = Math.abs(z);
-        var b = 0.0;
-        var s = Math.sqrt(2) / 3 * z;
-        var HH = .5;
-        for (var i = 0; i < 12; i++) {
-            var a = Math.exp(-HH * HH / 9) * Math.sin(HH * s) / HH;
-            b = b + a;
-            HH = HH + 1.0;
-        }
-        var p = .5 - b / Math.PI;
-        if (z >= 0.0) {
-            return 1.0 - p;
-        }
-        return p;
-    }
-
-    ZTableInvert(p) {
-        var t, v, theSign;
-        if (p >= 1) {
-            return 7;
-        } else if (p <= 0) {
-            return -7;
-        }
-        if (p < .5) {
-            t = p;
-            theSign = -1;
-        } else
-        {
-            t = 1 - p;
-            theSign = 1;
-        }
-        v = Math.sqrt(-2.0 * Math.log(t));
-        var x = 2.515517 + (v * (0.802853 + v * 0.010328));
-        var y = 1 + (v * (1.432788 + v * (0.189269 + v * 0.001308)));
-        var Q = theSign * (v - (x / y));
-        return Q;
-    }
-
 }
+ 

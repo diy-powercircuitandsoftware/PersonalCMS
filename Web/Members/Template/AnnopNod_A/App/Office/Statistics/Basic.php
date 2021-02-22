@@ -38,7 +38,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script src="../../../../../../js/io/Ajax.js"></script>
             <script src="../../../../../../js/office/SimpleSheet.js"></script>
             <script src="../../../../../../js/office/Statistical/Basic.js"></script>
-            <script src="../../../../../../js/office/Statistical/BellChart.js"></script>
+            <script src="../../../../../../js/office/Statistical/Gaussian.js"></script>
             <script src="../../../../../../js/office/Statistical/Chart.js"></script>
             <style>
                 .BNShowDialog{
@@ -84,11 +84,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
-                    var chart = new Chart(document.getElementById("ImageOutput"));
                     var sd = new SuperDialog();
+                    var imageoutput = sd.Canvas(800, 600, false, false).Title("Output");
+                    var chart = new Chart(imageoutput.canvas);
+
                     var stat = new Statistical_Basic();
                     var ssh = new SimpleSheet("#SpreadSheet");
-                    var bc = new BellChart(document.getElementById("ImageOutput"));
+                    var gaussian = new Gaussian(imageoutput.canvas);
                     ssh.SetRowCol(12, 12);
                     ssh.CSS("position", "absolute");
                     //http://ie.eng.cmu.ac.th/IE2014/elearnings/2015_01/183/Minitab.pdf
@@ -126,35 +128,28 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         var cmd = this.getAttribute("data-cmd");
                         var ssaindex = this.getAttribute("data-spreadsheetarrayindex");
-                        var t = sd.TableLayout(function () {
-                            var argss = [];
-
-                            for (var i = 0; i < t.args.length; i++) {
-                                argss.push(t.args[i].value);
-                            }
+                        var t = sd.TableLayout(function (cb) {
+                            var argss = Object.values(cb);
                             if (ssaindex !== null) {
                                 var spreadsheetarrayindex = parseInt(ssaindex);
                                 argss.splice(spreadsheetarrayindex, 0, ssh.GetAllNumber());
                             }
                             ss.S("#TXTOutput").Val(ss.S("#TXTOutput").Val() + "\n" + cmd + "=" + stat[cmd].apply(stat, argss));
+
                             return true;
                         }).ZIndex(999).Title(this.getAttribute("data-cmd"));
-                        t.args = [];
+
                         var sp = this.getAttribute("data-input").split(",");
                         for (var i = 0; i < sp.length; i++) {
                             var spclock = sp[i].split(":");
                             if (spclock[1] == "number") {
-                                var input = document.createElement("INPUT");
-                                input.type = "number";
-                                input.style.width = "99%";
-                                t.AddNewRowElement(spclock[0], input);
-                                t.args.push(input);
+                                t.AddNewRowElement(spclock[0], '<input type="number" style="width: 99%;box-sizing: border-box;" />');
                             }
                         }
 
                     });
                     ss.S(".BNExeCellChart").Click(function () {
-
+                        imageoutput.Show();
                         var cmd = this.getAttribute("data-cmd");
                         var dat = ssh.GetAllNumber();
                         for (var i = 0; i < dat.length; i++) {
@@ -162,22 +157,25 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                         chart[cmd]();
 
+
                     });
                     ss.S("#BNOpen").Click(function () {
 
-                        var SaveBeforeExit = sd.SaveBeforeExit("Do You Save Before Open Document").ZIndex(999).Title("New Document");
-                        SaveBeforeExit.OnDiscard = function () {
-                            window.onbeforeunload = null;
-                            window.location.replace("MainPage.php");
+                        sd.SaveBeforeExit(function (cb) {
 
-                        };
-                        SaveBeforeExit.OnSave = function () {
-                            ssh.AfterSave = function () {
-                                window.onbeforeunload = null;
-                                window.location.replace("MainPage.php");
-                            };
-                            ss.S("#BNSave").Click();
-                        };
+                        }).ZIndex(999).Title("New Document");
+                        /* SaveBeforeExit.OnDiscard = function () {
+                         window.onbeforeunload = null;
+                         window.location.replace("MainPage.php");
+                             
+                         };
+                         SaveBeforeExit.OnSave = function () {
+                         ssh.AfterSave = function () {
+                         window.onbeforeunload = null;
+                         window.location.replace("MainPage.php");
+                         };
+                         ss.S("#BNSave").Click();
+                         };*/
                     });
 
                     ss.S("#BNResize").Click(function () {
@@ -203,11 +201,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
                     });
                     ss.S("#OpenDialogBellChart").Click(function () {
-                        sd.ImportOkCancel("BellChart", "#BellChartDialog", function () {
-
-                            var sv = ss.S("#BellChartSelect").Val();
-                            var za21 = stat.ConfidenceLevelTOZA2(parseFloat(ss.S("#BellChartCL1").Val()) / 100);
-                            var za22 = stat.ConfidenceLevelTOZA2(parseFloat(ss.S("#BellChartCL2").Val()) / 100);
+                        var t = sd.TableLayout(function (cb) {
+                           /* var sv = cb["Select"];
+                            var za21 = stat.ConfidenceLevelTOZA2(parseFloat(cb["ConfidenceLevel1"]) / 100);
+                            var za22 = stat.ConfidenceLevelTOZA2(parseFloat(cb["ConfidenceLevel2"]) / 100);
                             var arrdata = ssh.GetAllNumber();
                             var m = stat.Average(arrdata);
                             var sd = stat.StandardDeviation(arrdata);
@@ -230,8 +227,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 txtout = txtout + "Bell Outside=" + (stat.Bell_Outside(za21, za22, arrdata));
                             }
                             ss.S("#TXTOutput").Val(txtout);
+                            imageoutput.Show();*/
                             return true;
                         }).ZIndex(999).Title("Bell Curve");
+
+
+                        t.AddNewRowElement('Select', '<select style="width: 100%;box-sizing: border-box;"><option value="1">Above</option><option value="2">Below</option><option value="3">Between</option><option value="4">Outside</option></select>');
+                        t.AddNewRowElement('Confidence Level 1', '<input type="number" value="95" min="-100" max="100"/>');
+                        t.AddNewRowElement('Confidence Level 2', '<input type="number" value="95" min="-100" max="100"/>');
+
                     });
 
 
@@ -241,7 +245,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             </script>
         </head>
         <body class="HolyGrail">
-            <header class="Header">
+            <header class="Header" >
                 <div style="width: 50%;"></div>
                 <div style="width: 50%;text-align: right;">
                     <?php
@@ -301,10 +305,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <button data-cmd="Mode" class="BNExec">Mode</button>
                         <button data-cmd="Range" class="BNExec">Range</button>
                         <button data-cmd="MidRange" class="BNExec">MidRange</button>
-                        <button data-cmd="Z" data-input="x:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">Z</button>
-                        <button data-cmd="ZTable" data-input="z:number" class="BNExecMultiple">Z-Table</button>
-                        <button data-cmd="ZTableInvert" data-input="p:number" class="BNExecMultiple">Z-Table-Invert</button>
-                        <button   data-cmd="Quantile" data-input="q:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">Quantile</button>
+                        <button data-cmd="Z" data-input="x:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">Z</button>   
+                         <button data-cmd="ND_CDF" data-input="x:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">CDF(Normal)</button>  
+                             <button data-cmd="ND_CDFInv" data-input="p:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">CDF_Inv(Normal)</button>  
+                             
+                             
+                               <button data-cmd="PDF" data-input="x:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">PDF</button>  
+                                 <button data-cmd="PPF" data-input="x:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">PPF</button>  
+                        <button data-cmd="Quantile" data-input="q:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">Quantile</button>
                     </div>
                     <div style="background-color: burlywood;border-style: solid;border-width: thin;margin-top: 1px;">
                         <img id="OpenDialogBellChart" class="BNBolder"  src="../../../../../../img/statistics/bellchart.png" />
@@ -317,10 +325,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     <div id="SpreadSheet" style="overflow:auto;width: 100%; height: 100%;position: relative;">
 
                     </div>
-                    <div  style="border-style: solid;border-width: thin;">        
-                        <label>Chart:</label>
-                        <canvas id="ImageOutput" width="800" height="600" style="width: 100%;border-style: solid;border-width: thin; "></canvas>
-                    </div>
+
 
                 </main>
                 <aside>
@@ -362,28 +367,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     }
                     ?>
                 </aside>
-
             </div>
 
-            <table id="BellChartDialog" style="display: none;width: 98%;">
-                <tr>
-                    <td>Select:</td>
-                    <td><select id="BellChartSelect"  style="width: 100%;box-sizing: border-box;">
-                            <option value="1">Above</option>
-                            <option value="2">Below</option>
-                            <option value="3">Between</option>
-                            <option value="4">Outside</option>
-                        </select></td>
-                </tr>
-                <tr>
-                    <td>Confidence Level-1:</td>
-                    <td><input id="BellChartCL1" type="number" value="95" min="-100" max="100"/></td>
-                </tr>
-                <tr>
-                    <td>Confidence Level-2:</td>
-                    <td><input id="BellChartCL2" type="number" value="95" min="-100" max="100"/></td>
-                </tr>
-            </table>
         </body>
     </html>
     <?php

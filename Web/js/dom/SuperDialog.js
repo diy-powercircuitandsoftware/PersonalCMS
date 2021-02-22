@@ -62,6 +62,26 @@ class SuperDialog {
             }});
         return sd;
     }
+    Canvas(...args) {
+
+        var w = args[0];
+        var h = args[1];
+        var sd = new Dialog();
+        sd.canvas = sd.Content(document.createElement('canvas'));
+        sd.canvas.width = w;
+        sd.canvas.height = h;
+        if (args.length == 3) {
+            sd.DestroyAfterClose(args[2]);
+            sd.Show();
+        } else if (args.length == 4) {
+            sd.DestroyAfterClose(args[2]);
+            if (args[3]){
+                   sd.Show();
+            }
+            
+        }
+        return sd;
+    }
     ChangePassword(callback) {
         var error = document.createElement("DIV");
         var sd = this.TableLayout(function (v) {
@@ -455,7 +475,7 @@ class SuperDialog {
         sd.AddNewRowElement("Phone", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
         return sd;
     }
-     RowCol(callback) {
+    RowCol(callback) {
         var sd = this.TableLayout(callback);
         sd.Title("Row/Column");
         sd.Resize(false);
@@ -894,8 +914,13 @@ class Dialog {
             }
         }
     }
-    DestroyAfterClose() {
-        this.destroyafterclose = true;
+    DestroyAfterClose(...args) {
+        if (args.length == 0) {
+            this.destroyafterclose = true;
+        } else if (args.length == 1 && typeof args[0] === "boolean") {
+            this.destroyafterclose = args[0];
+        }
+
     }
 
     Resize(...args) {
