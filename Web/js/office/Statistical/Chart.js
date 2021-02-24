@@ -1,32 +1,35 @@
 class Chart {
     constructor(...args) {
-        if ( typeof args[0] === 'string' || args[0] instanceof String) {
+        if (typeof args[0] === 'string' || args[0] instanceof String) {
             var e = document.querySelector(args[0]);
             if (e.tagName == "CANVAS") {
                 this.Canvas = e;
             } else {
                 this.Canvas = e.appendChild(document.createElement("canvas"));
             }
-        } else if ( args[0] instanceof HTMLElement) {
+        } else if (args[0] instanceof HTMLElement) {
             if (args[0].tagName == "CANVAS") {
                 this.Canvas = args[0];
-                
+
             } else {
                 this.Canvas = args[0].appendChild(document.createElement("canvas"));
             }
         } else {
             this.Canvas = document.body.appendChild(document.createElement("canvas"));
         }
-      
+
         this.Canvas.getContext('2d').font = "14pt sans-serif";
         this.Data = {};
-         
+        this.LuckyJapan = 7;
     }
-   SetData  (lab, value) {
+    ClearData() {
+        this.Data = {};
+    }
+    SetData(lab, value) {
         this.Data[lab] = value;
     }
-    
-   ReduceArraySize  (assoarray, len) {
+
+    ReduceArraySize(assoarray, len) {
         len = Math.floor(len);
         if (Object.keys(assoarray).length > len) {
             var array = [];
@@ -50,7 +53,7 @@ class Chart {
         }
         return assoarray;
     }
-   ReduceArrayKey  (assoarray, len) {
+    ReduceArrayKey(assoarray, len) {
         len = Math.floor(len);
         var out = {};
         for (var k in assoarray) {
@@ -66,7 +69,7 @@ class Chart {
         }
         return out;
     }
-   PaintXYScale  (data) {
+    PaintXYScale(data) {
         var ctx = this.Canvas.getContext('2d');
         ctx.save();
         var fontsize = parseInt(ctx.font.match(/\d+/g).map(Number));
@@ -74,7 +77,7 @@ class Chart {
         var h = (ctx.canvas.height - (1.5 * fontsize));
         var maxbar = Math.floor(Math.min(w80 / (5 * fontsize), Object.keys(data).length));
         var maxycount = (Math.floor(h / (3 * fontsize))) - 1;
-         data = this.ReduceArrayKey(this.ReduceArraySize(data, maxbar), maxbar);
+        data = this.ReduceArrayKey(this.ReduceArraySize(data, maxbar), maxbar);
         var ydata = (Math.max.apply(null, Object.values(data)) * 1.2) / maxycount;
         var offsetleft = Math.min(Math.floor(ctx.canvas.width * 0.2), ctx.measureText((ydata * maxycount).toFixed(2)).width + fontsize);
         var offsettop = fontsize;
@@ -122,7 +125,7 @@ class Chart {
             "CTX": ctx
         };
     }
-   DrawBarChart  () {
+    DrawBarChart() {
         var paintdata = this.PaintXYScale(this.Data);
         var data = paintdata.Data;
         var ctx = paintdata.CTX;
@@ -140,7 +143,7 @@ class Chart {
         }
         ctx.restore();
     }
-   DrawDotChart  () {
+    DrawDotChart() {
         var paintdata = this.PaintXYScale(this.Data);
         var data = paintdata.Data;
         var ctx = paintdata.CTX;
@@ -150,12 +153,12 @@ class Chart {
         for (var k in data) {
             var rv = data[k] / paintdata.MaxValue;
             var hbar = rv * paintdata.MaxHeight;
-            ctx.fillRect(xaccumulate, paintdata.MaxDrawHeight - hbar, 5, 5);
+            ctx.fillRect((xaccumulate) - (this.LuckyJapan*0.5), (paintdata.MaxDrawHeight - hbar) - (this.LuckyJapan*0.5), this.LuckyJapan, this.LuckyJapan);
             xaccumulate = xaccumulate + (paintdata.LabelWidth);
         }
         ctx.restore();
     }
-   DrawLineChart  () {
+    DrawLineChart() {
         var prev = null;
         var paintdata = this.PaintXYScale(this.Data);
         var data = paintdata.Data;
@@ -169,7 +172,7 @@ class Chart {
         for (var k in data) {
             var rv = data[k] / paintdata.MaxValue;
             var hbar = rv * paintdata.MaxHeight;
-            ctx.fillRect(xaccumulate, paintdata.MaxDrawHeight - hbar, 5, 5);
+            ctx.fillRect((xaccumulate) - (this.LuckyJapan*0.5), (paintdata.MaxDrawHeight - hbar) - (this.LuckyJapan*0.5), this.LuckyJapan, this.LuckyJapan);
             if (prev == null) {
                 ctx.moveTo(xaccumulate, paintdata.MaxDrawHeight - hbar);
             } else {
@@ -186,8 +189,8 @@ class Chart {
         ctx.stroke();
         ctx.restore();
     }
-   DrawPieChart  () {
-            
+    DrawPieChart() {
+
         var ctx = this.Canvas.getContext('2d');
         ctx.save();
         var w80 = this.Canvas.width * 0.8;
@@ -219,12 +222,12 @@ class Chart {
             ctx.fillText(text, w80 + fontsize, txty);
             txty += fontsize + 1;
             angle += valueangle;
-         
+
         }
         ctx.restore();
-           
+
     }
-   DrawRingChart  () {
+    DrawRingChart() {
         this.DrawPieChart();
         var ctx = this.Canvas.getContext('2d');
         var x = this.Canvas.width * 0.4;

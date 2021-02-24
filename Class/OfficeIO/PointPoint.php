@@ -48,13 +48,7 @@ class OfficeIO_PointPoint {
     }
 
     function DeleteEmbed($Path) {
-        $protec = array(
-            "Metadata", self::Embed_Audio, self::Embed_Image, self::Embed_Slides, self::Embed_Video
-        );
-        if (!in_array($Path, $protec)) {
-            return $this->zip->deleteName($Path);
-        }
-        return FALSE;
+         return $this->zip->deleteName($Path);
     }
 
     function EditSlideData($index, $string) {
@@ -102,7 +96,7 @@ class OfficeIO_PointPoint {
     }
 
     function GetSlideData($index) {
-        return  $this->zip->getFromName(self::Embed_Slides . "/" . $index);
+        return $this->zip->getFromName(self::Embed_Slides . "/" . $index);
     }
- 
+
 }

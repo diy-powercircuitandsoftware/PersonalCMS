@@ -152,6 +152,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         imageoutput.Show();
                         var cmd = this.getAttribute("data-cmd");
                         var dat = ssh.GetAllNumber();
+                        chart.ClearData();
                         for (var i = 0; i < dat.length; i++) {
                             chart.SetData(i + 1, dat[i]);
                         }
@@ -202,32 +203,32 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     ss.S("#OpenDialogBellChart").Click(function () {
                         var t = sd.TableLayout(function (cb) {
-                           /* var sv = cb["Select"];
-                            var za21 = stat.ConfidenceLevelTOZA2(parseFloat(cb["ConfidenceLevel1"]) / 100);
-                            var za22 = stat.ConfidenceLevelTOZA2(parseFloat(cb["ConfidenceLevel2"]) / 100);
-                            var arrdata = ssh.GetAllNumber();
-                            var m = stat.Average(arrdata);
-                            var sd = stat.StandardDeviation(arrdata);
-                            var txtout = ss.S("#TXTOutput").Val() + "\n";
-                            if (sv == "1")
-                            {
-                                bc.Above(za21, m, sd);
-                                txtout = txtout + "Bell Above=" + (stat.Bell_Above(za21, arrdata));
-                            } else if (sv == "2")
-                            {
-                                bc.Below(za21, m, sd);
-                                txtout = txtout + "Bell Below=" + (stat.Bell_Below(za21, arrdata));
-                            } else if (sv == "3")
-                            {
-                                bc.Between(za22, za21, m, sd);
-                                txtout = txtout + "Bell Between=" + (stat.Bell_Between(za21, za22, arrdata));
-                            } else if (sv == "4")
-                            {
-                                bc.Outside(za22, za21, m, sd);
-                                txtout = txtout + "Bell Outside=" + (stat.Bell_Outside(za21, za22, arrdata));
-                            }
-                            ss.S("#TXTOutput").Val(txtout);
-                            imageoutput.Show();*/
+                            /* var sv = cb["Select"];
+                             var za21 = stat.ConfidenceLevelTOZA2(parseFloat(cb["ConfidenceLevel1"]) / 100);
+                             var za22 = stat.ConfidenceLevelTOZA2(parseFloat(cb["ConfidenceLevel2"]) / 100);
+                             var arrdata = ssh.GetAllNumber();
+                             var m = stat.Average(arrdata);
+                             var sd = stat.StandardDeviation(arrdata);
+                             var txtout = ss.S("#TXTOutput").Val() + "\n";
+                             if (sv == "1")
+                             {
+                             bc.Above(za21, m, sd);
+                             txtout = txtout + "Bell Above=" + (stat.Bell_Above(za21, arrdata));
+                             } else if (sv == "2")
+                             {
+                             bc.Below(za21, m, sd);
+                             txtout = txtout + "Bell Below=" + (stat.Bell_Below(za21, arrdata));
+                             } else if (sv == "3")
+                             {
+                             bc.Between(za22, za21, m, sd);
+                             txtout = txtout + "Bell Between=" + (stat.Bell_Between(za21, za22, arrdata));
+                             } else if (sv == "4")
+                             {
+                             bc.Outside(za22, za21, m, sd);
+                             txtout = txtout + "Bell Outside=" + (stat.Bell_Outside(za21, za22, arrdata));
+                             }
+                             ss.S("#TXTOutput").Val(txtout);
+                             imageoutput.Show();*/
                             return true;
                         }).ZIndex(999).Title("Bell Curve");
 
@@ -306,13 +307,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <button data-cmd="Range" class="BNExec">Range</button>
                         <button data-cmd="MidRange" class="BNExec">MidRange</button>
                         <button data-cmd="Z" data-input="x:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">Z</button>   
-                         <button data-cmd="ND_CDF" data-input="x:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">CDF(Normal)</button>  
-                             <button data-cmd="ND_CDFInv" data-input="p:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">CDF_Inv(Normal)</button>  
-                             
-                             
-                               <button data-cmd="PDF" data-input="x:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">PDF</button>  
-                                 <button data-cmd="PPF" data-input="x:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">PPF</button>  
+                        <button data-cmd="ND_CDF" data-input="x:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">CDF(Normal)</button>  
+                        <button data-cmd="ND_CDFInv" data-input="p:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">CDF_Inv(Normal)</button>  
+                        <button data-cmd="PDF" data-input="x:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">PDF</button>  
+                        <button data-cmd="PPF" data-input="x:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">PPF</button>  
                         <button data-cmd="Quantile" data-input="q:number" data-spreadsheetarrayindex="1" class="BNExecMultiple">Quantile</button>
+                    </div>
+                    <div style="background-color: burlywood;border-style: solid;border-width: thin;margin-top: 1px;">
+                        <button>ANOVA</button>
                     </div>
                     <div style="background-color: burlywood;border-style: solid;border-width: thin;margin-top: 1px;">
                         <img id="OpenDialogBellChart" class="BNBolder"  src="../../../../../../img/statistics/bellchart.png" />

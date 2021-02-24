@@ -83,7 +83,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var ajax = new Ajax();
 
                     var domeditor = new PointPoint_Editor(document.getElementById("Editor"));
-             
+
                     domeditor.CanvasSize("800px", "600px");
                     domeditor.AfterSave = function () {};
                     domeditor.AddEditorEvent("click", function (e) {
@@ -164,12 +164,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         if (cmd == "TxtBox" && v > 0) {
                             domeditor.AddTextBox(v - 1, "50%", "50%");
                         } else if (cmd == "Image") {
-                            /*   ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": "Image"}, function (data) {
+                            /*   ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": domeditor.path, "type": "Image"}, function (data) {
                              data = JSON.parse(data);
                              var tl = sd.TableLayout(function () {
                              var img = domeditor.AddImage();
                              img.src = "../../../../Api/Action/PointPoint/LoadImage.php" + ss.JsonToQueryString({
-                             "path": ss.URLParam()["path"],
+                             "path": domeditor.path,
                              "imagepath": tl.sel.value,
                              "width": tl.w.value,
                              "height": tl.h.value
@@ -204,13 +204,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNObjectManager").Click(function (e) {
                         ss.S("#EmbedType").Change();
                         var dia = sd.Import("Object Manager", "#ObjManagerDialog");
-                        dia.AddButton("Delete", "Delete");
-                        dia.CallbackResult = function (v) {
-                            if (v == "Delete") {
-                                ss.Post("../../../../Api/Ajax/PointPoint/DeleteEmbedList.php", {"path": ss.URLParam()["path"], "filepath": ss.S("#EmbedList").Val()}, function (data) {
-                                });
-                            }
-                        };
+
+                        /*  dia.CallbackResult = function (v) {
+                         if (v == "Delete") {
+                         ss.Post("../../../../Api/Ajax/PointPoint/DeleteEmbedList.php", {"path": domeditor.path, "filepath": ss.S("#EmbedList").Val()}, function (data) {
+                         });
+                         }
+                         };*/
                     });
 
                     ss.S("#BNOpen").Click(function () {
@@ -251,14 +251,27 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
                     });
                     ss.S("#EmbedType").Change(function (e) {
-                        ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": this.value}, function (data) {
+                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetEmbedList.php", {"path": domeditor.path, "type": this.value}, function (data) {
                             data = JSON.parse(data);
                             ss.S("#EmbedList").Empty();
-                            for (var k in data) {
-                                ss.S("#EmbedList").Append("<option></option>").Val(data[k]).Html(k);
+                            for (var i in data) {
+
+                                ss.S("#EmbedList").Append(data[i], data[i]);
                             }
                         });
                     });
+                    ss.S("#EmbedList").KeyUp(function (e) {
+                        if (e.keyCode == 46) {
+                            var v = this.value;
+                            sd.Confirm("Delete It", function () {
+                                ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/DeleteObject.php", {"path": domeditor.path, "delname": v}, function (data) {
+                                    ss.S("#EmbedType").Change();
+                                });
+                            });
+                        }
+                    });
+
+
                     ss.S(".OptColor,.OptFont").Change(function () {
                         var cmd = this.getAttribute("data-cmd");
 
@@ -300,10 +313,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         } else {
                             var dialog = sd.PleaseWait();
                             ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetSlideData.php", {"path": domeditor.path, "id": v}, function (data) {
-                                var pps = new PointPoint_Slide();
-                                pps.Serialize(JSON.parse(data));
-                                domeditor.ReplaceSlideAt(v, pps);
-                                domeditor.Render(v);
+                                data = JSON.parse(data);
+                                if (data) {
+                                    var pps = new PointPoint_Slide();
+                                    pps.Serialize(data);
+                                    domeditor.ReplaceSlideAt(v, pps);
+                                    domeditor.Render(v);
+                                }
                                 dialog.Close();
                             });
                         }
@@ -363,7 +379,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var at = ss.S("#AudioType");
 
                         if (at.Val() == "1") {//e
-                            ss.S("#AudioPlay").Url("../../../../Api/Action/PointPoint/LoadAudio.php" + ss.JsonToQueryString({"path": ss.URLParam()["path"], "name": this.value}));
+                            ss.S("#AudioPlay").Url("../../../../Api/Action/PointPoint/LoadAudio.php" + ss.JsonToQueryString({"path": domeditor.path, "name": this.value}));
                         } else if (at.Val() == "3") {
                             ss.S("#AudioPlay").Url("../sound/pointpoint/" + this.value);
                         }
@@ -375,7 +391,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#AudioType").Change(function (e) {
                         var af = ss.S("#AudioFile");
                         if (this.value == "1") {
-                            ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": ss.URLParam()["path"], "type": "Audio"}, function (json) {
+                            ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": domeditor.path, "type": "Audio"}, function (json) {
                                 json = JSON.parse(json);
                                 af.Empty();
                                 for (var k in json) {
@@ -442,7 +458,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNHiddenUpload").Change(function (e) {
                         var ajax = ss.Ajax();
                         var fd = new FormData();
-                        fd.append("FullPath", ss.URLParam()["path"]);
+                        fd.append("FullPath", domeditor.path);
                         fd.append("UploadFile", this.files[0], this.files[0].name);
                         ajax.Success = function (data) {
                             sd.Alert("Upload Complete").ZIndex(999);

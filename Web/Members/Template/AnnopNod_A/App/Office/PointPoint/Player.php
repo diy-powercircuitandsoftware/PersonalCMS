@@ -79,7 +79,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     var pps = new PointPoint_Slide();
                                     pps.Serialize(data);
                                     player.ReplaceSlideAt(player.slidesindex, pps);
-                                    ss.S("#LabPage").Html(player.slidesindex + 1);
+                                   
 
                                 }
                                 dialog.Close();
@@ -91,6 +91,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 }
                             }
                         }
+                         ss.S("#LabPage").Html(player.slidesindex + 1);
+                          ss.S("#BNGoto").Val(player.slidesindex);
                     });
                     
                        ss.S("#BNGoto").Change(function (){
