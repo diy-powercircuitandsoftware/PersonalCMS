@@ -10,7 +10,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
     $vd = new VirtualDirectory($userdb->GetRootPath($_SESSION["User"]["id"]));
    
    $out=array();
-   foreach ( $data=explode("\r\n", $vd->FileGetContents("/Audio/".$_GET["Name"])) as $value) {
+   foreach ( $data=explode(PHP_EOL, $vd->FileGetContents("/Audio/".$_GET["Name"])) as $value) {
        $out[]=array("path"=>$value,"name"=> basename($value));
    }
   echo json_encode($out); 
