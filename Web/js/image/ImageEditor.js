@@ -1,0 +1,5 @@
+class ImageEditor{
+     constructor(...args) {
+         
+     }
+}

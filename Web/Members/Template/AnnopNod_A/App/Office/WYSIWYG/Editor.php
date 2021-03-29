@@ -172,11 +172,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
 
                             });
                         });
-                        ss.S(".BNToolBoxTab").Click(function () {
-                            var id = this.getAttribute("data-id");
-                            ss.S(".ToolBoxTab").Hide();
-                            ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
-                        });
+                          ss.S(".BNToolBoxTab").Tabs(".ToolBoxTab","data-id");
                         ss.S("#BNUpload").Click(function () {
                             ss.S("#BNHiddenUpload").Click();
                         });

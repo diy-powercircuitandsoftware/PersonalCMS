@@ -337,6 +337,30 @@ class SSQueryFW {
     StrRight(str, length) {
         return str.substring(str.length() - length);
     }
+    Tabs(tabs, attr) {
+
+        this.ForEach(this.element, function (el) {
+            el.tabs = {};
+            el.tabs.q = tabs;
+            el.tabs.attr = attr;
+            el.addEventListener('click', function () {
+                var q = this.tabs.q;
+                var attr = this.tabs.attr;
+                var attrval = this.getAttribute(attr);
+                [].forEach.call(document.querySelectorAll(q), function (tab) {
+
+                    if (tab.getAttribute(attr) == attrval) {
+                        tab.style.display = "block";
+                    } else {
+                        tab.style.display = "none";
+                    }
+                });
+
+            });
+
+
+        });
+    }
     URLParam(...args) {
         var vars = [], hash;
         var hashes = [];
@@ -452,7 +476,6 @@ class SSQueryFW {
             return  this;
         }
     }
-
 }
 
  

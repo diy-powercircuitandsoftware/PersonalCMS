@@ -70,7 +70,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     ss.S("#BNClosePreview").Click(function () {
                         ss.S("#TableShowFiles").Show();
-                        ss.S("#BNClosePreview").Hide();
+                        ss.S("#Preview").Hide();
                         videopreview.pause();
                         audiopreview.pause();
                         videopreview.style.display = "none";
@@ -124,21 +124,25 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             audiopreview.style.display = "none";
                             imgpreview.style.display = "none";
                             if (["mp4", "webm"].indexOf(ext) >= 0) {
+                                ss.S("#Preview").Show();
                                 ss.S("#TableShowFiles").Hide();
-                                ss.S("#BNClosePreview").Show();
                                 videopreview.style.display = "";
                                 videopreview.src = "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + v;
                             } else if (["ogg", "mp3", "wma"].indexOf(ext) >= 0) {
+                                ss.S("#Preview").Show();
                                 ss.S("#TableShowFiles").Hide();
-                                ss.S("#BNClosePreview").Show();
                                 audiopreview.style.display = "";
                                 audiopreview.src = "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + v;
                             } else if (["jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
+                                ss.S("#Preview").Show();
                                 ss.S("#TableShowFiles").Hide();
-                                ss.S("#BNClosePreview").Show();
                                 imgpreview.style.display = "";
                                 imgpreview.src = "../../../../../../Web/Members/Api/Action/Files/Download/DownloadFiles.php?path=" + v;
+                            } else {
+                                ss.S("#Preview").Hide();
                             }
+
+
                             //                          
                             //
                         }
@@ -240,7 +244,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     </tbody>
                 </table>
-                <div>
+                <div id="Preview" style="display: none;">
                     <div style="text-align: right;">
                         <a id="BNClosePreview" href="#" style="text-decoration: none;color: blue;">X</a>
                     </div>

@@ -87,16 +87,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     domeditor.CanvasSize("800px", "600px");
                     domeditor.AfterSave = function () {};
                     domeditor.AddEditorEvent("click", function (e) {
-                        /* if (e.target == this) {
-                         
-                         } else {
-                         if (domeditor.selectitem.getAttribute("audio")){
-                         
-                         }
-                         if (domeditor.selectitem.getAttribute("animation")){
-                         
-                         }
-                         }*/
+                        if (e.target == this) {
+                            console.log("this");
+                            domeditor.selectitem=null;
+                        } else {
+                            if (domeditor.selectitem.getAttribute("audio")) {
+                                console.log("audio");
+                            }
+                            if (domeditor.selectitem.getAttribute("animation")) {
+                                console.log("animation");
+                            }
+                        }
 
                     });
 
@@ -245,11 +246,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
 
                     });
-                    ss.S(".BNToolBoxTab").Click(function () {
-                        var id = this.getAttribute("data-id");
-                        ss.S(".ToolBoxTab").Hide();
-                        ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
-                    });
+                     ss.S(".BNToolBoxTab").Tabs(".ToolBoxTab","data-id");
                     ss.S("#EmbedType").Change(function (e) {
                         ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetEmbedList.php", {"path": domeditor.path, "type": this.value}, function (data) {
                             data = JSON.parse(data);

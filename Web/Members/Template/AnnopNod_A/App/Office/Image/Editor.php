@@ -109,11 +109,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
 
                     });
-                    ss.S(".BNToolBoxTab").Click(function () {
-                        var id = this.getAttribute("data-id");
-                        ss.S(".ToolBoxTab").Hide();
-                        ss.S(".ToolBoxTab[data-id='" + id + "']").Show();
-                    });
+                    ss.S(".BNToolBoxTab").Tabs(".ToolBoxTab","data-id");
 
                     ss.S("#OptSelectZoomSize").Change(function () {
                         ss.S("#canvas").CSS("width", this.value + "%");

@@ -72,7 +72,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         });
                     });
-                    ss.S("#BNLockUnlock").Click(function () {
+                    ss.S("#BNShowHideMenu").Click(function () {
                         if (this.getAttribute("data-lock") == "1") {
                             ss.S(".Lockable").Show();
                             this.setAttribute("data-lock", "0");
@@ -87,7 +87,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
         <body style="background-color: cornsilk;"> 
             <header>
                 <div class="TitleCenter" style=" text-align: right;">
-                    <a id="BNLockUnlock" style="display: inline;"  class="MenuLink"  href="#">Lock/Unlock</a>
+                    <a id="BNShowHideMenu" style="display: inline;"  class="MenuLink"  href="#">Menu</a>
                     <?php
                     printf('<span style="font-weight: bold;cursor: default;">%s</span>', $_SESSION["User"]["alias"]);
                     ?>       
