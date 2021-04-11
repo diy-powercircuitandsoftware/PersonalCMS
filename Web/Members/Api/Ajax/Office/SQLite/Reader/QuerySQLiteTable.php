@@ -13,15 +13,20 @@ $session = new User_Session($userdb);
 $userdata = new User_Member($userdb);
 
 if ($config->IsOnline() && isset($_SESSION["User"]) &&
-        $session->Registered(session_id()) &&
-        $userdata->CanWritable($_SESSION["User"]["id"])) {
+        $session->Registered(session_id())   ) {
+    $arrout=array();
     $vd = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
     $path = $vd->DiskPath($_POST["Path"]);
-    $db = new OfficeIO_SQLite($path);
-    $db->exec($_POST["CMD"]);
-      $db->close();
+    $db = new OfficeIO_SQLite($path, SQLITE3_OPEN_READONLY);
+     $tablesquery = $db->query($_POST["Query"]);
+
+    while ($data = $tablesquery->fetchArray(SQLITE3_ASSOC)) {
+        $arrout[]= $data ;
+    }
+    echo json_encode($arrout);
+     $db->close();
 } else {
-    echo '0';
+    echo null;
 }
 $userdb->close();
 $config->close();

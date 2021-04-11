@@ -1,121 +1,83 @@
 class SuperDialog {
-    AbortRetryIgnore(callback) {
-        var sd = new Dialog();
-        sd.Title("Save Before Exit");
-        sd.Resize(false);
-        sd.Content("Do You Save Before Exit");
-        sd.TextAlign("center");
-        sd.ButtonAlign("center");
-        sd.DestroyAfterClose();
-        sd.Show();
-        sd.Button({"Abort": function () {
-                if (typeof callback === "function" && callback("A")) {
-                    sd.Close();
-                }
-            }, "Retry": function () {
-                if (typeof callback === "function" && callback("R")) {
-                    sd.Close();
-                }
-            }, "Ignore": function () {
-                if (typeof callback === "function" && callback("L")) {
-                    sd.Close();
-                }
-            }}
-        );
-        return sd;
+    AbortRetryIgnore(txt, callback) {
+        var dialog = document.body.appendChild(document.createElement("DIALOG"));
+        dialog.innerHTML = "<form method='dialog'>" + txt + "<div style='text-align: center;'>" +
+                "<button data-value='0'>Abort</button>" +
+                "<button data-value='1' >Retry</button>" +
+                "<button data-value='-1'>Ignore</button></div>" +
+                "</form>";
+        dialog.addEventListener("click", function (e) {
+            if (e.target.getAttribute("data-value") !== null) {
+                callback(e.target.getAttribute("data-value"));
+            }
+        });
+        dialog.showModal();
+
     }
 
-    Advertisement(...args) {
-        var htmlcode = args[0];
-        var sd = new Dialog();
-        sd.Title("Advertisement");
-        sd.Resize(false);
-        sd.Content(htmlcode);
-        sd.DestroyAfterClose();
-        if (args.length === 2) {
-            var SkipSecond = args[1];
-            sd.Closeable(false);
-            var divskip = document.createElement("DIV");
-            sd.Append(divskip);
-            var t = setInterval(function () {
-                divskip.innerHTML = "Skip In:" + SkipSecond;
-                SkipSecond--;
-                if (SkipSecond < 0) {
-                    clearInterval(t);
-                    sd.Closeable(true);
-                }
-            }, 1000);
-        }
-        sd.Show();
-        return sd;
+    Advertisement(txt, time) {
+        var dialog = document.body.appendChild(document.createElement("DIALOG"));
+        dialog.innerHTML = "<form method='dialog'>" + txt + "<div style='text-align: center;'><button disabled data-bn='close'>Close(" + time + ")</button></div></form>";
+        var qs = dialog.querySelector('[data-bn="close"]');
+        var t = setInterval(function () {
+            qs.innerHTML = "Close(" + time + ")";
+            time = time - 1;
+            if (time < 0) {
+                clearInterval(t);
+                qs.removeAttribute("disabled");
+            }
+        }, 1000);
+        dialog.showModal();
     }
     Alert(txt) {
-        var sd = new Dialog();
-        sd.Title("Alert");
-        sd.Resize(false);
-        sd.Content(txt);
-        sd.TextAlign("center");
-        sd.DestroyAfterClose();
-        sd.Show();
-        sd.Button({"OK": function () {
-                sd.Close();
-            }});
-        return sd;
+        var dialog = document.body.appendChild(document.createElement("DIALOG"));
+        dialog.innerHTML = "<form method='dialog'>" + txt + "<div style='text-align: right;'><button>OK</button></div></form>";
+        dialog.showModal();
     }
-    Canvas(...args) {
-
-        var w = args[0];
-        var h = args[1];
-        var sd = new Dialog();
-        sd.canvas = sd.Content(document.createElement('canvas'));
-        sd.canvas.width = w;
-        sd.canvas.height = h;
-        if (args.length == 3) {
-            sd.DestroyAfterClose(args[2]);
-            sd.Show();
-        } else if (args.length == 4) {
-            sd.DestroyAfterClose(args[2]);
-            if (args[3]){
-                   sd.Show();
-            }
-            
-        }
-        return sd;
+    Canvas(w, h) {
+        var dialog = document.body.appendChild(document.createElement("DIALOG"));
+        dialog.innerHTML = "<form method='dialog'><div style='text-align: right;'><button>x</button></div></form>";
+        var canvas = dialog.appendChild(document.createElement('canvas'));
+        canvas.style.cssText = "border-style: solid;border-width: thin;";
+        canvas.width = w;
+        canvas.height = h;
+        dialog.showModal();
     }
     ChangePassword(callback) {
-        var error = document.createElement("DIV");
-        var sd = this.TableLayout(function (v) {
-            if (typeof callback === "function") {
-                var e = sd.GetElements('input[type="password"]');
-                if ((e[1].value === e[2].value)) {
-                    if (callback(v)) {
-                        sd.Close();
-                    } else {
-                        error.innerHTML = "Server Error!!!!";
-                    }
+        var dialog = document.body.appendChild(document.createElement("DIALOG"));
+        dialog.innerHTML = "<div data-output='error'></div>" +
+                "<table>" +
+                "<tr><td>Old Password:</td><td><input type='password'  style='width:100%;box-sizing: border-box;' name='old' /></td></tr>" +
+                "<tr><td>New Password:</td><td><input type='password'  style='width:100%;box-sizing: border-box;' name='new' /></td></tr>" +
+                "<tr><td>Confirm Password:</td><td><input type='password'  style='width:100%;box-sizing: border-box;' name='confirm' /></td></tr>" +
+                "</table>"+
+                "<div style='text-align: right;'><button data-bn='callback'>OK</button><button data-bn='close'>Cancel</button></div>";
 
-                } else {
-                    e[1].value = "";
-                    e[2].value = "";
-                    error.innerHTML = "password and confirm password does not match";
-                    return false;
-                }
+        dialog.querySelector('[data-bn="callback"]').addEventListener("click", function () {
+            var cpw = dialog.querySelector('[name="new"]').value == dialog.querySelector('[name="confirm"]').value;
+            var output = {
+                "old": dialog.querySelector('[name="old"]').value,
+                "new": dialog.querySelector('[name="new"]').value
+            };
+            if (!cpw) {
+                dialog.querySelector('[data-output="error"]').innerHTML = "password do not match";
+            } else if (callback(output) === true && cpw) {
+                dialog.close();
+            } else {
+                dialog.querySelector('[data-output="error"]').innerHTML = callback(output);
             }
-            return false;
         });
-        sd.Title("Change Password");
-        sd.Resize(false);
-        sd.AddNewRowElement("Old Password", '<input type="password"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("New Password", '<input type="password"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("Confirm Password ", '<input type="password"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.Append(error);
+        dialog.querySelector('[data-bn="close"]').addEventListener("click", function () {
+            dialog.close();
+        });
 
-        return sd;
+        dialog.showModal();
+
     }
-
+//edit
     Confirm(txt, callback) {
         var sd = new Dialog();
-        sd.Title("Confirm");
+
         sd.Resize(false);
         sd.Content(txt);
         sd.TextAlign("center");
@@ -134,7 +96,7 @@ class SuperDialog {
 
     Contact(callback) {
         var sd = this.TableLayout(callback);
-        sd.Title("Contact");
+
         sd.Resize(false);
         sd.AddNewRowElement("Name", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
         sd.AddNewRowElement("Email", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
@@ -149,7 +111,7 @@ class SuperDialog {
     DropDown(callback) {
         var sd = new Dialog();
         sd.dd = sd.Content(document.createElement("SELECT"));
-        sd.Title("DropDown");
+
         sd.dd.style.width = "99%";
         sd.Resize(false);
         sd.DestroyAfterClose();
@@ -185,7 +147,7 @@ class SuperDialog {
     }
     Email(callback) {
         var sd = this.TableLayout(callback);
-        sd.Title("Email");
+
         sd.Resize(false);
         sd.AddNewRowElement("To", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
         sd.AddNewRowElement("Cc", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
@@ -197,7 +159,7 @@ class SuperDialog {
     }
     Html(html) {
         var sd = new Dialog();
-        sd.Title("Html");
+
         sd.Content(html);
         sd.DestroyAfterClose();
         sd.Show();
@@ -211,7 +173,7 @@ class SuperDialog {
         var node = document.querySelector(querystring);
         var parrent = node.parentNode;
         var sd = new Dialog();
-        sd.Title(title);
+
         sd.BeforeClose(function () {
             parrent.appendChild(node);
             if (node.normalhide) {
@@ -272,7 +234,7 @@ class SuperDialog {
     }
     License(...args) {
         var sd = new Dialog();
-        sd.Title("License");
+
         sd.Resize(false);
         sd.Content(args[0]);
         sd.DestroyAfterClose();
@@ -289,7 +251,7 @@ class SuperDialog {
     }
     Loading(...args) {
         var sd = new Dialog();
-        sd.Title("Loading");
+
         sd.Resize(false);
         sd.pgdom = sd.Content('<progress   max="1"  style="width: 100%;"></progress><div></div>');
         sd.DestroyAfterClose();
@@ -311,7 +273,7 @@ class SuperDialog {
     }
     Login(callback) {
         var sd = this.TableLayout(callback);
-        sd.Title("Login");
+
         sd.Resize(false);
         sd.AddNewRowElement("Username", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
         sd.AddNewRowElement("Password", '<input type="password"  style="width:100%;box-sizing: border-box;" value="" />');
@@ -324,7 +286,7 @@ class SuperDialog {
         var image = ["gif", "png", "jpg", "jpeg", "webp"];
         var video = ["mp4", "webm"];
         var audio = ["mp3", "ogg"];
-        sd.Title("Media Player");
+
         sd.ButtonAlign("center");
         sd.TextAlign("center");
         sd.DestroyAfterClose();
@@ -380,7 +342,7 @@ class SuperDialog {
         var sd = new Dialog();
         sd.ta = document.createElement("textarea");
         sd.ta.style.cssText = " width: 100%;height: 100%;resize: none;";
-        sd.Title("Prompt");
+
         sd.Content(args[0]);
         sd.Append(sd.ta);
         sd.DestroyAfterClose();
@@ -398,7 +360,7 @@ class SuperDialog {
     }
     Payment(callback) {
         var sd = this.TableLayout(callback);
-        sd.Title("Payment");
+
         sd.AddNewRowElement("CARD NUMBER", '<input type="text" placeholder="0000 0000 0000 0000" style="width:100%;box-sizing: border-box;" value="" />');
         sd.AddNewRowElement("CARD HOLDER", '<input type="text" placeholder="name" style="width:100%;box-sizing: border-box;" value="" />');
         sd.AddNewRowElement("EXPIRES", '<input type="text" placeholder="MM/YY" style="width:100%;box-sizing: border-box;" value="" />');
@@ -407,7 +369,7 @@ class SuperDialog {
     }
     Personal(callback) {
         var sd = this.TableLayout(callback);
-        sd.Title("Personal");
+
         sd.AddNewRowElement("Name", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
         sd.AddNewCellElement("LastName", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
         sd.AddNewCellElement("MiddleName", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
@@ -426,7 +388,7 @@ class SuperDialog {
     }
     PleaseWait() {
         var sd = new Dialog();
-        sd.Title("Please Wait");
+
         sd.Resize(false);
         sd.Content("<div style='cursor:wait;'>Please Wait</div>");
         sd.TextAlign("center");
@@ -439,7 +401,7 @@ class SuperDialog {
         var sd = new Dialog();
         sd.ta = document.createElement("input");
         sd.ta.style.cssText = " width: 100%;";
-        sd.Title("Prompt");
+
         sd.Content(args[0]);
         sd.Append(sd.ta);
         sd.DestroyAfterClose();
@@ -459,7 +421,7 @@ class SuperDialog {
 
     Rect(callback) {
         var sd = this.TableLayout(callback);
-        sd.Title("Rect");
+
         sd.Resize(false);
         sd.AddNewRowElement("x", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
         sd.AddNewRowElement("y", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
@@ -469,7 +431,7 @@ class SuperDialog {
     }
     Register(callback) {
         var sd = this.TableLayout(callback);
-        sd.Title("Register");
+
         sd.AddNewRowElement("Email", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
         sd.AddNewRowElement("Password", '<input type="password"  style="width:100%;box-sizing: border-box;" value="" />');
         sd.AddNewRowElement("Phone", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
@@ -477,7 +439,7 @@ class SuperDialog {
     }
     RowCol(callback) {
         var sd = this.TableLayout(callback);
-        sd.Title("Row/Column");
+
         sd.Resize(false);
         sd.AddNewRowElement("Row", '<input type="number" min="0" style="width:100%;box-sizing: border-box;" value="" />');
         sd.AddNewRowElement("Column", '<input type="number" min="0"  style="width:100%;box-sizing: border-box;" value="" />');
@@ -485,7 +447,7 @@ class SuperDialog {
     }
     Quiz(question, callback) {
         var sd = this.TableLayout(callback);
-        sd.Title("Quiz");
+
         sd.Resize(false);
         sd.AddNewRowElement(question);
         sd.AddRadioButton = function (id, name, value) {
@@ -507,7 +469,7 @@ class SuperDialog {
     }
     SaveBeforeExit(callback) {
         var sd = new Dialog();
-        sd.Title("Save Before Exit");
+
         sd.Resize(false);
         sd.Content("Do You Save Before Exit");
         sd.TextAlign("center");
@@ -531,7 +493,7 @@ class SuperDialog {
 
     Size(callback) {
         var sd = this.TableLayout(callback);
-        sd.Title("Size");
+
         sd.Resize(false);
         sd.AddNewRowElement("width ", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
         sd.AddNewRowElement("height ", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
@@ -541,7 +503,7 @@ class SuperDialog {
     TableLayout(callback) {
         var sd = new Dialog();
         sd.table = document.createElement("TABLE");
-        sd.Title("Table Layout");
+
         sd.Content(sd.table);
         sd.DestroyAfterClose();
         sd.table.style.cssText = "width: 100%; ";
@@ -724,7 +686,7 @@ class SuperDialog {
         var sd = new Dialog();
         sd.ta = document.createElement("textarea");
         sd.ta.style.cssText = " width: 100%;";
-        sd.Title("Prompt");
+
         sd.Content(args[0]);
         sd.Append(sd.ta);
         sd.DestroyAfterClose();
@@ -743,7 +705,7 @@ class SuperDialog {
     }
     UnLock(callback) {
         var sd = new Dialog();
-        sd.Title("Unlock");
+
         sd.Resize(false);
         var pw = sd.Content('<input  style="width:100%;box-sizing: border-box;" type="password" name="" value="" />');
         sd.DestroyAfterClose();
@@ -763,7 +725,7 @@ class SuperDialog {
     }
     YesNoCancel(callback) {
         var sd = new Dialog();
-        sd.Title("Save Before Exit");
+
         sd.Resize(false);
         sd.Content("Do You Save Before Exit");
         sd.TextAlign("center");
@@ -793,21 +755,16 @@ class Dialog {
 
     constructor() {
         this.destroyafterclose = false;
-        this.dialog = document.body.appendChild(document.createElement("DIV"));
-        this.dialog.style.display = "none";
-        var htmlcode = ' <div data-domdialog="overlay" style="opacity: 0.75;background-color: black;position: fixed;top:0;left: 0;width: 100%;height: 100%"></div>' +
-                '<div data-domdialog="frame" style=" width: auto;height: auto;position: fixed;min-width: 20%;resize: both;overflow: auto;left: 50%;top: 50%;transform: translate(-50%, -50%);border-color: rgb(197, 197, 197);max-width: 100%;max-height: 99%;background-color: rgb(255, 255, 255);border-style: solid;">' +
-                '<div style="display: flex;flex-direction: column;width: 100%;height: 100%;">' +
-                '<div style="font-weight: bold; background-color: rgb(233, 233, 233); width: 100%;">' +
-                '<span data-domdialog="title">Dialog</span>' +
-                '<span data-domdialog="bnclose" style="float: right; cursor: pointer;">X</span>' +
-                '</div>' +
-                '<div data-domdialog="content" style="height: 100%; overflow-y: auto;"></div>' +
-                '<div data-domdialog="button" style="text-align: right;"></div>' +
-                '</div> ' +
-                '</div>';
+        this.dialog = document.body.appendChild(document.createElement("DIALOG"));
+
+        var htmlcode =
+                '<div data-domdialog="content" style="max-height: 100%; overflow-y: auto;"></div>' +
+                '<div data-domdialog="button" style="text-align: right;"></div>';
+
+
         this.dialog.innerHTML = htmlcode;
         document.activeElement.blur();
+        //resize: both;overflow: auto;
     }
 
     Append(data) {
@@ -924,6 +881,7 @@ class Dialog {
     }
 
     Resize(...args) {
+        return this;
         var selector = this.dialog.querySelector('[data-domdialog="frame"]');
         if (args.length === 0) {
             return selector.style.resize;
@@ -939,11 +897,9 @@ class Dialog {
 
     Show() {
         this.dialog.style.display = "block";
-        var selector = this.dialog.querySelector('[data-domdialog="bnclose"]');
-        selector.addEventListener("click", function () {
-            this.ref.Close();
-        });
-        selector.ref = this;
+        if (typeof this.dialog.showModal === "function") {
+            this.dialog.showModal();
+        }
         return this;
     }
     Size(...args) {
@@ -969,16 +925,6 @@ class Dialog {
         }
     }
 
-    Title(...args) {
-        var selector = this.dialog.querySelector('[data-domdialog="title"]');
-        if (args.length === 0) {
-            return selector.innerHTML;
-        } else if (args.length === 1) {
-            selector.innerHTML = "";
-            selector.appendChild(document.createTextNode(args[0]));
-            return this;
-        }
-    }
     ZIndex(...args) {
         if (args.length === 0) {
             return this.dialog.style.zIndex;

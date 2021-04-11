@@ -20,6 +20,11 @@ class  SQLite_Table_Editor {
                 " <th>Not NULL</th>" +
                 " <th>Default Value</th>" +
                 "<th>Edit</th></tr>";
+        this.list.addEventListener("click", function (e) {
+            if(e.target.getAttribute("data-editid")){
+                this.OnEdit(e.target.getAttribute("data-editid"));
+            }
+        });
     }
     AddForEdit(Column, Field, Type, Primary, Autoincrement, NULL, Default) {
         var row = this.list.insertRow(-1);
@@ -31,7 +36,7 @@ class  SQLite_Table_Editor {
         row.insertCell(-1).innerHTML = Autoincrement;
         row.insertCell(-1).innerHTML = NULL;
         row.insertCell(-1).innerHTML = Default;
-        row.insertCell(-1).innerHTML = "edit";
+        row.insertCell(-1).innerHTML = "<button data-editid='" + Column + "'>Edit</button>";
         row.setAttribute("data-mode", "edit");
     }
     AddNew( ) {
@@ -81,9 +86,7 @@ class  SQLite_Table_Editor {
         var arrmix = [];
         var out = "";
         out = out + "CREATE TABLE " + name + " (";
-       // console.log(json);
         for (var k in json) {
-           
             if (json[k].PrimaryKey && !json[k].AutoIncrement) {
                 arrmix.push(json[k].Name + " " + json[k].Type + " PRIMARY KEY");
             } else if (json[k].PrimaryKey && !json[k].AutoIncrement) {
@@ -96,6 +99,9 @@ class  SQLite_Table_Editor {
         out = out + arrmix.join(",");
         out = out + ");";
         return out;
+    }
+    OnEdit(cb){
+        this.list.OnEdit=cb;
     }
 
 }

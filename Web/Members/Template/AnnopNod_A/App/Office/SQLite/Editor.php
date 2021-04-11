@@ -28,7 +28,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <title>Edit Database</title>
             <link rel="stylesheet" type="text/css" href="../../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../../css/PersonalCMS.css">
-
+            <style>
+                .BNTab{
+                    text-decoration: none;
+                    color: blue;
+                }
+            </style>
             <?php
             foreach ($modlist as $value) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
@@ -39,13 +44,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script src="../../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../../js/io/Ajax.js"></script>
             <script src="../../../../../../js/office/SQLite/TableEditor.js"></script>
+            <script src="../../../../../../js/office/SQLite/DataEditor.js"></script>
+            <script src="../../../../../../js/array/ArrayQueryFW.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
                     var sd = new SuperDialog();
+                    var arrfn = new ArrayQueryFW();
                     var url = "";
-                    var tableedit = new SQLite_Table_Editor("#TableEditor");
+                    var tablenew = new SQLite_Table_Editor("#TableNew");
+                    var tabledit = new SQLite_Table_Editor("#TableEdit");
+                    var dataedit = new SQLite_Data_Editor("#DataEdit");
                     if (ss.URLParam()["path"] !== undefined) {
                         url = ss.URLParam()["path"];
                         if (url.charAt(url.length - 1) === "#") {
@@ -59,28 +69,50 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         ajax.Post("../../../../../Api/Ajax/Office/SQLite/Reader/GetSQLiteTable.php", {"Path": url}, function (data) {
                             data = JSON.parse(data);
-                            ss.S("#OPTTableList").Empty();
+                            ss.S(".OPTTableList").Empty();
                             for (var i in data) {
-                                ss.S("#OPTTableList").Append(data[i], data[i]);
+                                ss.S(".OPTTableList").Append(data[i], data[i]);
                             }
+                            ss.S(".OPTTableList").Change();
                         });
                     }
+                    tabledit.OnEdit(function (v) {
+                        alert(v);
+                    });
                     ss.S("#BNCreateNewRow").Click(function () {
                         for (var i = 1; i <= 3; i++) {
-                            tableedit.AddNew();
+                            tablenew.AddNew();
                         }
                     });
                     ss.S("#BNCreateTable").Click(function () {
-
-                        ajax.Post("../../../../../Api/Ajax/Office/SQLite/Manager/Exec.php", {"Path": url, "CMD": tableedit.GetCreateTableString(ss.S("#TXTCreateTable").Val())}, function (data) {
-                            data = JSON.parse(data);
+                        ajax.Post("../../../../../Api/Ajax/Office/SQLite/Manager/Exec.php", {"Path": url, "CMD": tablenew.GetCreateTableString(ss.S("#TXTCreateTable").Val())}, function (data) {
+                            sd.Alert(data);
                             LoadTable();
                         });
                     });
+                    ss.S(".BNTab").Tabs(".Tab", "data-tab");
+                    ss.S("#OPTEditTableList").Change(function () {
+                        ajax.Post("../../../../../Api/Ajax/Office/SQLite/Reader/QuerySQLiteTable.php", {"Path": url, "Query": "PRAGMA table_info('" + this.value + "');"}, function (data) {
+                            data = JSON.parse(data);
+                            for (var i in data) {
+                                tabledit.AddForEdit(data[i]["cid"], data[i]["name"], data[i]["type"], data[i]["pk"], "-", data[i]["notnull"], data[i]["dflt_value"]);
+                            }
+                        });
+                    });
 
-                    //
-                    //tableedit.AddForEdit("1", "fff", "varcher", true, true, true, "dv");
-                    //
+
+                    ss.S("#OPTEditDataTableList").Change(function () {
+                        var tablename=this.value ;
+                        ajax.Post("../../../../../Api/Ajax/Office/SQLite/Reader/QuerySQLiteTable.php", {"Path": url, "Query": "PRAGMA table_info('" +tablename+ "');"}, function (data) {
+                            var name = arrfn.Array_Value(JSON.parse(data), "name");
+                            dataedit.AddColumn(name);
+                            ajax.Post("../../../../../Api/Ajax/Office/SQLite/Reader/QuerySQLiteTable.php", {"Path": url, "Query": "SELECT * FROM ('" + tablename + "');"}, function (data) {
+                                 
+                               // var name = arrfn.Array_Value(JSON.parse(data), "name");
+                                //dataedit.AddColumn(name);
+                            });
+                        });
+                    });
 
                 });
             </script>
@@ -120,19 +152,42 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ?>     
                 </nav>
                 <main>
-                    <div>
-                        <label style="font-weight: bold;">Table:</label>
-                        <select id="OPTTableList"></select>
+                    <div style="background-color: burlywood;margin-top: 1px;border-style: solid;border-width: thin;">
+                        <a class="BNTab" href="#" data-tab="tablenew">Create-Table</a>
+                        <a class="BNTab" href="#" data-tab="tableedit">Edit-Table</a>
+                        <a class="BNTab" href="#" data-tab="dataedit">Data</a>
                     </div>
 
-                    <div class="Tab" data-tab="tableedit" style="position: relative;">
 
-                        <div id="TableEditor" style="position: absolute;">
+                    <div class="Tab" data-tab="tablenew" style="position: relative;display: none;">
+                        <div id="TableNew" style="position: absolute;">
                             <div>
                                 <label>Name:</label>
                                 <input id="TXTCreateTable" type="text" name="" value="" />
                                 <button id="BNCreateTable">Create Table</button>
                                 <button id="BNCreateNewRow">Add New Row</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="Tab" data-tab="tableedit" style="position: relative;display: none;">
+                        <div id="TableEdit" style="position: absolute;">
+                            <div>
+                                <label style="font-weight: bold;">Table:</label>
+                                <select id="OPTEditTableList" class="OPTTableList"></select>
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="Tab" data-tab="dataedit" style="position: relative;display: none;">
+                        <div id="DataEdit" style="position: absolute;">
+                            <div>
+                                <label style="font-weight: bold;">Table:</label>
+                                <select id="OPTEditDataTableList" class="OPTTableList"></select>
+                                <div>
+                                    <span>Start:<input type="number" name="" value="" /></span>
+                                    <span>Limit:<input type="number" name="" value="" /></span>
+                                </div>
                             </div>
                         </div>
                     </div>
