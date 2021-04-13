@@ -12,7 +12,7 @@ class SuperDialog {
             }
         });
         dialog.showModal();
-
+        return dialog;
     }
 
     Advertisement(txt, time) {
@@ -28,11 +28,13 @@ class SuperDialog {
             }
         }, 1000);
         dialog.showModal();
+        return dialog;
     }
     Alert(txt) {
         var dialog = document.body.appendChild(document.createElement("DIALOG"));
         dialog.innerHTML = "<form method='dialog'>" + txt + "<div style='text-align: right;'><button>OK</button></div></form>";
         dialog.showModal();
+        return dialog;
     }
     Canvas(w, h) {
         var dialog = document.body.appendChild(document.createElement("DIALOG"));
@@ -42,29 +44,70 @@ class SuperDialog {
         canvas.width = w;
         canvas.height = h;
         dialog.showModal();
+        return dialog;
     }
     ChangePassword(callback) {
-        var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.innerHTML = "<div data-output='error'></div>" +
-                "<table>" +
-                "<tr><td>Old Password:</td><td><input type='password'  style='width:100%;box-sizing: border-box;' name='old' /></td></tr>" +
-                "<tr><td>New Password:</td><td><input type='password'  style='width:100%;box-sizing: border-box;' name='new' /></td></tr>" +
-                "<tr><td>Confirm Password:</td><td><input type='password'  style='width:100%;box-sizing: border-box;' name='confirm' /></td></tr>" +
-                "</table>"+
-                "<div style='text-align: right;'><button data-bn='callback'>OK</button><button data-bn='close'>Cancel</button></div>";
 
-        dialog.querySelector('[data-bn="callback"]').addEventListener("click", function () {
-            var cpw = dialog.querySelector('[name="new"]').value == dialog.querySelector('[name="confirm"]').value;
+        var dialog = this.TwoRow(function () {
+
             var output = {
                 "old": dialog.querySelector('[name="old"]').value,
                 "new": dialog.querySelector('[name="new"]').value
             };
-            if (!cpw) {
+            if (cpw) {
+                var cboutput = callback(output);
+                if (cboutput === true) {
+                    dialog.close();
+                } else {
+                    dialog.querySelector('[data-output="error"]').innerHTML = cboutput;
+                }
+            } else {
+                dialog.querySelector('[name="new"]').value = "";
+                dialog.querySelector('[name="confirm"]').value = "";
                 dialog.querySelector('[data-output="error"]').innerHTML = "password do not match";
-            } else if (callback(output) === true && cpw) {
+            }
+        });
+        dialog.AddRow("Old Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='old' />");
+        dialog.AddRow("New Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='new' />");
+        dialog.AddRow("Confirm Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='confirm' />");
+        return dialog;
+    }
+
+    Confirm(txt, callback) {
+        var dialog = document.body.appendChild(document.createElement("DIALOG"));
+        dialog.innerHTML = "<form method='dialog'>" + txt + "<div style='text-align: right;'><button data-bn='ok'>OK</button><button>Cancel</button></div></form>";
+        dialog.querySelector('[data-bn="ok"]').addEventListener("click", function () {
+            callback();
+        });
+        dialog.showModal();
+        return dialog;
+    }
+
+    Contact(callback) {
+        var dialog = document.body.appendChild(document.createElement("DIALOG"));
+        dialog.style.cssText = "resize:both;";
+        dialog.innerHTML = "<div data-output='error'></div><div style='font-weight: bold;'>Contact</div>" +
+                "<table style='width:100%;height:80%;'>" +
+                "<tr><td>Name:</td><td><input type='text'  style='width:100%;box-sizing: border-box;' name='name' /></td></tr>" +
+                "<tr><td>Email:</td><td><input type='text'  style='width:100%;box-sizing: border-box;' name='email' /></td></tr>" +
+                "<tr><td>Phone:</td><td><input type='text'  style='width:100%;box-sizing: border-box;' name='phone' /></td></tr>" +
+                "<tr><td>Subject</td><td><input type='text'  style='width:100%;box-sizing: border-box;' name='subject' /></td></tr>" +
+                "<tr><td colspan='2'><textarea style='min-width:100%;resize:vertical;' name='message' ></textarea></td></tr>" +
+                "<tr><td>Attachment:</td><td><input type='file'</td></tr>" +
+                "</table>" +
+                "<div style='text-align: right;'><button data-bn='callback'>OK</button><button data-bn='close'>Cancel</button></div>";
+
+        dialog.querySelector('[data-bn="callback"]').addEventListener("click", function () {
+            var output = {};
+            [].forEach.call(dialog.querySelectorAll("input[name],textarea"), function (dom) {
+                output[dom.name] = dom.value;
+            });
+            output.files = dialog.querySelector('input[type="file"]').files;
+            var cboutput = callback(output);
+            if (cboutput === true) {
                 dialog.close();
             } else {
-                dialog.querySelector('[data-output="error"]').innerHTML = callback(output);
+                dialog.querySelector('[data-output="error"]').innerHTML = cboutput;
             }
         });
         dialog.querySelector('[data-bn="close"]').addEventListener("click", function () {
@@ -72,64 +115,33 @@ class SuperDialog {
         });
 
         dialog.showModal();
+        return dialog;
 
-    }
-//edit
-    Confirm(txt, callback) {
-        var sd = new Dialog();
-
-        sd.Resize(false);
-        sd.Content(txt);
-        sd.TextAlign("center");
-        sd.DestroyAfterClose();
-        sd.Show();
-        sd.Button({"OK": function () {
-                if (typeof callback === "function") {
-                    callback();
-                    sd.Close();
-                }
-            }, "Cancel": function () {
-                sd.Close();
-            }});
-        return sd;
-    }
-
-    Contact(callback) {
-        var sd = this.TableLayout(callback);
-
-        sd.Resize(false);
-        sd.AddNewRowElement("Name", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("Email", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("Phone", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("Subject", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement('<textarea style="min-width:100%;" name="Message" ></textarea>');
-        sd.AddNewRowElement("Attachment", '<input type="file" name="" />');
-        sd.Normalize();
-        return sd;
     }
 
     DropDown(callback) {
-        var sd = new Dialog();
-        sd.dd = sd.Content(document.createElement("SELECT"));
 
-        sd.dd.style.width = "99%";
-        sd.Resize(false);
-        sd.DestroyAfterClose();
-        sd.Show();
-        sd.Button({"OK": function () {
-                if (typeof callback === "function") {
-                    callback(sd.dd.value);
-                    sd.Close();
-                }
-            }, "Cancel": function () {
-                sd.Close();
-            }});
-        sd.Add = function (k, v) {
-            var opt = this.dd.appendChild(document.createElement('option'));
-            opt.value = k;
-            opt.innerHTML = v;
+        var dialog = this.Confirm(' <select style="width:100%;box-sizing: border-box;"></select>', function () {
+            callback(dialog.querySelector('select').value);
+        });
+        dialog.Add = function (...args) {
+            var opt = dialog.querySelector('select').appendChild(document.createElement('option'));
+
+            if (args.length === 1) {
+
+            } else if (args.length === 2) {
+                opt.value = args[0];
+                opt.innerHTML = args[1];
+            }
+
             return this;
         };
+        return dialog;
+
+
+
+
+
         sd.CopyOption = function (querystring) {
             var ref = this;
             [].forEach.call(document.querySelectorAll(querystring), function (dom) {
@@ -145,6 +157,7 @@ class SuperDialog {
         };
         return sd;
     }
+    //
     Email(callback) {
         var sd = this.TableLayout(callback);
 
@@ -499,189 +512,53 @@ class SuperDialog {
         sd.AddNewRowElement("height ", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
         return sd;
     }
+//
+    TwoRow(callback) {
+        var dialog = document.body.appendChild(document.createElement("DIALOG"));
+        dialog.style.cssText = "resize: both;overflow: auto;";
+        dialog.innerHTML = "<div data-output='error'></div><div data-output='title' style='font-weight: bold;'></div>" +
+                "<table style='wodth:100%;'></table>" +
+                "<div style='text-align: right;'><button data-bn='callback'>OK</button><button data-bn='close'>Cancel</button></div>";
+        var output = {};
+        [].forEach.call(dialog.querySelectorAll("input[name],textarea"), function (dom) {
+            output[dom.name] = dom.value;
+        });
+        [].forEach.call(dialog.querySelectorAll("input[type='file']"), function (dom) {
+            output[dom.name] = dom.files;
+        });
 
-    TableLayout(callback) {
-        var sd = new Dialog();
-        sd.table = document.createElement("TABLE");
-
-        sd.Content(sd.table);
-        sd.DestroyAfterClose();
-        sd.table.style.cssText = "width: 100%; ";
-        sd.Show();
-        sd.Button({"OK": function () {
-                if (typeof callback === "function") {
-                    var arrchk = ["checkbox", "radio"];
-                    var val = {};
-                    [].forEach.call(sd.table.querySelectorAll('select,input,textarea'), function (el) {
-                        if (el.tagName === "INPUT" && arrchk.indexOf(el.type) >= 0 && el.checked && el.value === undefined) {
-                            val[el.name] = el.checked;
-                        } else if (el.tagName === "INPUT" && arrchk.indexOf(el.type) >= 0 && el.checked) {
-                            val[el.name] = el.value;
-                        } else if (el.tagName === "INPUT" && el.type === "file") {
-                            val[el.name] = el.files;
-                        } else if (el.tagName === "INPUT" && arrchk.indexOf(el.type) === -1) {
-                            val[el.name] = el.value;
-                        } else if (el.tagName === "TEXTAREA") {
-                            val[el.name] = el.value;
-                        } else if (el.tagName === "SELECT" && el.getAttribute("multiple") === "multiple") {
-                            val[el.name] = [];
-                            for (var i = 0; i < el.options.length; i++) {
-                                var option = el.options[i];
-                                if (option.selected) {
-                                    val[el.name].push(option.value);
-                                }
-                            }
-                        } else if (el.tagName === "SELECT" && el.getAttribute("multiple") !== "multiple") {
-                            val[el.name] = el.value;
-                        }
-
-                    });
-
-                    if (callback(val)) {
-                        sd.Close();
-                    }
-                } else {
-                    sd.Close();
-                }
-            }, "Cancel": function () {
-                sd.Close();
-            }});
-        sd.AddNewRowElement = function (...args) {
-            var row = this.table.insertRow(-1);
-            if (args.length === 1) {
+        dialog.querySelector("button[data-bn='callback'").addEventListener("click", function () {
+            var cboutput = callback(output);
+            if (cboutput === true) {
+                dialog.close();
+            } else {
+                dialog.querySelector('[data-output="error"]').innerHTML = cboutput;
+            }
+        });
+        dialog.querySelector('[data-bn="close"]').addEventListener("click", function () {
+            dialog.close();
+        });
+        dialog.AddRow = function (...args) {
+            var row = dialog.querySelector("table").insertRow(-1);
+            if (args.length == 1) {
                 var cell = row.insertCell(-1);
-                var data = args[0];
-                if (typeof data === 'string' || data instanceof String) {
-                    cell.innerHTML = data;
-                } else if (data instanceof HTMLElement) {
-                    cell.appendChild(data);
-                }
-                cell.setAttribute("data-marker", "1");
-            } else if (args.length === 2) {
-                row.insertCell(-1).appendChild(document.createTextNode(args[0] + ":"));
-                var data = args[1];
-                var cell = row.insertCell(-1);
-                if (typeof data === 'string' || data instanceof String) {
-                    cell.insertAdjacentHTML('beforeend', data);
-                    cell.lastChild.name = args[0].replace(/\s/g, '');
-                } else if (data instanceof HTMLElement) {
-                    cell.appendChild(data);
-                    data.name = args[0].replace(/\s/g, '');
-                }
-                cell.setAttribute("data-marker", "1");
-            } else if (args.length === 3) {
-                var id = args[0];
-                var name = args[1];
-                var data = args[2];
-                row.insertCell(-1).appendChild(document.createTextNode(name + ":"));
-                var cell = row.insertCell(-1);
-                if (typeof data === 'string' || data instanceof String) {
-                    cell.insertAdjacentHTML('beforeend', data);
-                    cell.lastChild.name = id;
-                } else if (data instanceof HTMLElement) {
-                    cell.appendChild(data);
-                    data.name = id;
-                }
-                cell.setAttribute("data-marker", "1");
+                cell.colSpan = 2;
+                cell.innerHTML = args[0];
+            } else if (args.length == 2) {
+                row.insertCell(-1).innerHTML = args[0];
+                row.insertCell(-1).innerHTML = args[1];
             }
             return this;
         };
-        sd.AddNewCellElement = function (...args) {
-            var lastrow = this.table.rows.length - 1;
-            var row = this.table.rows[lastrow];
-            if (args.length === 1) {
-                var cell = row.insertCell(-1);
-                var data = args[0];
-                if (typeof data === 'string' || data instanceof String) {
-                    cell.innerHTML = data;
-                } else if (data instanceof HTMLElement) {
-                    cell.appendChild(data);
-                }
-                cell.setAttribute("data-marker", "1");
-            } else if (args.length === 2) {
-                row.insertCell(-1).appendChild(document.createTextNode(args[0] + ":"));
-                var data = args[1];
-                var cell = row.insertCell(-1);
-                if (typeof data === 'string' || data instanceof String) {
-                    cell.insertAdjacentHTML('beforeend', data);
-                    if (args[0] !== null) {
-                        cell.lastChild.name = args[0].replace(/\s/g, '');
-                    }
-                } else if (data instanceof HTMLElement) {
-                    cell.appendChild(data);
-                    if (args[0] !== null) {
-                        data.name = args[0].replace(/\s/g, '');
-                    }
-                } else {
-                    cell.insertAdjacentHTML('beforeend', data);
-                }
-                cell.setAttribute("data-marker", "1");
-            } else if (args.length === 3) {
-                var id = args[0];
-                var name = args[1];
-                var data = args[2];
-                row.insertCell(-1).appendChild(document.createTextNode(name + ":"));
-                var cell = row.insertCell(-1);
-                if (typeof data === 'string' || data instanceof String) {
-                    cell.insertAdjacentHTML('beforeend', data);
-                    cell.lastChild.name = id;
-                } else if (data instanceof HTMLElement) {
-                    cell.appendChild(data);
-                    data.name = id;
-                }
-                cell.setAttribute("data-marker", "1");
-            }
-            return this;
+        dialog.SetTitle = function (v) {
+            dialog.querySelector('[data-output="title"]').innerHTML = v;
         };
-        sd.AddRowCellElement = function (...args) {
-            if (args.length === 4) {
-                var data = args[4];
-                var cell = this.table.rows[args[0]].cells[args[1]];
-                if (typeof data === 'string' || data instanceof String) {
-                    cell.insertAdjacentHTML('beforeend', data);
-                    cell.lastChild.name = args[3].replace(/\s/g, '');
-                } else if (data instanceof HTMLElement) {
-                    cell.appendChild(data);
-                    data.name = args[3].replace(/\s/g, '');
-                }
-
-            }
-            return this;
-        };
-        sd.GetElements = function (...args) {
-            if (args.length === 0) {
-                return this.table.querySelectorAll('select,input,textarea');
-            } else if (args.length === 1) {
-                return this.table.querySelectorAll(args[0]);
-            }
-        };
-        sd.Normalize = function () {
-            var maxcell = 0;
-            for (var r = 0; r < this.table.rows.length; r++) {
-                var curr = this.table.rows[r].cells.length;
-                maxcell = Math.max(maxcell, curr);
-            }
-            for (var r = 0; r < this.table.rows.length; r++) {
-                var curr = this.table.rows[r].cells.length;
-                var marker = this.table.rows[r].querySelectorAll("[data-marker='1']");
-                var tddiff = curr - (marker.length);
-                var remain = maxcell - tddiff;
-                var ratio = (remain / marker.length);
-                [].forEach.call(marker, function (el) {
-                    el.colSpan = ratio;
-                });
-            }
-        };
-        sd.SetValue = function (name, value) {
-            [].forEach.call(sd.table.querySelectorAll('select,input,textarea'), function (el) {
-                if (el.getAttribute('name') === name) {
-                    el.value = value;
-                }
-            });
-        };
-
-        return sd;
+        dialog.showModal();
+        return dialog;
     }
+//
+
+
     TextArea(...args) {
         var sd = new Dialog();
         sd.ta = document.createElement("textarea");
@@ -751,188 +628,3 @@ class SuperDialog {
 
 }
 
-class Dialog {
-
-    constructor() {
-        this.destroyafterclose = false;
-        this.dialog = document.body.appendChild(document.createElement("DIALOG"));
-
-        var htmlcode =
-                '<div data-domdialog="content" style="max-height: 100%; overflow-y: auto;"></div>' +
-                '<div data-domdialog="button" style="text-align: right;"></div>';
-
-
-        this.dialog.innerHTML = htmlcode;
-        document.activeElement.blur();
-        //resize: both;overflow: auto;
-    }
-
-    Append(data) {
-        var content = this.dialog.querySelector('[data-domdialog="content"]');
-        if (typeof data === 'string' || data instanceof String) {
-            content.insertAdjacentHTML('beforeend', data);
-        } else if (data instanceof HTMLElement) {
-            content.appendChild(data);
-        } else if (data instanceof NodeList || data instanceof HTMLCollection) {
-            [].forEach.call(data, function (d) {
-                content.appendChild(d);
-            });
-        }
-        return this;
-    }
-
-    BeforeClose(...args) {
-        if (args.length === 0) {
-            return     this.BeforeCloseEvent;
-        } else if (args.length === 1 && typeof args[0] === "function") {
-            this.BeforeCloseEvent = args[0];
-        }
-        return this;
-    }
-
-    Button(...args) {
-        var button = this.dialog.querySelector('[data-domdialog="button"]');
-        if (args.length === 0) {
-            return   button.getElementsByTagName("button");
-        } else if (args.length === 1 && (typeof args[0] === 'string' || args[0]  instanceof String)) {
-            var bn = button.appendChild(document.createElement("button"));
-            bn.innerHTML = args[0];
-            return bn;
-        } else if (args.length === 1 && (typeof args[0] === 'object')) {
-            var arg = args[0];
-            for (var k in arg) {
-                var bn = button.appendChild(document.createElement("button"));
-                bn.innerHTML = k;
-                if (typeof arg[k] === "function") {
-                    bn.addEventListener("click", function () {
-                        this.cbfn();
-                    });
-                    bn.cbfn = arg[k];
-                }
-            }
-        }
-    }
-    ButtonAlign(...args) {
-        var content = this.dialog.querySelector('[data-domdialog="button"]');
-        if (args.length === 0) {
-            return   content.style.textAlign;
-        } else if (args.length === 1) {
-            content.style.textAlign = args[0];
-            return this;
-        }
-    }
-    Close() {
-        if (this.destroyafterclose) {
-            if (this.BeforeCloseEvent === undefined || this.BeforeCloseEvent === null) {
-                this.dialog.parentNode.removeChild(this.dialog);
-            } else if (this.BeforeCloseEvent()) {
-                this.dialog.parentNode.removeChild(this.dialog);
-            }
-            this.Show = false;
-            this.dialog.null;
-        } else {
-            if (this.BeforeCloseEvent === undefined || this.BeforeCloseEvent === null) {
-                this.dialog.style.display = "none";
-            } else if (this.BeforeCloseEvent()) {
-                this.dialog.style.display = "none";
-            }
-        }
-
-    }
-    Closeable(...args) {
-        var selector = this.dialog.querySelector('[data-domdialog="bnclose"]');
-        if (args.length === 0) {
-            return selector.style.display !== "none";
-        } else if (args.length === 1 && typeof args[0] === "boolean" && args[0] === true) {
-            selector.style.display = "";
-        } else if (args.length === 1 && typeof args[0] === "boolean" && args[0] === false) {
-            selector.style.display = "none";
-        }
-        return this;
-    }
-    Content(...args) {
-        var content = this.dialog.querySelector('[data-domdialog="content"]');
-        if (args.length === 0) {
-            return content.childNodes;
-        } else if (args.length === 1) {
-            content.innerHTML = "";
-            var data = args[0];
-            if (typeof data === 'string' || data instanceof String) {
-                content.innerHTML = data;
-                return content.childNodes;
-            } else if (data instanceof HTMLElement) {
-                content.appendChild(data);
-                return data;
-            } else if (data instanceof NodeList || data instanceof HTMLCollection) {
-                [].forEach.call(data, function (d) {
-                    content.appendChild(d);
-                });
-                return data;
-            }
-        }
-    }
-    DestroyAfterClose(...args) {
-        if (args.length == 0) {
-            this.destroyafterclose = true;
-        } else if (args.length == 1 && typeof args[0] === "boolean") {
-            this.destroyafterclose = args[0];
-        }
-
-    }
-
-    Resize(...args) {
-        return this;
-        var selector = this.dialog.querySelector('[data-domdialog="frame"]');
-        if (args.length === 0) {
-            return selector.style.resize;
-        } else if (args.length === 1 && typeof args[0] === "boolean" && args[0] === true) {
-            selector.style.resize = "both";
-        } else if (args.length === 1 && typeof args[0] === "boolean" && args[0] === false) {
-            selector.style.resize = "none";
-        } else if (args.length === 1 && typeof args[0] === "string") {
-            selector.style.resize = args[0];
-        }
-        return this;
-    }
-
-    Show() {
-        this.dialog.style.display = "block";
-        if (typeof this.dialog.showModal === "function") {
-            this.dialog.showModal();
-        }
-        return this;
-    }
-    Size(...args) {
-        var selector = this.dialog.querySelector('[data-domdialog="frame"]');
-        if (args.length === 0) {
-            var rect = selector.getBoundingClientRect();
-            return {
-                "width": rect.width,
-                "height": rect.height
-            }
-        } else if (args.length == 2) {
-            selector.style.width = args[0];
-            selector.style.height = args[1];
-        }
-    }
-    TextAlign(...args) {
-        var content = this.dialog.querySelector('[data-domdialog="content"]');
-        if (args.length === 0) {
-            return   content.style.textAlign;
-        } else if (args.length === 1) {
-            content.style.textAlign = args[0];
-            return this;
-        }
-    }
-
-    ZIndex(...args) {
-        if (args.length === 0) {
-            return this.dialog.style.zIndex;
-        } else if (args.length === 1) {
-            this.dialog.style.zIndex = args[0];
-            this.dialog.querySelector('[data-domdialog="overlay"]').style.zIndex = args[0];
-            this.dialog.querySelector('[data-domdialog="frame"]').style.zIndex = args[0] + 1;
-            return this;
-        }
-    }
-}
