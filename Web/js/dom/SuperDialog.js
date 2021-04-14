@@ -48,25 +48,24 @@ class SuperDialog {
     }
     ChangePassword(callback) {
 
-        var dialog = this.TwoRow(function () {
+        var dialog = this.TwoRow(function (v) {
 
-            var output = {
-                "old": dialog.querySelector('[name="old"]').value,
-                "new": dialog.querySelector('[name="new"]').value
-            };
-            if (cpw) {
-                var cboutput = callback(output);
+            if (v["new"] === v["confirm"]) {
+                var cboutput = callback({
+                    "old": v["old"],
+                    "new": v["new"]
+                });
                 if (cboutput === true) {
-                    dialog.close();
+                    return true;
                 } else {
-                    dialog.querySelector('[data-output="error"]').innerHTML = cboutput;
+                    return cboutput;
                 }
             } else {
-                dialog.querySelector('[name="new"]').value = "";
-                dialog.querySelector('[name="confirm"]').value = "";
-                dialog.querySelector('[data-output="error"]').innerHTML = "password do not match";
+                dialog.Reset();
+                return  "password do not match";
             }
         });
+        dialog.SetTitle("Change Password");
         dialog.AddRow("Old Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='old' />");
         dialog.AddRow("New Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='new' />");
         dialog.AddRow("Confirm Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='confirm' />");
@@ -84,39 +83,17 @@ class SuperDialog {
     }
 
     Contact(callback) {
-        var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.style.cssText = "resize:both;";
-        dialog.innerHTML = "<div data-output='error'></div><div style='font-weight: bold;'>Contact</div>" +
-                "<table style='width:100%;height:80%;'>" +
-                "<tr><td>Name:</td><td><input type='text'  style='width:100%;box-sizing: border-box;' name='name' /></td></tr>" +
-                "<tr><td>Email:</td><td><input type='text'  style='width:100%;box-sizing: border-box;' name='email' /></td></tr>" +
-                "<tr><td>Phone:</td><td><input type='text'  style='width:100%;box-sizing: border-box;' name='phone' /></td></tr>" +
-                "<tr><td>Subject</td><td><input type='text'  style='width:100%;box-sizing: border-box;' name='subject' /></td></tr>" +
-                "<tr><td colspan='2'><textarea style='min-width:100%;resize:vertical;' name='message' ></textarea></td></tr>" +
-                "<tr><td>Attachment:</td><td><input type='file'</td></tr>" +
-                "</table>" +
-                "<div style='text-align: right;'><button data-bn='callback'>OK</button><button data-bn='close'>Cancel</button></div>";
-
-        dialog.querySelector('[data-bn="callback"]').addEventListener("click", function () {
-            var output = {};
-            [].forEach.call(dialog.querySelectorAll("input[name],textarea"), function (dom) {
-                output[dom.name] = dom.value;
-            });
-            output.files = dialog.querySelector('input[type="file"]').files;
-            var cboutput = callback(output);
-            if (cboutput === true) {
-                dialog.close();
-            } else {
-                dialog.querySelector('[data-output="error"]').innerHTML = cboutput;
-            }
+        var dialog = this.TwoRow(function (v) {
+            return callback(v);
         });
-        dialog.querySelector('[data-bn="close"]').addEventListener("click", function () {
-            dialog.close();
-        });
-
-        dialog.showModal();
+        dialog.SetTitle("Contact");
+        dialog.AddRow("Name:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='name' />");
+        dialog.AddRow("Email:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='email' />");
+        dialog.AddRow("Phone:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='phone' />");
+        dialog.AddRow("Subject:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='subject' />");
+        dialog.AddRow("<textarea style='min-width:100%;resize:vertical;' name='message' ></textarea>");
+        dialog.AddRow("Attachment:", "<input type='file' name='file' />");
         return dialog;
-
     }
 
     DropDown(callback) {
@@ -126,59 +103,48 @@ class SuperDialog {
         });
         dialog.Add = function (...args) {
             var opt = dialog.querySelector('select').appendChild(document.createElement('option'));
-
             if (args.length === 1) {
 
             } else if (args.length === 2) {
                 opt.value = args[0];
                 opt.innerHTML = args[1];
             }
-
             return this;
+        };
+        dialog.CopyOption = function (querystring) {
+            var select = dialog.querySelector('select');
+            select.innerHTML = "";
+            [].forEach.call(document.querySelectorAll(querystring), function (dom) {
+                if (dom.tagName.toLowerCase() === "select" || dom.tagName.toLowerCase() === "datalist") {
+                    select.innerHTML = select.innerHTML + dom.innerHTML;
+                }
+            });
         };
         return dialog;
-
-
-
-
-
-        sd.CopyOption = function (querystring) {
-            var ref = this;
-            [].forEach.call(document.querySelectorAll(querystring), function (dom) {
-                [].forEach.call(dom.querySelectorAll("OPTION"), function (option) {
-                    var opt = ref.dd.appendChild(document.createElement('option'));
-                    opt.value = option.value;
-                    opt.innerHTML = option.innerHTML;
-                });
-
-            });
-
-            return this;
-        };
-        return sd;
     }
-    //
+ 
     Email(callback) {
-        var sd = this.TableLayout(callback);
+        var dialog = this.TwoRow(function (v) {
+            return callback(v);
+        });
+        dialog.SetTitle("Email");
+        dialog.AddRow("To:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='to' />");
+        dialog.AddRow("Cc:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='cc' />");
+        dialog.AddRow("Bcc:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='bcc' />");
+        dialog.AddRow("Subject:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='subject' />");
+        dialog.AddRow("<textarea style='min-width:100%;resize:vertical;' name='message' ></textarea>");
+        dialog.AddRow("Attachment:", "<input type='file' name='file' />");
+        return dialog;
 
-        sd.Resize(false);
-        sd.AddNewRowElement("To", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("Cc", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("Bcc", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("Subject", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement('<textarea style="min-width:100%;" name="Message" ></textarea>');
-        sd.AddNewRowElement("Attachment", '<input type="file" name="" />');
-        return sd;
     }
+
     Html(html) {
-        var sd = new Dialog();
-
-        sd.Content(html);
-        sd.DestroyAfterClose();
-        sd.Show();
-        sd.Size("80%", "80%");
-        return sd;
+       var dialog = document.body.appendChild(document.createElement("DIALOG"));
+        dialog.innerHTML = "<form method='dialog'><div style='text-align: right;'><button>x</button></div>"+html+"</form>";
+        dialog.showModal();
+        return dialog;
     }
+        //
     Import(...args) {
 
         var title = args[0];
@@ -519,15 +485,16 @@ class SuperDialog {
         dialog.innerHTML = "<div data-output='error'></div><div data-output='title' style='font-weight: bold;'></div>" +
                 "<table style='wodth:100%;'></table>" +
                 "<div style='text-align: right;'><button data-bn='callback'>OK</button><button data-bn='close'>Cancel</button></div>";
-        var output = {};
-        [].forEach.call(dialog.querySelectorAll("input[name],textarea"), function (dom) {
-            output[dom.name] = dom.value;
-        });
-        [].forEach.call(dialog.querySelectorAll("input[type='file']"), function (dom) {
-            output[dom.name] = dom.files;
-        });
+
 
         dialog.querySelector("button[data-bn='callback'").addEventListener("click", function () {
+            var output = {};
+            [].forEach.call(dialog.querySelectorAll("input[name],textarea"), function (dom) {
+                output[dom.name] = dom.value;
+            });
+            [].forEach.call(dialog.querySelectorAll("input[type='file']"), function (dom) {
+                output[dom.name] = dom.files;
+            });
             var cboutput = callback(output);
             if (cboutput === true) {
                 dialog.close();
@@ -549,6 +516,11 @@ class SuperDialog {
                 row.insertCell(-1).innerHTML = args[1];
             }
             return this;
+        };
+        dialog.Reset = function () {
+            [].forEach.call(dialog.querySelectorAll("input,textarea"), function (dom) {
+                dom.value = "";
+            });
         };
         dialog.SetTitle = function (v) {
             dialog.querySelector('[data-output="title"]').innerHTML = v;
