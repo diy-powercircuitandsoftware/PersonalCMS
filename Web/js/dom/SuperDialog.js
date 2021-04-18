@@ -16,6 +16,9 @@ class SuperDialog {
     }
 
     Advertisement(txt, time) {
+        if (!Number.isInteger(time)) {
+            time = 0;
+        }
         var dialog = document.body.appendChild(document.createElement("DIALOG"));
         dialog.innerHTML = "<form method='dialog'>" + txt + "<div style='text-align: center;'><button disabled data-bn='close'>Close(" + time + ")</button></div></form>";
         var qs = dialog.querySelector('[data-bn="close"]');
@@ -38,7 +41,8 @@ class SuperDialog {
     }
     Canvas(w, h) {
         var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.innerHTML = "<form method='dialog'><div style='text-align: right;'><button>x</button></div></form>";
+        dialog.style.cssText = "padding: 0;"
+        dialog.innerHTML = "<form method='dialog'><div style='text-align: right;'><button style='padding: 0;border: none;background: none;'>x</button></div></form>";
         var canvas = dialog.appendChild(document.createElement('canvas'));
         canvas.style.cssText = "border-style: solid;border-width: thin;";
         canvas.width = w;
@@ -47,9 +51,7 @@ class SuperDialog {
         return dialog;
     }
     ChangePassword(callback) {
-
         var dialog = this.TwoRow(function (v) {
-
             if (v["new"] === v["confirm"]) {
                 var cboutput = callback({
                     "old": v["old"],
@@ -98,7 +100,7 @@ class SuperDialog {
 
     DropDown(callback) {
 
-        var dialog = this.Confirm(' <select style="width:100%;box-sizing: border-box;"></select>', function () {
+        var dialog = this.Confirm('<div data-output="title">DropDown</div> <select style="width:100%;box-sizing: border-box;"></select>', function () {
             callback(dialog.querySelector('select').value);
         });
         dialog.Add = function (...args) {
@@ -120,9 +122,12 @@ class SuperDialog {
                 }
             });
         };
+        dialog.SetTitle = function (v) {
+            dialog.querySelector('[data-output="title"]').innerHTML = v;
+        };
         return dialog;
     }
- 
+
     Email(callback) {
         var dialog = this.TwoRow(function (v) {
             return callback(v);
@@ -135,68 +140,38 @@ class SuperDialog {
         dialog.AddRow("<textarea style='min-width:100%;resize:vertical;' name='message' ></textarea>");
         dialog.AddRow("Attachment:", "<input type='file' name='file' />");
         return dialog;
-
     }
 
     Html(html) {
-       var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.innerHTML = "<form method='dialog'><div style='text-align: right;'><button>x</button></div>"+html+"</form>";
+        var dialog = document.body.appendChild(document.createElement("DIALOG"));
+        dialog.style.cssText = "padding: 0;"
+        dialog.innerHTML = "<form method='dialog'><div style='text-align: right;'><button style='padding: 0;border: none;background: none;'>x</button></div></form><div style='padding: 7px;'>" + html + "</div>";
         dialog.showModal();
         return dialog;
     }
-        //
-    Import(...args) {
 
-        var title = args[0];
-        var querystring = args[1];
-        var node = document.querySelector(querystring);
-        var parrent = node.parentNode;
-        var sd = new Dialog();
-
-        sd.BeforeClose(function () {
-            parrent.appendChild(node);
-            if (node.normalhide) {
-                node.style.display = "none";
-            }
-            return true;
-        });
-        if (args.length === 3) {
-            var button = args[2];
-            sd.Button(button);
-        }
-        sd.Content(node);
-        sd.DestroyAfterClose();
-        node.normalhide = (node.style.display === "none");
-        if (node.normalhide) {
-            node.style.display = "block";
-        }
-        sd.Show();
-        return sd;
+    Import(querystring) {
+        var dialog = document.body.appendChild(document.createElement("DIALOG"));
+        dialog.appendChild(document.querySelector(querystring));
+        dialog.showModal();
+        return dialog;
     }
-    ImportOkCancel(...args) {
-        var d = this.Import(args[0], args[1], {"OK": function () {
-                if (typeof args[2] === "function" && args[2]()) {
-                    d.Close();
-                } else if (typeof args[2] !== "function") {
-                    d.Close();
-                }
-            }, "Cancel": function () {
-                d.Close();
-
-            }});
-        return d;
+    ImportOkCancel(querystring, callback) {
+        var dialog = this.Confirm('<div data-id="ImportOkCancel"></div>', callback);
+        dialog.querySelector('[data-id="ImportOkCancel"]').appendChild(document.querySelector(querystring));
+        return dialog;
     }
 
     Load(...args) {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
-                this.sd.Content(xhttp.responseText);
-                this.sd.DestroyAfterClose();
-                this.sd.Show();
+                this.sd.Html(xhttp.responseText);
+
             }
         };
-        xhttp.sd = new Dialog();
+        xhttp.sd = this;
+        ;
         if (args.length === 1) {
             xhttp.open("GET", args[0], true);
             xhttp.send();
@@ -211,22 +186,12 @@ class SuperDialog {
         }
         return  xhttp.sd;
     }
-    License(...args) {
-        var sd = new Dialog();
-
-        sd.Resize(false);
-        sd.Content(args[0]);
-        sd.DestroyAfterClose();
-        sd.Show();
-        sd.Closeable(false);
-        sd.Size("80%", "80%");
-        sd.Button({"Accept": function () {
-                if (args.length === 2 && typeof args[1] === "function") {
-                    args[1]();
-                }
-                sd.Close();
-            }});
-        return sd;
+    //
+    License(txt) {
+        var dialog = document.body.appendChild(document.createElement("DIALOG"));
+dialog.innerHTML=txt;
+        dialog.showModal();
+        return dialog;
     }
     Loading(...args) {
         var sd = new Dialog();
