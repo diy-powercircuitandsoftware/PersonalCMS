@@ -94,20 +94,18 @@ class SuperDialog {
     }
     ChangePassword(callback) {
         var dialog = this.TwoRow(function (v) {
-
             if (v["new"] === v["confirm"]) {
-               
                 var cboutput = callback({
                     "old": v["old"],
                     "new": v["new"]
                 });
                 if (cboutput === true) {
                     return true;
-                } else if (cboutput!==undefined){
+                } else if (cboutput !== undefined) {
                     dialog.Error(cboutput);
                     return false;
                 }
-                 return true;
+                return true;
             } else {
 
                 dialog.Reset();
@@ -119,16 +117,21 @@ class SuperDialog {
         dialog.AddRow("Old Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='old' />");
         dialog.AddRow("New Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='new' />");
         dialog.AddRow("Confirm Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='confirm' />");
+        dialog.DestroyAfterClose();
         return dialog;
     }
 
     Confirm(txt, callback) {
-        var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.innerHTML = "<form method='dialog'>" + txt + "<div style='text-align: right;'><button data-bn='ok'>OK</button><button>Cancel</button></div></form>";
-        dialog.querySelector('[data-bn="ok"]').addEventListener("click", function () {
-            callback();
+        var dialog = this.Dialog();
+        dialog.AddButton(1, "OK");
+        dialog.AddButton(0, "Cancel");
+        dialog.AddContent(txt);
+        dialog.DestroyAfterClose();
+        dialog.CallBack = (function (v) {
+            if (v === "true" || v === "1" || v === 1 || v) {
+                callback();
+            }
         });
-        dialog.showModal();
         return dialog;
     }
 
@@ -136,7 +139,7 @@ class SuperDialog {
         var dialog = this.TwoRow(function (v) {
             return callback(v);
         });
-        dialog.SetTitle("Contact");
+        dialog.Title("Contact");
         dialog.AddRow("Name:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='name' />");
         dialog.AddRow("Email:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='email' />");
         dialog.AddRow("Phone:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='phone' />");
@@ -147,8 +150,7 @@ class SuperDialog {
     }
 
     DropDown(callback) {
-
-        var dialog = this.Confirm('<div data-output="title">DropDown</div> <select style="width:100%;box-sizing: border-box;"></select>', function () {
+        var dialog = this.Confirm('<select style="width:100%;box-sizing: border-box;"></select>', function () {
             callback(dialog.querySelector('select').value);
         });
         dialog.Add = function (...args) {
@@ -170,9 +172,6 @@ class SuperDialog {
                 }
             });
         };
-        dialog.SetTitle = function (v) {
-            dialog.querySelector('[data-output="title"]').innerHTML = v;
-        };
         return dialog;
     }
 
@@ -180,7 +179,7 @@ class SuperDialog {
         var dialog = this.TwoRow(function (v) {
             return callback(v);
         });
-        dialog.SetTitle("Email");
+        dialog.Title("Email");
         dialog.AddRow("To:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='to' />");
         dialog.AddRow("Cc:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='cc' />");
         dialog.AddRow("Bcc:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='bcc' />");
@@ -191,22 +190,25 @@ class SuperDialog {
     }
 
     Html(html) {
-        var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.style.cssText = "padding: 0;"
-        dialog.innerHTML = "<form method='dialog'><div style='text-align: right;'><button style='padding: 0;border: none;background: none;'>x</button></div></form><div style='padding: 7px;'>" + html + "</div>";
-        dialog.showModal();
+        var dialog = this.Dialog();
+        dialog.AddContent(html);
         return dialog;
     }
 
     Import(querystring) {
-        var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.appendChild(document.querySelector(querystring));
-        dialog.showModal();
+        var dialog = this.Dialog();
+        dialog.AddContent(document.querySelector(querystring));
         return dialog;
     }
     ImportOkCancel(querystring, callback) {
-        var dialog = this.Confirm('<div data-id="ImportOkCancel"></div>', callback);
-        dialog.querySelector('[data-id="ImportOkCancel"]').appendChild(document.querySelector(querystring));
+        var dialog = this.Import(querystring);
+        dialog.AddButton(1, "OK");
+        dialog.AddButton(0, "Cancel");
+        dialog.CallBack = (function (v) {
+            if (v === "true" || v === "1" || v === 1 || v) {
+                callback();
+            }
+        });
         return dialog;
     }
 
@@ -234,13 +236,14 @@ class SuperDialog {
         }
         return  xhttp.sd;
     }
-    //
+   
     License(txt) {
-        var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.innerHTML = txt;
-        dialog.showModal();
+        var dialog = this.Dialog();
+        dialog.AddContent(txt);
+        dialog.AddButton(1, "Accept");
         return dialog;
     }
+     //
     Loading(...args) {
         var sd = new Dialog();
 
