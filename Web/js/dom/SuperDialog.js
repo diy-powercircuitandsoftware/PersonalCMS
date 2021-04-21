@@ -1,17 +1,57 @@
 class SuperDialog {
-    AbortRetryIgnore(txt, callback) {
+    Dialog() {
         var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.innerHTML = "<form method='dialog'>" + txt + "<div style='text-align: center;'>" +
-                "<button data-value='0'>Abort</button>" +
-                "<button data-value='1' >Retry</button>" +
-                "<button data-value='-1'>Ignore</button></div>" +
-                "</form>";
-        dialog.addEventListener("click", function (e) {
-            if (e.target.getAttribute("data-value") !== null) {
-                callback(e.target.getAttribute("data-value"));
+        var title = dialog.appendChild(document.createElement("form"));
+        var content = dialog.appendChild(document.createElement("div"));
+        var button = dialog.appendChild(document.createElement("div"));
+        dialog.CallBack = function () {};
+        dialog.style.cssText = "padding: 0;";
+        button.style.cssText = "text-align:center;";
+        dialog.AddButton = function (v, txt) {
+            var bn = button.appendChild(document.createElement("button"));
+            bn.ref = this;
+            bn.v = v;
+            bn.innerHTML = txt;
+            bn.addEventListener("click", function (e) {
+                var cbrs = this.ref.CallBack(this.v);
+                if (cbrs === true || cbrs === undefined) {
+                    dialog.close();
+                }
+            });
+            return bn;
+        };
+        dialog.AddContent = function (c) {
+            if (typeof c === "string") {
+                content.insertAdjacentHTML('beforeend', c);
+            } else if (c instanceof HTMLElement) {
+                return  content.appendChild(c);
             }
-        });
+        };
+        dialog.Title = function (t) {
+            title.style.cssText = "display:flex;border-style: solid;border-width: thin;";
+            title.setAttribute("method", "dialog");
+            title.innerHTML = '<span   style="font-weight: bold;flex-grow: 1;">' + t + '</span><button>X</button>';
+
+        };
+
+        dialog.DestroyAfterClose = function () {
+            this.addEventListener('close', function () {
+                this.parentNode.removeChild(this);
+            });
+        };
+
         dialog.showModal();
+        return dialog;
+    }
+
+    AbortRetryIgnore(txt, callback) {
+        var dialog = this.Dialog();
+        dialog.AddButton(0, "Abort");
+        dialog.AddButton(1, "Retry");
+        dialog.AddButton(-1, "Ignore");
+        dialog.AddContent(txt);
+        dialog.DestroyAfterClose();
+        dialog.CallBack = callback;
         return dialog;
     }
 
@@ -19,9 +59,11 @@ class SuperDialog {
         if (!Number.isInteger(time)) {
             time = 0;
         }
-        var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.innerHTML = "<form method='dialog'>" + txt + "<div style='text-align: center;'><button disabled data-bn='close'>Close(" + time + ")</button></div></form>";
-        var qs = dialog.querySelector('[data-bn="close"]');
+        var dialog = this.Dialog();
+        var qs = dialog.AddButton("Close", "Close");
+        qs.setAttribute("disabled", "disabled");
+        dialog.AddContent(txt);
+        dialog.DestroyAfterClose();
         var t = setInterval(function () {
             qs.innerHTML = "Close(" + time + ")";
             time = time - 1;
@@ -30,44 +72,50 @@ class SuperDialog {
                 qs.removeAttribute("disabled");
             }
         }, 1000);
-        dialog.showModal();
+
         return dialog;
     }
     Alert(txt) {
-        var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.innerHTML = "<form method='dialog'>" + txt + "<div style='text-align: right;'><button>OK</button></div></form>";
-        dialog.showModal();
+        var dialog = this.Dialog();
+        dialog.AddButton("OK", "OK");
+        dialog.AddContent(txt);
+        dialog.DestroyAfterClose();
         return dialog;
     }
     Canvas(w, h) {
-        var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.style.cssText = "padding: 0;"
-        dialog.innerHTML = "<form method='dialog'><div style='text-align: right;'><button style='padding: 0;border: none;background: none;'>x</button></div></form>";
-        var canvas = dialog.appendChild(document.createElement('canvas'));
+        var dialog = this.Dialog();
+        dialog.Title("Canvas");
+        var canvas = dialog.AddContent(document.createElement('canvas'));
         canvas.style.cssText = "border-style: solid;border-width: thin;";
         canvas.width = w;
         canvas.height = h;
-        dialog.showModal();
+        dialog.DestroyAfterClose();
         return dialog;
     }
     ChangePassword(callback) {
         var dialog = this.TwoRow(function (v) {
+
             if (v["new"] === v["confirm"]) {
+               
                 var cboutput = callback({
                     "old": v["old"],
                     "new": v["new"]
                 });
                 if (cboutput === true) {
                     return true;
-                } else {
-                    return cboutput;
+                } else if (cboutput!==undefined){
+                    dialog.Error(cboutput);
+                    return false;
                 }
+                 return true;
             } else {
+
                 dialog.Reset();
-                return  "password do not match";
+                dialog.Error("password do not match");
+                return false;
             }
         });
-        dialog.SetTitle("Change Password");
+        dialog.Title("Change Password");
         dialog.AddRow("Old Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='old' />");
         dialog.AddRow("New Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='new' />");
         dialog.AddRow("Confirm Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='confirm' />");
@@ -189,7 +237,7 @@ class SuperDialog {
     //
     License(txt) {
         var dialog = document.body.appendChild(document.createElement("DIALOG"));
-dialog.innerHTML=txt;
+        dialog.innerHTML = txt;
         dialog.showModal();
         return dialog;
     }
@@ -445,33 +493,26 @@ dialog.innerHTML=txt;
     }
 //
     TwoRow(callback) {
-        var dialog = document.body.appendChild(document.createElement("DIALOG"));
-        dialog.style.cssText = "resize: both;overflow: auto;";
-        dialog.innerHTML = "<div data-output='error'></div><div data-output='title' style='font-weight: bold;'></div>" +
-                "<table style='wodth:100%;'></table>" +
-                "<div style='text-align: right;'><button data-bn='callback'>OK</button><button data-bn='close'>Cancel</button></div>";
 
-
-        dialog.querySelector("button[data-bn='callback'").addEventListener("click", function () {
-            var output = {};
-            [].forEach.call(dialog.querySelectorAll("input[name],textarea"), function (dom) {
-                output[dom.name] = dom.value;
-            });
-            [].forEach.call(dialog.querySelectorAll("input[type='file']"), function (dom) {
-                output[dom.name] = dom.files;
-            });
-            var cboutput = callback(output);
-            if (cboutput === true) {
-                dialog.close();
-            } else {
-                dialog.querySelector('[data-output="error"]').innerHTML = cboutput;
+        var dialog = this.Dialog();
+        dialog.error = dialog.AddContent(document.createElement('div'));
+        dialog.table = dialog.AddContent(document.createElement('table'));
+        dialog.CallBack = (function (v) {
+            if (v === "true" || v === "1" || v === 1 || v) {
+                var output = {};
+                [].forEach.call(dialog.querySelectorAll("input[name],textarea"), function (dom) {
+                    output[dom.name] = dom.value;
+                });
+                [].forEach.call(dialog.querySelectorAll("input[type='file']"), function (dom) {
+                    output[dom.name] = dom.files;
+                });
+                return callback(output);
             }
         });
-        dialog.querySelector('[data-bn="close"]').addEventListener("click", function () {
-            dialog.close();
-        });
+        dialog.AddButton(1, "OK");
+        dialog.AddButton(0, "Cancel");
         dialog.AddRow = function (...args) {
-            var row = dialog.querySelector("table").insertRow(-1);
+            var row = this.table.insertRow(-1);
             if (args.length == 1) {
                 var cell = row.insertCell(-1);
                 cell.colSpan = 2;
@@ -482,16 +523,17 @@ dialog.innerHTML=txt;
             }
             return this;
         };
+        dialog.Error = function (txt) {
+            this.error.innerHTML = txt;
+        };
         dialog.Reset = function () {
-            [].forEach.call(dialog.querySelectorAll("input,textarea"), function (dom) {
+            [].forEach.call(this.table.querySelectorAll("input,textarea"), function (dom) {
                 dom.value = "";
             });
         };
-        dialog.SetTitle = function (v) {
-            dialog.querySelector('[data-output="title"]').innerHTML = v;
-        };
-        dialog.showModal();
+        dialog.DestroyAfterClose();
         return dialog;
+
     }
 //
 
