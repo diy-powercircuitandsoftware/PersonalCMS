@@ -23,15 +23,19 @@ class SuperDialog {
         dialog.AddContent = function (c) {
             if (typeof c === "string") {
                 content.insertAdjacentHTML('beforeend', c);
+                return content.lastChild;
             } else if (c instanceof HTMLElement) {
                 return  content.appendChild(c);
             }
         };
-        dialog.Title = function (t) {
-            title.style.cssText = "display:flex;border-style: solid;border-width: thin;";
-            title.setAttribute("method", "dialog");
-            title.innerHTML = '<span   style="font-weight: bold;flex-grow: 1;">' + t + '</span><button>X</button>';
-
+        dialog.Title = function (t, closeable) {
+            if (closeable || (closeable === undefined)) {
+                title.style.cssText = "display:flex;border-style: solid;border-width: thin;";
+                title.setAttribute("method", "dialog");
+                title.innerHTML = '<span style="font-weight: bold;flex-grow: 1;">' + t + '</span><button>X</button>';
+            } else if (!closeable) {
+                title.innerHTML = '<span style="font-weight: bold;">' + t + '</span>';
+            }
         };
 
         dialog.DestroyAfterClose = function () {
@@ -221,7 +225,7 @@ class SuperDialog {
             }
         };
         xhttp.sd = this;
-        ;
+
         if (args.length === 1) {
             xhttp.open("GET", args[0], true);
             xhttp.send();
@@ -236,103 +240,119 @@ class SuperDialog {
         }
         return  xhttp.sd;
     }
-   
+
     License(txt) {
         var dialog = this.Dialog();
         dialog.AddContent(txt);
         dialog.AddButton(1, "Accept");
         return dialog;
     }
-     //
-    Loading(...args) {
-        var sd = new Dialog();
+   
+    Loading() {
+        var dialog = this.Dialog();
+        dialog.ref = this;
+        dialog.pg = dialog.AddContent(document.createElement("progress"));
+        dialog.divlog = dialog.AddContent(document.createElement("div"));
+        dialog.pg.setAttribute("max", 1);
+        dialog.pg.setAttribute("value", 0);
+        dialog.Title("Loading", false);
+        dialog.AddButton(0, "Cancel");
+        dialog.DestroyAfterClose();
+        dialog.Cancel = function () {
 
-        sd.Resize(false);
-        sd.pgdom = sd.Content('<progress   max="1"  style="width: 100%;"></progress><div></div>');
-        sd.DestroyAfterClose();
-        sd.Show();
-        if (args.length === 1 && typeof args[0] === "function") {
-            sd.Button({"Cancel": function () {
-                    if (args[0]()) {
-                        sd.Close();
-                    }
-                }});
-        }
-        sd.Val = function (v) {
-            this.pgdom[0].value = v;
         };
-        sd.Log = function (v) {
-            this.pgdom[1].innerHTML = v;
+        dialog.CallBack = function (v) {
+            if (v == "0") {
+                var ref=this;
+                this.ref.Confirm("Cancel????", function () {
+                    ref.Cancel();
+                    ref.close();
+                });
+            }
+            return false;
         };
-        return sd;
+        dialog.Val = function (v) {
+            this.pg.value = v;
+            return this;
+        };
+        dialog.Log = function (v) {
+            this.divlog.innerHTML = v;
+            return this;
+        };
+        return dialog;
     }
+     
     Login(callback) {
-        var sd = this.TableLayout(callback);
-
-        sd.Resize(false);
-        sd.AddNewRowElement("Username", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("Password", '<input type="password"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("Remember Me ", '<input type="checkbox"  style="width:100%;box-sizing: border-box;" value="true" />');
-        return sd;
+        var dialog = this.TwoRow(function (v){
+            return callback(v);
+        });
+        dialog.Title("Login");
+        dialog.AddRow("Username", '<input type="text"  style="width:99%;box-sizing: border-box;" name="username" />');
+        dialog.AddRow("Password", '<input type="password"  style="width:99%;box-sizing: border-box;" name="password" />');
+        dialog.AddRow("Remember Me ", '<input type="checkbox"  style="width:99%;box-sizing: border-box;" value="true" name="remember" />');       
+        return dialog;
     }
+    
+      
     MediaPlayer(...args) {
-        var src = args[0];
-        var sd = new Dialog();
-        var image = ["gif", "png", "jpg", "jpeg", "webp"];
-        var video = ["mp4", "webm"];
-        var audio = ["mp3", "ogg"];
-
-        sd.ButtonAlign("center");
-        sd.TextAlign("center");
-        sd.DestroyAfterClose();
-        sd.Show();
-        if (Array.isArray(src)) {
-            sd.Content(' <div style="background-color: black;min-width: 300px;min-height: 300px;width: 100%;height: 100%;"></div>');
-            sd.i = 0;
-            sd.Button({"&lt;": function () {
-                    sd.i = (sd.i + 1) % src.length;
-                    var ext = (src[sd.i].split('.').pop()).toLowerCase();
-                    if (image.indexOf(ext) >= 0) {
-                        sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><img style="max-width: 100%;max-height: 100%;" src="' + src[ sd.i] + '"/></div>');
-                    } else if (video.indexOf(ext) >= 0) {
-                        sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><video  style="background-color: black;width: 100%;height: 100%;" controls="controls" autoplay="autoplay" src="' + src[ sd.i] + '"></video></div>');
-                    } else if (audio.indexOf(ext) >= 0) {
-                        sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + src[ sd.i] + '"></audio></div>');
+          var dialog = this.Dialog();
+          var image = ["gif", "png", "jpg", "jpeg", "webp"];
+          var video = ["mp4", "webm"];
+          var audio = ["mp3", "ogg"];
+         
+          dialog.Title("MediaPlayer");
+          dialog.DestroyAfterClose();
+          if (Array.isArray(args[0]))
+          {
+            var frame= dialog.AddContent(' <div style="background-color: black;width: 640px;height: 360px"></div>');
+            frame.list=args[0];
+            frame.index=0;
+            var control=  dialog.AddContent('<div style="text-align: center;"><button data-dom="-1">&lt;</button><button data-dom="1">&gt;</button></div>');
+            control.frame=frame;
+            control.addEventListener("click", function(e){
+                if (e.target.tagName.toLowerCase()=="button"){
+                    if (e.target.getAttribute("data-dom")=="-1"){
+                        this.frame.index = ( this.frame.index + 1) % this.frame.list.length;
                     }
-
-                }, "&gt;": function () {
-                    sd.i = (src.length + sd.i - 1) % src.length;
-                    var ext = (src[sd.i].split('.').pop()).toLowerCase();
-                    if (image.indexOf(ext) >= 0) {
-                        sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><img style="max-width: 100%;max-height: 100%;" src="' + src[ sd.i] + '"/></div>');
-                    } else if (video.indexOf(ext) >= 0) {
-                        sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><video  style="background-color: black;width: 100%;height: 100%;" controls="controls" autoplay="autoplay" src="' + src[ sd.i] + '"></video></div>');
-                    } else if (audio.indexOf(ext) >= 0) {
-                        sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + src[ sd.i] + '"></audio></div>');
+                    else if (e.target.getAttribute("data-dom")=="1"){
+                        this.frame.index = (this.frame.list.length +  this.frame.index- 1) % this.frame.list.length;
                     }
-                }});
+                    var ext = (this.frame.list[this.frame.index].split('.').pop()).toLowerCase();
+                    
+                    if (image.indexOf(ext) >= 0) {
+                        this.frame.innerHTML=('<img style="max-width: 100%;max-height: 100%;" src="' + this.frame.list[this.frame.index] + '"/>');
+                    } else if (video.indexOf(ext) >= 0) {
+                        this.frame.innerHTML=('<video  style="background-color: black;width: 100%;height: 100%;" controls="controls" autoplay="autoplay" src="' + this.frame.list[this.frame.index]+ '"></video>');
+                    } else if (audio.indexOf(ext) >= 0) {
+                        this.frame.innerHTML=('<audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + this.frame.list[this.frame.index] + '"></audio>');
+                    }
+                    
+                }
+            });
 
-        } else if (args.length == 2) {
-            var ext = args[1];
+          }
+          else if (args.length===1){
+            var ext = (args[0].split('.').pop()).toLowerCase();
             if (image.indexOf(ext) >= 0) {
-                sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><img style="max-width: 100%;max-height: 100%;" src="' + src + '"/></div>');
+                dialog.AddContent(' <div style="background-color: black;width: 100%;height: 100%;"><img style="max-width: 100%;max-height: 100%;" src="' + args[0] + '"/></div>');
             } else if (video.indexOf(ext) >= 0) {
-                sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><video  style="background-color: black;width: 100%;height: 100%;" controls="controls" autoplay="autoplay" src="' + src + '"></video></div>');
+                dialog.AddContent(' <div style="background-color: black;width: 100%;height: 100%;"><video  style="background-color: black;width: 100%;height: 100%;" controls="controls" autoplay="autoplay" src="' + args[0] + '"></video></div>');
             } else if (audio.indexOf(ext) >= 0) {
-                sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + src + '"></audio></div>');
+                dialog.AddContent(' <div style="min-width: 300px;background-color: black;width: 100%;height: 100%;"><audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + args[0] + '"></audio></div>');
             }
-        } else {
-            var ext = (src.split('.').pop()).toLowerCase();
-            if (image.indexOf(ext) >= 0) {
-                sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><img style="max-width: 100%;max-height: 100%;" src="' + src + '"/></div>');
-            } else if (video.indexOf(ext) >= 0) {
-                sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><video  style="background-color: black;width: 100%;height: 100%;" controls="controls" autoplay="autoplay" src="' + src + '"></video></div>');
-            } else if (audio.indexOf(ext) >= 0) {
-                sd.Content(' <div style="background-color: black;width: 100%;height: 100%;"><audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + src + '"></audio></div>');
+          }
+          else if (args.length===2){           
+            if (image.indexOf(args[1]) >= 0) {
+                dialog.AddContent(' <div style="background-color: black;width: 100%;height: 100%;"><img style="max-width: 100%;max-height: 100%;" src="' + args[0] + '"/></div>');
+            } else if (video.indexOf(args[1]) >= 0) {
+                dialog.AddContent(' <div style="background-color: black;width: 100%;height: 100%;"><video  style="background-color: black;width: 100%;height: 100%;" controls="controls" autoplay="autoplay" src="' + args[0] + '"></video></div>');
+            } else if (audio.indexOf(args[1]) >= 0) {
+                dialog.AddContent(' <div style="min-width: 300px;background-color: black;width: 100%;height: 100%;"><audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + args[0] + '"></audio></div>');
             }
-        }
-
+          }
+        return dialog;  
     }
+     //
     Mutilline(...args) {
         var sd = new Dialog();
         sd.ta = document.createElement("textarea");
@@ -504,7 +524,12 @@ class SuperDialog {
             if (v === "true" || v === "1" || v === 1 || v) {
                 var output = {};
                 [].forEach.call(dialog.querySelectorAll("input[name],textarea"), function (dom) {
-                    output[dom.name] = dom.value;
+                    if (dom.type=="checkbox"&&dom.checked ){
+                         output[dom.name] = dom.value;
+                    }
+                    else if (dom.type!="checkbox"){
+                         output[dom.name] = dom.value;
+                    }            
                 });
                 [].forEach.call(dialog.querySelectorAll("input[type='file']"), function (dom) {
                     output[dom.name] = dom.files;
