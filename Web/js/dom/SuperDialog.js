@@ -247,7 +247,7 @@ class SuperDialog {
         dialog.AddButton(1, "Accept");
         return dialog;
     }
-   
+
     Loading() {
         var dialog = this.Dialog();
         dialog.ref = this;
@@ -263,7 +263,7 @@ class SuperDialog {
         };
         dialog.CallBack = function (v) {
             if (v == "0") {
-                var ref=this;
+                var ref = this;
                 this.ref.Confirm("Cancel????", function () {
                     ref.Cancel();
                     ref.close();
@@ -281,57 +281,52 @@ class SuperDialog {
         };
         return dialog;
     }
-     
+
     Login(callback) {
-        var dialog = this.TwoRow(function (v){
+        var dialog = this.TwoRow(function (v) {
             return callback(v);
         });
         dialog.Title("Login");
         dialog.AddRow("Username", '<input type="text"  style="width:99%;box-sizing: border-box;" name="username" />');
         dialog.AddRow("Password", '<input type="password"  style="width:99%;box-sizing: border-box;" name="password" />');
-        dialog.AddRow("Remember Me ", '<input type="checkbox"  style="width:99%;box-sizing: border-box;" value="true" name="remember" />');       
+        dialog.AddRow("Remember Me ", '<input type="checkbox"  style="width:99%;box-sizing: border-box;" value="true" name="remember" />');
         return dialog;
     }
-    
-      
+
     MediaPlayer(...args) {
-          var dialog = this.Dialog();
-          var image = ["gif", "png", "jpg", "jpeg", "webp"];
-          var video = ["mp4", "webm"];
-          var audio = ["mp3", "ogg"];
-         
-          dialog.Title("MediaPlayer");
-          dialog.DestroyAfterClose();
-          if (Array.isArray(args[0]))
-          {
-            var frame= dialog.AddContent(' <div style="background-color: black;width: 640px;height: 360px"></div>');
-            frame.list=args[0];
-            frame.index=0;
-            var control=  dialog.AddContent('<div style="text-align: center;"><button data-dom="-1">&lt;</button><button data-dom="1">&gt;</button></div>');
-            control.frame=frame;
-            control.addEventListener("click", function(e){
-                if (e.target.tagName.toLowerCase()=="button"){
-                    if (e.target.getAttribute("data-dom")=="-1"){
-                        this.frame.index = ( this.frame.index + 1) % this.frame.list.length;
-                    }
-                    else if (e.target.getAttribute("data-dom")=="1"){
-                        this.frame.index = (this.frame.list.length +  this.frame.index- 1) % this.frame.list.length;
+        var dialog = this.Dialog();
+        var image = ["gif", "png", "jpg", "jpeg", "webp"];
+        var video = ["mp4", "webm"];
+        var audio = ["mp3", "ogg"];
+        dialog.Title("MediaPlayer");
+        dialog.DestroyAfterClose();
+        if (Array.isArray(args[0]))
+        {
+            var frame = dialog.AddContent(' <div style="background-color: black;width: 640px;height: 360px"></div>');
+            frame.list = args[0];
+            frame.index = 0;
+            var control = dialog.AddContent('<div style="text-align: center;"><button data-dom="-1">&lt;</button><button data-dom="1">&gt;</button></div>');
+            control.frame = frame;
+            control.addEventListener("click", function (e) {
+                if (e.target.tagName.toLowerCase() == "button") {
+                    if (e.target.getAttribute("data-dom") == "-1") {
+                        this.frame.index = (this.frame.index + 1) % this.frame.list.length;
+                    } else if (e.target.getAttribute("data-dom") == "1") {
+                        this.frame.index = (this.frame.list.length + this.frame.index - 1) % this.frame.list.length;
                     }
                     var ext = (this.frame.list[this.frame.index].split('.').pop()).toLowerCase();
-                    
+
                     if (image.indexOf(ext) >= 0) {
-                        this.frame.innerHTML=('<img style="max-width: 100%;max-height: 100%;" src="' + this.frame.list[this.frame.index] + '"/>');
+                        this.frame.innerHTML = ('<img style="max-width: 100%;max-height: 100%;" src="' + this.frame.list[this.frame.index] + '"/>');
                     } else if (video.indexOf(ext) >= 0) {
-                        this.frame.innerHTML=('<video  style="background-color: black;width: 100%;height: 100%;" controls="controls" autoplay="autoplay" src="' + this.frame.list[this.frame.index]+ '"></video>');
+                        this.frame.innerHTML = ('<video  style="background-color: black;width: 100%;height: 100%;" controls="controls" autoplay="autoplay" src="' + this.frame.list[this.frame.index] + '"></video>');
                     } else if (audio.indexOf(ext) >= 0) {
-                        this.frame.innerHTML=('<audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + this.frame.list[this.frame.index] + '"></audio>');
+                        this.frame.innerHTML = ('<audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + this.frame.list[this.frame.index] + '"></audio>');
                     }
-                    
                 }
             });
 
-          }
-          else if (args.length===1){
+        } else if (args.length === 1) {
             var ext = (args[0].split('.').pop()).toLowerCase();
             if (image.indexOf(ext) >= 0) {
                 dialog.AddContent(' <div style="background-color: black;width: 100%;height: 100%;"><img style="max-width: 100%;max-height: 100%;" src="' + args[0] + '"/></div>');
@@ -340,8 +335,7 @@ class SuperDialog {
             } else if (audio.indexOf(ext) >= 0) {
                 dialog.AddContent(' <div style="min-width: 300px;background-color: black;width: 100%;height: 100%;"><audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + args[0] + '"></audio></div>');
             }
-          }
-          else if (args.length===2){           
+        } else if (args.length === 2) {
             if (image.indexOf(args[1]) >= 0) {
                 dialog.AddContent(' <div style="background-color: black;width: 100%;height: 100%;"><img style="max-width: 100%;max-height: 100%;" src="' + args[0] + '"/></div>');
             } else if (video.indexOf(args[1]) >= 0) {
@@ -349,117 +343,117 @@ class SuperDialog {
             } else if (audio.indexOf(args[1]) >= 0) {
                 dialog.AddContent(' <div style="min-width: 300px;background-color: black;width: 100%;height: 100%;"><audio style="background-color: black;width: 100%;" controls="controls" autoplay="autoplay" src="' + args[0] + '"></audio></div>');
             }
-          }
-        return dialog;  
+        }
+        return dialog;
+    }
+
+    Mutilline(callback) {
+        var dialog = this.Dialog();
+        dialog.Title("Mutilline");
+        dialog.AddButton(1, "OK");
+        dialog.AddButton(0, "Cancel");
+        dialog.txtarea = dialog.AddContent('<textarea style="width: 98%;height: 100%;resize: none;"></textarea>');
+        dialog.DestroyAfterClose();
+        dialog.CallBack = (function (v) {
+            if (v === "true" || v === "1" || v === 1 || v) {
+                callback(this.txtarea.value);
+            }
+        });
+        return dialog;
+    }
+
+    Payment(callback) {
+        var dialog = this.TwoRow(function (v) {
+            return callback(v);
+        });
+        dialog.Title("Payment");
+        dialog.AddRow("CARD NUMBER", '<input placeholder="0000 0000 0000 0000" type="text"  style="width:99%;box-sizing: border-box;" name="number" />');
+        dialog.AddRow("CARD HOLDER", '<input placeholder="name" type="text"  style="width:99%;box-sizing: border-box;" name="name" />');
+        dialog.AddRow("EXPIRES", '<input placeholder="MM/YY" type="text"  style="width:99%;box-sizing: border-box;" name="exp" />');
+        dialog.AddRow("CVV", '<input type="text"  style="width:99%;box-sizing: border-box;" value="true" name="cvv" />');
+        return dialog;
+
+    }
+    //
+    Personal(callback) {
+        var dialog = this.TwoRow(function (v) {
+            return callback(v);
+        });
+        dialog.Title("Personal");
+        dialog.AddRow("Name:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='name' />");
+        dialog.AddRow("LastName:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='lastname' />");
+        dialog.AddRow("MiddleName:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='middlename' />");
+        dialog.AddRow("ID-Passport:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='id' />");
+        dialog.AddRow("Sex:", "<select  style='width:100%;box-sizing: border-box;' >  <option value='M' >Male</option>  <option value='F'>Female</option><option value='L'>LGBT</option></select>");
+        dialog.AddRow("Phone", "<input type= 'text'  style= 'width:100%;box-sizing: border-box; ' name= 'phone' />");
+        dialog.AddRow("Email", "<input type= 'text'  style= 'width:100%;box-sizing: border-box; ' name= 'email' />");
+        dialog.AddRow("Fax", "<input type= 'text'  style= 'width:100%;box-sizing: border-box; ' name= 'fax' />");
+        dialog.AddRow("Address", "<textarea style='min-width: 100%; resize: vertical;' name='Address'></textarea>");
+        dialog.AddRow( "City", "<input type= 'text '  style= 'width:100%;box-sizing: border-box; ' name= 'city' />");
+        dialog.AddRow( "Zip Code", "<input type= 'text '  style= 'width:100%;box-sizing: border-box; ' name= 'zip' />");
+        dialog.AddRow( "Country", "<input type= 'text '  style= 'width:100%;box-sizing: border-box; ' name= 'country' />");
+        return dialog;
+    }
+ 
+    PleaseWait() {
+        var dialog = this.Dialog();     
+        dialog.AddContent("<div style='cursor:wait;'>Please Wait</div>"); 
+        dialog.DestroyAfterClose();
+        return dialog;
+         
+    }
+  
+    Prompt(callback) {
+        var dialog = this.Dialog();
+        dialog.Title("Prompt");
+        dialog.AddButton(1, "OK");
+        dialog.AddButton(0, "Cancel");
+        dialog.txtbox = dialog.AddContent("<input type='text'  style='width:100%;box-sizing: border-box;' />");
+        dialog.DestroyAfterClose();
+        dialog.CallBack = (function (v) {
+            if (v === "true" || v === "1" || v === 1 || v) {
+                callback(this.txtbox.value);
+            }
+        });
+        return dialog;
+    }
+  
+    Rect(callback) {
+        var dialog = this.TwoRow(function (v) {
+            return callback(v);
+        });
+        dialog.Title("Rect");
+        dialog.AddRow("x:", "<input type='number'  style='width:100%;box-sizing: border-box;' name='x' />");
+        dialog.AddRow("y:", "<input type='number'  style='width:100%;box-sizing: border-box;' name='y' />");
+        dialog.AddRow("width:", "<input type='number'  style='width:100%;box-sizing: border-box;' name='width' />");
+        dialog.AddRow("height:", "<input type='number'  style='width:100%;box-sizing: border-box;' name='height' />");       
+        return dialog;
+  
+    }
+
+    Register(callback) {
+         var dialog = this.TwoRow(function (v) {
+            return callback(v);
+        });
+        dialog.Title("Register");
+        dialog.AddRow("Email:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='email' />");
+        dialog.AddRow("Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='password' />");
+        dialog.AddRow("Phone:", "<input type='text'  style='width:100%;box-sizing: border-box;' name='phone' />");
+        return dialog;       
+    }
+     
+    RowCol(callback) {
+        
+        var dialog = this.TwoRow(function (v) {
+            return callback(v);
+        });
+        dialog.Title("Row/Column");
+        dialog.AddRow("Row:", "<input type='number'  style='width:100%;box-sizing: border-box;' name='row' />");
+        dialog.AddRow("Column:", "<input type='number'  style='width:100%;box-sizing: border-box;' name='column' />");     
+        return dialog;
+         
     }
      //
-    Mutilline(...args) {
-        var sd = new Dialog();
-        sd.ta = document.createElement("textarea");
-        sd.ta.style.cssText = " width: 100%;height: 100%;resize: none;";
-
-        sd.Content(args[0]);
-        sd.Append(sd.ta);
-        sd.DestroyAfterClose();
-        sd.Show();
-        sd.Button({"OK": function () {
-                if (typeof args[1] === "function") {
-                    if (args[1](sd.ta.value)) {
-                        sd.Close();
-                    }
-                }
-            }, "Cancel": function () {
-                sd.Close();
-            }});
-        return sd;
-    }
-    Payment(callback) {
-        var sd = this.TableLayout(callback);
-
-        sd.AddNewRowElement("CARD NUMBER", '<input type="text" placeholder="0000 0000 0000 0000" style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("CARD HOLDER", '<input type="text" placeholder="name" style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("EXPIRES", '<input type="text" placeholder="MM/YY" style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("CVV", '<input type="password"  style="width:100%;box-sizing: border-box;" value="" />');
-        return sd;
-    }
-    Personal(callback) {
-        var sd = this.TableLayout(callback);
-
-        sd.AddNewRowElement("Name", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewCellElement("LastName", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewCellElement("MiddleName", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("ID-Passport", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewCellElement("Sex", '<select  style="width:100%;box-sizing: border-box;" >  <option value="M" >Male</option>  <option value="F" >Female</option></select>');
-        sd.AddNewCellElement("Marital", '<select  style="width:100%;box-sizing: border-box;" ><option value="S" >Single</option><option value="M" >Married</option><option value="D" >Divorced</option></select>');
-        sd.AddNewRowElement("Phone", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewCellElement("Email", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewCellElement("Fax", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement('Address:<textarea style="min-width: 100%; resize: vertical;" name="Address"></textarea>');
-        sd.AddNewRowElement("City", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewCellElement("Zip Code", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewCellElement("Country", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.Normalize();
-        return sd;
-    }
-    PleaseWait() {
-        var sd = new Dialog();
-
-        sd.Resize(false);
-        sd.Content("<div style='cursor:wait;'>Please Wait</div>");
-        sd.TextAlign("center");
-        sd.DestroyAfterClose();
-        sd.Show();
-        return sd;
-    }
-
-    Prompt(...args) {
-        var sd = new Dialog();
-        sd.ta = document.createElement("input");
-        sd.ta.style.cssText = " width: 100%;";
-
-        sd.Content(args[0]);
-        sd.Append(sd.ta);
-        sd.DestroyAfterClose();
-        sd.Resize(false);
-        sd.Show();
-        sd.Button({"OK": function () {
-                if (typeof args[1] === "function") {
-                    if (args[1](sd.ta.value)) {
-                        sd.Close();
-                    }
-                }
-            }, "Cancel": function () {
-                sd.Close();
-            }});
-        return sd;
-    }
-
-    Rect(callback) {
-        var sd = this.TableLayout(callback);
-
-        sd.Resize(false);
-        sd.AddNewRowElement("x", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("y", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("width ", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("height ", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
-        return sd;
-    }
-    Register(callback) {
-        var sd = this.TableLayout(callback);
-
-        sd.AddNewRowElement("Email", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("Password", '<input type="password"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("Phone", '<input type="text"  style="width:100%;box-sizing: border-box;" value="" />');
-        return sd;
-    }
-    RowCol(callback) {
-        var sd = this.TableLayout(callback);
-
-        sd.Resize(false);
-        sd.AddNewRowElement("Row", '<input type="number" min="0" style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("Column", '<input type="number" min="0"  style="width:100%;box-sizing: border-box;" value="" />');
-        return sd;
-    }
     Quiz(question, callback) {
         var sd = this.TableLayout(callback);
 
@@ -524,12 +518,11 @@ class SuperDialog {
             if (v === "true" || v === "1" || v === 1 || v) {
                 var output = {};
                 [].forEach.call(dialog.querySelectorAll("input[name],textarea"), function (dom) {
-                    if (dom.type=="checkbox"&&dom.checked ){
-                         output[dom.name] = dom.value;
+                    if (dom.type == "checkbox" && dom.checked) {
+                        output[dom.name] = dom.value;
+                    } else if (dom.type != "checkbox") {
+                        output[dom.name] = dom.value;
                     }
-                    else if (dom.type!="checkbox"){
-                         output[dom.name] = dom.value;
-                    }            
                 });
                 [].forEach.call(dialog.querySelectorAll("input[type='file']"), function (dom) {
                     output[dom.name] = dom.files;
@@ -565,28 +558,7 @@ class SuperDialog {
     }
 //
 
-
-    TextArea(...args) {
-        var sd = new Dialog();
-        sd.ta = document.createElement("textarea");
-        sd.ta.style.cssText = " width: 100%;";
-
-        sd.Content(args[0]);
-        sd.Append(sd.ta);
-        sd.DestroyAfterClose();
-        sd.Resize(false);
-        sd.Show();
-        sd.Button({"OK": function () {
-                if (typeof args[1] === "function") {
-                    if (args[1](sd.ta.value)) {
-                        sd.Close();
-                    }
-                }
-            }, "Cancel": function () {
-                sd.Close();
-            }});
-        return sd;
-    }
+ 
     UnLock(callback) {
         var sd = new Dialog();
 
