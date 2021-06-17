@@ -374,7 +374,7 @@ class SuperDialog {
         return dialog;
 
     }
-    //
+  
     Personal(callback) {
         var dialog = this.TwoRow(function (v) {
             return callback(v);
@@ -399,8 +399,7 @@ class SuperDialog {
         var dialog = this.Dialog();     
         dialog.AddContent("<div style='cursor:wait;'>Please Wait</div>"); 
         dialog.DestroyAfterClose();
-        return dialog;
-         
+        return dialog;        
     }
   
     Prompt(callback) {
@@ -442,8 +441,7 @@ class SuperDialog {
         return dialog;       
     }
      
-    RowCol(callback) {
-        
+    RowCol(callback) {       
         var dialog = this.TwoRow(function (v) {
             return callback(v);
         });
@@ -453,62 +451,52 @@ class SuperDialog {
         return dialog;
          
     }
-     //
+    
     Quiz(question, callback) {
-        var sd = this.TableLayout(callback);
-
-        sd.Resize(false);
-        sd.AddNewRowElement(question);
-        sd.AddRadioButton = function (id, name, value) {
-            sd.AddNewRowElement(id, name, '<input type="radio"  style="width:100%;box-sizing: border-box;" value="' + value + '" />');
+          var dialog = this.TwoRow(function (v) {
+            return callback(v);
+        });
+        dialog.AddRadioButton = function (name,txt, value) {
+            this.AddRow( '<input type="radio" name="'+name+'"  style="box-sizing: border-box;" value="' + value + '" />'+txt);
             return this;
         };
-        sd.AddSelectOption = function (id, name, value) {
-            var s = document.createElement("SELECT");
-            s.style.width = "100%";
-            sd.AddNewRowElement(id, name, s);
+        dialog.AddSelectOption = function (name,txt, value) {
+           var option=""; 
             for (var k in value) {
-                var opt = s.appendChild(document.createElement("OPTION"));
+                var opt = document.createElement("OPTION");
                 opt.value = k
                 opt.innerHTML = value[k];
+                option=option+opt.outerHTML;
             }
+            this.AddRow(txt+'<select name="'+name+'">'+option+'</select>' );
             return this;
         };
-        return sd;
+        dialog.Title(question);     
+        return dialog;    
     }
+    
     SaveBeforeExit(callback) {
-        var sd = new Dialog();
-
-        sd.Resize(false);
-        sd.Content("Do You Save Before Exit");
-        sd.TextAlign("center");
-        sd.ButtonAlign("center");
-        sd.DestroyAfterClose();
-        sd.Show();
-        sd.Button({"Save": function () {
-                if (typeof callback === "function" && callback(1)) {
-                    sd.Close();
-                }
-            }, "Do not Save": function () {
-                if (typeof callback === "function" && callback(0)) {
-                    sd.Close();
-                }
-            }, "Cancel": function () {
-                sd.Close();
-            }}
-        );
-        return sd;
+        var dialog = this.Dialog();
+        dialog.AddButton(-1, "Do not Save");
+        dialog.AddButton(0, "Cancel");
+        dialog.AddButton(1, "Save");
+        dialog.Title("Do You Save Before Exit");
+        dialog.AddContent("unsaved data will be lost");
+        dialog.DestroyAfterClose();
+        dialog.CallBack = callback;
+        return dialog;  
     }
 
     Size(callback) {
-        var sd = this.TableLayout(callback);
-
-        sd.Resize(false);
-        sd.AddNewRowElement("width ", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
-        sd.AddNewRowElement("height ", '<input type="number"  style="width:100%;box-sizing: border-box;" value="" />');
-        return sd;
+           var dialog = this.TwoRow(function (v) {
+            return callback(v);
+        });
+        dialog.Title("Size");
+        dialog.AddRow("width:", "<input type='number'  style='width:100%;box-sizing: border-box;' name='width' />");
+        dialog.AddRow("height:", "<input type='number'  style='width:100%;box-sizing: border-box;' name='height' />");       
+        return dialog;
     }
-//
+ 
     TwoRow(callback) {
 
         var dialog = this.Dialog();
@@ -518,11 +506,11 @@ class SuperDialog {
             if (v === "true" || v === "1" || v === 1 || v) {
                 var output = {};
                 [].forEach.call(dialog.querySelectorAll("input[name],textarea"), function (dom) {
-                    if (dom.type == "checkbox" && dom.checked) {
+                    if (dom.checked) {
+                        output[dom.name] = dom.value;                       
+                    } else if(["radio", "checkbox"].indexOf(dom.type)==-1)   {
                         output[dom.name] = dom.value;
-                    } else if (dom.type != "checkbox") {
-                        output[dom.name] = dom.value;
-                    }
+                    }                    
                 });
                 [].forEach.call(dialog.querySelectorAll("input[type='file']"), function (dom) {
                     output[dom.name] = dom.files;
@@ -556,54 +544,31 @@ class SuperDialog {
         return dialog;
 
     }
-//
-
- 
+    
     UnLock(callback) {
-        var sd = new Dialog();
-
-        sd.Resize(false);
-        var pw = sd.Content('<input  style="width:100%;box-sizing: border-box;" type="password" name="" value="" />');
-        sd.DestroyAfterClose();
-        sd.Show();
-        sd.Button({"OK": function () {
-                if (typeof callback === "function") {
-                    if (callback(pw[0].value)) {
-                        sd.Close();
-                    }
-                } else {
-                    sd.Close();
-                }
-            }, "Cancel": function () {
-                sd.Close();
-            }});
-        return sd;
+       var dialog = this.Dialog();
+        dialog.Title("Unlock");
+        dialog.AddButton(1, "OK");
+        dialog.AddButton(0, "Cancel");
+        dialog.txtbox = dialog.AddContent("<input type='password'  style='width:100%;box-sizing: border-box;' />");
+        dialog.DestroyAfterClose();
+        dialog.CallBack = (function (v) {
+            if (v === "true" || v === "1" || v === 1 || v) {
+                callback(this.txtbox.value);
+            }
+        });
+        return dialog;
     }
-    YesNoCancel(callback) {
-        var sd = new Dialog();
-
-        sd.Resize(false);
-        sd.Content("Do You Save Before Exit");
-        sd.TextAlign("center");
-        sd.ButtonAlign("center");
-        sd.DestroyAfterClose();
-        sd.Show();
-        sd.Button({"Yes": function () {
-                if (typeof callback === "function" && callback("Y")) {
-                    sd.Close();
-                }
-            }, "No": function () {
-                if (typeof callback === "function" && callback("N")) {
-                    sd.Close();
-                }
-            }, "Cancel": function () {
-                if (typeof callback === "function" && callback("C")) {
-                    sd.Close();
-                }
-            }}
-        );
-        return sd;
+    YesNoCancel(txt,callback) {
+        var dialog = this.Dialog();
+        dialog.AddButton(1, "Yes");
+        dialog.AddButton(-1, "No");
+        dialog.AddButton(0, "Cancel");
+        dialog.AddContent(txt);
+        dialog.DestroyAfterClose();
+        dialog.CallBack = callback;
+        return dialog;
     }
-
+         
 }
 
