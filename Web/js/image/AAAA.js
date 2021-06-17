@@ -1,12 +1,6 @@
-class SlideShow {
+class SlideShow2D {
     constructor(...args) {
-        if (args.length === 1 && typeof args[0] === 'string' || args[0] instanceof String) {
-            this.canvas = document.querySelector(args[0]).appendChild(document.createElement("CANVAS"));
-        } else if (args.length === 1 && args[0] instanceof HTMLElement) {
-            this.canvas = args[0].appendChild(document.createElement("CANVAS"));
-        } else {
-            this.canvas = document.body.appendChild(document.createElement("CANVAS"));
-        }
+       
 
         this.Running = false;
         this.Render = new SlideShow_RenderEngine();
@@ -28,20 +22,7 @@ class SlideShow {
             this.ref.OnSelectedImage(v);
         };
     }
-    AddImage(path) {
-        this.Render.ImageList.AddImage(path);
-    }
-    AddTransition(te) {
-        if (new te() instanceof SlideShow_TransitionsEngine) {
-            this.Render.transitionslist.push(te);
-        }
-    }
-    Clear() {
-        return this.Render.ImageList.Clear();
-    }
-    GetImageCount() {
-        return this.Render.ImageList.Count();
-    }
+    
     OnImageListChange() {
 
     }
@@ -59,37 +40,33 @@ class SlideShow {
         }
     }
 
-    Size(w, h) {
-        this.canvas.width = w;
-        this.canvas.height = h;
-
-    }
+  
     Start() {
 
         if (!this.Running) {
             this.Running = true;
             var syntaxnoarguments = {
-                "BeginPath": "beginPath",
-                "Clip": "clip",
-                "ClosePath": "closePath",
-                "Fill": "fill",
-                "Restore": "restore",
-                "Save": "save"
+                "beginPath": "beginPath",
+                "clip": "clip",
+                "closePath": "closePath",
+                "fill": "fill",
+                "restore": "restore",
+                "save": "save"
             };
             var syntaxsetter = {
-                "GlobalAlpha": "globalAlpha",
-                "GlobalCompositeOperation": "globalCompositeOperation"
+                "globalAlpha": "globalAlpha",
+                "globalCompositeOperation": "globalCompositeOperation"
             };
             var syntaxpoint = {
-                "MoveTo": "moveTo",
-                "LineTo": "lineTo",
-                "Scale": "scale",
-                "Translate": "translate"
+                "moveTo": "moveTo",
+                "lineTo": "lineTo",
+                "scale": "scale",
+                "translate": "translate"
             };
             var syntaxrect = {
                 "Rect": "rect",
-                "FillRect": "fillRect",
-                "ClearRect": "clearRect"
+                "fillRect": "fillRect",
+                "clearRect": "clearRect"
 
             };
 
@@ -188,142 +165,17 @@ class SlideShow {
     }
 
 }
+ 
 
-class SlideShow_ImageList {
-    constructor() {
-        this.ImageList = [];
-    }
-    AddImage(path) {
-        var xhttp = new XMLHttpRequest();
-        var ref = this;
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                var img = new Image();
-                var blob = new Blob([this.response]);
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    img.src = e.target.result;
-                    ref.ImageList.push(img);
-                    ref.OnImageListChange(ref.ImageList.length);
-                };
-                reader.readAsDataURL(blob);
-            }
-        };
-
-        xhttp.responseType = "arraybuffer";
-        xhttp.open("GET", path, true);
-        xhttp.send();
-
-    }
-    Clear() {
-        this.ImageList = [];
-    }
-    Count() {
-        return   this.ImageList.length;
-    }
-    GetImage(index) {
-        if (index < this.ImageList.length) {
-            this.OnSelectedImage(index);
-            return  this.ImageList[index];
-        }
-        return null;
-    }
-
-    GetImageSize(index) {
-        if (index < this.ImageList.length) {
-            return  {
-                "width": this.ImageList[index].width,
-                "height": this.ImageList[index].height
-            };
-        }
-        return  null;
-    }
-    OnImageListChange() {
-
-    }
-    OnSelectedImage() {
-
-    }
-
-}
-
-class SlideShow_RenderEngine {
-    constructor(fps = 60) {
-        this.requestID = 0;
-        this.fps = fps;
-        this.animate = function () {};
-    }
-    SetAnimate(animate) {
-        this.animate = animate;
-    }
-
-    Start() {
-        let then = performance.now();
-        const interval = 1000 / this.fps;
-        const tolerance = 0.1;
-        const animateLoop = (now) => {
-
-            const delta = now - then;
-            if (delta >= interval - tolerance) {
-                then = now - (delta % interval);
-                this.animate(delta);
-            }
-            this.requestID = requestAnimationFrame(animateLoop);
-        };
-        this.requestID = requestAnimationFrame(animateLoop);
-    }
-
-    Stop() {
-        cancelAnimationFrame(this.requestID);
-    }
-}
-class SlideShow_TransitionsEngine {
-    constructor(canvassize, image1size, image2size) {
-        this.canvassize = canvassize;
-        this.image1size = image1size;
-        this.image2size = image2size;
-    }
-    Start() {
-        var stack = [];
-        return stack;
-    }
-    Running(time) {
-        var stack = [];
-        return stack;
-    }
-    Finish() {
-        var stack = [];
-        return stack;
-    }
-    Center(rect, ref, ratio = 1) {
-
-        var w = rect.width * ratio;
-        var h = rect.height * ratio;
-        var x = ref.width / 2 - w / 2;
-        var y = ref.height / 2 - h / 2;
-        return {"x": x, "y": y, "width": w, "height": h, "ratio": ratio};
-    }
-    Rect(x, y, w, h) {
-        return {
-            "x": x,
-            "y": y,
-            "width": w,
-            "height": h
-        };
-    }
-    Scale(src, dest) {
-        return    Math.min(dest.width / src.width, dest.height / src.height);
-    }
-}
-class SlideShow_Transition_FillEngine extends SlideShow_TransitionsEngine {
+class SlideShow2D_Transition_fillEngine extends SlideShow2D_TransitionsEngine {
 
     Shape() {
         return {};
     }
 
     Start() {
-        this.CenterA = this.Center(this.image1size, this.canvassize, this.Scale(this.image1size, this.canvassize));
-        this.CenterB = this.Center(this.image2size, this.canvassize, this.Scale(this.image2size, this.canvassize));
+        this.CenterA = this.Center(this.image1size, this.canvassize, this.scale(this.image1size, this.canvassize));
+        this.CenterB = this.Center(this.image2size, this.canvassize, this.scale(this.image2size, this.canvassize));
 
         return[{
                 "command": "DrawImage",
@@ -335,9 +187,9 @@ class SlideShow_Transition_FillEngine extends SlideShow_TransitionsEngine {
     Running(time) {
         var stack = [];
         stack.push({
-            "command": "Save"
+            "command": "save"
         }, {
-            "command": "BeginPath"
+            "command": "beginPath"
         });
         var sh = this.Shape(time);
         if (sh instanceof Array) {
@@ -349,97 +201,36 @@ class SlideShow_Transition_FillEngine extends SlideShow_TransitionsEngine {
 
         }
         stack.push({
-            "command": "ClosePath"
+            "command": "closePath"
         }, {
-            "command": "GlobalCompositeOperation",
+            "command": "globalCompositeOperation",
             "value": "destination-out"
         }, {
-            "command": "Fill"
+            "command": "fill"
         });
 
         stack.push({
-            "command": "GlobalCompositeOperation",
+            "command": "globalCompositeOperation",
             "value": "source-over"
         }, {
-            "command": "Clip"
+            "command": "clip"
         }, {
             "command": "DrawImage",
             "image": 2,
             "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
             "dest": this.CenterB
         }, {
-            "command": "Restore"
+            "command": "restore"
         });
         return stack;
     }
 
 }
-;
-class SlideShow_Transition_FadeOutFadeIn extends SlideShow_TransitionsEngine {
-    Start() {
-        this.CenterA = this.Center(this.image1size, this.canvassize, this.Scale(this.image1size, this.canvassize));
-        this.CenterB = this.Center(this.image2size, this.canvassize, this.Scale(this.image2size, this.canvassize));
-        return[{
-                "command": "ClearRect",
-                "x": 0,
-                "y": 0,
-                "width": this.canvassize.width,
-                "height": this.canvassize.height,
-            }, {
-                "command": "GlobalAlpha",
-                "value": 1
-            }, {
-                "command": "DrawImage",
-                "image": 1,
-                "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
-                "dest": this.CenterA
-            }];
-    }
-    Running(time) {
-        var stack = [];
-        stack.push({
-            "command": "ClearRect",
-            "x": 0,
-            "y": 0,
-            "width": this.canvassize.width,
-            "height": this.canvassize.height
-        });
-        if (time < 0.5) {
 
-            stack.push({
-                "command": "GlobalAlpha",
-                "value": 1 - (2 * time)
-            }, {
-                "command": "DrawImage",
-                "image": 1,
-                "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
-                "dest": this.CenterA
-            });
 
-        }
-        if (time > 0.5) {
-            stack.push({
-                "command": "GlobalAlpha",
-                "value": (2 * time) - 1
-            }, {
-                "command": "DrawImage",
-                "image": 2,
-                "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
-                "dest": this.CenterB
-            });
-        }
-        return stack;
-    }
-    Finish() {
-        return[{
-                "command": "GlobalAlpha",
-                "value": 1
-            }];
-    }
-}
-;
 
-class SlideShow_Transition_BottomToTop extends SlideShow_Transition_FillEngine {
+
+class SlideShow2D_Transition_BottomToTop extends SlideShow2D_Transition_fillEngine {
     Shape(time) {
         return {
             "command": "Rect",
@@ -452,7 +243,7 @@ class SlideShow_Transition_BottomToTop extends SlideShow_Transition_FillEngine {
     ;
 }
 ;
-class SlideShow_Transition_CircleOut extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_CircleOut extends SlideShow2D_Transition_fillEngine {
     Start() {
         super.Start();
         this.MinCanvasSize = Math.min(this.canvassize.width, this.canvassize.height);
@@ -471,7 +262,7 @@ class SlideShow_Transition_CircleOut extends SlideShow_Transition_FillEngine {
     ;
 }
 ;
-class SlideShow_Transition_Corner extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_Corner extends SlideShow2D_Transition_fillEngine {
     Shape(time) {
         return {
             "command": "Rect",
@@ -485,13 +276,13 @@ class SlideShow_Transition_Corner extends SlideShow_Transition_FillEngine {
 }
 ;
 
-class SlideShow_Transition_PageTurn extends SlideShow_TransitionsEngine {
+class SlideShow2D_Transition_PageTurn extends SlideShow2D_TransitionsEngine {
     Start() {
-        this.CenterA = this.Center(this.image1size, this.canvassize, this.Scale(this.image1size, this.canvassize));
-        this.CenterB = this.Center(this.image2size, this.canvassize, this.Scale(this.image2size, this.canvassize));
+        this.CenterA = this.Center(this.image1size, this.canvassize, this.scale(this.image1size, this.canvassize));
+        this.CenterB = this.Center(this.image2size, this.canvassize, this.scale(this.image2size, this.canvassize));
         this.P = (Math.sqrt(Math.pow(this.canvassize.width, 2) + Math.pow(this.canvassize.height, 2))) * 1.5;
         return[{
-                "command": "ClearRect",
+                "command": "clearRect",
                 "x": 0,
                 "y": 0,
                 "width": this.canvassize.width,
@@ -509,9 +300,9 @@ class SlideShow_Transition_PageTurn extends SlideShow_TransitionsEngine {
         var y = (this.P * time) + 0.1;
 
         stack.push({
-            "command": "Save"
+            "command": "save"
         }, {
-            "command": "FillRect",
+            "command": "fillRect",
             "x": 0,
             "y": 0,
             "width": this.canvassize.width,
@@ -523,50 +314,50 @@ class SlideShow_Transition_PageTurn extends SlideShow_TransitionsEngine {
             "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
             "dest": this.CenterB
         }, {
-            "command": "BeginPath"
+            "command": "beginPath"
         }, {
-            "command": "MoveTo",
+            "command": "moveTo",
             "x": y * y / 2 / x + x / 2,
             "y": 0
         }, {
-            "command": "LineTo",
+            "command": "lineTo",
             "x": this.canvassize.width * 2,
             "y": 0
         }, {
-            "command": "LineTo",
+            "command": "lineTo",
             "x": 0,
             "y": this.canvassize.height * 2
         }, {
-            "command": "LineTo",
+            "command": "lineTo",
             "x": 0,
             "y": x * x / 2 / y + y / 2
         }, {
-            "command": "ClosePath"
+            "command": "closePath"
         }, {
-            "command": "GlobalCompositeOperation",
+            "command": "globalCompositeOperation",
             "value": "destination-out"
         }, {
-            "command": "Fill"
+            "command": "fill"
         }
         , {
-            "command": "GlobalCompositeOperation",
+            "command": "globalCompositeOperation",
             "value": "source-over"
         }, {
-            "command": "Clip"
+            "command": "clip"
         }, {
             "command": "DrawImage",
             "image": 1,
             "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
             "dest": this.CenterA
         }, {
-            "command": "Translate",
+            "command": "translate",
             "x": x,
             "y": y
         }, {
             "command": "Rotate",
             "value": Math.atan2(y, x) * 2
         }, {
-            "command": "Scale",
+            "command": "scale",
             "x": -1,
             "y": 1
         }, {
@@ -575,11 +366,11 @@ class SlideShow_Transition_PageTurn extends SlideShow_TransitionsEngine {
             "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
             "dest": this.CenterA
         }, {
-            "command": "Translate",
+            "command": "translate",
             "x": x,
             "y": y
         }, {
-            "command": "Restore"
+            "command": "restore"
         });
         return stack;
     }
@@ -588,7 +379,7 @@ class SlideShow_Transition_PageTurn extends SlideShow_TransitionsEngine {
 ;
 
 
-class SlideShow_Transition_RightToLeft extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_RightToLeft extends SlideShow2D_Transition_fillEngine {
     Shape(time) {
         return {
 
@@ -604,7 +395,7 @@ class SlideShow_Transition_RightToLeft extends SlideShow_Transition_FillEngine {
 ;
 
 
-class SlideShow_Transition_FromVerticalCenter extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_FromVerticalCenter extends SlideShow2D_Transition_fillEngine {
     Start() {
         super.Start();
         this.halfwidth = this.canvassize.width / 2;
@@ -629,7 +420,7 @@ class SlideShow_Transition_FromVerticalCenter extends SlideShow_Transition_FillE
     ;
 }
 ;
-class SlideShow_Transition_StarOut extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_StarOut extends SlideShow2D_Transition_fillEngine {
     Start() {
         this.P = 5;
         this.M = 0.5;
@@ -640,7 +431,7 @@ class SlideShow_Transition_StarOut extends SlideShow_Transition_FillEngine {
         var stack = [];
         var r = this.MaxCanvasSize * time;
         stack.push({
-            "command": "Translate",
+            "command": "translate",
             "x": this.canvassize.width / 2,
             "y": this.canvassize.height / 2
         });
@@ -652,7 +443,7 @@ class SlideShow_Transition_StarOut extends SlideShow_Transition_FillEngine {
                 "value": Math.PI / this.P
             });
             stack.push({
-                "command": "LineTo",
+                "command": "lineTo",
                 "x": 0,
                 "y": -(r * this.M)
             });
@@ -661,14 +452,14 @@ class SlideShow_Transition_StarOut extends SlideShow_Transition_FillEngine {
                 "value": Math.PI / this.P
             });
             stack.push({
-                "command": "LineTo",
+                "command": "lineTo",
                 "x": 0,
                 "y": -r
             });
 
         }
         stack.push({
-            "command": "Translate",
+            "command": "translate",
             "x": -this.canvassize.width / 2,
             "y": -this.canvassize.height / 2
         });
@@ -678,7 +469,7 @@ class SlideShow_Transition_StarOut extends SlideShow_Transition_FillEngine {
 ;
 
 
-class SlideShow_Transition_ToHorizontalCenter extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_ToHorizontalCenter extends SlideShow2D_Transition_fillEngine {
     Start() {
         super.Start();
         this.halfheight = this.canvassize.height / 2;
@@ -702,7 +493,7 @@ class SlideShow_Transition_ToHorizontalCenter extends SlideShow_Transition_FillE
     }
 }
 ;
-class SlideShow_Transition_FromHorizontalCenter extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_FromHorizontalCenter extends SlideShow2D_Transition_fillEngine {
     Start() {
         super.Start();
         this.halfheight = this.canvassize.height / 2;
@@ -728,7 +519,7 @@ class SlideShow_Transition_FromHorizontalCenter extends SlideShow_Transition_Fil
     }
 }
 ;
-class SlideShow_Transition_TopToBottom extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_TopToBottom extends SlideShow2D_Transition_fillEngine {
 
     Shape(time) {
 
@@ -742,7 +533,7 @@ class SlideShow_Transition_TopToBottom extends SlideShow_Transition_FillEngine {
     }
 }
 ;
-class SlideShow_Transition_LeftToRight extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_LeftToRight extends SlideShow2D_Transition_fillEngine {
 
     Shape(time) {
 
@@ -756,7 +547,7 @@ class SlideShow_Transition_LeftToRight extends SlideShow_Transition_FillEngine {
     }
 }
 ;
-class SlideShow_Transition_ToVerticalCenter extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_ToVerticalCenter extends SlideShow2D_Transition_fillEngine {
     Start() {
         super.Start();
         this.halfwidth = this.canvassize.width / 2;
@@ -780,7 +571,7 @@ class SlideShow_Transition_ToVerticalCenter extends SlideShow_Transition_FillEng
     }
 }
 ;
-class SlideShow_Transition_VerticalBlind extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_VerticalBlind extends SlideShow2D_Transition_fillEngine {
     Start() {
         super.Start();
         this.bar = 12;
@@ -802,7 +593,7 @@ class SlideShow_Transition_VerticalBlind extends SlideShow_Transition_FillEngine
     }
 }
 ;
-class SlideShow_Transition_HorizontalBlind extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_HorizontalBlind extends SlideShow2D_Transition_fillEngine {
     Start() {
         super.Start();
         this.bar = 12;
@@ -824,7 +615,7 @@ class SlideShow_Transition_HorizontalBlind extends SlideShow_Transition_FillEngi
     }
 }
 ;
-class SlideShow_Transition_HeartOut extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_HeartOut extends SlideShow2D_Transition_fillEngine {
     Start() {
         this.DoubleMaxCanvasSize = Math.max(this.canvassize.width, this.canvassize.height) * 2;
         super.Start();
@@ -838,7 +629,7 @@ class SlideShow_Transition_HeartOut extends SlideShow_Transition_FillEngine {
         var kd34 = k + d * 3 / 4;
         var kd = k + d;
         stack.push({
-            "command": "MoveTo",
+            "command": "moveTo",
             "x": k,
             "y": kd4
         }, {
@@ -872,11 +663,11 @@ class SlideShow_Transition_HeartOut extends SlideShow_Transition_FillEngine {
             "x": kd34,
             "y": kd34
         }, {
-            "command": "LineTo",
+            "command": "lineTo",
             "x": kd2,
             "y": kd
         }, {
-            "command": "LineTo",
+            "command": "lineTo",
             "x": kd4,
             "y": kd34
         }, {
@@ -895,7 +686,7 @@ class SlideShow_Transition_HeartOut extends SlideShow_Transition_FillEngine {
 }
 ;
 
-class SlideShow_Transition_RectWipe extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_RectWipe extends SlideShow2D_Transition_fillEngine {
     Start() {
         super.Start();
         this.CountOFTiles = 12;
@@ -935,7 +726,7 @@ class SlideShow_Transition_RectWipe extends SlideShow_Transition_FillEngine {
 }
 ;
 
-class SlideShow_Transition_Mosaic extends SlideShow_Transition_FillEngine {
+class SlideShow2D_Transition_Mosaic extends SlideShow2D_Transition_fillEngine {
     Start() {
         super.Start();
         this.CountOFTiles = 12;
@@ -980,10 +771,10 @@ class SlideShow_Transition_Mosaic extends SlideShow_Transition_FillEngine {
 ;
 
 
-class SlideShow_Transition_SpinRight extends SlideShow_TransitionsEngine {
+class SlideShow2D_Transition_SpinRight extends SlideShow2D_TransitionsEngine {
     Start() {
-        this.CenterA = this.Center(this.image1size, this.canvassize, this.Scale(this.image1size, this.canvassize));
-        this.CenterB = this.Center(this.image2size, this.canvassize, this.Scale(this.image2size, this.canvassize));
+        this.CenterA = this.Center(this.image1size, this.canvassize, this.scale(this.image1size, this.canvassize));
+        this.CenterB = this.Center(this.image2size, this.canvassize, this.scale(this.image2size, this.canvassize));
         this.CX = this.canvassize.width / 2;
         this.CY = this.canvassize.height / 2;
     }
@@ -991,7 +782,7 @@ class SlideShow_Transition_SpinRight extends SlideShow_TransitionsEngine {
     Running(time) {
         var stack = [];
         stack.push({
-            "command": "ClearRect",
+            "command": "clearRect",
             "x": 0,
             "y": 0,
             "width": this.canvassize.width,
@@ -1008,10 +799,10 @@ class SlideShow_Transition_SpinRight extends SlideShow_TransitionsEngine {
         } else if (time > 0.4 && time < 0.6) {
 
             stack.push({
-                "command": "Save",
+                "command": "save",
 
             }, {
-                "command": "Translate",
+                "command": "translate",
                 "x": this.CX,
                 "y": this.CY
             }, {
@@ -1019,7 +810,7 @@ class SlideShow_Transition_SpinRight extends SlideShow_TransitionsEngine {
                 "value": (12 * 360 * time) * Math.PI / 180
 
             }, {
-                "command": "Translate",
+                "command": "translate",
                 "x": -this.CX,
                 "y": -this.CY
             }, {
@@ -1028,7 +819,7 @@ class SlideShow_Transition_SpinRight extends SlideShow_TransitionsEngine {
                 "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
                 "dest": this.CenterB
             }, {
-                "command": "Restore"
+                "command": "restore"
 
             });
         } else if (time > 0.6) {
@@ -1049,10 +840,10 @@ class SlideShow_Transition_SpinRight extends SlideShow_TransitionsEngine {
 
 
 
-class SlideShow_Transition_ZoomInOut extends SlideShow_TransitionsEngine {
+class SlideShow2D_Transition_ZoomInOut extends SlideShow2D_TransitionsEngine {
     Start() {
-        this.CenterA = this.Center(this.image1size, this.canvassize, this.Scale(this.image1size, this.canvassize));
-        this.CenterB = this.Center(this.image2size, this.canvassize, this.Scale(this.image2size, this.canvassize));
+        this.CenterA = this.Center(this.image1size, this.canvassize, this.scale(this.image1size, this.canvassize));
+        this.CenterB = this.Center(this.image2size, this.canvassize, this.scale(this.image2size, this.canvassize));
         this.CX = this.canvassize.width / 2;
         this.CY = this.canvassize.height / 2;
     }
@@ -1062,9 +853,9 @@ class SlideShow_Transition_ZoomInOut extends SlideShow_TransitionsEngine {
         var progress = 0;
         var inout = "";
         stack.push({
-            "command": "Save"
+            "command": "save"
         }, {
-            "command": "ClearRect",
+            "command": "clearRect",
             "x": 0,
             "y": 0,
             "width": this.canvassize.width,
@@ -1089,7 +880,7 @@ class SlideShow_Transition_ZoomInOut extends SlideShow_TransitionsEngine {
             inout = "o";
         }
         stack.push({
-            "command": "Translate",
+            "command": "translate",
             "x": this.CX,
             "y": this.CY
         });
@@ -1098,20 +889,20 @@ class SlideShow_Transition_ZoomInOut extends SlideShow_TransitionsEngine {
         var invsize = 3 * (1 - progress);
         if (inout === "i" && size > 1) {
             stack.push({
-                "command": "Scale",
+                "command": "scale",
                 "x": size,
                 "y": size
             });
         } else if (inout === "o" && invsize > 1) {
 
             stack.push({
-                "command": "Scale",
+                "command": "scale",
                 "x": invsize,
                 "y": invsize
             });
         }
         stack.push({
-            "command": "Translate",
+            "command": "translate",
             "x": -this.CX,
             "y": -this.CY
         });
@@ -1133,7 +924,7 @@ class SlideShow_Transition_ZoomInOut extends SlideShow_TransitionsEngine {
 
 
         stack.push({
-            "command": "Restore"
+            "command": "restore"
         });
 
 
