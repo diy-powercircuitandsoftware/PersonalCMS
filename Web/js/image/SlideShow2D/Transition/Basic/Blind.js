@@ -1,6 +1,5 @@
 class SlideShow2D_Transition_HorizontalBlind extends SlideShow2D_Fill_Transition {
     Initialization() {
-
         this.bar = 12;
         this.barheight = this.canvassize.height / this.bar;
     }
