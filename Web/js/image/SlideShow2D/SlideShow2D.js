@@ -22,6 +22,7 @@ class SlideShow2D {
         };
         this.Render.Reference = this;
         this.Render.TransitionEnd = function () {
+            //var rndnum = Math.floor(Math.random() * Math.floor(this.transitionslist.length));
             var prev = this.Reference.Config.Index;
             this.Reference.Config.Index = (this.Reference.Config.Index + 1) % this.Reference.ImageList.Count();
             var next = this.Reference.Config.Index;
@@ -345,97 +346,6 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
         });
         return stack;
     }
-};
-
-//Transition//
-class SlideShow2D_Transition_FadeOutFadeIn extends SlideShow2D_Transition {
-
-    Running(time) {
-        var stack = [];
-        if (time == 0) {
-            return[{
-                    "command": "clearRect",
-                    "args": [0, 0, this.canvassize.width, this.canvassize.height]
-                }, {
-                    "command": "globalAlpha",
-                    "value": 1
-                }, {
-                    "command": "DrawCenter",
-                    "address": 1,
-                    "extends": true
-                }];
-        }
-
-        if (time < 0.5) {
-            stack.push({
-                "command": "clearRect",
-                "args": [0, 0, this.canvassize.width, this.canvassize.height]
-            });
-            stack.push({
-                "command": "globalAlpha",
-                "value": 1 - (2 * time)
-            }, {
-                "command": "DrawCenter",
-                "address": 1,
-                "extends": true
-            });
-
-        } else if (time > 0.5) {
-            stack.push({
-                "command": "clearRect",
-                "args": [0, 0, this.canvassize.width, this.canvassize.height]
-            });
-            stack.push({
-                "command": "globalAlpha",
-                "value": (2 * time) - 1
-            }, {
-                "command": "DrawCenter",
-                "address": 2,
-                "extends": true
-            });
-        }
-        if (time >= 0.9) {
-            return[{
-                    "command": "globalAlpha",
-                    "value": 1
-                }];
-        }
-        return stack;
-    }
-};
-
-
-class SlideShow2D_Transition_BottomToTop extends SlideShow2D_Fill_Transition {
-    Template(time) {
-        return {
-            "command": "rect",
-            "args":[
-                0,this.canvassize.height * (1 - time),this.canvassize.width,
-                this.canvassize.height * time
-            ]
-             
-        };
-    };
-    
-};
-
-class SlideShow2D_Transition_CircleOut extends SlideShow2D_Fill_Transition {
-    Initialization() {      
-        this.MinCanvasSize = Math.min(this.canvassize.width, this.canvassize.height);
-    }
-    Template(time) {
-        return {
-            "command": "arc",
-            "args": [
-                this.canvassize.width / 2,
-                this.canvassize.height / 2,
-                this.MinCanvasSize * time,
-                0, 2 * Math.PI, false
-            ]
-
-        };
-    }
-
-};
-
+}
+;
  
