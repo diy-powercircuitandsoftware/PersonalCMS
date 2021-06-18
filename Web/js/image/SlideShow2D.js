@@ -9,7 +9,7 @@ class SlideShow2D {
         this.canvas.style.border = "thin solid";
         this.Config = {
             "AnimateTime": 1000,
-            "HoldTime": 1000,
+            "HoldTime": 3000,
             "Index": 1
         };
         this.ImageList = new SlideShow2D_ImageList();
@@ -22,23 +22,26 @@ class SlideShow2D {
         };
         this.Render.Reference = this;
         this.Render.TransitionEnd = function () {
-            var prev= this.Reference.Config.Index;
+            var prev = this.Reference.Config.Index;
             this.Reference.Config.Index = (this.Reference.Config.Index + 1) % this.Reference.ImageList.Count();
-             var next= this.Reference.Config.Index;
+            var next = this.Reference.Config.Index;
             this.Reference.Render.SetImageB(this.Reference.ImageList.GetImage(this.Reference.Config.Index));
-           
-            this.SetTransition(new this.Reference.TransitionList[0](
-                this.Size(), this.Reference.ImageList.GetImageSize(prev), this.Reference.ImageList.GetImageSize(next)
-            ));
+
+            /* this.SetTransition(new this.Reference.TransitionList[0](
+             this.Size(), this.Reference.ImageList.GetImageSize(prev), this.Reference.ImageList.GetImageSize(next)
+             ));*/
         };
     }
     AddImage(path) {
         this.ImageList.AddImage(path);
     }
     AddTransition(te) {
-        if (new te() instanceof SlideShow2D_Transition) {
-            this.TransitionList.push(te);
-        }
+        /* var classdef = new te();
+         
+         if (classdef instanceof SlideShow2D_Transition) {
+         this.TransitionList.push(te);
+         }*/
+        this.TransitionList.push(te);
     }
     Clear() {
         return this.Render.ImageList.Clear();
@@ -57,9 +60,14 @@ class SlideShow2D {
         this.Render.hold_finishtime = this.Config.HoldTime;
         this.Render.SetImageA(this.ImageList.GetImage(0));
         this.Render.SetImageB(this.ImageList.GetImage(1));
-        this.Render.SetTransition(new this.TransitionList[0](
-                this.Render.Size(), this.ImageList.GetImageSize(0), this.ImageList.GetImageSize(1)
-                ));//TEST
+        var rendersize = this.Render.Size();
+        var imageasize = this.ImageList.GetImageSize(0);
+        var imagebsize = this.ImageList.GetImageSize(1);
+        var transition = new this.TransitionList[0]( );
+        transition.CanvasSize(rendersize.width, rendersize.height);
+        transition.ImageASize(imageasize.width, imageasize.height);
+        transition.ImageBSize(imagebsize.width, imagebsize.height);
+        this.Render.SetTransition(transition);//TEST
         this.FPSTimer.Start();
     }
 }
@@ -191,28 +199,29 @@ class SlideShow2D_RenderEngine {
             if (this.transition != null) {
                 var command = this.transition.Running(this.animate_accumulatetime / this.animate_finishtime);
                 for (var i = 0; i < command.length; i++) {
-                    var funcname=command[i].command;
+                    var funcname = command[i].command;
                     if (command[i].extends) {
-                        if (funcname=="DrawCenter"){
-                            if (command[i].address==1){
+                        if (funcname == "DrawCenter") {
+                            if (command[i].address == 1) {
                                 this.DrawCenter(this.image_a);
-                            } else  if (command[i].address==2){
+                            } else if (command[i].address == 2) {
                                 this.DrawCenter(this.image_b);
                             }
                         }
                     } else if (command[i].args !== undefined) {
-                        var args=command[i].args ;
-                        ctx[funcname](...args) ;
+                        var args = command[i].args;
+                        ctx[funcname](...args);
                     } else if (command[i].value !== undefined) {
                         ctx[funcname] = command[i].value;
-                        
+                    } else if (typeof ctx[funcname] === 'function') {
+                        ctx[funcname]();
                     }
                 }
             }
             this.animate_accumulatetime = this.animate_accumulatetime + tick;
             if (this.animate_accumulatetime > this.animate_finishtime) {
                 if (this.image_b != null) {
-                    this.image_a = this.image_b;                   
+                    this.image_a = this.image_b;
                 }
                 this.hold = !this.hold;
                 this.animate_accumulatetime = 0;
@@ -248,10 +257,23 @@ class SlideShow2D_RenderEngine {
 
 class SlideShow2D_Transition {
 
-    constructor(canvassize, image1size, image2size) {
-        this.canvassize = canvassize;
-        this.image1size = image1size;
-        this.image2size = image2size;
+    CanvasSize(w, h) {
+        this.canvassize = {
+            "width": w,
+            "height": h
+        };
+    }
+    ImageASize(w, h) {
+        this.imageasize = {
+            "width": w,
+            "height": h
+        };
+    }
+    ImageBSize(w, h) {
+        this.imagebsize = {
+            "width": w,
+            "height": h
+        };
     }
 
     Running(time) {
@@ -259,83 +281,71 @@ class SlideShow2D_Transition {
         return stack;
     }
 
-    /* Center(rect, ref, ratio = 1) {
-     var w = rect.width * ratio;
-     var h = rect.height * ratio;
-     var x = ref.width / 2 - w / 2;
-     var y = ref.height / 2 - h / 2;
-     return {"x": x, "y": y, "width": w, "height": h, "ratio": ratio};
-     }
-     Rect(x, y, w, h) {
-     return {
-     "x": x,
-     "y": y,
-     "width": w,
-     "height": h
-     };
-     }
-     scale(src, dest) {
-     return    Math.min(dest.width / src.width, dest.height / src.height);
-     }*/
 }
-/*class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
- 
- Shape() {
- return {};
- }
- 
- Start() {
- this.CenterA = this.Center(this.image1size, this.canvassize, this.scale(this.image1size, this.canvassize));
- this.CenterB = this.Center(this.image2size, this.canvassize, this.scale(this.image2size, this.canvassize));
- 
- return[{
- "command": "DrawImage",
- "image": 1,
- "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
- "dest": this.CenterA
- }];
- }
- Running(time) {
- var stack = [];
- stack.push({
- "command": "save"
- }, {
- "command": "beginPath"
- });
- var sh = this.Shape(time);
- if (sh instanceof Array) {
- for (var i in sh) {
- stack.push(sh[i]);
- }
- } else if (sh instanceof Object) {
- stack.push(sh);
- 
- }
- stack.push({
- "command": "closePath"
- }, {
- "command": "globalCompositeOperation",
- "value": "destination-out"
- }, {
- "command": "fill"
- });
- 
- stack.push({
- "command": "globalCompositeOperation",
- "value": "source-over"
- }, {
- "command": "clip"
- }, {
- "command": "DrawImage",
- "image": 2,
- "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
- "dest": this.CenterB
- }, {
- "command": "restore"
- });
- return stack;
- }
- }*/
+class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
+
+    Initialization() {
+
+    }
+    Template() {
+        return {};
+    }
+
+    Running(time) {
+
+        var stack = [];
+        if (time == 0) {
+            this.Initialization();
+            return[{
+                    "command": "clearRect",
+                    "args": [0, 0, this.canvassize.width, this.canvassize.height]
+                }, {
+                    "command": "DrawCenter",
+                    "address": 1,
+                    "extends": true
+                }];
+        }
+
+
+        stack.push({
+            "command": "save"
+        }, {
+            "command": "beginPath"
+        });
+
+        var sh = this.Template(time);
+        if (sh instanceof Array) {
+            for (var i in sh) {
+                stack.push(sh[i]);
+            }
+        } else if (sh instanceof Object) {
+            stack.push(sh);
+
+        }
+        stack.push({
+            "command": "closePath"
+        }, {
+            "command": "globalCompositeOperation",
+            "value": "destination-out"
+        }, {
+            "command": "fill"
+        });
+
+        stack.push({
+            "command": "globalCompositeOperation",
+            "value": "source-over"
+        }, {
+            "command": "clip"
+        }, {
+            "command": "DrawCenter",
+            "address": 2,
+            "extends": true
+        }, {
+            "command": "restore"
+        });
+        return stack;
+    }
+};
 
 //Transition//
 class SlideShow2D_Transition_FadeOutFadeIn extends SlideShow2D_Transition {
@@ -370,20 +380,20 @@ class SlideShow2D_Transition_FadeOutFadeIn extends SlideShow2D_Transition {
                 "extends": true
             });
 
-        } else if (time > 0.5  ) {
+        } else if (time > 0.5) {
             stack.push({
                 "command": "clearRect",
                 "args": [0, 0, this.canvassize.width, this.canvassize.height]
             });
             stack.push({
                 "command": "globalAlpha",
-                "value": (2 * time ) - 1
+                "value": (2 * time) - 1
             }, {
                 "command": "DrawCenter",
                 "address": 2,
                 "extends": true
             });
-        } 
+        }
         if (time >= 0.9) {
             return[{
                     "command": "globalAlpha",
@@ -392,6 +402,40 @@ class SlideShow2D_Transition_FadeOutFadeIn extends SlideShow2D_Transition {
         }
         return stack;
     }
+};
 
-}
-;
+
+class SlideShow2D_Transition_BottomToTop extends SlideShow2D_Fill_Transition {
+    Template(time) {
+        return {
+            "command": "rect",
+            "args":[
+                0,this.canvassize.height * (1 - time),this.canvassize.width,
+                this.canvassize.height * time
+            ]
+             
+        };
+    };
+    
+};
+
+class SlideShow2D_Transition_CircleOut extends SlideShow2D_Fill_Transition {
+    Initialization() {      
+        this.MinCanvasSize = Math.min(this.canvassize.width, this.canvassize.height);
+    }
+    Template(time) {
+        return {
+            "command": "arc",
+            "args": [
+                this.canvassize.width / 2,
+                this.canvassize.height / 2,
+                this.MinCanvasSize * time,
+                0, 2 * Math.PI, false
+            ]
+
+        };
+    }
+
+};
+
+ 

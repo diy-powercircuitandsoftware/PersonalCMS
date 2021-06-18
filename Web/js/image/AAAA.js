@@ -167,37 +167,8 @@ class SlideShow2D {
 }
  
   
-class SlideShow2D_Transition_BottomToTop extends SlideShow2D_Transition_fillEngine {
-    Shape(time) {
-        return {
-            "command": "Rect",
-            "x": 0,
-            "y": this.canvassize.height * (1 - time),
-            "width": this.canvassize.width,
-            "height": this.canvassize.height * time
-        };
-    }
-    ;
-}
 ;
-class SlideShow2D_Transition_CircleOut extends SlideShow2D_Transition_fillEngine {
-    Start() {
-        super.Start();
-        this.MinCanvasSize = Math.min(this.canvassize.width, this.canvassize.height);
-    }
-    Shape(time) {
-        return {
-            "command": "Arc",
-            "x": this.canvassize.width / 2,
-            "y": this.canvassize.height / 2,
-            "r": this.MinCanvasSize * time,
-            "sa": 0,
-            "ea": 2 * Math.PI,
-            "acw": false
-        };
-    }
-    ;
-}
+
 ;
 class SlideShow2D_Transition_Corner extends SlideShow2D_Transition_fillEngine {
     Shape(time) {
