@@ -166,70 +166,7 @@ class SlideShow2D {
 
 }
  
-
-class SlideShow2D_Transition_fillEngine extends SlideShow2D_TransitionsEngine {
-
-    Shape() {
-        return {};
-    }
-
-    Start() {
-        this.CenterA = this.Center(this.image1size, this.canvassize, this.scale(this.image1size, this.canvassize));
-        this.CenterB = this.Center(this.image2size, this.canvassize, this.scale(this.image2size, this.canvassize));
-
-        return[{
-                "command": "DrawImage",
-                "image": 1,
-                "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
-                "dest": this.CenterA
-            }];
-    }
-    Running(time) {
-        var stack = [];
-        stack.push({
-            "command": "save"
-        }, {
-            "command": "beginPath"
-        });
-        var sh = this.Shape(time);
-        if (sh instanceof Array) {
-            for (var i in sh) {
-                stack.push(sh[i]);
-            }
-        } else if (sh instanceof Object) {
-            stack.push(sh);
-
-        }
-        stack.push({
-            "command": "closePath"
-        }, {
-            "command": "globalCompositeOperation",
-            "value": "destination-out"
-        }, {
-            "command": "fill"
-        });
-
-        stack.push({
-            "command": "globalCompositeOperation",
-            "value": "source-over"
-        }, {
-            "command": "clip"
-        }, {
-            "command": "DrawImage",
-            "image": 2,
-            "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
-            "dest": this.CenterB
-        }, {
-            "command": "restore"
-        });
-        return stack;
-    }
-
-}
-
-
-
-
+  
 class SlideShow2D_Transition_BottomToTop extends SlideShow2D_Transition_fillEngine {
     Shape(time) {
         return {
