@@ -1,5 +1,4 @@
-class SlideShow2D_Transition_CircleIn extends SlideShow2D_Fill_Transition {
-    //now work
+class SlideShow2D_Transition_CircleIn extends SlideShow2D_Reverse_Fill_Transition {   
     Initialization() {
         this.MinCanvasSize = Math.min(this.canvassize.width, this.canvassize.height);
     }
