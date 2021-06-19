@@ -3,8 +3,8 @@ class SlideShow2D_Transition_BottomToTop extends SlideShow2D_Fill_Transition {
         return {
             "command": "rect",
             "args": [
-                0, this.canvassize.height * (1 - time), this.canvassize.width,
-                this.canvassize.height * time
+                0, this.canvassize.height * (1 - time),
+                this.canvassize.width,this.canvassize.height * time
             ]
 
         };
