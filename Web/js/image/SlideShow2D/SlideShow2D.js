@@ -22,27 +22,28 @@ class SlideShow2D {
         };
         this.Render.Reference = this;
         this.Render.TransitionEnd = function () {
-            //var rndnum = Math.floor(Math.random() * Math.floor(this.transitionslist.length));
+            var rndnum = Math.floor(Math.random() * Math.floor(this.Reference.TransitionList.length));
             var prev = this.Reference.Config.Index;
             this.Reference.Config.Index = (this.Reference.Config.Index + 1) % this.Reference.ImageList.Count();
             var next = this.Reference.Config.Index;
             this.Reference.Render.SetImageB(this.Reference.ImageList.GetImage(this.Reference.Config.Index));
-
-            /* this.SetTransition(new this.Reference.TransitionList[0](
-             this.Size(), this.Reference.ImageList.GetImageSize(prev), this.Reference.ImageList.GetImageSize(next)
-             ));*/
+            var rendersize = this.Size();
+            var imageasize = this.Reference.ImageList.GetImageSize(prev);
+            var imagebsize = this.Reference.ImageList.GetImageSize(next);
+            var transition = new this.Reference.TransitionList[rndnum]( );
+            transition.CanvasSize(rendersize.width, rendersize.height);
+            transition.ImageASize(imageasize.width, imageasize.height);
+            transition.ImageBSize(imagebsize.width, imagebsize.height);
+            this.SetTransition(transition);
         };
     }
     AddImage(path) {
         this.ImageList.AddImage(path);
     }
     AddTransition(te) {
-        /* var classdef = new te();
-         
-         if (classdef instanceof SlideShow2D_Transition) {
-         this.TransitionList.push(te);
-         }*/
-        this.TransitionList.push(te);
+        if (new te() instanceof SlideShow2D_Transition) {
+            this.TransitionList.push(te);
+        }
     }
     Clear() {
         return this.Render.ImageList.Clear();
@@ -217,6 +218,7 @@ class SlideShow2D_RenderEngine {
                     } else if (typeof ctx[funcname] === 'function') {
                         ctx[funcname]();
                     }
+
                 }
             }
             this.animate_accumulatetime = this.animate_accumulatetime + tick;
@@ -321,7 +323,6 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
             }
         } else if (sh instanceof Object) {
             stack.push(sh);
-
         }
         stack.push({
             "command": "closePath"
