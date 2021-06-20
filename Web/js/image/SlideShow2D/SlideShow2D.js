@@ -298,6 +298,8 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
 
         var stack = [];
         if (time == 0) {
+            this.ImageA=1;
+            this.ImageB=2;
             this.Initialization();
             return[];
         }
@@ -308,7 +310,7 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
             "args": [0, 0, this.canvassize.width, this.canvassize.height]
         }, {
             "command": "DrawCenter",
-            "address": 1,
+            "address":  this.ImageA,
             "extends": true
         }, {
             "command": "save"
@@ -340,7 +342,7 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
             "command": "clip"
         }, {
             "command": "DrawCenter",
-            "address": 2,
+            "address": this.ImageB,
             "extends": true
         }, {
             "command": "restore"
@@ -349,67 +351,4 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
     }
 }
 ;
-class SlideShow2D_Reverse_Fill_Transition extends SlideShow2D_Transition {
-
-    Initialization() {
-
-    }
-    Template() {
-        return {};
-    }
-
-    Running(time) {
-
-        var stack = [];
-        if (time == 0) {
-            this.Initialization();
-            return[];
-        }
-
-
-        stack.push({
-            "command": "clearRect",
-            "args": [0, 0, this.canvassize.width, this.canvassize.height]
-        }, {
-            "command": "DrawCenter",
-            "address": 2,
-            "extends": true
-        }, {
-            "command": "save"
-        }, {
-            "command": "beginPath"
-        });
-
-        var sh = this.Template(1-time);
-        if (sh instanceof Array) {
-            for (var i in sh) {
-                stack.push(sh[i]);
-            }
-        } else if (sh instanceof Object) {
-            stack.push(sh);
-        }
-        stack.push({
-            "command": "closePath"
-        }, {
-            "command": "globalCompositeOperation",
-            "value": "destination-out"
-        }, {
-            "command": "fill"
-        });
-
-        stack.push({
-            "command": "globalCompositeOperation",
-            "value": "source-over"
-        }, {
-            "command": "clip"
-        }, {
-            "command": "DrawCenter",
-            "address": 1,
-            "extends": true
-        }, {
-            "command": "restore"
-        });
-        return stack;
-    }
-}
-;
+ 

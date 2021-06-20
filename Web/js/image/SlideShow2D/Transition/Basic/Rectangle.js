@@ -147,4 +147,4 @@ class SlideShow2D_Transition_ToVerticalCenter extends SlideShow2D_Fill_Transitio
     }
 }
 ;
-////////////////////////////
+
