@@ -1,5 +1,5 @@
 class SlideShow2D_Transition_Spin extends SlideShow2D_Transition {
-    Running(time) {
+    Update(time) {
         if (time == 0) {
             this.CX = this.canvassize.width / 2;
             this.CY = this.canvassize.height / 2;

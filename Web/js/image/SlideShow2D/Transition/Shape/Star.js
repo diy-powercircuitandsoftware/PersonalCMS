@@ -53,7 +53,7 @@ class SlideShow2D_Transition_StarOut extends SlideShow2D_Fill_Transition {
         this.P = 5;
         this.M = 0.5;
         this.MaxCanvasSize = Math.max(this.canvassize.width, this.canvassize.height);
-
+        this.ReDrawingImageA = false;
     }
     Template(time) {
         var stack = [];

@@ -1,5 +1,5 @@
  class SlideShow2D_Transition_FadeOutFadeIn extends SlideShow2D_Transition {
-    Running(time) {
+    Update(time) {
         var stack = [];
         if (time == 0) {
             return[{

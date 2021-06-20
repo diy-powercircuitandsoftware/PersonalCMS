@@ -7,6 +7,7 @@ class SlideShow2D_Transition_RectWipe extends SlideShow2D_Fill_Transition {
         this.Startx = - this.Tiles;
         this.Index = 0;
         this.MaxIndex = this.CountOFTiles * this.CountOFTiles;
+        this.ReDrawingImageA = false;
     }
     Template(time) {
 

@@ -45,11 +45,11 @@ class SlideShow2D {
             this.TransitionList.push(te);
         }
     }
-    AnimateTime(...args){
-        if (args.length==0){
+    AnimateTime(...args) {
+        if (args.length == 0) {
             return this.Config.AnimateTime;
-        }       
-        this.Config.AnimateTime=args[0];
+        }
+        this.Config.AnimateTime = args[0];
     }
     Clear() {
         return this.Render.ImageList.Clear();
@@ -57,11 +57,11 @@ class SlideShow2D {
     GetImageCount() {
         return this.Render.ImageList.Count();
     }
-    HoldTime(...args){
-        if (args.length==0){
-             return this.Config.HoldTime;
+    HoldTime(...args) {
+        if (args.length == 0) {
+            return this.Config.HoldTime;
         }
-        this.Config.HoldTime=args[0];
+        this.Config.HoldTime = args[0];
     }
     Load(callback) {
         this.ImageList.Load = callback;
@@ -217,7 +217,7 @@ class SlideShow2D_RenderEngine {
             }
         } else if (!this.hold) {
             if (this.transition != null) {
-                var command = this.transition.Running(this.animate_accumulatetime / this.animate_finishtime);
+                var command = this.transition.Update(this.animate_accumulatetime / this.animate_finishtime);
                 for (var i = 0; i < command.length; i++) {
                     var funcname = command[i].command;
                     if (command[i].extends) {
@@ -297,7 +297,7 @@ class SlideShow2D_Transition {
         };
     }
 
-    Running(time) {
+    Update(time) {
         var stack = [];
         return stack;
     }
@@ -312,24 +312,28 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
         return {};
     }
 
-    Running(time) {
+    Update(time) {
 
         var stack = [];
         if (time == 0) {
             this.ImageA = 1;
             this.ImageB = 2;
-            this.Initialization();
-            return[];
+            this.ReDrawingImageA = true;
+            this.Initialization();             
+        }
+
+        if (this.ReDrawingImageA) {
+            stack.push({
+                "command": "clearRect",
+                "args": [0, 0, this.canvassize.width, this.canvassize.height]
+            }, {
+                "command": "DrawCenter",
+                "address": this.ImageA,
+                "extends": true
+            });
         }
 
         stack.push({
-            "command": "clearRect",
-            "args": [0, 0, this.canvassize.width, this.canvassize.height]
-        }, {
-            "command": "DrawCenter",
-            "address": this.ImageA,
-            "extends": true
-        }, {
             "command": "save"
         }, {
             "command": "beginPath"
