@@ -1,65 +1,58 @@
-
-/*class SlideShow2D_Transition_SpinRight extends SlideShow2D_Fill_Transition {
-    Initialization() {     
-        this.CX = this.canvassize.width / 2;
-        this.CY = this.canvassize.height / 2;
-    }
-
-    Template(time) {
+class SlideShow2D_Transition_Spin extends SlideShow2D_Transition {
+    Running(time) {
+        if (time == 0) {
+            this.CX = this.canvassize.width / 2;
+            this.CY = this.canvassize.height / 2;
+            this.Round=12;
+        }
         var stack = [];
+        var x = (this.Round * 360 * time) * Math.PI / 180;
         stack.push({
+            "command": "save"
+        }, {
             "command": "clearRect",
-            "x": 0,
-            "y": 0,
-            "width": this.canvassize.width,
-            "height": this.canvassize.height
-
+            "args": [0, 0,
+                this.canvassize.width, this.canvassize.height]
         });
-        if (time < 0.4) {
+        if (time < 0.5) {         
             stack.push({
-                "command": "DrawImage",
-                "image": 1,
-                "src": this.Rect(0, 0, this.image1size.width, this.image1size.height),
-                "dest": this.CenterA
-            });
-        } else if (time > 0.4 && time < 0.6) {
-
-            stack.push({
-                "command": "save",
+                "command": "translate",
+                "args": [this.CX, this.CY]
+            }, {
+                "command": "rotate",
+                "args": [x]
 
             }, {
                 "command": "translate",
-                "x": this.CX,
-                "y": this.CY
+                "args": [-this.CX, -this.CY]
             }, {
-                "command": "Rotate",
-                "value": (12 * 360 * time) * Math.PI / 180
+                "command": "DrawCenter",
+                "address": 1,
+                "extends": true
+            });
+        } else if (time > 0.5) {
+            
+            stack.push({
+                "command": "translate",
+                "args": [this.CX, this.CY]
+            }, {
+                "command": "rotate",
+                "args": [-x]
 
             }, {
                 "command": "translate",
-                "x": -this.CX,
-                "y": -this.CY
+                "args": [-this.CX, -this.CY]
             }, {
-                "command": "DrawImage",
-                "image": 2,
-                "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
-                "dest": this.CenterB
-            }, {
-                "command": "restore"
-
-            });
-        } else if (time > 0.6) {
-
-            stack.push({
-                "command": "DrawImage",
-                "image": 2,
-                "src": this.Rect(0, 0, this.image2size.width, this.image2size.height),
-                "dest": this.CenterB
+                "command": "DrawCenter",
+                "address": 2,
+                "extends": true
             });
         }
-
+        stack.push({
+            "command": "restore"
+        });
         return stack;
-    }
 
+    }
 }
-;*/
+;

@@ -8,8 +8,8 @@ class SlideShow2D {
         }
         this.canvas.style.border = "thin solid";
         this.Config = {
-            "AnimateTime": 1000,
-            "HoldTime": 3000,
+            "AnimateTime": 3000,
+            "HoldTime": 1000,
             "Index": 1
         };
         this.ImageList = new SlideShow2D_ImageList();
@@ -45,11 +45,23 @@ class SlideShow2D {
             this.TransitionList.push(te);
         }
     }
+    AnimateTime(...args){
+        if (args.length==0){
+            return this.Config.AnimateTime;
+        }       
+        this.Config.AnimateTime=args[0];
+    }
     Clear() {
         return this.Render.ImageList.Clear();
     }
     GetImageCount() {
         return this.Render.ImageList.Count();
+    }
+    HoldTime(...args){
+        if (args.length==0){
+             return this.Config.HoldTime;
+        }
+        this.Config.HoldTime=args[0];
     }
     Load(callback) {
         this.ImageList.Load = callback;
@@ -72,6 +84,10 @@ class SlideShow2D {
         this.Render.SetTransition(transition);//TEST
         this.FPSTimer.Start();
     }
+    ToggleFPSPlayer() {
+        this.FPSTimer.pause = !this.FPSTimer.pause;
+        return  !this.FPSTimer.pause;
+    }
 }
 
 class SlideShow2D_FPSTimer {
@@ -79,6 +95,7 @@ class SlideShow2D_FPSTimer {
         this.requestID = 0;
         this.fps = fps;
         this.animate = function () {};
+        this.pause = false;
     }
     Tick(time) {
 
@@ -93,7 +110,9 @@ class SlideShow2D_FPSTimer {
             const delta = now - then;
             if (delta >= interval - tolerance) {
                 then = now - (delta % interval);
-                this.Tick(delta);
+                if (!this.pause) {
+                    this.Tick(delta);
+                }
             }
             this.requestID = requestAnimationFrame(animateLoop);
         };
@@ -169,7 +188,6 @@ class SlideShow2D_RenderEngine {
         this.hold = true;
         this.image_a = null;
         this.image_b = null;
-
     }
 
     DrawCenter(image) {
@@ -298,19 +316,18 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
 
         var stack = [];
         if (time == 0) {
-            this.ImageA=1;
-            this.ImageB=2;
+            this.ImageA = 1;
+            this.ImageB = 2;
             this.Initialization();
             return[];
         }
-
 
         stack.push({
             "command": "clearRect",
             "args": [0, 0, this.canvassize.width, this.canvassize.height]
         }, {
             "command": "DrawCenter",
-            "address":  this.ImageA,
+            "address": this.ImageA,
             "extends": true
         }, {
             "command": "save"
@@ -351,4 +368,3 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
     }
 }
 ;
- 

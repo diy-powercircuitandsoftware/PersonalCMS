@@ -42,9 +42,7 @@ class SlideShow2D_Transition_HeartOut extends SlideShow2D_Fill_Transition {
               "args":[k,kd2,k,kd4]             
         });
 
-
         return stack;
-
 
     }
 }
