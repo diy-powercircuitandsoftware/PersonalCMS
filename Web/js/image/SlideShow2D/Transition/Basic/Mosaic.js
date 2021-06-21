@@ -17,7 +17,7 @@ class SlideShow2D_Transition_Mosaic extends SlideShow2D_Fill_Transition {
         this.ReDrawingImageA = false;
 
     }
-    Template(time) {
+    Template(time,tick) {
 
         var progress = this.Index / this.MaxIndex;
         var out = [];
@@ -63,7 +63,7 @@ class SlideShow2D_Transition_BubbleMosaic extends SlideShow2D_Fill_Transition {
         this.HalfTiles = this.Tiles / 2;
         this.BubbleSize=this.Tiles;
     }
-    Template(time) {
+    Template(time,tick) {
 
         var progress = this.Index / this.MaxIndex;
         var out = [];

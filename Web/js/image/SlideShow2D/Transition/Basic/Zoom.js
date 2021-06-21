@@ -1,6 +1,6 @@
 class SlideShow2D_Transition_ZoomOutZoomIn extends SlideShow2D_Transition {
 
-    Update(time) {
+    Update(time,tick) {
         if (time == 0) {
             this.CX = this.canvassize.width / 2;
             this.CY = this.canvassize.height / 2;

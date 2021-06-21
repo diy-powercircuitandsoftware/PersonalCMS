@@ -4,7 +4,7 @@ class SlideShow2D_Transition_HeartIn extends SlideShow2D_Fill_Transition {
         this.ImageA = 2;
         this.ImageB = 1;
     }
-    Template(time) {
+    Template(time,tick) {
         var stack = [];
         var d = this.DoubleMaxCanvasSize * (1 - time); //The Size of the hearting
         var k = (this.canvassize.width / 2) - (d / 2); // The Position of the heart
@@ -54,7 +54,7 @@ class SlideShow2D_Transition_HeartOut extends SlideShow2D_Fill_Transition {
         this.DoubleMaxCanvasSize = Math.max(this.canvassize.width, this.canvassize.height) * 2;
         this.ReDrawingImageA = false;
     }
-    Template(time) {
+    Template(time,tick) {
         var stack = [];
         var d = this.DoubleMaxCanvasSize * time; //The Size of the hearting
         var k = (this.canvassize.width / 2) - (d / 2); // The Position of the heart

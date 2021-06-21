@@ -7,7 +7,7 @@ class SlideShow2D_Transition_StarIn extends SlideShow2D_Fill_Transition {
         this.ImageA = 2;
         this.ImageB = 1;
     }
-    Template(time) {
+    Template(time,tick) {
         var stack = [];
         var r = this.MaxCanvasSize * (1 - time);
         stack.push({
@@ -55,7 +55,7 @@ class SlideShow2D_Transition_StarOut extends SlideShow2D_Fill_Transition {
         this.MaxCanvasSize = Math.max(this.canvassize.width, this.canvassize.height);
         this.ReDrawingImageA = false;
     }
-    Template(time) {
+    Template(time,tick) {
         var stack = [];
         var r = this.MaxCanvasSize * time;
         stack.push({

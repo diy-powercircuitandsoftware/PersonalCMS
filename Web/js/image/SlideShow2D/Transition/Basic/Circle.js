@@ -4,7 +4,7 @@ class SlideShow2D_Transition_CircleIn extends SlideShow2D_Fill_Transition {
         this.ImageA = 2;
         this.ImageB = 1;
     }
-    Template(time) {
+    Template(time,tick) {
         return {
             "command": "arc",
             "args": [
@@ -25,7 +25,7 @@ class SlideShow2D_Transition_CircleOut extends SlideShow2D_Fill_Transition {
         this.MinCanvasSize = Math.min(this.canvassize.width, this.canvassize.height);
         this.ReDrawingImageA = false;
     }
-    Template(time) {
+    Template(time,tick) {
         return {
             "command": "arc",
             "args": [

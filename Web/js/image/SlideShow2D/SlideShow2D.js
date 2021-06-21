@@ -216,7 +216,8 @@ class SlideShow2D_RenderEngine {
             }
         } else if (!this.hold) {
             if (this.transition != null) {
-                var command = this.transition.Update(this.animate_accumulatetime / this.animate_finishtime);
+                var progress=this.animate_accumulatetime / this.animate_finishtime;
+                var command = this.transition.Update(progress,tick);
                 for (var i = 0; i < command.length; i++) {
                     var funcname = command[i].command;
                     if (command[i].extends) {
@@ -321,7 +322,7 @@ class SlideShow2D_Transition {
         };
     }
 
-    Update(time) {
+    Update(time,tick) {
         var stack = [];
         return stack;
     }
@@ -336,7 +337,7 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
         return {};
     }
 
-    Update(time) {
+    Update(time,tick) {
 
         var stack = [];
         if (time == 0) {
@@ -363,7 +364,7 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
             "command": "beginPath"
         });
 
-        var sh = this.Template(time);
+        var sh = this.Template(time,tick);
         if (sh instanceof Array) {
             for (var i in sh) {
                 stack.push(sh[i]);

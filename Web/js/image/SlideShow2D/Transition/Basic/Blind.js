@@ -4,7 +4,7 @@ class SlideShow2D_Transition_Blind_BottomUp extends SlideShow2D_Fill_Transition 
         this.barheight = this.canvassize.height / this.bar;
         this.ReDrawingImageA = false;
     }
-    Template(time) {
+    Template(time,tick) {
         var stack = [];
 
         for (var i = 0; i <= this.bar; i++) {
@@ -29,7 +29,7 @@ class SlideShow2D_Transition_Blind_TopDown extends SlideShow2D_Fill_Transition {
         this.barheight = this.canvassize.height / this.bar;
         this.ReDrawingImageA = false;
     }
-    Template(time) {
+    Template(time,tick) {
         var stack = [];
         for (var i = 0; i < this.bar; i++) {
             stack.push({
@@ -50,7 +50,7 @@ class SlideShow2D_Transition_Blind_LeftRight extends SlideShow2D_Fill_Transition
         this.barwidth = this.canvassize.width / this.bar;
         this.ReDrawingImageA = false;
     }
-    Template(time) {
+    Template(time,tick) {
         var stack = [];
         for (var i = 0; i < this.bar; i++) {
             stack.push({
@@ -71,7 +71,7 @@ class SlideShow2D_Transition_Blind_RightLeft extends SlideShow2D_Fill_Transition
         this.barwidth = this.canvassize.width / this.bar;
         this.ReDrawingImageA = false;
     }
-    Template(time) {
+    Template(time,tick) {
         var stack = [];
         for (var i = 0; i <= this.bar; i++) {
             stack.push({

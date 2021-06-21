@@ -1,6 +1,6 @@
 class SlideShow2D_Transition_PageTurn_TopDown extends SlideShow2D_Transition {
     
-    Update(time) {
+    Update(time,tick) {
         if (time==0){
              this.P = (Math.sqrt(Math.pow(this.canvassize.width, 2) + Math.pow(this.canvassize.height, 2))) * 1.5;      
         }
@@ -77,7 +77,7 @@ class SlideShow2D_Transition_PageTurn_TopDown extends SlideShow2D_Transition {
 
  class SlideShow2D_Transition_PageTurn_BottomToTop extends SlideShow2D_Transition {
     
-    Update(time) {
+    Update(time,tick) {
         if (time==0){
              this.P = (Math.sqrt(Math.pow(this.canvassize.width, 2) + Math.pow(this.canvassize.height, 2))) * 1.5;      
         }
