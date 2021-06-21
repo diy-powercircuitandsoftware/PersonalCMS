@@ -227,14 +227,28 @@ class SlideShow2D_RenderEngine {
                                 this.DrawCenter(this.image_b);
                             }
                         } else if (funcname == "Polygons") {
-                            var dot = command[i].args[3];
-                            var size = command[i].args[2];
+                            var end = 360 * Math.PI / 180;
+
                             var x = command[i].args[0];
                             var y = command[i].args[1];
-                            ctx.moveTo(x + size * Math.cos(0), y + size * Math.sin(0));
-                            for (var i = 1; i <= dot; i += 1) {
-                                ctx.lineTo(x + size * Math.cos(i * 2 * Math.PI / dot), y + size * Math.sin(i * 2 * Math.PI / dot));
+                            var size = command[i].args[2];
+                            var dot = command[i].args[3];
+                            var step_size = end / dot;
+                            var angle = 0;
+                            var first = true;
+                            while (angle <= end) {
+                                let px = (Math.sin(angle) * size) + x,
+                                        py = (-Math.cos(angle) * size) + y;
+                                if (first) {
+                                    ctx.moveTo(px, py);
+                                    first = false;
+                                } else {
+                                    ctx.lineTo(px, py);
+                                }
+                                angle = angle + step_size;
                             }
+
+
                         }
 
 

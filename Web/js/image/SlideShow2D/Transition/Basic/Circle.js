@@ -39,27 +39,3 @@ class SlideShow2D_Transition_CircleOut extends SlideShow2D_Fill_Transition {
     }
 }
 ;
-
-class SlideShow2D_Transition_CircleFullWiper extends SlideShow2D_Fill_Transition {
-    //dev
-    Initialization() {
-        this.MinCanvasSize = Math.min(this.canvassize.width, this.canvassize.height) / 4;
-        this.RStart = 180 * (Math.PI / 180);
-        this.REND = 360 * (Math.PI / 180);
-        this.ReDrawingImageA = false;
-    }
-    Template(time) {
-        var xxx = (this.RStart * time) + this.RStart;
-        return {
-            "command": "arc",
-            "args": [
-                (this.canvassize.width / 4),
-                this.canvassize.height / 2,
-                this.MinCanvasSize,
-                0, xxx, false
-            ]
-
-        };
-    }
-}
-;
