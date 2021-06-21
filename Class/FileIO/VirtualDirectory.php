@@ -268,7 +268,7 @@ class VirtualDirectory {
         foreach ($nameorext as &$sl) {
             $sl = strtolower($sl);
         }
-        if ($searchall) {
+        if ($searchall) {         
             $recursive = new RecursiveIteratorIterator(
                     new RecursiveDirectoryIterator($realpath, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST
             );

@@ -35,6 +35,7 @@ class SlideShow2D {
             transition.ImageASize(imageasize.width, imageasize.height);
             transition.ImageBSize(imagebsize.width, imagebsize.height);
             this.SetTransition(transition);
+            this.Reference.CurrentImageIndex(this.Reference.Config.Index);
         };
     }
     AddImage(path) {
@@ -50,18 +51,25 @@ class SlideShow2D {
             return this.Config.AnimateTime;
         }
         this.Config.AnimateTime = args[0];
+        this.Render.animate_finishtime = this.Config.AnimateTime;
+
+
     }
     Clear() {
-        return this.Render.ImageList.Clear();
+        return this.ImageList.Clear();
     }
     GetImageCount() {
-        return this.Render.ImageList.Count();
+        return this.ImageList.Count();
     }
     HoldTime(...args) {
         if (args.length == 0) {
             return this.Config.HoldTime;
         }
         this.Config.HoldTime = args[0];
+        this.Render.hold_finishtime = this.Config.HoldTime;
+    }
+    CurrentImageIndex(v) {
+
     }
     Load(callback) {
         this.ImageList.Load = callback;
@@ -70,6 +78,11 @@ class SlideShow2D {
         this.Render.Size(w, h);
     }
     Start() {
+        if (this.ImageList.Count() == 0) {
+            return false;
+        } else if (this.ImageList.Count() % 2 != 0) {
+            this.ImageList.AddImage(this.ImageList.GetImage(0));
+        }
         this.Render.animate_finishtime = this.Config.AnimateTime;
         this.Render.hold_finishtime = this.Config.HoldTime;
         this.Render.SetImageA(this.ImageList.GetImage(0));
@@ -129,24 +142,19 @@ class SlideShow2D_ImageList {
     }
 
     AddImage(path) {
-        var xhttp = new XMLHttpRequest();
-        var ref = this;
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                var img = new Image();
-                var blob = new Blob([this.response]);
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    img.src = e.target.result;
-                    ref.ImageList.push(img);
-                    ref.Load(ref.ImageList.length);
-                };
-                reader.readAsDataURL(blob);
-            }
-        };
-        xhttp.responseType = "arraybuffer";
-        xhttp.open("GET", path, true);
-        xhttp.send();
+        if (typeof path === 'string' || path instanceof String) {
+            var img = new Image();
+            img.ref = this;
+            img.src = path;
+            img.onload = function () {
+                this.ref.ImageList.push(this);
+                this.ref.Load(this.ref.ImageList.length);
+            };
+        } else if (path instanceof HTMLImageElement) {
+            this.ImageList.push(path);
+            this.Load(this.ImageList.length);
+        }
+
 
     }
     Clear() {
@@ -216,8 +224,8 @@ class SlideShow2D_RenderEngine {
             }
         } else if (!this.hold) {
             if (this.transition != null) {
-                var progress=this.animate_accumulatetime / this.animate_finishtime;
-                var command = this.transition.Update(progress,tick);
+                var progress = this.animate_accumulatetime / this.animate_finishtime;
+                var command = this.transition.Update(progress, tick);
                 for (var i = 0; i < command.length; i++) {
                     var funcname = command[i].command;
                     if (command[i].extends) {
@@ -229,7 +237,6 @@ class SlideShow2D_RenderEngine {
                             }
                         } else if (funcname == "Polygons") {
                             var end = 360 * Math.PI / 180;
-
                             var x = command[i].args[0];
                             var y = command[i].args[1];
                             var size = command[i].args[2];
@@ -322,7 +329,7 @@ class SlideShow2D_Transition {
         };
     }
 
-    Update(time,tick) {
+    Update(time, tick) {
         var stack = [];
         return stack;
     }
@@ -337,7 +344,7 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
         return {};
     }
 
-    Update(time,tick) {
+    Update(time, tick) {
 
         var stack = [];
         if (time == 0) {
@@ -364,7 +371,7 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
             "command": "beginPath"
         });
 
-        var sh = this.Template(time,tick);
+        var sh = this.Template(time, tick);
         if (sh instanceof Array) {
             for (var i in sh) {
                 stack.push(sh[i]);

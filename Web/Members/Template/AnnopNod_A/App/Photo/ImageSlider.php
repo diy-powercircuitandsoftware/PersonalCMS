@@ -36,8 +36,22 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../js/dom/PlayingList.js"></script>
             <script src="../../../../../js/io/Ajax.js"></script>
-            <script src="../../../../../js/image/SlideShow.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/SlideShow2D.js"></script>
 
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Blind.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Circle.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Fade.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Mosaic.js"></script>
+
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Rectangle.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Spin.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Wipe.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Zoom.js"></script>
+
+            <script src="../../../../../js/image/SlideShow2D/Transition/Shape/Heart.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Shape/PageTurn.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Shape/Star.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Shape/Polygons.js"></script>
 
             <style>
                 #AudioList{
@@ -64,48 +78,65 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     var AudioSrc = document.getElementById("AudioSrc");
                     var AudioList = new PlayingList(document.getElementById("AudioList"));
-                    var ImageShow = new SlideShow(document.getElementById("ImageShow"));
+                    var ImageShow = new SlideShow2D(document.getElementById("ImageShow"));
                     var ajax = new Ajax();
                     ImageShow.Size(800, 600);
 
-                    ImageShow.AddTransition(SlideShow_Transition_CircleOut);
-                    ImageShow.AddTransition(SlideShow_Transition_FadeOutFadeIn);
-                    ImageShow.AddTransition(SlideShow_Transition_Corner);
-                    ImageShow.AddTransition(SlideShow_Transition_BottomToTop);
-                    ImageShow.AddTransition(SlideShow_Transition_PageTurn);
-                    ImageShow.AddTransition(SlideShow_Transition_FromVerticalCenter);
-                    ImageShow.AddTransition(SlideShow_Transition_RightToLeft);
-                    ImageShow.AddTransition(SlideShow_Transition_StarOut);
-                    ImageShow.AddTransition(SlideShow_Transition_ToHorizontalCenter);
-                    ImageShow.AddTransition(SlideShow_Transition_FromHorizontalCenter);
-                    ImageShow.AddTransition(SlideShow_Transition_TopToBottom);
-                    ImageShow.AddTransition(SlideShow_Transition_LeftToRight);
-                    ImageShow.AddTransition(SlideShow_Transition_ToVerticalCenter);
-                    ImageShow.AddTransition(SlideShow_Transition_VerticalBlind);
-                    ImageShow.AddTransition(SlideShow_Transition_HorizontalBlind);
-                    ImageShow.AddTransition(SlideShow_Transition_HeartOut);
-                    ImageShow.AddTransition(SlideShow_Transition_RectWipe);
-                    ImageShow.AddTransition(SlideShow_Transition_SpinRight);
-                    ImageShow.AddTransition(SlideShow_Transition_ZoomInOut);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Blind_BottomUp);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Blind_LeftRight);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Blind_RightLeft);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Blind_TopDown);
+                    ImageShow.AddTransition(SlideShow2D_Transition_CircleIn);
+                    ImageShow.AddTransition(SlideShow2D_Transition_CircleOut);
+
+                    ImageShow.AddTransition(SlideShow2D_Transition_FadeOutFadeIn);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Mosaic);
+                    ImageShow.AddTransition(SlideShow2D_Transition_BubbleMosaic);
+                    ImageShow.AddTransition(SlideShow2D_Transition_BottomToTop);
+                    ImageShow.AddTransition(SlideShow2D_Transition_FromVerticalCenter);
+                    ImageShow.AddTransition(SlideShow2D_Transition_ToHorizontalCenter);
+                    ImageShow.AddTransition(SlideShow2D_Transition_FromHorizontalCenter);
+                    ImageShow.AddTransition(SlideShow2D_Transition_TopToBottom);
+                    ImageShow.AddTransition(SlideShow2D_Transition_LeftToRight);
+                    ImageShow.AddTransition(SlideShow2D_Transition_RightToLeft);
+                    ImageShow.AddTransition(SlideShow2D_Transition_ToVerticalCenter);
+                    ImageShow.AddTransition(SlideShow2D_Transition_CornerLeftToRight);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsIn_Hexagon);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsIn_Pentagon);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsIn_Square);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsIn_Triangle);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsOut_Hexagon);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsOut_Pentagon);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsOut_Square);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsOut_Triangle);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Spin);
+                    ImageShow.AddTransition(SlideShow2D_Transition_RectWipe);
+                    ImageShow.AddTransition(SlideShow2D_Transition_ZoomOutZoomIn);
+                    ImageShow.AddTransition(SlideShow2D_Transition_HeartIn);
+                    ImageShow.AddTransition(SlideShow2D_Transition_HeartOut);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PageTurn_BottomToTop);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PageTurn_TopDown);
+                    ImageShow.AddTransition(SlideShow2D_Transition_StarIn);
+                    ImageShow.AddTransition(SlideShow2D_Transition_StarOut);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Wiper_LeftToRight);
 
 
-                    ImageShow.OnImageListChange = function (v) {
-                        ss.S("#ImageRangeViewer").Attr("max", this.GetImageCount() - 1);
-                        ss.S("#LabArrayCount").Html(this.GetImageCount());
+                    ImageShow.Load(function (v) {
+                        ss.S("#ImageRangeViewer").Attr("max", v);
+                        ss.S("#LabArrayCount").Html(v);
+                        if (ImageShow.TempImageCount == v) {
+                            ImageShow.Start();
+                        }
+                    });
 
-
-                    };
-
-                    ImageShow.OnSelectedImage = function (v) {
+                    ImageShow.CurrentImageIndex = function (v) {
                         ss.S("#ImageRangeViewer").Val(v);
                         ss.S("#LabPlayIndex").Html(v + 1);
-
                     }
                     AudioSrc.addEventListener("ended", function () {
                         if (!AudioList.Next()) {
                             AudioList.Frist();
                         }
-
 
                     });
                     AudioList.Select(function (v) {
@@ -143,15 +174,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#BNPlay").Click(function () {
-                        var text = this.innerHTML.toLowerCase();
-                        if (text === "play") {
+                        if (ImageShow.ToggleFPSPlayer()) {
                             this.innerHTML = "Stop";
-                            ImageShow.Start();
-                        } else if (text === "stop") {
+                        } else {
                             this.innerHTML = "Play";
-                            ImageShow.Stop();
                         }
-
                     });
                     ss.S("#ImageRangeViewer").Change(function () {
                         this.setAttribute("seek", "true");
@@ -180,10 +207,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
                     ss.S("#OPTChangeTime").Change(function () {
-                        ImageShow.SetTransitionTime(parseInt(this.value) * 1000);
+                        ImageShow.AnimateTime(parseInt(this.value) * 1000);
                     });
                     ss.S("#OPTHoldTime").Change(function (v) {
-                        ImageShow.SetHoldTime(parseInt(this.value) * 1000);
+                        ImageShow.HoldTime(parseInt(this.value) * 1000);
                     });
                     ss.S("#OptImageLibrary").Change(function (v) {
                         if (this.value == "-1") {
@@ -193,6 +220,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 for (var i in data) {
                                     ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["fullpath"]));
                                 }
+                                ImageShow.TempImageCount = data.length;
                             });
                         }
                     });
@@ -219,8 +247,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-                             
- printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/".$valueB["path"], $valueB["name"]);
+
+                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }
