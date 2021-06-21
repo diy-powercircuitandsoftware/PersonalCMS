@@ -8,7 +8,7 @@ class SlideShow2D {
         }
         this.canvas.style.border = "thin solid";
         this.Config = {
-            "AnimateTime": 3000,
+            "AnimateTime": 1000,
             "HoldTime": 1000,
             "Index": 1
         };
@@ -211,7 +211,6 @@ class SlideShow2D_RenderEngine {
             //draw effect
             this.hold_accumulatetime = this.hold_accumulatetime + tick;
             if (this.hold_accumulatetime > this.hold_finishtime) {
-
                 this.hold = !this.hold;
                 this.hold_accumulatetime = 0;
             }
