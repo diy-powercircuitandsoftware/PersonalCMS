@@ -226,7 +226,18 @@ class SlideShow2D_RenderEngine {
                             } else if (command[i].address == 2) {
                                 this.DrawCenter(this.image_b);
                             }
+                        } else if (funcname == "Polygons") {
+                            var dot = command[i].args[3];
+                            var size = command[i].args[2];
+                            var x = command[i].args[0];
+                            var y = command[i].args[1];
+                            ctx.moveTo(x + size * Math.cos(0), y + size * Math.sin(0));
+                            for (var i = 1; i <= dot; i += 1) {
+                                ctx.lineTo(x + size * Math.cos(i * 2 * Math.PI / dot), y + size * Math.sin(i * 2 * Math.PI / dot));
+                            }
                         }
+
+
                     } else if (command[i].args !== undefined) {
                         var args = command[i].args;
                         ctx[funcname](...args);
@@ -318,7 +329,7 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
             this.ImageA = 1;
             this.ImageB = 2;
             this.ReDrawingImageA = true;
-            this.Initialization();             
+            this.Initialization();
         }
 
         if (this.ReDrawingImageA) {
