@@ -52,8 +52,6 @@ class SlideShow2D {
         }
         this.Config.AnimateTime = args[0];
         this.Render.animate_finishtime = this.Config.AnimateTime;
-
-
     }
     Clear() {
         this.Stop();
@@ -121,7 +119,7 @@ class SlideShow2D_FPSTimer {
         this.requestID = 0;
         this.fps = fps;
         this.animate = function () {};
-        this.pause = false;
+        this.pause = true;
     }
     Tick(time) {
 
@@ -142,9 +140,11 @@ class SlideShow2D_FPSTimer {
             }
             this.requestID = requestAnimationFrame(animateLoop);
         };
+        this.pause = false;
         this.requestID = requestAnimationFrame(animateLoop);
     }
     Stop() {
+        this.pause = true;
         cancelAnimationFrame(this.requestID);
     }
 }
@@ -357,7 +357,7 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
     Initialization() {
 
     }
-    Template() {
+    Template(time, tick) {
         return {};
     }
 
@@ -419,5 +419,40 @@ class SlideShow2D_Fill_Transition extends SlideShow2D_Transition {
         });
         return stack;
     }
+}
+;
+class SlideShow2D_Fill_XY_Equation_Transition extends SlideShow2D_Fill_Transition {
+    Template(time, tick) {
+        var stack = [];
+        var radian = 0;
+        var radian_add = Math.PI / 180;
+        stack.push({
+            "command": "translate",
+            "args": [this.canvassize.width / 2, this.canvassize.height / 2]
+        }, {
+            "command": "moveTo",
+            "args": [this.GetX(radian, time, tick), this.GetY(radian, time, tick)]
+        })
+
+        while (radian <= (Math.PI * 2)) {
+            radian += radian_add;
+            stack.push({
+                "command": "lineTo",
+                "args": [this.GetX(radian, time, tick), this.GetY(radian, time, tick)]
+            });
+        }
+        stack.push({
+            "command": "translate",
+            "args": [-(this.canvassize.width / 2), -(this.canvassize.height / 2)]
+        });
+        return stack;
+    }
+    GetX(radian, time, tick) {
+
+    }
+    GetY(radian, time, tick) {
+
+    }
+
 }
 ;

@@ -134,10 +134,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S("#LabArrayCount").Html(v);
                         if (v == 2) {
                             ImageShow.Start();
+                            ImageShow.ToggleFPSPlayer();
+                            ss.S("#BNPlay").Html("Play");
                         }
                         if (AudioSrc.PlayList.length === 1) {
                             AudioSrc.src = AudioSrc.PlayList[0];
-                            AudioSrc.play();
                         }
 
                     });
@@ -173,11 +174,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNPlay").Click(function () {
 
                         if (ImageShow.ToggleFPSPlayer()) {
+                            AudioSrc.play();
                             this.innerHTML = "Stop";
                         } else {
                             this.innerHTML = "Play";
+                            AudioSrc.pause();
                         }
                     });
+                    ss.S("#ImageShow").Click(function () {
+                        ss.S("#BNPlay").Click();
+                    });
+
+
                     ss.S("#ImageRangeViewer").Change(function () {
                         this.setAttribute("seek", "true");
                         this.setAttribute("current", this.value);
@@ -200,6 +208,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     ss.S("#OptLibrary").Change(function (v) {
                         if (this.value != "") {
+
                             ajax.Get("../../../../Api/Ajax/Photo/SlideShow/GetFilesList.php", {"Path": "/", "Name": this.value}, function (data) {
                                 ImageShow.Clear();
                                 data = JSON.parse(data);
@@ -207,7 +216,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     if (["jpg", "png", "gif"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
                                         ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["path"]));
                                     } else if (["ogg", "mp3", "wma"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
-                                        AudioSrc.PlayList.push("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" +data[i]["path"]);
+                                        AudioSrc.PlayList.push("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + data[i]["path"]);
                                     }
                                 }
 
@@ -282,7 +291,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <div class="TitleCenter">Library</div>
                         <select id="OptLibrary" style="width: 99%;">                        
                         </select>
-                        <audio controls="controls" id="AudioSrc"></audio>
+                        <audio id="AudioSrc"></audio>
 
                     </div>
                     <div class="BorderBlock" style="margin-top: 3px;">

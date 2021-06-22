@@ -11,6 +11,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
     $out = array();
     foreach ($data = explode(PHP_EOL, $vd->FileGetContents("/Photo/SlideShow/" . $_GET["Name"])) as $value) {
         $tmp = explode('/', $value);
+        $tmp = str_replace("\r", "", $tmp);
         $out[] = array("path" => $value, "name" => end($tmp));
     }
     echo json_encode($out);
