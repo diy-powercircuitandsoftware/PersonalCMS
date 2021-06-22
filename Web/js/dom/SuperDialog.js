@@ -402,9 +402,9 @@ class SuperDialog {
         return dialog;        
     }
   
-    Prompt(callback) {
+    Prompt(title,callback) {
         var dialog = this.Dialog();
-        dialog.Title("Prompt");
+        dialog.Title(title);
         dialog.AddButton(1, "OK");
         dialog.AddButton(0, "Cancel");
         dialog.txtbox = dialog.AddContent("<input type='text'  style='width:100%;box-sizing: border-box;' />");

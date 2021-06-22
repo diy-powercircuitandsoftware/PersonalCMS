@@ -35,7 +35,7 @@ class SlideShow2D {
             transition.ImageASize(imageasize.width, imageasize.height);
             transition.ImageBSize(imagebsize.width, imagebsize.height);
             this.SetTransition(transition);
-            this.Reference.CurrentImageIndex(this.Reference.Config.Index);
+            this.Reference.ImageIndexChange(this.Reference.Config.Index);
         };
     }
     AddImage(path) {
@@ -56,7 +56,10 @@ class SlideShow2D {
 
     }
     Clear() {
-        return this.ImageList.Clear();
+        this.Stop();
+        this.Load(0);
+        this.ImageIndexChange(0);
+        this.ImageList.Clear();
     }
     GetImageCount() {
         return this.ImageList.Count();
@@ -68,11 +71,15 @@ class SlideShow2D {
         this.Config.HoldTime = args[0];
         this.Render.hold_finishtime = this.Config.HoldTime;
     }
-    CurrentImageIndex(v) {
+    ImageIndexChange(v) {
 
     }
     Load(callback) {
-        this.ImageList.Load = callback;
+        if (typeof callback === 'function') {
+            this.ImageList.Load = callback;
+        } else if (Number.isInteger(callback)) {
+            this.ImageList.Load(callback);
+        }
     }
     Size(w, h) {
         this.Render.Size(w, h);
@@ -90,12 +97,18 @@ class SlideShow2D {
         var rendersize = this.Render.Size();
         var imageasize = this.ImageList.GetImageSize(0);
         var imagebsize = this.ImageList.GetImageSize(1);
-        var transition = new this.TransitionList[0]( );
-        transition.CanvasSize(rendersize.width, rendersize.height);
-        transition.ImageASize(imageasize.width, imageasize.height);
-        transition.ImageBSize(imagebsize.width, imagebsize.height);
-        this.Render.SetTransition(transition);//TEST
+        if (this.TransitionList.length > 0) {
+            var transition = new this.TransitionList[0]( );
+            transition.CanvasSize(rendersize.width, rendersize.height);
+            transition.ImageASize(imageasize.width, imageasize.height);
+            transition.ImageBSize(imagebsize.width, imagebsize.height);
+            this.Render.SetTransition(transition);
+        }
         this.FPSTimer.Start();
+    }
+    Stop() {
+        this.FPSTimer.Stop();
+        this.Render.Clear();
     }
     ToggleFPSPlayer() {
         this.FPSTimer.pause = !this.FPSTimer.pause;
@@ -198,6 +211,10 @@ class SlideShow2D_RenderEngine {
         this.image_b = null;
     }
 
+    Clear() {
+        var ctx = this.canvas.getContext('2d');
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
     DrawCenter(image) {
         var ctx = this.canvas.getContext('2d');
         var ratio = Math.min(ctx.canvas.width / image.width, ctx.canvas.height / image.height);

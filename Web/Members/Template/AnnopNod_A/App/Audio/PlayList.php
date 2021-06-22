@@ -72,7 +72,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
                     });
                     FL.OpenFile(function (v) {
-                        if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(v.split('.').pop().toLowerCase()) >= 0) {
+                        if (["ogg", "mp3", "wma"].indexOf(v.split('.').pop().toLowerCase()) >= 0) {
                             sd.MediaPlayer("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (v));
                         }
                     })
@@ -133,7 +133,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#BNRemoveFile").Click(function () {
-                        ajax.Post("../../../../Api/Ajax/Audio/List/DeleteAudioFromPlayList.php", {"Name": ss.S("#OptSelectLib").Val(),"Path": FilePlayList.GetSelectLists()}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Audio/List/DeleteAudioFromPlayList.php", {"Name": ss.S("#OptSelectLib").Val(), "Path": FilePlayList.GetSelectLists()}, function (data) {
 
                             ss.S("#OptSelectLib").Change();
                         });
@@ -163,8 +163,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         echo '<div class="BorderBlock">';
                         printf(' <div class="TitleCenter">%s</div>', $key);
                         foreach ($valueA as $valueB) {
-                             
- printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/".$valueB["path"], $valueB["name"]);
+                            printf('  <a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
                         echo '</div>';
                     }
@@ -180,8 +179,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 </nav>
                 <main>
                     <div id="FilesList"></div>
-
-
                 </main>
                 <aside>
                     <?php
@@ -232,9 +229,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                     }
                     ?>
-
-
-
                 </aside>
             </div>
 

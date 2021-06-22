@@ -77,11 +77,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 ss.DocumentReady(function () {
 
                     var AudioSrc = document.getElementById("AudioSrc");
-                    var AudioList = new PlayingList(document.getElementById("AudioList"));
                     var ImageShow = new SlideShow2D(document.getElementById("ImageShow"));
                     var ajax = new Ajax();
                     ImageShow.Size(800, 600);
-
+                    AudioSrc.PlayList = [];
+                    AudioSrc.PlayListIndex = 0;
                     ImageShow.AddTransition(SlideShow2D_Transition_Blind_BottomUp);
                     ImageShow.AddTransition(SlideShow2D_Transition_Blind_LeftRight);
                     ImageShow.AddTransition(SlideShow2D_Transition_Blind_RightLeft);
@@ -124,33 +124,22 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ImageShow.Load(function (v) {
                         ss.S("#ImageRangeViewer").Attr("max", v);
                         ss.S("#LabArrayCount").Html(v);
-                        if (ImageShow.TempImageCount == v) {
+                        if (v == 2) {
                             ImageShow.Start();
                         }
+                        if (AudioSrc.PlayList.length === 1) {
+                            AudioSrc.src = AudioSrc.PlayList[0];
+                            AudioSrc.play();
+                        }
+
                     });
 
-                    ImageShow.CurrentImageIndex = function (v) {
+                    ImageShow.ImageIndexChange = function (v) {
                         ss.S("#ImageRangeViewer").Val(v);
                         ss.S("#LabPlayIndex").Html(v + 1);
-                    }
-                    AudioSrc.addEventListener("ended", function () {
-                        if (!AudioList.Next()) {
-                            AudioList.Frist();
-                        }
+                    };
 
-                    });
-                    AudioList.Select(function (v) {
-                        AudioSrc.pause();
-                        AudioSrc.src = "../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + v;
-                        var pp = AudioSrc.play();
-                        if (pp !== undefined) {
-                            pp.then(function () {
 
-                            }).catch(function (error) {
-
-                            });
-                        }
-                    });
 
                     document.onkeyup = function (event) {
                         event.preventDefault();
@@ -174,6 +163,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#BNPlay").Click(function () {
+
                         if (ImageShow.ToggleFPSPlayer()) {
                             this.innerHTML = "Stop";
                         } else {
@@ -185,26 +175,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         this.setAttribute("current", this.value);
                     });
 
-                    ajax.Post("../../../../Api/Ajax/Audio/List/GetPlayList.php", {}, function (data) {
+                    ajax.Post("../../../../Api/Ajax/Photo/SlideShow/GetPlayList.php", {}, function (data) {
                         data = JSON.parse(data);
 
                         for (var i in data) {
-                            ss.S("#OptAudioLibrary").Append(data[i], data[i]);
+                            ss.S("#OptLibrary").Append(data[i], data[i]);
                         }
-                        ss.S("#OptAudioLibrary").Change();
+                        ss.S("#OptLibrary").Change();
                     });
-                    ss.S("#OptAudioLibrary").Change(function (v) {
-                        ajax.Get("../../../../Api/Ajax/Audio/List/GetAudioList.php", {"Name": this.value}, function (data) {
-                            data = JSON.parse(data);
-                            AudioList.Empty();
-                            for (var i in data) {
-                                AudioList.AddList(data [i]["path"], data [i]["name"]);
-                            }
-
-                        });
-                    });
-
-
 
                     ss.S("#OPTChangeTime").Change(function () {
                         ImageShow.AnimateTime(parseInt(this.value) * 1000);
@@ -212,15 +190,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#OPTHoldTime").Change(function (v) {
                         ImageShow.HoldTime(parseInt(this.value) * 1000);
                     });
-                    ss.S("#OptImageLibrary").Change(function (v) {
-                        if (this.value == "-1") {
-                            ajax.Post("../../../../Api/Ajax/Files/List/SearchFiles.php", {"Path": "/", "Name": "jpg,jpeg,png"}, function (data) {
+                    ss.S("#OptLibrary").Change(function (v) {
+                        if (this.value != "") {
+                            ajax.Get("../../../../Api/Ajax/Photo/SlideShow/GetFilesList.php", {"Path": "/", "Name": this.value}, function (data) {
                                 ImageShow.Clear();
                                 data = JSON.parse(data);
                                 for (var i in data) {
-                                    ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["fullpath"]));
+                                    if (["jpg", "png", "gif"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
+                                        ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["path"]));
+                                    }
                                 }
-                                ImageShow.TempImageCount = data.length;
+
                             });
                         }
                     });
@@ -290,9 +270,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <aside>
                     <div class="BorderBlock">
                         <div class="TitleCenter">Library</div>
-                        <select id="OptImageLibrary" style="width: 99%;">
-                            <option>==Select==</option>
-                            <option value="-1">* All Image *</option>
+                        <select id="OptLibrary" style="width: 99%;">                        
                         </select>
 
 
@@ -317,38 +295,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             <option value="5">5</option>
                         </select>
                     </div>
-                    <div class="BorderBlock" style="margin-top: 3px;">
-                        <div class="TitleCenter" >Audio</div>
-                        <select id="OptAudioLibrary" style="width: 99%;">
-                            <option>==Select==</option>
-                            <option value="-1">* All Audio *</option>
-                        </select>
-                        <div id="AudioList">
-
-                        </div>
-                        <div>
-                            <audio  style="width: 100%;box-sizing: border-box;" id="AudioSrc" controls="true"  ></audio>
-                        </div>
-                    </div>
-                    <div class="BorderBlock">
-                        <div class="TitleCenter" style="display: block ">Library</div>
-                        <select id="OptLibrary" style="display: block;width: 100%;box-sizing: border-box;">
-                            <option>==Select==</option>
-
-
-                        </select>
-                        <div id="AudioList"></div>
-                    </div>
-                    <div class="BorderBlock">
-                        <div class="TitleCenter"  >Play</div>
-                        <select id="PlayMode"  style="display: block;width: 100%;box-sizing: border-box;">
-                            <option value="0">None</option>
-                            <option value="1">Repeat</option>
-                            <option value="2">Repeat All</option>
-                            <option value="3">Random</option>
-                        </select>
-                    </div>
-
 
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">Event</div>

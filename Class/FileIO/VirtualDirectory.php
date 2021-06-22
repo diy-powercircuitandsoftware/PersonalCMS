@@ -83,9 +83,9 @@ class VirtualDirectory {
         } else if (count($args) >= 2 && is_string($args[1])) {
             $ExtensionList = explode(",", $args[1]);
         }
-        if ($ExtensionList!==null){
+        if ($ExtensionList !== null) {
             foreach ($ExtensionList as &$value) {
-                $value= strtolower($value);
+                $value = strtolower($value);
             }
         }
         $Normalize = $this->Normalize($args[0]);
@@ -116,7 +116,7 @@ class VirtualDirectory {
                 $FileList[] = $ArrData;
             }
         }
-        usort($FileList, function($a, $b) {
+        usort($FileList, function ($a, $b) {
             return strcmp($a["name"], $b["name"]);
         });
         return $FileList;
@@ -243,6 +243,9 @@ class VirtualDirectory {
         $filelist = array();
         $normalize = $this->Normalize($path);
         $realpath = realpath($this->DiskDirPath . $normalize);
+        if ($realpath == "") {
+            return array();
+        }
         $recursive = new DirectoryIterator($realpath);
         if (count($args) == 2 && is_dir($this->DiskPath($path))) {
             if (is_array($args[1])) {
@@ -268,7 +271,7 @@ class VirtualDirectory {
         foreach ($nameorext as &$sl) {
             $sl = strtolower($sl);
         }
-        if ($searchall) {         
+        if ($searchall) {
             $recursive = new RecursiveIteratorIterator(
                     new RecursiveDirectoryIterator($realpath, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST
             );
@@ -310,7 +313,7 @@ class VirtualDirectory {
                 $filelist[] = $ArrData;
             }
         }
-        usort($filelist, function($a, $b) {
+        usort($filelist, function ($a, $b) {
             return strcmp($a["name"], $b["name"]);
         });
         return $filelist;
