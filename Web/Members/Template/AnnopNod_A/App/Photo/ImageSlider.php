@@ -121,6 +121,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ImageShow.AddTransition(SlideShow2D_Transition_Wiper_LeftToRight);
 
 
+
+                    AudioSrc.onended = function () {
+                        this.pause();
+                        this.PlayListIndex = (this.PlayListIndex + 1) % this.PlayList.length;
+                        this.src = this.PlayList[ this.PlayListIndex];
+                        this.play();
+                    };
+
                     ImageShow.Load(function (v) {
                         ss.S("#ImageRangeViewer").Attr("max", v);
                         ss.S("#LabArrayCount").Html(v);
@@ -198,6 +206,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 for (var i in data) {
                                     if (["jpg", "png", "gif"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
                                         ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["path"]));
+                                    } else if (["ogg", "mp3", "wma"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
+                                        AudioSrc.PlayList.push("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" +data[i]["path"]);
                                     }
                                 }
 
@@ -272,7 +282,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <div class="TitleCenter">Library</div>
                         <select id="OptLibrary" style="width: 99%;">                        
                         </select>
-
+                        <audio controls="controls" id="AudioSrc"></audio>
 
                     </div>
                     <div class="BorderBlock" style="margin-top: 3px;">
