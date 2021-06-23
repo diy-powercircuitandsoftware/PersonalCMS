@@ -45,13 +45,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
             <script src="../../../../../js/dom/SelectList.js"></script>
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/SuperDialog.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/Template/Basic/MessageBox.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/Template/Basic/Input.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/Template/Basic/Multimedia.js"></script>
             <script src="../../../../../js/dom/FilesList.js"></script>
             <script src="../../../../../js/io/Ajax.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
-                    var sd = new SuperDialog();
+                    var dialoginput = new SuperDialog_Template_Input();
+                    var dialogmsgbox  = new SuperDialog_Template_MessageBox();
                     var ajax = new Ajax();
                     var FL = new FilesList(document.getElementById("FilesList"));
                     var FilePlayList = new SelectList(document.getElementById("FilePlayList"));
@@ -74,7 +78,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     FL.OpenFile(function (v) {
                         if (["ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(v.split('.').pop().toLowerCase()) >= 0) {
-                            sd.MediaPlayer("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (v));
+                            new SuperDialog_Template_Multimedia().MediaPlayer("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (v));
                         }
                     })
                     FL.OpenDir("/");
@@ -96,7 +100,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#BNNewPlayList").Click(function () {
-                        var p = sd.Prompt("Name:", function (v) {
+                        var p = dialoginput.Prompt("Name:", function (v) {
                             ajax.Post("../../../../Api/Ajax/Photo/SlideShow/CreatePlayList.php", {"Name": v}, function (data) {
                                 GetPlayList();
                                 p.close();
@@ -112,23 +116,23 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     ss.S("#OptShowExt").Change(function () {
                         FilePlayList.Empty();
-                        
+
                         for (var i in this.data) {
-                            
+
                             if (this.value == "1" && (["jpg", "gif", "png", "jpeg"].indexOf(this.data [i]["name"].split('.').pop().toLowerCase()) >= 0)) {
                                 FilePlayList.AddList(this.data [i]["path"], this.data [i]["name"]);
                             } else if (this.value == "2" && (["ogg", "mp3", "wma"].indexOf(this.data [i]["name"].split('.').pop().toLowerCase())) >= 0) {
                                 FilePlayList.AddList(this.data [i]["path"], this.data [i]["name"]);
                             } else if (this.value == "0") {
-                               FilePlayList.AddList(this.data [i]["path"], this.data [i]["name"]);
+                                FilePlayList.AddList(this.data [i]["path"], this.data [i]["name"]);
                             }
                         }
-                          
+
                     });
 
 
                     ss.S("#BNDeletePlayList").Click(function () {
-                        sd.Confirm("Delect It????", function () {
+                        dialoginput.Confirm("Delect It????", function () {
                             ajax.Post("../../../../Api/Ajax/Photo/SlideShow/DeletePlayList.php", {"Name": ss.S("#OptSelectLib").Val()}, function (data) {
                                 location.reload();
                             });
@@ -136,7 +140,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#BNEditPlayList").Click(function () {
-                        sd.Prompt("Rename", function (v) {
+                        dialoginput.Prompt("Rename", function (v) {
                             ajax.Post("../../../../Api/Ajax/Photo/SlideShow/RenamePlayList.php", {"Name": ss.S("#OptSelectLib").Val(), "NewName": v}, function (data) {
                                 location.reload();
                             });

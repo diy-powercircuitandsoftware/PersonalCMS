@@ -36,6 +36,7 @@ class SuperDialog {
             } else if (!closeable) {
                 title.innerHTML = '<span style="font-weight: bold;">' + t + '</span>';
             }
+            return this;
         };
 
         dialog.DestroyAfterClose = function () {
@@ -50,7 +51,9 @@ class SuperDialog {
 
     Import(querystring) {
         var dialog = this.Dialog();
-        dialog.AddContent(document.querySelector(querystring));
+        var q = document.querySelector(querystring);
+        q.style.display = "";
+        dialog.AddContent(q);
         return dialog;
     }
     ImportOkCancel(querystring, callback) {
@@ -64,7 +67,7 @@ class SuperDialog {
         });
         return dialog;
     }
- 
+
     TwoRow(callback) {
 
         var dialog = this.Dialog();
@@ -75,19 +78,24 @@ class SuperDialog {
                 var output = {};
                 [].forEach.call(dialog.querySelectorAll("input[name],textarea"), function (dom) {
                     if (dom.checked) {
-                        output[dom.name] = dom.value;                       
-                    } else if(["radio", "checkbox"].indexOf(dom.type)==-1)   {
                         output[dom.name] = dom.value;
-                    }                    
+                    } else if (["radio", "checkbox"].indexOf(dom.type) == -1) {
+                        output[dom.name] = dom.value;
+                    }
                 });
                 [].forEach.call(dialog.querySelectorAll("input[type='file']"), function (dom) {
                     output[dom.name] = dom.files;
                 });
-                return callback(output);
+                if (arguments.length > 0) {
+                    return callback(output);
+                }
+
             }
         });
-        dialog.AddButton(1, "OK");
-        dialog.AddButton(0, "Cancel");
+        if (arguments.length > 0) {
+            dialog.AddButton(1, "OK");
+            dialog.AddButton(0, "Cancel");
+        }
         dialog.AddRow = function (...args) {
             var row = this.table.insertRow(-1);
             if (args.length == 1) {
@@ -112,8 +120,7 @@ class SuperDialog {
         return dialog;
 
     }
-    
-         
+
 }
 
  

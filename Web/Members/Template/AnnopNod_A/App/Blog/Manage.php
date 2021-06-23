@@ -41,7 +41,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             ?>
             <script src="../../../../../js/io/Ajax.js"></script>
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../js/dom/SuperDialog.js"></script>          
+            <script src="../../../../../js/dom/SuperDialog/SuperDialog.js"></script>  
+            <script src="../../../../../js/dom/SuperDialog/Template/Basic/MessageBox.js"></script>     
             <script src="../../../../../js/dom/TableTools.js"></script>
             <script src="../../../../../js/dom/FilesList.js"></script>
             <script src="../../../../../js/dom/SpanList.js"></script>
@@ -51,6 +52,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
                     var sd = new SuperDialog();
+                    var sdmsgbox = new SuperDialog_Template_MessageBox();
                     var tabletool = new TableTools();
                     var EKeyword = new SpanList("#EKeyword");
                     var FL = new FilesList("#FilesList");
@@ -73,7 +75,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             }
                             ajaxsb.Param("id", lastid);
                         } catch (e) {
-                            sd.Alert(data);
+                            sdmsgbox.Alert(data);
                         }
                     });
                     FL.OpenDir(function (v) {
@@ -128,7 +130,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 });
 
 
-                                var s = sd.ImportOkCancel("Edit", "#Dialog", function () {
+                                var s = sd.ImportOkCancel("#Dialog", function () {
                                     var senddata = ss.S(".AjaxSendEdit").ValByName();
                                     senddata["id"] = e.target.getAttribute("data-value");
                                     senddata["htmlfilepath"] = FL.GetSelectFiles(0);
@@ -141,7 +143,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                         ajaxsb.LoadAjax();
                                         s.Close();
                                     });
-                                }).ZIndex(999).Title("Edit");
+                                }).Title("Edit");
 
                             });
 
@@ -155,7 +157,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ss.S("#EFilePath").Html("");
                         EKeyword.Empty();
                         FL.OpenDir("/");
-                        var s = sd.ImportOkCancel("Add", "#Dialog", function () {
+                        var s = sd.ImportOkCancel("#Dialog", function () {
 
                             var senddata = ss.S(".AjaxSendEdit").ValByName();
                             senddata["htmlfilepath"] = FL.GetSelectFiles(0);
@@ -165,11 +167,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 ajaxsb.LoadAjax();
                                 s.Close();
                             });
-                        }).ZIndex(999);
+                        }).Title("Add");
 
                     });
                     ss.S("#BNRemove").Click(function () {
-                        sd.Confirm("Do You Delect It", function () {
+                        sdmsgbox.Confirm("Do You Delect It", function () {
                             var v = ss.S(".SelectID").Val();
                             ajax.Post("../../../../Api/Ajax/Blog/List/DeleteBlog.php", {"ID": v}, function () {
                                 lastid = 0;
@@ -177,7 +179,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 tabletool.DeleteRowAfter(0);
                                 ajaxsb.LoadAjax();
                             });
-                        }).ZIndex(999);
+                        });
                     });
                     ss.S("#CBoxSelectAll").Click(function () {
                         ss.S(".SelectID").Val(this.checked);
@@ -279,7 +281,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ?>
                 </span>  
             </footer>
-            <div id="Dialog" style="display: none;">
+            <div id="Dialog" style="display: none; ">
                 <table style="width: 98%;">
                     <tr>
                         <td>Title:</td>
@@ -335,6 +337,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <div id="CHDIRList"></div>
                     </div>
                 </div>
+            </div>
         </body>
     </html>
     <?php

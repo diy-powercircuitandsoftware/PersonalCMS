@@ -1,7 +1,15 @@
 class SuperDialog_Template_Input extends SuperDialog {
     DropDown(callback) {
-        var dialog = this.Confirm('<select style="width:100%;box-sizing: border-box;"></select>', function () {
-            callback(dialog.querySelector('select').value);
+        var dialog = this.Dialog();
+        dialog.AddButton(1, "OK");
+        dialog.AddButton(0, "Cancel");
+        dialog.AddContent('<select style="width:100%;box-sizing: border-box;"></select>');
+        dialog.Title("DropDown");
+        dialog.DestroyAfterClose();
+        dialog.CallBack = (function (v) {
+            if (v === "true" || v === "1" || v === 1 || v) {
+                 callback(dialog.querySelector('select').value);
+            }
         });
         dialog.Add = function (...args) {
             var opt = dialog.querySelector('select').appendChild(document.createElement('option'));

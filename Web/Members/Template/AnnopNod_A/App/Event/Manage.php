@@ -50,12 +50,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             ?>
             <script src="../../../../../js/io/Ajax.js"></script>
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../js/dom/SuperDialog.js"></script>          
+            <script src="../../../../../js/dom/SuperDialog/SuperDialog.js"></script> 
+            <script src="../../../../../js/dom/SuperDialog/Template/Basic/MessageBox.js"></script>    
             <script src="../../../../../js/dom/TableTools.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var sd = new SuperDialog();
+                    var msgbox=new SuperDialog_Template_MessageBox();
                     var tabletool = new TableTools();
                     var ajax = new Ajax();
                     var lastid = 0;
@@ -77,7 +79,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                             ajaxsb.Param("id", lastid);
                         } catch (e) {
-                            sd.Alert(data);
+                            msgbox.Alert(data);
                         }
                     });
 
@@ -90,14 +92,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         } else if (e.target.getAttribute("class") == "BNEdit") {
                             ajax.Post("../../../../Api/Ajax/Event/List/GetEventForEdit.php", {"ID": e.target.getAttribute("data-value")}, function (data) {
                                 ss.S(".EventAjaxSend").ValByName(JSON.parse(data));
-                                sd.ImportOkCancel("Edit", "#EventDialog", function () {
+                                sd.ImportOkCancel("#EventDialog", function () {
                                     var json = ss.S(".EventAjaxSend").ValByName();
                                     json["ID"] = e.target.getAttribute("data-value");
 
                                     ajax.Post("../../../../Api/Ajax/Event/List/EditEvent.php", json, function () {
                                         location.reload();
                                     });
-                                }).ZIndex(999).Title("Edit");
+                                }).Title("Edit");
                             });
                         }
                     });
@@ -111,22 +113,19 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         });
                         ss.S("#txtstartday,#txtstopday").Val(new Date());
 
-                        var i = sd.Import("Add", "#EventDialog", {"OK": function () {
-                                ajax.Post("../../../../Api/Ajax/Event/List/AddEvent.php", ss.S(".EventAjaxSend").ValByName(), function (data) {
-                                    if (data == "1") {
-                                        location.reload();
-                                    }
+                        sd.ImportOkCancel("#EventDialog", function () {
+                            ajax.Post("../../../../Api/Ajax/Event/List/AddEvent.php", ss.S(".EventAjaxSend").ValByName(), function (data) {
+                                if (data == "1") {
+                                    location.reload();
+                                }
 
-                                });
-
-                            }, "Cancel": function () {
-                                i.Close();
-                            }}).ZIndex(999);
+                            });
+                        }).Title("Add");
                     });
 
 
                     ss.S("#BNRemoveEvent").Click(function () {
-                        sd.Confirm("Do You Delect It", function () {
+                        msgbox.Confirm("Do You Delect It", function () {
                             var v = ss.S(".SelectID").Val();
                             ss.Post("../../../Api/Ajax/EventManager/DeleteEvent.php", {"ID": v}, function () {
                                 tabletool.DeleteRowAfter(0);
@@ -134,7 +133,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 wsl.Lock = false;
                                 wsl.LoadData();
                             });
-                        }).ZIndex(999);
+                        });
                     });
                     ss.S("#CBoxSelectAll").Click(function () {
                         ss.S(".SelectID").Val(this.checked);

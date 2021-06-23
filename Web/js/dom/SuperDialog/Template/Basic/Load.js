@@ -1,10 +1,13 @@
 class SuperDialog_Template_Load extends SuperDialog {
     Load(...args) {
+        var dialog = this.Dialog();
+
+
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
-                this.sd.Html(xhttp.responseText);
 
+                dialog.AddContent(xhttp.responseText);
             }
         };
         xhttp.sd = this;
@@ -21,7 +24,7 @@ class SuperDialog_Template_Load extends SuperDialog {
             }).join('&'), true);
             xhttp.send( );
         }
-        return  xhttp.sd;
+        return dialog;
     }
     Loading() {
         var dialog = this.Dialog();
@@ -39,10 +42,19 @@ class SuperDialog_Template_Load extends SuperDialog {
         dialog.CallBack = function (v) {
             if (v == "0") {
                 var ref = this;
-                this.ref.Confirm("Cancel????", function () {
-                    ref.Cancel();
-                    ref.close();
+                var subdialog = this.Dialog();
+                subdialog.AddButton(1, "OK");
+                subdialog.AddButton(0, "Cancel");
+                subdialog.AddContent(txt);
+                subdialog.Title("Confirm");
+                subdialog.DestroyAfterClose();
+                subdialog.CallBack = (function (v) {
+                    if (v === "true" || v === "1" || v === 1 || v) {
+                        ref.Cancel();
+                        ref.close();
+                    }
                 });
+
             }
             return false;
         };
@@ -56,7 +68,7 @@ class SuperDialog_Template_Load extends SuperDialog {
         };
         return dialog;
     }
-  
+
     PleaseWait() {
         var dialog = this.Dialog();
         dialog.AddContent("<div style='cursor:wait;'>Please Wait</div>");

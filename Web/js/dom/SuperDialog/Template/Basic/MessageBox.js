@@ -3,6 +3,7 @@ class  SuperDialog_Template_MessageBox  extends SuperDialog {
         var dialog = this.Dialog();
         dialog.AddButton("OK", "OK");
         dialog.AddContent(txt);
+        dialog.Title("Alert");
         dialog.DestroyAfterClose();
         return dialog;
     }
@@ -20,7 +21,8 @@ class  SuperDialog_Template_MessageBox  extends SuperDialog {
         var dialog = this.Dialog();
         dialog.AddButton(1, "OK");
         dialog.AddButton(0, "Cancel");
-        dialog.Title(txt);
+        dialog.AddContent(txt);
+        dialog.Title("Confirm");
         dialog.DestroyAfterClose();
         dialog.CallBack = (function (v) {
             if (v === "true" || v === "1" || v === 1 || v) {

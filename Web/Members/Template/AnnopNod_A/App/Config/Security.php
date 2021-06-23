@@ -40,19 +40,19 @@ if ($config->IsOnline() && isset($_SESSION["User"]) && $session->Registered(sess
             ?>
 
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/SuperDialog.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/Template/Basic/Personal.js"></script>
             <script src="../../../../../js/io/Ajax.js"></script>
 
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
-                    var dialog = new SuperDialog();
 
 
 
                     ss.S("#BNCHPW").Click(function () {
-                        dialog.ChangePassword(function (v) {
+                        new SuperDialog_Template_Personal().ChangePassword(function (v) {
 
                         });
                     });

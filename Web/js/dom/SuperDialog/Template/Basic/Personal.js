@@ -23,8 +23,7 @@ class SuperDialog_Template_Personal extends SuperDialog {
         dialog.Title("Change Password");
         dialog.AddRow("Old Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='old' />");
         dialog.AddRow("New Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='new' />");
-        dialog.AddRow("Confirm Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='confirm' />");
-        dialog.DestroyAfterClose();
+        dialog.AddRow("Confirm Password:", "<input type='password'  style='width:100%;box-sizing: border-box;' name='confirm' />");      
         return dialog;
     }
 
