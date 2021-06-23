@@ -45,13 +45,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
             <script src="../../../../../js/dom/SelectList.js"></script>
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/SuperDialog.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/Template/Basic/Input.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/Template/Basic/MessageBox.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/Template/Basic/Multimedia.js"></script>
             <script src="../../../../../js/dom/FilesList.js"></script>
             <script src="../../../../../js/io/Ajax.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
-                    var sd = new SuperDialog();
+                    var sdinput = new SuperDialog_Template_Input();
+                    var sdmsgbox = new SuperDialog_Template_MessageBox();
+                    var sdmedia= new SuperDialog_Template_Multimedia();
                     var ajax = new Ajax();
                     var FL = new FilesList(document.getElementById("FilesList"));
                     var FilePlayList = new SelectList(document.getElementById("FilePlayList"));
@@ -73,7 +78,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     FL.OpenFile(function (v) {
                         if (["ogg", "mp3", "wma"].indexOf(v.split('.').pop().toLowerCase()) >= 0) {
-                            sd.MediaPlayer("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (v));
+                            sdmedia.MediaPlayer("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (v));
                         }
                     })
                     FL.OpenDir("/");
@@ -96,7 +101,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#BNNewPlayList").Click(function () {
-                        var p = sd.Prompt("Name:", function (v) {
+                        var p = sdinput.Prompt("Name:", function (v) {
                             ajax.Post("../../../../Api/Ajax/Audio/List/CreatePlayList.php", {"Name": v}, function (data) {
                                 GetPlayList();
                                 p.Close();
@@ -117,15 +122,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
                     ss.S("#BNDeletePlayList").Click(function () {
-                        sd.Confirm("Delect It????", function () {
+                        sdmsgbox.Confirm("Delect It????", function () {
                             ajax.Post("../../../../Api/Ajax/Audio/List/DeletePlayList.php", {"Name": ss.S("#OptSelectLib").Val()}, function (data) {
                                 location.reload();
                             });
-                        }).ZIndex(999);
+                        });
                     });
 
                     ss.S("#BNEditPlayList").Click(function () {
-                        sd.Prompt("Rename", function (v) {
+                        sdinput.Prompt("Rename", function (v) {
                             ajax.Post("../../../../Api/Ajax/Audio/List/RenamePlayList.php", {"Name": ss.S("#OptSelectLib").Val(), "NewName": v}, function (data) {
                                 location.reload();
                             });
