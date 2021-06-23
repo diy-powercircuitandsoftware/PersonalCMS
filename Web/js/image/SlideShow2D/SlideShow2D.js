@@ -431,14 +431,14 @@ class SlideShow2D_Fill_XY_Equation_Transition extends SlideShow2D_Fill_Transitio
             "args": [this.canvassize.width / 2, this.canvassize.height / 2]
         }, {
             "command": "moveTo",
-            "args": [this.GetX(radian, time, tick), this.GetY(radian, time, tick)]
+            "args": [this.MultiplyX(time, tick) * this.GetX(radian, time, tick), this.MultiplyY(time, tick) * this.GetY(radian, time, tick)]
         })
 
         while (radian <= (Math.PI * 2)) {
             radian += radian_add;
             stack.push({
                 "command": "lineTo",
-                "args": [this.GetX(radian, time, tick), this.GetY(radian, time, tick)]
+                "args": [this.MultiplyX(time, tick) * this.GetX(radian, time, tick), this.MultiplyY(time, tick) * this.GetY(radian, time, tick)]
             });
         }
         stack.push({
@@ -452,6 +452,12 @@ class SlideShow2D_Fill_XY_Equation_Transition extends SlideShow2D_Fill_Transitio
     }
     GetY(radian, time, tick) {
 
+    }
+    MultiplyX(time, tick) {
+        return 1;
+    }
+    MultiplyY(time, tick) {
+        return 1;
     }
 
 }

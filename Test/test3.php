@@ -28,6 +28,7 @@
                         radian += radian_add;
 
                         content.lineTo(getX(radian), getY(radian));
+                         console.log(getX(radian)); 
                     }
                     content.strokeStyle = "red";  //Set the stroke style
                     content.stroke();  //Stroke the path
@@ -53,12 +54,16 @@
              }
              */
             function getX(t) {  //Get the X coordinate of the cardioid line
+               
+              //   console.log(t); 
                 return (1)* (16 * Math.pow(Math.sin(t), 3))
+                
             }
 
             function getY(t) {  //Get the Y coordinate of the cardioid line
                 return  (-1)* (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))
             }
+           //  console.log(getX(Math.PI * 2)); 
             draw();
         </script>
     </body>
