@@ -72,7 +72,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 }
 
             </style>
-            <script src="../../../../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../../../../js/dom/SuperDialog/SuperDialog.js"></script>
+            <script src="../../../../../../js/dom/SuperDialog/Template/Basic/Load.js"></script>
+            <script src="../../../../../../js/dom/SuperDialog/Template/Basic/MessageBox.js"></script>
             <script src="../../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../../js/io/Ajax.js"></script>
             <script src="../../../../../../js/office/PointPoint.js"></script>
@@ -80,6 +82,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var sd = new SuperDialog();
+                    var superdialogload=new SuperDialog_Template_Load();
+                      var superdialogmsgbox=new SuperDialog_Template_MessageBox();
                     var ajax = new Ajax();
 
                     var domeditor = new PointPoint_Editor(document.getElementById("Editor"));
@@ -103,7 +107,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
-                        var dpw = sd.PleaseWait().ZIndex(999);
+                        var dpw =superdialogload.PleaseWait();
 
                         if (url.charAt(url.length - 1) === "#") {
                             url = url.slice(0, -1);
@@ -119,7 +123,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 for (var i = 0; i < data["slidescount"]; i++) {
                                     domeditor.InsertSlide(null);
                                 }
-                                dpw.Close();
+                                dpw.close();
                             } else {
                                 window.location.replace("index.php");
                             }
@@ -215,8 +219,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#BNOpen").Click(function () {
-                        sd.SaveBeforeExit(function (v) {
-                            if (v == 0) {
+                        superdialogmsgbox.SaveBeforeExit(function (v) {
+                            if (v == -1) {
                                 window.onbeforeunload = null;
                                 window.location.replace("index.php");
                             } else if (v == 1) {
@@ -227,7 +231,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 };
                                 ss.S("#BNSave").Click();
                             }
-                        }).ZIndex(999).Title("Do You Save Before Open Document");
+                        }).Title("Do You Save Before Open Document");
 
 
                     });
@@ -239,10 +243,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 list.push(slides[i].Serialize());
                             }
                         }
-                        var dpw = sd.PleaseWait().ZIndex(999);
+                        var dpw = superdialogload.PleaseWait();
                         ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/EditSlideData.php", {"path": domeditor.path, "list": list}, function (data) {
                             domeditor.AfterSave();
-                            dpw.Close();
+                            dpw.close();
                         });
 
                     });
@@ -308,7 +312,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         if (domeditor.SlideExists(v)) {
                             domeditor.Render(v);
                         } else {
-                            var dialog = sd.PleaseWait();
+                            var dialog = superdialogload.PleaseWait();
                             ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetSlideData.php", {"path": domeditor.path, "id": v}, function (data) {
                                 data = JSON.parse(data);
                                 if (data) {
@@ -317,7 +321,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     domeditor.ReplaceSlideAt(v, pps);
                                     domeditor.Render(v);
                                 }
-                                dialog.Close();
+                                dialog.close();
                             });
                         }
 

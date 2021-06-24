@@ -32,20 +32,22 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 echo $value->Execute(Module_SDK_Basic::Layout_Head);
             }
             ?>
-            <script src="../../../../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../../../../js/dom/SuperDialog/SuperDialog.js"></script>
             <script src="../../../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../../js/file/FilesList.js"></script>
+            <script src="../../../../../../js/dom/FilesList.js"></script>
+            <script src="../../../../../../js/io/Ajax.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var sd = new SuperDialog();
-                    var fd = document.getElementById("FilesList").appendChild(new FilesList(false));
+                    var ajax=new Ajax();
+                    var fd = (new FilesList(document.getElementById("FilesList")));
                     fd.Mutilselect = false;
                     fd.ChDir = function (v) {
-                        ss.Post("../../../../Api/Ajax/FinFin/GetFinFinList.php", {"Location": v}, function (data) {
+                        ajax.Post("../../../../../Api/Ajax/Files/List/GetFilesListByExtension.php", {"Path": v, "Ext": "FinFinZip"}, function (data) {
                             ss.S("#FileLocation").Val((v));
                             fd.currentdir = v
-                            fd.ClearFileList();
+                            fd.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
                                 fd.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"], data[i]["type"]);

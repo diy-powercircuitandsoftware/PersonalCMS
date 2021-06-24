@@ -112,7 +112,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     FL.OpenFile(function (v) {
                         var ext = v.split('.').pop().toLowerCase();
                         if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
-                            dialog.MediaPlayer("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (v));
+                            new SuperDialog_Template_Multimedia().MediaPlayer("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (v));
                         } else if (ext == "txt") {
                             new SuperDialog_Template_Load().Load("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (v)).Title(v);
                         }

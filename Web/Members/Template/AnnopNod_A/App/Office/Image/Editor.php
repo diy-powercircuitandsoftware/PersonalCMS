@@ -44,12 +44,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             }
             ?>
 
-            <script src="../../../../../js/dom/SuperDialog.js"></script>
-            <script src="../../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../js/file/FilesList.js"></script>
-            <script src="../../../../../js/imageedit/Pencil.js"></script>
-            <script src="../../../../../js/imageedit/SelectArea.js"></script>
-            <script src="../../../../../js/imageedit/Transaction.js"></script>
+            <script src="../../../../../../js/dom/SuperDialog/SuperDialog.js"></script>
+            <script src="../../../../../../js/dom/SSQueryFW.js"></script>
+            <script src="../../../../../../js/file/FilesList.js"></script>
+            <script src="../../../../../../js/imageedit/Pencil.js"></script>
+            <script src="../../../../../../js/imageedit/SelectArea.js"></script>
+            <script src="../../../../../../js/imageedit/Transaction.js"></script>
 
             <script>
                 var ss = new SSQueryFW();

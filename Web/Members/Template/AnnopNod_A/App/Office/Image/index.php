@@ -35,7 +35,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             }
             ?>
 
-            <script src="../../../../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../../../../js/dom/SuperDialog/SuperDialog.js"></script>
             <script src="../../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../../js/dom/FilesList.js"></script>
             <script src="../../../../../../js/io/Ajax.js"></script>
