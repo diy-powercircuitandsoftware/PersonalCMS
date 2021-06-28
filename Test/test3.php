@@ -4,10 +4,10 @@
     <head>
         <meta charset="utf-8">
         <title>Test</title>
-
+        <script src="../Web/js/office/PointPoint/PointPoint.js"></script>
     </head>
     <body>
-        <canvas id="drawing" width="300" height="300" style="border-style: solid;" ></canvas>
+        <canvas id="drawing" width="300" height="300" style="border-style: solid;display: none;" ></canvas>
         <script>
             function draw() {
                 var drawing = document.getElementById("drawing"); //Get canvas element
@@ -64,8 +64,8 @@
                 return  (-1)* (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))
             }
            //  console.log(getX(Math.PI * 2)); 
-            draw();
+          //  draw();
         </script>
     </body>
-
+    <pointpoint-slide></pointpoint-slide>
 </html>

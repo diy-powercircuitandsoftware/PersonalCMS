@@ -18,7 +18,7 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     if ($vd->IsFile($_POST["path"])) {
         $path = $vd->DiskPath($_POST["path"]);
         $point = new OfficeIO_PointPoint($path);
-        echo json_encode($point->GetMetadata());
+        echo json_encode(array("Metadata"=>$point->GetMetadata(),"Slides"=>$point->GetAllSlides()));
         $point->Close();
     }
     else{

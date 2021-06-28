@@ -63,6 +63,7 @@ class SSQueryFW {
             this.ForEach(this.element, function (el) {
                 el.setAttribute(args[0], args[1]);
             });
+            return this;
         }
 
     }

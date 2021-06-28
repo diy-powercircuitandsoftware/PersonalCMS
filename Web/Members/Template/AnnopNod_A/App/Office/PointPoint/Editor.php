@@ -77,104 +77,110 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script src="../../../../../../js/dom/SuperDialog/Template/Basic/MessageBox.js"></script>
             <script src="../../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../../js/io/Ajax.js"></script>
-            <script src="../../../../../../js/office/PointPoint.js"></script>
+            <script src="../../../../../../js/office/PointPoint/PointPoint.js"></script>
+            <script src="../../../../../../js/office/PointPoint/Editor/Editor.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var sd = new SuperDialog();
-                    var superdialogload=new SuperDialog_Template_Load();
-                      var superdialogmsgbox=new SuperDialog_Template_MessageBox();
+                    var superdialogload = new SuperDialog_Template_Load();
+                    var superdialogmsgbox = new SuperDialog_Template_MessageBox();
                     var ajax = new Ajax();
 
-                    var domeditor = new PointPoint_Editor(document.getElementById("Editor"));
-
-                    domeditor.CanvasSize("800px", "600px");
-                    domeditor.AfterSave = function () {};
-                    domeditor.AddEditorEvent("click", function (e) {
-                        if (e.target == this) {
-                            console.log("this");
-                            domeditor.selectitem=null;
-                        } else {
-                            if (domeditor.selectitem.getAttribute("audio")) {
-                                console.log("audio");
-                            }
-                            if (domeditor.selectitem.getAttribute("animation")) {
-                                console.log("animation");
-                            }
+                    var pointpointeditor = new PointPoint_Editor(document.getElementById("Editor"));
+                    var pointpoint = new PointPoint();
+                    pointpointeditor.CanvasSize("800px", "600px");
+                    pointpointeditor.AfterSave = function () {};
+                    pointpointeditor.selectitem = null
+                    pointpointeditor.AddEditorEvent("click", function (e) {
+                        if (e.target.getAttribute("pointpoint-type") !== undefined) {
+                            pointpointeditor.selectitem = e.target;
+                            console.log("s");
                         }
-
+                        if (pointpointeditor.selectitem.getAttribute("pointpoint-animate-audio")) {
+                            console.log("audio");
+                        }
+                        if (pointpointeditor.selectitem.getAttribute("animation")) {
+                            console.log("animation");
+                        }
                     });
+
 
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
-                        var dpw =superdialogload.PleaseWait();
+                        var dpw = superdialogload.PleaseWait();
 
                         if (url.charAt(url.length - 1) === "#") {
                             url = url.slice(0, -1);
                         }
-                        domeditor.path = url;
+                        pointpointeditor.path = url;
 
-                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetMetaData.php", {"path": domeditor.path}, function (data) {
+                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/LoadAllData.php", {"path": pointpointeditor.path}, function (data) {
                             data = JSON.parse(data);
+                            if (data !== null && data["Metadata"]["app"] === "PointPoint") {
+                                var Slides = data.Slides;
+                                if (Slides.length > 0) {
+                                    for (var i = 0; i < Slides.length; i++) {
+                                        if (Slides[i]) {
 
-                            if (data !== null && data["app"] === "PointPoint") {
-                                ss.S("#SlidesIndexList").Attr("max", data["slidescount"]);
-
-                                for (var i = 0; i < data["slidescount"]; i++) {
-                                    domeditor.InsertSlide(null);
+                                        }
+                                        //   pointpointeditor.InsertSlide(null);
+                                        //pointpoint
+                                    }
                                 }
+                                if (Slides.length == 0) {
+                                    pointpoint.AddSlide(new PointPoint_Slide());
+                                }
+                                ss.S("#SlidesIndexList").Attr("max", pointpoint.Count()).Change();
                                 dpw.close();
                             } else {
                                 window.location.replace("index.php");
                             }
-
-
                         });
-
                     } else {
                         window.location.replace("index.php");
                     }
 
                     ss.S("#BNAddNew").Click(function () {
-                        sd.ImportOkCancel("Add New Slide", "#AddTPList", function () {
+                        sd.ImportOkCancel("#AddTPList", function () {
                             var t = ss.S("INPUT[name='TPType']").Val();
                             if (t == "Blank") {
-                                var pps = new PointPoint_Slide();
-                                pps.Size(domeditor.CanvasSize());
-                                domeditor.InsertSlide(pps);
-                                pps.Index(domeditor.SlidesCount() - 1);
+                                pointpoint.AddSlide(new PointPoint_Slide());
                             }
-                            ss.S("#SlidesIndexList").Attr("max", domeditor.SlidesCount());
-                            ss.S("#SlidesIndexList").Val(domeditor.SlidesCount()).Change();
+                            ss.S("#SlidesIndexList").Attr("max", pointpoint.Count()).Change();
+
                             return true;
 
-                        });
+                        }).Title("Add New Slide");
                     });
                     ss.S(".BNCMD").Click(function () {
                         var cmd = this.getAttribute("data-cmd");
-                        domeditor.EXECommand(cmd, false, false);
+                        pointpointeditor.EXECommand(cmd, false, false);
                         this.style.borderStyle = "inset";
 
                         ss.S(".BNCMD").Each(function (dom) {
                             var cmd = dom.getAttribute("data-cmd");
-                            if (!domeditor.QueryCommandState(cmd)) {
+                            if (!pointpointeditor.QueryCommandState(cmd)) {
                                 dom.style.borderStyle = "outset";
                             }
                         });
                     });
                     ss.S(".BNCMDInsert").Click(function () {
                         var cmd = this.getAttribute("data-cmd");
-                        var v = parseInt(ss.S("#SlidesIndexList").Val());
-                        var diman = domeditor.CanvasSize();
-                        if (cmd == "TxtBox" && v > 0) {
-                            domeditor.AddTextBox(v - 1, "50%", "50%");
+                        var v = parseInt(ss.S("#SlidesIndexList").Val()) - 1;
+                        var diman = pointpointeditor.CanvasSize();
+                        if (cmd == "TxtBox" && v >= 0) {
+
+                            var txt = pointpoint.Get(v).AddText("test", "50%", "50%");
+                            txt.contentEditable = "true";
+                            // ss.S("#SlidesIndexList").Change();
                         } else if (cmd == "Image") {
-                            /*   ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": domeditor.path, "type": "Image"}, function (data) {
+                            /*   ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": pointpointeditor.path, "type": "Image"}, function (data) {
                              data = JSON.parse(data);
                              var tl = sd.TableLayout(function () {
-                             var img = domeditor.AddImage();
+                             var img = pointpointeditor.AddImage();
                              img.src = "../../../../Api/Action/PointPoint/LoadImage.php" + ss.JsonToQueryString({
-                             "path": domeditor.path,
+                             "path": pointpointeditor.path,
                              "imagepath": tl.sel.value,
                              "width": tl.w.value,
                              "height": tl.h.value
@@ -192,7 +198,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                              tl.sel = tl.AddTableDom('<select style="width:100%;box-sizing: border-box;"></select>');
                              tl.w = tl.AddTableDom('width', '<input type="number"  value="" />');
                              tl.h = tl.AddTableDom('height', '<input type="number"  value="" />');
-                             var ps = domeditor.PaperSize();
+                             var ps = pointpointeditor.PaperSize();
                              tl.w.value = parseInt(ps.width) / 2;
                              tl.h.value = parseInt(ps.height) / 2;
                              for (var k in data) {
@@ -208,11 +214,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S("#BNObjectManager").Click(function (e) {
                         ss.S("#EmbedType").Change();
-                        var dia = sd.Import("Object Manager", "#ObjManagerDialog");
+                        var dia = sd.Import("#ObjManagerDialog").Title("Object Manager");
 
                         /*  dia.CallbackResult = function (v) {
                          if (v == "Delete") {
-                         ss.Post("../../../../Api/Ajax/PointPoint/DeleteEmbedList.php", {"path": domeditor.path, "filepath": ss.S("#EmbedList").Val()}, function (data) {
+                         ss.Post("../../../../Api/Ajax/PointPoint/DeleteEmbedList.php", {"path": pointpointeditor.path, "filepath": ss.S("#EmbedList").Val()}, function (data) {
                          });
                          }
                          };*/
@@ -224,7 +230,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 window.onbeforeunload = null;
                                 window.location.replace("index.php");
                             } else if (v == 1) {
-                                domeditor.AfterSave = function () {
+                                pointpointeditor.AfterSave = function () {
 
                                     window.onbeforeunload = null;
                                     window.location.replace("index.php");
@@ -236,23 +242,19 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     });
                     ss.S("#BNSave").Click(function () {
-                        var slides = domeditor.GetSlides();
-                        var list = [];
-                        for (var i in slides) {
-                            if (slides[i] !== null) {
-                                list.push(slides[i].Serialize());
-                            }
-                        }
+                        var slides = pointpoint.Serialize();
+                        console.log(slides);
+                        return;
                         var dpw = superdialogload.PleaseWait();
-                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/EditSlideData.php", {"path": domeditor.path, "list": list}, function (data) {
-                            domeditor.AfterSave();
+                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/EditSlideData.php", {"path": pointpointeditor.path, "list": list}, function (data) {
+                            pointpointeditor.AfterSave();
                             dpw.close();
                         });
 
                     });
-                     ss.S(".BNToolBoxTab").Tabs(".ToolBoxTab","data-id");
+                    ss.S(".BNToolBoxTab").Tabs(".ToolBoxTab", "data-id");
                     ss.S("#EmbedType").Change(function (e) {
-                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetEmbedList.php", {"path": domeditor.path, "type": this.value}, function (data) {
+                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetEmbedList.php", {"path": pointpointeditor.path, "type": this.value}, function (data) {
                             data = JSON.parse(data);
                             ss.S("#EmbedList").Empty();
                             for (var i in data) {
@@ -264,8 +266,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#EmbedList").KeyUp(function (e) {
                         if (e.keyCode == 46) {
                             var v = this.value;
-                            sd.Confirm("Delete It", function () {
-                                ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/DeleteObject.php", {"path": domeditor.path, "delname": v}, function (data) {
+                            superdialogmsgbox.Confirm("Delete It", function () {
+                                ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/DeleteObject.php", {"path": pointpointeditor.path, "delname": v}, function (data) {
                                     ss.S("#EmbedType").Change();
                                 });
                             });
@@ -276,10 +278,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S(".OptColor,.OptFont").Change(function () {
                         var cmd = this.getAttribute("data-cmd");
 
-                        domeditor.EXECommand(cmd, false, this.value);
+                        pointpointeditor.EXECommand(cmd, false, this.value);
                     });
                     ss.S("#OPTSelectMode").Change(function () {
-                        domeditor.mode = this.value;
+                        pointpointeditor.mode = this.value;
                     });
 
                     ss.S("#BNSize").Click(function () {
@@ -296,9 +298,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             sd.ImportOkCancel("Background", "#BGDialog", function () {
                                 var opt = ss.S("#SelBGType").Val();
                                 if (opt == "none") {
-                                    // domeditor.Background("");
+                                    // pointpointeditor.Background("");
                                 } else if (opt == "color") {
-                                    // domeditor.Background(ss.S("#SelBGColor").Val());
+                                    // pointpointeditor.Background(ss.S("#SelBGColor").Val());
                                 }
 
                             }).ZIndex(999).Title("Background");
@@ -307,23 +309,16 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
                     ss.S("#SlidesIndexList").Change(function () {
-                        var v = parseInt(this.value);
-                        v = v - 1;
-                        if (domeditor.SlideExists(v)) {
-                            domeditor.Render(v);
-                        } else {
-                            var dialog = superdialogload.PleaseWait();
-                            ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetSlideData.php", {"path": domeditor.path, "id": v}, function (data) {
-                                data = JSON.parse(data);
-                                if (data) {
-                                    var pps = new PointPoint_Slide();
-                                    pps.Serialize(data);
-                                    domeditor.ReplaceSlideAt(v, pps);
-                                    domeditor.Render(v);
-                                }
-                                dialog.close();
-                            });
+                        var x = pointpoint.Get(parseInt(this.value) - 1).GetSlide();
+
+                        [].forEach.call(x.querySelectorAll("[pointpoint-type]"), function (div) {
+                            console.log(div);
+                        //    pointpointeditor.selectitem.parentNode.removeChild(pointpointeditor.selectitem);
+                        });
+                        if (pointpointeditor.selectitem !== null && pointpointeditor.selectitem.getAttribute("pointpoint-type") === "text" && pointpointeditor.selectitem.textContent.trim()) {
+
                         }
+                        pointpointeditor.Render(x);
 
                     });
 
@@ -331,18 +326,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
 
-                    domeditor.MouseUp = function (e) {
-                        var ga = domeditor.GetAudio();
+                    pointpointeditor.MouseUp = function (e) {
+                        var ga = pointpointeditor.GetAudio();
                         if (ga === undefined) {
                             ss.S("#AudioType").Val("0");
                         } else {
                             ss.S("#AudioType").Val(ga.AudioType).Change( );
-                            domeditor.ChangeAudioType = function () {
+                            pointpointeditor.ChangeAudioType = function () {
                                 ss.S("#AudioFile").Val(ga.AudioPath);
                                 this.ChangeAudioType = null;
                             };
                         }
-                        var gn = domeditor.GetAnimation();
+                        var gn = pointpointeditor.GetAnimation();
                         if (gn === undefined) {
                             ss.S("#AnimationList").Val("0");
                             ss.S("#AnimationTime").Val(0);
@@ -351,17 +346,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#AnimationTime").Val(gn.AnimationTime);
                         }
 
-                        if (domeditor.LastSlidesList) {
-                            domeditor.LastSlidesList.RenderThumbnail(domeditor.LastSlidesList.SlideData.Width, domeditor.LastSlidesList.SlideData.Height, domeditor.Html());
+                        if (pointpointeditor.LastSlidesList) {
+                            pointpointeditor.LastSlidesList.RenderThumbnail(pointpointeditor.LastSlidesList.SlideData.Width, pointpointeditor.LastSlidesList.SlideData.Height, pointpointeditor.Html());
                         }
 
                         this.KeyUp();
                     };
-                    domeditor.KeyUp = function (e) {
+                    pointpointeditor.KeyUp = function (e) {
 
                         ss.S(".BNCMD").ForEach(function (dom) {
                             var cmd = dom.getAttribute("data-cmd");
-                            if (domeditor.QueryCommandState(cmd)) {
+                            if (pointpointeditor.QueryCommandState(cmd)) {
                                 dom.style.borderStyle = "inset";
                             } else {
                                 dom.style.borderStyle = "outset";
@@ -370,7 +365,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         ss.S(".OptColor,.OptFont").ForEach(function (dom) {
                             var cmd = dom.getAttribute("data-cmd");
-                            dom.value = domeditor.CommandValue(cmd);
+                            dom.value = pointpointeditor.CommandValue(cmd);
                         });
 
                     };
@@ -380,26 +375,26 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var at = ss.S("#AudioType");
 
                         if (at.Val() == "1") {//e
-                            ss.S("#AudioPlay").Url("../../../../Api/Action/PointPoint/LoadAudio.php" + ss.JsonToQueryString({"path": domeditor.path, "name": this.value}));
+                            ss.S("#AudioPlay").Url("../../../../Api/Action/PointPoint/LoadAudio.php" + ss.JsonToQueryString({"path": pointpointeditor.path, "name": this.value}));
                         } else if (at.Val() == "3") {
                             ss.S("#AudioPlay").Url("../sound/pointpoint/" + this.value);
                         }
 
-                        domeditor.SetAudio(at.Val(), this.value);
+                        pointpointeditor.SetAudio(at.Val(), this.value);
 
                     });
 
                     ss.S("#AudioType").Change(function (e) {
                         var af = ss.S("#AudioFile");
                         if (this.value == "1") {
-                            ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": domeditor.path, "type": "Audio"}, function (json) {
+                            ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": pointpointeditor.path, "type": "Audio"}, function (json) {
                                 json = JSON.parse(json);
                                 af.Empty();
                                 for (var k in json) {
                                     af.Append('<option></option>').Val(json[k]).Html(k);
                                 }
-                                if (domeditor.ChangeAudioType) {
-                                    domeditor.ChangeAudioType();
+                                if (pointpointeditor.ChangeAudioType) {
+                                    pointpointeditor.ChangeAudioType();
                                 }
                             });
                         } else if (this.value == "3") {
@@ -409,8 +404,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 for (var i in json) {
                                     af.Append('<option></option>').Val(json[i]).Html(json[i]);
                                 }
-                                if (domeditor.ChangeAudioType) {
-                                    domeditor.ChangeAudioType();
+                                if (pointpointeditor.ChangeAudioType) {
+                                    pointpointeditor.ChangeAudioType();
                                 }
                             });
                         } else {
@@ -421,7 +416,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
                     ss.S("#AnimationList,#AnimationTime").Change(function () {
-                        domeditor.SetAnimation(ss.S("#AnimationList").Val(), ss.S("#AnimationTime").Val());
+                        pointpointeditor.SetAnimation(ss.S("#AnimationList").Val(), ss.S("#AnimationTime").Val());
                     });
 
 
@@ -430,26 +425,26 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S(".BNCMDDialog").Click(function () {
 
-                        if (domeditor.selectdom) {
+                        if (pointpointeditor.selectdom) {
 
                             if (this.getAttribute("data-cmd") == "Rect") {
                                 sd.PositionDialog(function (dat) {
-                                    domeditor.selectdom.style.left = dat.x + "px";
-                                    domeditor.selectdom.style.top = dat.y + "px";
+                                    pointpointeditor.selectdom.style.left = dat.x + "px";
+                                    pointpointeditor.selectdom.style.top = dat.y + "px";
                                     if (dat.w == 0) {
-                                        domeditor.selectdom.style.width = "";
+                                        pointpointeditor.selectdom.style.width = "";
                                     } else {
-                                        domeditor.selectdom.style.width = dat.w + "px";
+                                        pointpointeditor.selectdom.style.width = dat.w + "px";
                                         ;
                                     }
                                     if (dat.h == 0) {
-                                        domeditor.selectdom.style.height = "";
+                                        pointpointeditor.selectdom.style.height = "";
                                     } else {
-                                        domeditor.selectdom.style.height = dat.h + "px";
+                                        pointpointeditor.selectdom.style.height = dat.h + "px";
                                         ;
                                     }
                                     return true;
-                                }, parseFloat(domeditor.selectdom.style.left), parseFloat(domeditor.selectdom.style.top), parseFloat(domeditor.selectdom.style.width), parseFloat(domeditor.selectdom.style.height)).ZIndex(999);
+                                }, parseFloat(pointpointeditor.selectdom.style.left), parseFloat(pointpointeditor.selectdom.style.top), parseFloat(pointpointeditor.selectdom.style.width), parseFloat(pointpointeditor.selectdom.style.height)).ZIndex(999);
 
 
                             }
@@ -459,7 +454,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNHiddenUpload").Change(function (e) {
                         var ajax = ss.Ajax();
                         var fd = new FormData();
-                        fd.append("FullPath", domeditor.path);
+                        fd.append("FullPath", pointpointeditor.path);
                         fd.append("UploadFile", this.files[0], this.files[0].name);
                         ajax.Success = function (data) {
                             sd.Alert("Upload Complete").ZIndex(999);
@@ -669,7 +664,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     </div>
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">Slides</div>
-                        <input style="width: 100%;box-sizing: border-box;" type="number" id="SlidesIndexList" min="0" value="0" />
+                        <input style="width: 100%;box-sizing: border-box;" type="number" id="SlidesIndexList" min="1" value="1" />
                     </div>
 
                     <div class="BorderBlock" style="margin-top: 1px;">

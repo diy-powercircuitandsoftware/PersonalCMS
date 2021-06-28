@@ -1,46 +1,76 @@
 class PointPoint {
     constructor( ) {
-        this.slidedata = document.createElement("DIV");
-        this.slidedata.style.position = "relative";
+        this.Slides = [];
     }
 
+    AddSlide(PointPointSlide) {
+        this.Slides.push(PointPointSlide);
+    }
+
+    Count() {
+        return this.Slides.length;
+    }
+
+    Get(index) {
+        return(this.Slides[index]);
+    }
+    Replace(index, code) {
+        this.Slides[index].GetSlide();
+    }
+    Serialize( ) {
+        var html = [];
+        for (var i in this.Slides) {
+            html.push(this.Slides[i].ToHtml());
+        }
+        return html;
+    }
+
+}
+
+
+class PointPoint_Slide {
+    constructor() {
+        this.slideframe = document.createElement("DIV");
+        this.slideframe.style.position = "relative";
+        this.slideframe.setAttribute("pointpoint-name", "untitle");
+        this.slideframe.setAttribute("pointpoint-type", "slide");
+        this.slideframe.style.width = "800px";
+        this.slideframe.style.height = "600px";
+    }
     AddText(input, x, y) {
         var txt = document.createElement("DIV");
+        txt.setAttribute("pointpoint-type", "text");
+        txt.setAttribute("pointpoint-animate", "");
+        txt.setAttribute("pointpoint-animate-time", "");
+        txt.setAttribute("pointpoint-animate-audio", "");
         txt.style.position = "absolute";
         txt.style.left = x;
         txt.style.top = y;
         txt.appendChild(document.createTextNode(input));
-        this.slidedata.appendChild(txt);
+        this.slideframe.appendChild(txt);
         return txt;
-
     }
-    GetSlideData() {
-        return this.slidedata;
+    CSS(...args) {
+        if (args.length === 0) {
+            return this.slideframe.style.cssText;
+        } else if (args.length === 1) {
+            return this.slideframe.style[args[0]];
+        } else if (args.length === 2) {
+            return this.slideframe.style[args[0]] = args[1];
+        }
+    }
+    GetSlide() {
+        return this.slideframe;
     }
     Index(...args) {
         if (args.length === 0) {
-            return this.slidedata.getAttribute("data-index");
+            return this.slideframe.getAttribute("data-index");
         } else if (args.length === 1) {
-            return this.slidedata.setAttribute("data-index", args[0]);
+            return this.slideframe.setAttribute("data-index", args[0]);
         }
     }
-    Serialize(...args) {
-         
+    ToHtml() {
+        return this.slideframe.outerHTML;
     }
-    Size(...args) {
-        if (args.length === 0) {
-            return {
-                "width": this.slidedata.style.width,
-                "height": this.slidedata.style.height
-            };
-        } else if (args.length === 1) {
-            this.slidedata.style.width = args[0].width;
-            this.slidedata.style.height = args[0].height;
-        } else if (args.length === 2) {
-            this.slidedata.style.width = args[0];
-            this.slidedata.style.height = args[1];
-        }
-    }
-
 }
 

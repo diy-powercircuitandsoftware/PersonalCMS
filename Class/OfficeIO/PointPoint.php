@@ -48,12 +48,29 @@ class OfficeIO_PointPoint {
     }
 
     function DeleteEmbed($Path) {
-         return $this->zip->deleteName($Path);
+        return $this->zip->deleteName($Path);
     }
 
     function EditSlideData($index, $string) {
 
         $this->zip->addFromString(self::Embed_Slides . "/" . $index, $string);
+    }
+
+    function GetAllSlides() {
+        $Slides = [];
+        for ($i = 0; $i < $this->zip->numFiles; $i++) {
+            $path = $this->zip->getNameIndex($i);
+            $exp = explode("/", $path);
+            $as = array_shift($exp);
+            if ($as == self::Embed_Slides) {
+                $data = unserialize($this->zip->getFromIndex($i));
+                if ($data){
+                     $Slides[] = $data;
+                }
+               
+            }
+        }
+        return $Slides;
     }
 
     function GetEmbedData($Path) {
@@ -78,7 +95,6 @@ class OfficeIO_PointPoint {
 
     function GetMetadata() {
         $dat = unserialize($this->zip->getFromName("Metadata"));
-        $dat["slidescount"] = $this->GetSlidesCount();
         return $dat;
     }
 
