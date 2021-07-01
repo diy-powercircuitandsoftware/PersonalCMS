@@ -1,6 +1,7 @@
 class PointPoint {
     constructor( ) {
         this.Slides = [];
+
     }
 
     AddSlide(PointPointSlide) {
@@ -14,8 +15,12 @@ class PointPoint {
     Get(index) {
         return(this.Slides[index]);
     }
-    Replace(index, code) {
-        this.Slides[index].GetSlide();
+    ReplaceHtml(index, code) {
+        if (this.Slides[index] == undefined) {
+            this.Slides[index] = new PointPoint_Slide(index);
+
+        }
+        this.Slides[index].SetHtml(code);
     }
     Serialize( ) {
         var html = [];
@@ -29,13 +34,17 @@ class PointPoint {
 
 
 class PointPoint_Slide {
-    constructor() {
+    constructor(...args) {
         this.slideframe = document.createElement("DIV");
         this.slideframe.style.position = "relative";
         this.slideframe.setAttribute("pointpoint-name", "untitle");
         this.slideframe.setAttribute("pointpoint-type", "slide");
         this.slideframe.style.width = "800px";
         this.slideframe.style.height = "600px";
+        if (args.length === 1) {
+            this.slideframe.setAttribute("pointpoint-index", args[0]);
+        }
+
     }
     AddText(input, x, y) {
         var txt = document.createElement("DIV");
@@ -69,7 +78,13 @@ class PointPoint_Slide {
             return this.slideframe.setAttribute("data-index", args[0]);
         }
     }
+    SetHtml(html) {
+        return this.slideframe.innerHTML = html;
+    }
     ToHtml() {
+        [].forEach.call(this.slideframe.querySelectorAll("[pointpoint-type]"), function (dom) {
+            dom.removeAttribute("contenteditable");          
+        });
         return this.slideframe.outerHTML;
     }
 }

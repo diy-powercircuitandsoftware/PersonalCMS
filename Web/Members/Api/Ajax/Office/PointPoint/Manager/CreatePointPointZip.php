@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 include_once '../../../../../../../Class/Core/Config/Config.php';
 include_once '../../../../../../../Class/FileIO/VirtualDirectory.php';

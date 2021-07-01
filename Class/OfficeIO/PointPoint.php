@@ -3,6 +3,7 @@
 class OfficeIO_PointPoint {
 
     private $zip;
+    private $metadata;
 
     const Embed_Audio = "Audio";
     const Embed_Image = "Image";
@@ -11,18 +12,14 @@ class OfficeIO_PointPoint {
 
     function __construct($filename) {
         $this->zip = new ZipArchive();
+        $this->metadata = new OfficeIO_PointPoint_Metadata();
         if (!file_exists($filename)) {
             $this->zip->open($filename, ZipArchive::CREATE);
             $this->zip->addEmptyDir(self::Embed_Audio);
             $this->zip->addEmptyDir(self::Embed_Image);
             $this->zip->addEmptyDir(self::Embed_Slides);
             $this->zip->addEmptyDir(self::Embed_Video);
-            $this->zip->addFromString("Metadata", serialize(array(
-                "author" => "PersonalCMS@AnnopNod",
-                "app" => "PointPoint",
-                "version" => "1",
-                "date" => date("Y-m-d")
-            )));
+            $this->zip->addFromString("Metadata.xml", $this->metadata->ToXML());
         } else {
             $this->zip->open($filename);
         }
@@ -53,7 +50,7 @@ class OfficeIO_PointPoint {
 
     function EditSlideData($index, $string) {
 
-        $this->zip->addFromString(self::Embed_Slides . "/" . $index, $string);
+        $this->zip->addFromString(self::Embed_Slides . "/" . $index . ".xml", $string);
     }
 
     function GetAllSlides() {
@@ -61,13 +58,12 @@ class OfficeIO_PointPoint {
         for ($i = 0; $i < $this->zip->numFiles; $i++) {
             $path = $this->zip->getNameIndex($i);
             $exp = explode("/", $path);
-            $as = array_shift($exp);
-            if ($as == self::Embed_Slides) {
-                $data = unserialize($this->zip->getFromIndex($i));
-                if ($data){
-                     $Slides[] = $data;
+
+            if (array_shift($exp) == self::Embed_Slides) {
+                $exp = explode(".", end($exp));
+                if (end($exp) == "xml") {
+                    $Slides[] = $this->zip->getFromIndex($i);
                 }
-               
             }
         }
         return $Slides;
@@ -94,7 +90,7 @@ class OfficeIO_PointPoint {
     }
 
     function GetMetadata() {
-        $dat = unserialize($this->zip->getFromName("Metadata"));
+        $dat = ($this->zip->getFromName("Metadata.xml"));
         return $dat;
     }
 
@@ -113,6 +109,30 @@ class OfficeIO_PointPoint {
 
     function GetSlideData($index) {
         return $this->zip->getFromName(self::Embed_Slides . "/" . $index);
+    }
+
+}
+
+class OfficeIO_PointPoint_Metadata {
+
+    function __construct(...$args) {
+        $this->xml = new DOMDocument('1.0', 'utf-8');
+        if (count($args) == 0) {
+            $Root = $this->xml->createElement("root");
+            $Metadata = $this->xml->createElement("metadata");
+            $Metadata->appendChild($this->xml->createElement("author", "PersonalCMS@AnnopNod"));
+            $Metadata->appendChild($this->xml->createElement("app", "PointPoint"));
+            $Metadata->appendChild($this->xml->createElement("version", "1"));
+            $Metadata->appendChild($this->xml->createElement("date", date("Y-m-d")));
+            $Root->appendChild($Metadata);
+            $this->xml->appendChild($Root);
+        } else {
+            
+        }
+    }
+
+    function ToXML() {
+        return $this->xml->saveXML();
     }
 
 }

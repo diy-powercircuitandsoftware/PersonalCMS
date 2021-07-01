@@ -89,23 +89,92 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     var pointpointeditor = new PointPoint_Editor(document.getElementById("Editor"));
                     var pointpoint = new PointPoint();
-                    pointpointeditor.CanvasSize("800px", "600px");
+
                     pointpointeditor.AfterSave = function () {};
                     pointpointeditor.selectitem = null
-                    pointpointeditor.AddEditorEvent("click", function (e) {
-                        if (e.target.getAttribute("pointpoint-type") !== undefined) {
-                            pointpointeditor.selectitem = e.target;
-                            console.log("s");
+                    pointpointeditor.AddEditorEvent("mousedown", function (e) {
+                        var current = e.target;
+                        while (current.parentNode && current != this) {
+                            if (current.getAttribute("pointpoint-type") !== undefined) {
+                                pointpointeditor.selectitem = current;
+                                break;
+                            }
+
+                            current = current.parentNode;
+
                         }
-                        if (pointpointeditor.selectitem.getAttribute("pointpoint-animate-audio")) {
-                            console.log("audio");
+
+                        var type = current.getAttribute("pointpoint-type");
+                        if (ss.S("#OPTSelectMode").Val() == "edit" && type == "text") {
+                            current.contentEditable = "true";
+                        } else if (type == "text") {
+                            current.contentEditable = "false";
                         }
-                        if (pointpointeditor.selectitem.getAttribute("animation")) {
-                            console.log("animation");
+                        if (ss.S("#OPTSelectMode").Val() == "delete" && (pointpointeditor.selectitem != null) && (pointpointeditor.selectitem.getAttribute("pointpoint-type") != "slide")) {
+                            pointpointeditor.selectitem.parentNode.removeChild(pointpointeditor.selectitem);
                         }
+
+
+                        /* if (pointpointeditor.selectitem.getAttribute("pointpoint-animate-audio")) {
+                         console.log("audio");
+                         }
+                         if (pointpointeditor.selectitem.getAttribute("animation")) {
+                         console.log("animation");
+                         }*/
+                    });
+                    pointpointeditor.AddEditorEvent("mousemove", function (e) {
+                        if ((ss.S("#OPTSelectMode").Val() == "move") && (pointpointeditor.selectitem != null) && (pointpointeditor.selectitem.getAttribute("pointpoint-type") != "slide")) {
+                            var EditorRect = this.getBoundingClientRect();
+                            var x = e.clientX - EditorRect.left;
+                            var y = e.clientY - EditorRect.top;
+                            pointpointeditor.selectitem.style.left = x + "px";
+                            pointpointeditor.selectitem.style.top = y + "px";
+                        }
+                    });
+                    pointpointeditor.AddEditorEvent("mouseup", function (e) {
+                        if ((ss.S("#OPTSelectMode").Val() == "move") && (pointpointeditor.selectitem != null) && (pointpointeditor.selectitem.getAttribute("pointpoint-type") != "slide")) {
+                              pointpointeditor.selectitem=null;
+                        }
+
+                    });
+
+                    pointpointeditor.AddEditorEvent("keyup", function (e) {
+
+
+                        //console.log( pointpointeditor.selectitem);
+
+
+                        /* if (pointpointeditor.selectitem.getAttribute("pointpoint-animate-audio")) {
+                         console.log("audio");
+                         }
+                         if (pointpointeditor.selectitem.getAttribute("animation")) {
+                         console.log("animation");
+                         }*/
                     });
 
 
+
+
+                    /*
+                     pointpointeditor.KeyUp = function (e) {
+                     
+                     ss.S(".BNCMD").ForEach(function (dom) {
+                     var cmd = dom.getAttribute("data-cmd");
+                     if (pointpointeditor.QueryCommandState(cmd)) {
+                     dom.style.borderStyle = "inset";
+                     } else {
+                     dom.style.borderStyle = "outset";
+                     }
+                     });
+                     
+                     ss.S(".OptColor,.OptFont").ForEach(function (dom) {
+                     var cmd = dom.getAttribute("data-cmd");
+                     dom.value = pointpointeditor.CommandValue(cmd);
+                     });
+                     
+                     };
+                     
+                     */
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
                         var dpw = superdialogload.PleaseWait();
@@ -117,19 +186,22 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/LoadAllData.php", {"path": pointpointeditor.path}, function (data) {
                             data = JSON.parse(data);
-                            if (data !== null && data["Metadata"]["app"] === "PointPoint") {
+                            if (data !== null) {
                                 var Slides = data.Slides;
                                 if (Slides.length > 0) {
                                     for (var i = 0; i < Slides.length; i++) {
                                         if (Slides[i]) {
-
+                                            var parser = new DOMParser();
+                                            var dom = parser.parseFromString(Slides[i], "application/xml");
+                                            var index = parseInt(dom.documentElement.getAttribute("pointpoint-index"));
+                                            var html = dom.documentElement.innerHTML;
+                                            pointpoint.ReplaceHtml(index, html);
                                         }
-                                        //   pointpointeditor.InsertSlide(null);
-                                        //pointpoint
+
                                     }
                                 }
                                 if (Slides.length == 0) {
-                                    pointpoint.AddSlide(new PointPoint_Slide());
+                                    pointpoint.AddSlide(new PointPoint_Slide(0));
                                 }
                                 ss.S("#SlidesIndexList").Attr("max", pointpoint.Count()).Change();
                                 dpw.close();
@@ -145,7 +217,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         sd.ImportOkCancel("#AddTPList", function () {
                             var t = ss.S("INPUT[name='TPType']").Val();
                             if (t == "Blank") {
-                                pointpoint.AddSlide(new PointPoint_Slide());
+
+                                pointpoint.AddSlide(new PointPoint_Slide(pointpoint.Count()));
                             }
                             ss.S("#SlidesIndexList").Attr("max", pointpoint.Count()).Change();
 
@@ -243,10 +316,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     ss.S("#BNSave").Click(function () {
                         var slides = pointpoint.Serialize();
-                        console.log(slides);
-                        return;
                         var dpw = superdialogload.PleaseWait();
-                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/EditSlideData.php", {"path": pointpointeditor.path, "list": list}, function (data) {
+                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/EditSlideData.php", {"path": pointpointeditor.path, "list": slides}, function (data) {
                             pointpointeditor.AfterSave();
                             dpw.close();
                         });
@@ -280,9 +351,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         pointpointeditor.EXECommand(cmd, false, this.value);
                     });
-                    ss.S("#OPTSelectMode").Change(function () {
-                        pointpointeditor.mode = this.value;
-                    });
 
                     ss.S("#BNSize").Click(function () {
                         sd.Size(function (v) {
@@ -311,10 +379,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#SlidesIndexList").Change(function () {
                         var x = pointpoint.Get(parseInt(this.value) - 1).GetSlide();
 
-                        [].forEach.call(x.querySelectorAll("[pointpoint-type]"), function (div) {
-                            console.log(div);
-                        //    pointpointeditor.selectitem.parentNode.removeChild(pointpointeditor.selectitem);
-                        });
+
                         if (pointpointeditor.selectitem !== null && pointpointeditor.selectitem.getAttribute("pointpoint-type") === "text" && pointpointeditor.selectitem.textContent.trim()) {
 
                         }
@@ -325,50 +390,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     return 0;
 
 
-
-                    pointpointeditor.MouseUp = function (e) {
-                        var ga = pointpointeditor.GetAudio();
-                        if (ga === undefined) {
-                            ss.S("#AudioType").Val("0");
-                        } else {
-                            ss.S("#AudioType").Val(ga.AudioType).Change( );
-                            pointpointeditor.ChangeAudioType = function () {
-                                ss.S("#AudioFile").Val(ga.AudioPath);
-                                this.ChangeAudioType = null;
-                            };
-                        }
-                        var gn = pointpointeditor.GetAnimation();
-                        if (gn === undefined) {
-                            ss.S("#AnimationList").Val("0");
-                            ss.S("#AnimationTime").Val(0);
-                        } else {
-                            ss.S("#AnimationList").Val(gn.Animation);
-                            ss.S("#AnimationTime").Val(gn.AnimationTime);
-                        }
-
-                        if (pointpointeditor.LastSlidesList) {
-                            pointpointeditor.LastSlidesList.RenderThumbnail(pointpointeditor.LastSlidesList.SlideData.Width, pointpointeditor.LastSlidesList.SlideData.Height, pointpointeditor.Html());
-                        }
-
-                        this.KeyUp();
-                    };
-                    pointpointeditor.KeyUp = function (e) {
-
-                        ss.S(".BNCMD").ForEach(function (dom) {
-                            var cmd = dom.getAttribute("data-cmd");
-                            if (pointpointeditor.QueryCommandState(cmd)) {
-                                dom.style.borderStyle = "inset";
-                            } else {
-                                dom.style.borderStyle = "outset";
-                            }
-                        });
-
-                        ss.S(".OptColor,.OptFont").ForEach(function (dom) {
-                            var cmd = dom.getAttribute("data-cmd");
-                            dom.value = pointpointeditor.CommandValue(cmd);
-                        });
-
-                    };
 
 
                     ss.S("#AudioFile").Change(function () {
@@ -583,7 +604,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 <div>
                                     <span >Mode:</span>
                                     <select id="OPTSelectMode">
-                                        <option value="">Edit</option>
+                                        <option value="edit">Edit</option>
                                         <option value="delete">Delete</option>
                                         <option value="move">Move</option>
                                     </select>

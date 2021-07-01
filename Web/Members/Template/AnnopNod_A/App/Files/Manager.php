@@ -161,7 +161,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     }
                                 });
                                 return true;
-                            }).ZIndex(999);
+                            });
                         }
                     });
 

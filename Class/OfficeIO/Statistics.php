@@ -10,12 +10,12 @@ class OfficeIO_Statistics {
             $this->zip->open($filename);
         } else {
             $this->zip->open($filename, ZipArchive::CREATE);
-              $this->zip->addFromString("Metadata", serialize(array(
+           /*   $this->zip->addFromString("Metadata", serialize(array(
                 "author" => "PersonalCMS@AnnopNod",
                 "app" => "Statistics",
                 "version" => "1",
                 "date" => date("Y-m-d")
-            )));
+            )));*/
         }
         echo $filename;
     }

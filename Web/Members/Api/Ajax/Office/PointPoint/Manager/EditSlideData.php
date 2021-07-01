@@ -20,7 +20,10 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $point = new OfficeIO_PointPoint($path);
     if (isset($_POST["list"])) {
         foreach ($_POST["list"] as $value) {
-            $point->EditSlideData($value["Index"], serialize($value));
+            $domdoc = new DOMDocument();
+            $domdoc->loadXML($value);
+            $index = $domdoc->getElementsByTagName('div')->item(0)->getAttribute('pointpoint-index');
+            $point->EditSlideData($index, $domdoc->saveXML());
         }
     }
     echo $point->Close();

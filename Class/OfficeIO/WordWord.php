@@ -11,12 +11,12 @@ class OfficeIO_WordWord {
 
             $this->zip->addEmptyDir("Image");
             $this->zip->addEmptyDir("Doc");
-            $this->zip->addFromString("Metadata", serialize(array(
+           /* $this->zip->addFromString("Metadata", serialize(array(
                 "author" => "PersonalCMS@AnnopNod",
                 "app" => "WordWord",
                 "version" => "1",
                 "date" => date("Y-m-d")
-            )));
+            )));*/
              
         } else {
             $this->zip->open($filename);

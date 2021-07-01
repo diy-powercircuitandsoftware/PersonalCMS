@@ -35,6 +35,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             ?>
 
             <script src="../../../../../../js/dom/SuperDialog/SuperDialog.js"></script>
+            <script src="../../../../../../js/dom/SuperDialog/Template/Basic/Input.js"></script>
             <script src="../../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../../js/dom/FilesList.js"></script>
             <script src="../../../../../../js/io/Ajax.js"></script>
@@ -42,7 +43,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
-                    var sd = new SuperDialog();
+                    var sd = new SuperDialog_Template_Input();
                     var fd = new FilesList(document.getElementById("FilesList"));
                     fd.Multiple(false);
 
@@ -72,9 +73,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/CreatePointPointZip.php", {"Path": fd.CurrentDir, "Name": v}, function (data) {
                                 
                                 fd.OpenDir(fd.CurrentDir);
-                                p.Close();
+                                p.close();
                             });
-                        }).ZIndex(999);
+                        });
                     });
 
 
