@@ -10,15 +10,9 @@ class PointPoint_Animation {
 
 class PointPoint_Player {
     constructor(...args) {
-        if (args.length === 1 && typeof args[0] === 'string' || args[0] instanceof String) {
-            this.div = document.querySelector(args[0]).appendChild(document.createElement("div"));
-        } else if (args.length === 1 && args[0] instanceof HTMLElement) {
-            this.div = args[0].appendChild(document.createElement("div"));
-        } else {
-            this.div = document.body.appendChild(document.createElement("div"));
-        }
+       
         this.domlist = this.div.appendChild(document.createElement("div"));
-        this.canvas = this.div.appendChild(document.createElement("canvas"));
+    
 
         this.slides = [];
         this.slidesindex = -1;
@@ -76,9 +70,7 @@ class PointPoint_Player {
          });
          render.Start();*/
     }
-    AddPlayerEvent(...args) {
-        this.div.addEventListener(...args);
-    }
+   
     AddSlide(s) {
         if (s === null || s instanceof PointPoint_Slide) {
             this.slides.push(s);

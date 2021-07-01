@@ -21,6 +21,12 @@ class PointPoint {
         }
         this.Slides[index].SetHtml(code);
     }
+    ReplaceSlide(index, slide) {
+        if (this.Slides[index] == undefined) {
+            this.Slides[index] = new PointPoint_Slide(index);
+        }
+        this.Slides[index].Replace(slide);
+    }
     Serialize( ) {
         var html = [];
         for (var i in this.Slides) {
@@ -58,6 +64,23 @@ class PointPoint_Slide {
         this.slideframe.appendChild(txt);
         return txt;
     }
+    CloneSlideAndHiddenItem() {
+        var dom = document.createElement("DIV");
+        dom.innerHTML = this.slideframe.innerHTML;
+        [...this.slideframe.attributes].forEach(attr => {
+            dom.setAttribute(attr.nodeName, attr.nodeValue)
+        });
+
+        [].forEach.call(dom.querySelectorAll("[pointpoint-type]"), function (d) {
+
+            d.style.display = "none";
+            d.removeAttribute("contenteditable");
+        });
+
+
+
+        return dom;
+    }
     CSS(...args) {
         if (args.length === 0) {
             return this.slideframe.style.cssText;
@@ -70,6 +93,7 @@ class PointPoint_Slide {
     GetSlide() {
         return this.slideframe;
     }
+
     Index(...args) {
         if (args.length === 0) {
             return this.slideframe.getAttribute("data-index");
@@ -77,12 +101,21 @@ class PointPoint_Slide {
             return this.slideframe.setAttribute("data-index", args[0]);
         }
     }
+    Replace(dom) {
+        if (dom.tagName == "DIV" && dom.getAttribute("pointpoint-type") == "slide") {
+            [...dom.attributes].forEach(attr => {
+                this.slideframe.setAttribute(attr.nodeName, attr.nodeValue)
+            })
+            this.slideframe.innerHTML = dom.innerHTML;
+        }
+
+    }
     SetHtml(html) {
-        return this.slideframe.innerHTML = html;
+        this.slideframe.innerHTML = html;
     }
     ToHtml() {
         [].forEach.call(this.slideframe.querySelectorAll("[pointpoint-type]"), function (dom) {
-            dom.removeAttribute("contenteditable");          
+            dom.removeAttribute("contenteditable");
         });
         return this.slideframe.outerHTML;
     }

@@ -108,7 +108,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var type = current.getAttribute("pointpoint-type");
                         if (ss.S("#OPTSelectMode").Val() == "edit" && type == "text") {
                             current.contentEditable = "true";
-                            
+
                             ss.S(".BNCMD").Each(function (dom) {
                                 var cmd = dom.getAttribute("data-cmd");
                                 if (pointpointeditor.QueryCommandState(cmd)) {
@@ -121,9 +121,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                             ss.S(".OptColor,.OptFont").Each(function (dom) {
                                 var cmd = dom.getAttribute("data-cmd");
-                             //   dom.value = pointpointeditor.CommandValue(cmd);
+                                //   dom.value = pointpointeditor.CommandValue(cmd);
                             });
-                            
+
                         } else if (type == "text") {
                             current.contentEditable = "false";
                         }
@@ -172,9 +172,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         ss.S(".OptColor,.OptFont").Each(function (dom) {
                             var cmd = dom.getAttribute("data-cmd");
-                           // dom.value = pointpointeditor.CommandValue(cmd);
+                            // dom.value = pointpointeditor.CommandValue(cmd);
                         });
-  
+
                     });
 
 
@@ -203,7 +203,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                                             pointpoint.ReplaceHtml(index, dom.innerHTML);
                                         }
-
                                     }
                                 }
 
@@ -250,10 +249,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var v = parseInt(ss.S("#SlidesIndexList").Val()) - 1;
                         var diman = pointpointeditor.CanvasSize();
                         if (cmd == "TxtBox" && v >= 0) {
-
-                            var txt = pointpoint.Get(v).AddText("test", "50%", "50%");
-                            txt.contentEditable = "true";
-                            // ss.S("#SlidesIndexList").Change();
+                            pointpoint.Get(v).AddText("Click For Edit", "50%", "50%");
                         } else if (cmd == "Image") {
                             /*   ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": pointpointeditor.path, "type": "Image"}, function (data) {
                              data = JSON.parse(data);

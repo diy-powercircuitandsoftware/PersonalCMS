@@ -28,40 +28,44 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <title>Player</title>
             <link rel="stylesheet" type="text/css" href="../../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../../css/PersonalCMS.css">
-            <script src="../../../../../../js/dom/SuperDialog.js"></script>
+
             <script src="../../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../../js/io/Ajax.js"></script>
-            <script src="../../../../../../js/office/PointPoint.js"></script>
+            <script src="../../../../../../js/office/PointPoint/PointPoint.js"></script>
+            <script src="../../../../../../js/office/PointPoint/Player/Player.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
-                    var sd = new SuperDialog();
+                    var pointpoint = new PointPoint();
                     var player = new PointPoint_Player(document.getElementById("Render"));
-
+                    var sideindex = 0;
+                    var itemindex = 0;
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
-                        var dpw = sd.PleaseWait().ZIndex(999);
+
 
                         if (url.charAt(url.length - 1) === "#") {
                             url = url.slice(0, -1);
                         }
                         player.path = url;
 
-                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetMetaData.php", {"path": player.path}, function (data) {
+                        ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/LoadAllData.php", {"path": player.path}, function (data) {
                             data = JSON.parse(data);
-
-                            if (data !== null && data["app"] === "PointPoint") {
-
-                                for (var i = 0; i < data["slidescount"]; i++) {
-                                    player.AddSlide(null);
-                                    ss.S("#BNGoto").Append(i, i + 1);
-
+                            var Slides = data.Slides;
+                            for (var i = 0; i < Slides.length; i++) {
+                                if (Slides[i]) {
+                                    var parser = new DOMParser();
+                                    var dom = parser.parseFromString(Slides[i], "text/html").body.querySelector('[pointpoint-type="slide"]');
+                                    var index = parseInt(dom.getAttribute("pointpoint-index"));
+                                    pointpoint.ReplaceSlide(index, dom);
                                 }
-                                dpw.Close();
-                            } else {
-                                window.location.replace("index.php");
                             }
+                            if (pointpoint.Count() > 0) {
+                                var x = pointpoint.Get(0).CloneSlideAndHiddenItem();
+                                player.SetDom(x);
+                            }
+
 
 
                         });
@@ -71,36 +75,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     }
 
                     player.AddPlayerEvent("click", function () {
-                        if (player.IsNull()&&!player.EndOfSlides()) {
-                            var dialog = sd.PleaseWait();
-                            ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/GetSlideData.php", {"path": player.path, "id": player.slidesindex}, function (data) {
-                                var data = JSON.parse(data);
-                                if (data) {
-                                    var pps = new PointPoint_Slide();
-                                    pps.Serialize(data);
-                                    player.ReplaceSlideAt(player.slidesindex, pps);
-                                   
 
-                                }
-                                dialog.Close();
-                            });
-                        } else   {
-                            if (!player.NextItem()) {
-                                if (!player.NextSlide()) {
-                                     ss.S("#LabPage").Html("End of Presentation");
-                                }
-                            }
-                        }
-                         ss.S("#LabPage").Html(player.slidesindex + 1);
-                          ss.S("#BNGoto").Val(player.slidesindex);
+                        //  ss.S("#LabPage").Html(player.slidesindex + 1);
+                        // ss.S("#BNGoto").Val(player.slidesindex);
                     });
-                    
-                       ss.S("#BNGoto").Change(function (){
-                           player.SetSlide(parseInt(this.value));
-                       });
-                    
-                    
-                    
+
+                    ss.S("#BNGoto").Change(function () {
+                        player.SetSlide(parseInt(this.value));
+                    });
+
+
+
                 });
             </script>
         </head>
