@@ -21,9 +21,9 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     if (isset($_POST["list"])) {
         foreach ($_POST["list"] as $value) {
             $domdoc = new DOMDocument();
-            $domdoc->loadXML($value);
+            $domdoc->loadHTML($value);
             $index = $domdoc->getElementsByTagName('div')->item(0)->getAttribute('pointpoint-index');
-            $point->EditSlideData($index, $domdoc->saveXML());
+            $point->EditSlideData($index, $domdoc->saveHTML());
         }
     }
     echo $point->Close();

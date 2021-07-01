@@ -50,7 +50,7 @@ class OfficeIO_PointPoint {
 
     function EditSlideData($index, $string) {
 
-        $this->zip->addFromString(self::Embed_Slides . "/" . $index . ".xml", $string);
+        $this->zip->addFromString(self::Embed_Slides . "/" . $index . ".html", $string);
     }
 
     function GetAllSlides() {
@@ -61,7 +61,7 @@ class OfficeIO_PointPoint {
 
             if (array_shift($exp) == self::Embed_Slides) {
                 $exp = explode(".", end($exp));
-                if (end($exp) == "xml") {
+                if (end($exp) == "html") {
                     $Slides[] = $this->zip->getFromIndex($i);
                 }
             }

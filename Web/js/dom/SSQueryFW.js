@@ -208,6 +208,7 @@ class SSQueryFW {
                 allback(array[k]);
             }
         }
+
     }
     GeoLocation(callback) {
         if (navigator.geolocation) {

@@ -18,7 +18,6 @@ class PointPoint {
     ReplaceHtml(index, code) {
         if (this.Slides[index] == undefined) {
             this.Slides[index] = new PointPoint_Slide(index);
-
         }
         this.Slides[index].SetHtml(code);
     }
