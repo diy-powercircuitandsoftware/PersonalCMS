@@ -202,7 +202,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 <button id="BNDeletePlayList" style="width: 33%;" href="#">Delete</button>
                             </div>
                             <div class="TitleCenter">Files List</div>
-                            <div id="FilePlayList" style="margin-top: 1px;border-style: solid;border-width: thin;">
+                            <div id="FilePlayList" style="margin-top: 1px;border-style: solid;border-width: thin;word-wrap: break-word;word-break: break-all;">
 
                             </div>
                             <div style="display: flex;flex-direction: row;">

@@ -64,23 +64,7 @@ class PointPoint_Slide {
         this.slideframe.appendChild(txt);
         return txt;
     }
-    CloneSlideAndHiddenItem() {
-        var dom = document.createElement("DIV");
-        dom.innerHTML = this.slideframe.innerHTML;
-        [...this.slideframe.attributes].forEach(attr => {
-            dom.setAttribute(attr.nodeName, attr.nodeValue)
-        });
-
-        [].forEach.call(dom.querySelectorAll("[pointpoint-type]"), function (d) {
-
-            d.style.display = "none";
-            d.removeAttribute("contenteditable");
-        });
-
-
-
-        return dom;
-    }
+    
     CSS(...args) {
         if (args.length === 0) {
             return this.slideframe.style.cssText;

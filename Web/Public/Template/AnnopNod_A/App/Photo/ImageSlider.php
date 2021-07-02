@@ -1,34 +1,58 @@
 <?php
-session_start();
-include_once '../../../../../Class/DB/Config/DB/Config.php';
-include_once '../../../../../Class/DB/Config/DB/Software.php';
-include_once '../../../../../Class/DB/Com/Blog/Viewer.php';
-include_once '../../../../../Class/DB/Com/Category/Viewer.php';
-include_once '../../../../../Class/DB/Com/Events/Viewer.php';
-include_once '../../../../../Class/DB/Com/Module/LoadModule.php';
-include_once '../../../../../Class/DB/Com/User/Profile.php';
-$DBConfig = new Config_DB_Config();
-$SC = new Config_DB_Software($DBConfig);
-$Blog = new Com_Blog_Viewer($DBConfig);
-$Category = new Com_Category_Viewer($DBConfig);
-$Event = new Com_Events_Viewer($DBConfig);
-$User = new Com_User_Profile($DBConfig);
-$Module = new Com_Module_LoadModule($DBConfig);
-$DBConfig->Open();
-if ($SC->Online()) {
+include_once '../../../../../../Class/Core/Config/Config.php';
+include_once '../../../../../../Class/Core/UI/NAV.php';
+include_once '../../../../../../Class/Core/Module/Database.php';
+include_once '../../../../../../Class/Core/User/Database.php';
+include_once '../../../../../../Class/Core/User/Member.php';
+include_once '../../../../../../Class/Com/Blog/Database.php';
+include_once '../../../../../../Class/Com/Blog/Reader.php';
+include_once '../../../../../../Class/Com/Event/Database.php';
+include_once '../../../../../../Class/Com/Event/Reader.php';
+include_once '../../../../../../Class/SDK/Module/Basic.php';
+$config = new Config();
+$uinav = new UINAV();
+$module = new Module_Database($config);
+$blog = new Blog_Reader(new Blog_Database($config));
+$event = new Event_Reader(new Event_Database($config));
+$user = new User_Member(new User_Database($config));
+if ($config->IsOnline()) {
+    $modlist = array();
+    foreach ($module->LoadModule(Module_Database::Access_Public) as $value) {
+
+        include_once $module->ModulePath . $value["dirname"] . "/init.php";
+        $modlist[] = new $value["classname"]();
+    }
     ?>
     <!DOCTYPE html>
     <html>
         <head>
             <meta charset="UTF-8">
-            <title><?php echo $SC->GetName() . ' Blog'; ?> </title>
-            <link rel="stylesheet" type="text/css" href="../css/Page.css">
-            <script src="../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../js/dom/SuperDialog.js"></script>
-            <script src="../../../../js/dom/SearchBox.js"></script>
-            <script src="../../../../js/image/ImageList.js"></script>
-            <script src="../../../../js/image/SlideShow.js"></script>
-            <script src="../../../../js/player/PlayingList.js"></script>
+            <title><?php echo $config->GetName(); ?></title>
+
+            <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
+            <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
+            <script src="../../../../../js/dom/SSQueryFW.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/SuperDialog.js"></script>
+            <script src="../../../../../js/io/Ajax.js"></script>
+
+            <script src="../../../../../js/image/SlideShow2D/SlideShow2D.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Blind.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Circle.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Fade.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Mosaic.js"></script>
+
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Rectangle.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Spin.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Wipe.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Basic/Zoom.js"></script>
+
+            <script src="../../../../../js/image/SlideShow2D/Transition/Shape/Heart.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Shape/PageTurn.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Shape/Star.js"></script>
+            <script src="../../../../../js/image/SlideShow2D/Transition/Shape/Polygons.js"></script>
+
+ 
+
             <style>
                 .BNUserList{
                     cursor: pointer;
@@ -50,259 +74,203 @@ if ($SC->Online()) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var AudioSrc = document.getElementById("AudioSrc");
-                    var ImageShow = document.getElementById("ImageShow").appendChild(new SlideShow());
-                    var ImagePlayList = document.getElementById("ImagePlayList").appendChild(new PlayingList());
-                    var ImgList = new ImageList();
-                    var SB = document.getElementById("SearchBox").appendChild(new SearchBox());
-                    var SD = new SuperDialog();
-                    AudioSrc.PlayIndex = 0;
+                    var ImageShow = new SlideShow2D(document.getElementById("ImageShow"));
+                    var ajax = new Ajax();
+                    ImageShow.Size(800, 600);
                     AudioSrc.PlayList = [];
+                    AudioSrc.PlayListIndex = 0;
 
-                    ImageShow.width = 1920;
-                    ImageShow.height = 1080;
+                    ImageShow.AddTransition(SlideShow2D_Transition_Blind_BottomUp);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Blind_LeftRight);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Blind_RightLeft);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Blind_TopDown);
+                    ImageShow.AddTransition(SlideShow2D_Transition_CircleIn);
+                    ImageShow.AddTransition(SlideShow2D_Transition_CircleOut);
 
-                    AudioSrc.addEventListener("ended", function () {
-                        this.PlayIndex = (this.PlayIndex + 1) % this.PlayList.length;
-                        this.src = this.PlayList[this.PlayIndex];
+                    ImageShow.AddTransition(SlideShow2D_Transition_FadeOutFadeIn);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Mosaic);
+                    ImageShow.AddTransition(SlideShow2D_Transition_BubbleMosaic);
+                    ImageShow.AddTransition(SlideShow2D_Transition_BottomToTop);
+                    ImageShow.AddTransition(SlideShow2D_Transition_FromVerticalCenter);
+                    ImageShow.AddTransition(SlideShow2D_Transition_ToHorizontalCenter);
+                    ImageShow.AddTransition(SlideShow2D_Transition_FromHorizontalCenter);
+                    ImageShow.AddTransition(SlideShow2D_Transition_TopToBottom);
+                    ImageShow.AddTransition(SlideShow2D_Transition_LeftToRight);
+                    ImageShow.AddTransition(SlideShow2D_Transition_RightToLeft);
+                    ImageShow.AddTransition(SlideShow2D_Transition_ToVerticalCenter);
+                    ImageShow.AddTransition(SlideShow2D_Transition_CornerLeftToRight);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsIn_Hexagon);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsIn_Pentagon);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsIn_Square);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsIn_Triangle);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsOut_Hexagon);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsOut_Pentagon);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsOut_Square);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PolygonsOut_Triangle);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Spin);
+                    ImageShow.AddTransition(SlideShow2D_Transition_RectWipe);
+                    ImageShow.AddTransition(SlideShow2D_Transition_ZoomOutZoomIn);
+                    ImageShow.AddTransition(SlideShow2D_Transition_HeartIn);
+                    ImageShow.AddTransition(SlideShow2D_Transition_HeartOut);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PageTurn_BottomToTop);
+                    ImageShow.AddTransition(SlideShow2D_Transition_PageTurn_TopDown);
+                    ImageShow.AddTransition(SlideShow2D_Transition_StarIn);
+                    ImageShow.AddTransition(SlideShow2D_Transition_StarOut);
+                    ImageShow.AddTransition(SlideShow2D_Transition_Wiper_LeftToRight);
+
+
+
+                    AudioSrc.onended = function () {
+                        this.pause();
+                        this.PlayListIndex = (this.PlayListIndex + 1) % this.PlayList.length;
+                        this.src = this.PlayList[ this.PlayListIndex];
                         this.play();
+                    };
+
+                    ImageShow.Load(function (v) {
+                        ss.S("#ImageRangeViewer").Attr("max", v);
+                        ss.S("#LabArrayCount").Html(v);
+                        if (v == 2) {
+                            ImageShow.Start();
+                            ImageShow.ToggleFPSPlayer();
+                            ss.S("#BNPlay").Html("Play");
+                        }
+                        if (AudioSrc.PlayList.length === 1) {
+                            AudioSrc.src = AudioSrc.PlayList[0];
+                        }
+
                     });
 
-                    ImgList.OnAfterAddImage = function () {
-                        ss.S("#ImageRangeViewer").Attr("max", this.Count() - 1);
-                        ss.S("#LabArrayCount").Html(this.Count());
+                    ImageShow.ImageIndexChange = function (v) {
+                        ss.S("#ImageRangeViewer").Val(v);
+                        ss.S("#LabPlayIndex").Html(v + 1);
                     };
 
-                    ImgList.OnBeforeChangeIndex = function () {
-                        if (ss.S("#ImageRangeViewer").Attr("seek") == "true") {
-                            ImgList.Index = parseInt(ss.S("#ImageRangeViewer").Attr("current"));
-                            ss.S("#ImageRangeViewer").Attr("seek", "");
-                        }
-                    };
-
-                    ImgList.OnChangeIndex = function () {
-                        var Transitions = ImageShow.Transitions;
-                        var keys = Object.keys(Transitions)
-                        var rt = Transitions[keys[ keys.length * Math.random() << 0]];
-                        rt(this.GetPreviousImage(), this.GetCurrentImage(), parseInt(ImageShow.change), 60, function () {
-                            setTimeout(function () {
-                                if (ss.S("#BNPlay").Attr("playing") == "1") {
-                                    ImgList.Next();
-                                } else {
-                                    ss.S("#BNPlay").Attr("lock", "0");
-                                }
-                            }, parseInt(ImageShow.hold) * 1000);
-                            ss.S("#ImageRangeViewer").Val(ImgList.Index);
-                            ss.S("#LabPlayIndex").Html(ImgList.Index);
-                        });
-                    };
-                    SB.Input = function (v) {
-                        ss.Get("../../../Api/ShareAjax/User/SearchAlias.php", {"Alias": v}, function (data) {
-                            data = JSON.parse(data);
-                            for (var i = 0; i < data.length; i++) {
-                                SB.AddList(data[i]["userid"], data[i]["alias"]);
-                            }
-                        });
-                    };
-                    SB.CallbackValue = function (v) {
-                        ss.Post("../../../Api/ShareAjax/Photo/GetPlayListByUserID.php", {"UserID": v}, function (data) {
-                            data = JSON.parse(data);
-                            ImagePlayList.Empty();
-                            for (var i = 0; i < data.length; i++) {
-                                var l = ImagePlayList.AddList(data[i]["name"]);
-                                l.setAttribute("data-haspassword", data[i]["haspassword"]);
-                                l.setAttribute("data-id", data[i]["id"]);
-                                l.setAttribute("data-hold", data[i]["hold_t"]);
-                                l.setAttribute("data-change", data[i]["change_t"]);
-                                l.setAttribute("class", "PlayItem");
-                            }
-                        });
-                    };
-                    ImagePlayList.Click = function (d) {
-                        ImageShow.hold = d.getAttribute("data-hold");
-                        ImageShow.change = d.getAttribute("data-change");
-
-                        if (d.getAttribute("data-haspassword") == "1") {
-                            SD.Login(function (sddata) {
-                                ss.Post("../../../Api/ShareAjax/Photo/AuthPlayList.php", {"ID": d.getAttribute("data-id"), "AuthName": sddata["UserName"], "Password": sddata["Password"]}, function (auth) {
-                                    if (auth == "1") {
-                                        ss.Post("../../../Api/ShareAjax/Photo/GetFileFromPlayList.php", {"ID": d.getAttribute("data-id"), "StartID": 0}, function (data) {
-                                            AudioSrc.pause();
-                                            AudioSrc.PlayList = [];
-                                            ImgList.ClearImageList();
-                                            data = JSON.parse(data);
-                                            for (var i = 0; i < data.length; i++) {
-                                                var ext = data[i]["filepath"].split('.').pop();
-                                                var qdata = ss.JsonToQueryString(data[i]);
-                                                if (["jpg", "jpeg", "png", "gif"].indexOf(ext.toLowerCase()) >= 0) {
-                                                    ImgList.AddImage("../../../Api/ShareAction/Photo/DownloadFileImageSlider.php" + qdata);
-                                                } else if (["mp3", "wma"].indexOf(ext.toLowerCase()) >= 0) {
-                                                    AudioSrc.PlayList.push("../../../Api/ShareAction/Photo/DownloadFileImageSlider.php" + qdata);
-                                                }
-                                            }
-                                            if (AudioSrc.PlayList.length > 0) {
-                                                AudioSrc.src = AudioSrc.PlayList[0];
-                                            }
-                                        });
-                                    } else {
-                                        SD.Alert("Password Incorrect").ZIndex(1000);
-                                    }
-
-                                });
-                                return true;
-
-                            }).ZIndex(999);
-                        } else {
-                            ss.Post("../../../Api/ShareAjax/Photo/GetFileFromPlayList.php", {"ID": d.getAttribute("data-id"), "StartID": 0}, function (data) {
-                                AudioSrc.pause();
-                                AudioSrc.PlayList = [];
-                                ImgList.ClearImageList();
-                                data = JSON.parse(data);
-                                for (var i = 0; i < data.length; i++) {
-                                    var ext = data[i]["filepath"].split('.').pop();
-                                    var qdata = ss.JsonToQueryString(data[i]);
-                                    if (["jpg", "jpeg", "png", "gif"].indexOf(ext.toLowerCase()) >= 0) {
-                                        ImgList.AddImage("../../../Api/ShareAction/Photo/DownloadFileImageSlider.php" + qdata);
-                                    } else if (["mp3", "wma"].indexOf(ext.toLowerCase()) >= 0) {
-                                        AudioSrc.PlayList.push("../../../Api/ShareAction/Photo/DownloadFileImageSlider.php" + qdata);
-                                    }
-                                }
-                                if (AudioSrc.PlayList.length > 0) {
-                                    AudioSrc.src = AudioSrc.PlayList[0];
-                                }
-
-                            });
-                        }
 
 
-                    };
                     document.onkeyup = function (event) {
-                        if (event.which == 27 || event.keyCode == 27) {
-                            var domis = document.getElementById("ImageShow");
+                        event.preventDefault();
+
+                        if (event.keyCode == 27) {
+                            var domis = document.getElementById("FrameImageShow");
                             domis.removeAttribute("style");
+                            ImageShow.Size(800, 600);
                         }
+
                     }
-                    window.onresize = function () {
-                        if (window.screenTop && window.screenY) {
-                            var domis = document.getElementById("ImageShow");
-                            domis.removeAttribute("style");
-                        }
-                    };
+
 
                     ss.S("#BNFullScreen").Click(function () {
-                        ss.S("#ImageShow").CSSText("background-color: black;position: fixed;width: 100%;height: 100%;left:0;top:0;z-index:9999;");
+
+                        var w = window.innerWidth;
+                        var h = window.innerHeight;
+
+                        ImageShow.Size(w, h);
+                        ss.S("#FrameImageShow").CSS("background-color: black;position: fixed;width: 100%;height: 100%;left:0;top:0;z-index:9999;");
                     });
 
                     ss.S("#BNPlay").Click(function () {
-                        if (this.getAttribute("playing") == "1") {
-                            this.setAttribute("playing", "0");
+
+                        if (ImageShow.ToggleFPSPlayer()) {
+                            AudioSrc.play();
+                            this.innerHTML = "Stop";
+                        } else {
                             this.innerHTML = "Play";
                             AudioSrc.pause();
-                        } else {
-                            this.setAttribute("playing", "1");
-                            this.innerHTML = "Pause";
-                            if (this.getAttribute("lock") == "0") {
-                                this.setAttribute("lock", "1");
-                                ImgList.Next();
-
-                            }
-                            AudioSrc.play();
                         }
                     });
+                    ss.S("#ImageShow").Click(function () {
+                        ss.S("#BNPlay").Click();
+                    });
+
+
                     ss.S("#ImageRangeViewer").Change(function () {
                         this.setAttribute("seek", "true");
                         this.setAttribute("current", this.value);
                     });
-                    ss.S(".BNUserList").Click(function () {
-                        SB.ChangeValue(this.innerHTML);
-                       ss.Post("../../../Api/ShareAjax/Photo/GetPlayListByUserID.php", {"UserID": this.getAttribute("data-id")}, function (data) {
-                            data = JSON.parse(data);
-                            ImagePlayList.Empty();
-                            for (var i = 0; i < data.length; i++) {
-                                var l = ImagePlayList.AddList(data[i]["name"]);
-                                l.setAttribute("data-haspassword", data[i]["haspassword"]);
-                                l.setAttribute("data-id", data[i]["id"]);
-                                l.setAttribute("data-hold", data[i]["hold_t"]);
-                                l.setAttribute("data-change", data[i]["change_t"]);
-                                l.setAttribute("class", "PlayItem");
-                            }
-                        });
+
+                    ajax.Post("../../../../Api/Ajax/Photo/SlideShow/GetPlayList.php", {}, function (data) {
+                        data = JSON.parse(data);
+
+                        for (var i in data) {
+                            ss.S("#OptLibrary").Append(data[i], data[i]);
+                        }
+                        ss.S("#OptLibrary").Change();
                     });
+
+                    ss.S("#OPTChangeTime").Change(function () {
+                        ImageShow.AnimateTime(parseInt(this.value) * 1000);
+                    });
+                    ss.S("#OPTHoldTime").Change(function (v) {
+                        ImageShow.HoldTime(parseInt(this.value) * 1000);
+                    });
+                    ss.S("#OptLibrary").Change(function (v) {
+                        if (this.value != "") {
+
+                            ajax.Get("../../../../Api/Ajax/Photo/SlideShow/GetFilesList.php", {"Path": "/", "Name": this.value}, function (data) {
+                                ImageShow.Clear();
+                                data = JSON.parse(data);
+                                for (var i in data) {
+                                    if (["jpg", "png", "gif"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
+                                        ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["path"]));
+                                    } else if (["ogg", "mp3", "wma"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
+                                        AudioSrc.PlayList.push("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + data[i]["path"]);
+                                    }
+                                }
+
+                            });
+                        }
+                    });
+
                 });
             </script>
         </head>
-        <body >
-            <div id="Header" style="position: static;">
-                <h1  style="width: 100%;text-align: center;"><?php echo $SC->GetName(); ?> Blog</h1>
-            </div>
-            <div class="Container">
-                <div class="Nav">
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">About</label>
-                        <a href="../About/index.php">About</a>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">App</label>
-                        <a href="../App/index.php">Player</a>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Blog</label>
-                        <a href="../Blog/index.php">Viewer</a>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Event</label>
-                        <a href="../../Event/Viewer.php">Viewer</a>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Files</label>
-                        <a href="../Files/index.php">Viewer </a>
-                    </div>
-
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Photo</label>
-                        <span style="font-weight: bold;">ImageSlider </span>
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">Template</label>
-                        <?php
-                        $filelist = array_diff(scandir("../../"), array('.', '..'));
-                        foreach ($filelist as $value) {
-                            if (is_dir("../../" . $value)) {
-                                printf('<a style="display:block;" href="../../%s">%s</a>', $value, $value);
-                            }
-                        }
-                        ?>
-
-                    </div>
-                    <div class="BorderBlock" style="margin-top: 1px;">
-                        <label class="Title">User</label>
-                       <a href="../../../../Members/Session/AuthUserID.php?tp=AnnopNod_A">Login</a>
-                    </div>
+        <body class="HolyGrail">
+            <header> 
+                <h1 style="width: 100%;text-align: center;"><?php echo $config->GetName(); ?> Website</h1>
+            </header>
+            <div class="HolyGrail-body">
+                <nav>
                     <?php
-                    foreach ($Module->LoadModule(Com_Module_LoadModule::Layout_Nav, Config_DB_Config::Access_Mode_Public) as $value) {
-                        try {
-                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                            include_once '../../../../../Class/DB/Module/' . $value["filename"];
-                            $mod = new $value["classname"]($Module);
-                            printf('<label class="Title">%s</label>', $mod->GetTitle());
-                            $mod->SetModulePage("../Module/Page.php");
-                            $mod->SetModuleID($value["id"]);
-                            echo $mod->Execute();
-                            echo '</div>';
-                        } catch (Exception $ex) {
-                            
+                    foreach ($uinav->FindAllMenuFile("../../App") as $key => $valueA) {
+                        echo '<div class="BorderBlock">';
+                        printf(' <div class="TitleCenter">%s</div>', $key);
+                        foreach ($valueA as $valueB) {
+                            printf('<a class="MenuLink" href="%s">%s</a>', "../../App/" . $valueB["path"], $valueB["name"]);
                         }
+                        echo '</div>';
                     }
                     ?>
 
-                </div>
-                <div class="Section">
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">Template</div>
+                        <?php
+                        foreach ($uinav->FindAllTemplate("../../../") as $key => $value) {
+                            printf('  <a  class="MenuLink" href="%s">%s</a>', $value, $key);
+                        }
+                        ?>
+                    </div>
+                    <?php
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Nav)) {
+                            echo ' <div class="BorderBlock" style="margin-top: 1px;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Nav);
+                            echo '</div>';
+                        }
+                    }
+                    ?>
+                </nav>
+                <main>
                     <div style="display:block; ">
-                        <div id="ImageShow" style="width: 100%;" >
+                        <div id="FrameImageShow">
+                            <div id="ImageShow" style="margin-left: auto;margin-right: auto;" >
 
+                            </div>
                         </div>
                         <div style="background-color: black;display: flex;flex-direction: row;">
                             <div>
-                                <a id="BNPlay" lock="0" style="text-decoration: none;color: white;cursor: pointer;">Play</a>
+                                <a id="BNPlay"  style="text-decoration: none;color: white;cursor: pointer;">Play</a>
                             </div>
                             <div style=" flex-grow: 1;">
                                 <input id="ImageRangeViewer" type="range" min="0" max="0"    step="1" style="width: 98%;" />
@@ -316,72 +284,113 @@ if ($SC->Online()) {
                                 <img src="img/fullscreen.png" id="BNFullScreen"  alt="FullScreen"/>
                             </div>
                         </div>
-
-                        <audio id="AudioSrc" ></audio>
-
-
                     </div>
-                </div>
-                <div class="Aside">
-                    <div  class="BorderBlock" style="margin-top: 1px;">
-
-                        <label class="Title">User</label>
-                        <ul>
+                </main>
+                <aside>
+                    <div class="BorderBlock" style="margin-top: 1px;">
+                        <div class="TitleCenter">User</div>
+                        <select style="width: 100%;box-sizing: border-box;">
                             <?php
-                            foreach ($User->GetUserList() as $value) {
-                                printf('<li><a class="BNUserList" data-id="%s">%s</a></li>', $value["userid"], $value["alias"]);
+                            foreach ($user->GetUserList() as $value) {
+                                printf('<option value="%s">%s</option>', $value["id"], $value["alias"]);
                             }
                             ?>
-                        </ul>
-
-                        <div id="SearchBox" class="BorderBlock" style="margin-top: 1px;">
-
-                        </div>
-                    </div>
-                    <div class="BorderBlock" id="ImagePlayList">
-                        <span  class="Title">PlayList</span>
+                        </select>
 
                     </div>
                     <div class="BorderBlock">
-                        <span  class="Title">Event</span>
-                        <?php
-                        foreach ($Event->GetCurrentEvent(Config_DB_Config::Access_Mode_Public) as $value) {
-                            echo '<div  >';
-                            printf('<a href="../../Event/Viewer.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
-                            printf('<div style="color: black;">%s</div></a>', $value["description"]);
-                            echo '</div><hr>';
-                        }
-                        ?>
+                        <div class="TitleCenter">Library</div>
+                        <select id="OptLibrary" style="width: 99%;">                        
+                        </select>
+                        <audio id="AudioSrc"></audio>
+
+                    </div>
+                    <div class="BorderBlock" style="margin-top: 3px;">
+                        <div class="TitleCenter" >Hold Time</div>
+                        <select id="OPTHoldTime" style="width: 100%;box-sizing: border-box;">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="BorderBlock" style="margin-top: 3px;">
+                        <div class="TitleCenter"  >Change Time</div>
+                        <select id="OPTChangeTime" style="width: 100%;box-sizing: border-box;">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
                     </div>
                     <?php
-                    foreach ($Module->LoadModule(Com_Module_LoadModule::Layout_Aside, Config_DB_Config::Access_Mode_Public) as $value) {
-                        try {
-                            echo ' <div class="BorderBlock" style="margin-top: 3px;" >';
-                            include_once '../../../../../Class/DB/Module/' . $value["filename"];
-                            $mod = new $value["classname"]($Module);
-                            printf('<label class="Title">%s</label>', $mod->GetTitle());
-                            $mod->SetModulePage("../Module/Page.php");
-                            $mod->SetModuleID($value["id"]);
-                            echo $mod->Execute();
+                    echo '<div class="BorderBlock" style="margin-top: 1px;">';
+                    echo '  <div class="TitleCenter">Event</div>';
+                    foreach ($event->GetComingEvent(Event_Database::Access_Public) as $value) {
+                        echo '<div>';
+                        printf('<a class="MenuLink" href="../Event/Viewer.php?id=%s"><span style="font-weight: bold;">%s</span>', $value["id"], $value["name"]);
+                        printf('<div style="color: black;" >%s</div></a>', $value["description"]);
+                        echo '</div><hr>';
+                    }
+                    echo '</div>';
+                    foreach ($modlist as $value) {
+                        if ($value->SupportLayout(Module_SDK_Basic::Layout_Aside)) {
+                            echo ' <div class="BorderBlock" style="margin-top: 1px;" >';
+                            printf('<div class="TitleCenter">%s</div>', $value->GetTitle());
+                            echo $value->Execute(Module_SDK_Basic::Layout_Aside);
                             echo '</div>';
-                        } catch (Exception $ex) {
-                            
                         }
                     }
                     ?>
-                </div>
+                </aside>
             </div>
-            <div>
-                <span style="font-weight: 700;display: block;">
+            <footer>
+                <span style="font-weight: bold;display: block;">
                     <?php
-                    echo "&COPY;" . date("Y") . " " . $SC->GetName();
+                    echo "&COPY;" . date("Y") . " " . $config->GetName();
                     ?>
-                </span>
-            </div>
+                </span>  
+            </footer>
+
+
         </body>
     </html>
     <?php
 } else {
     header("location: ../../../../../../DefaultPages/Offline.php");
 }
- 
+return;
+?>
+<div class="Container">
+
+    <div class="Section">
+        <div style="display:block; ">
+            <div id="ImageShow" style="width: 100%;" >
+
+            </div>
+            <div style="background-color: black;display: flex;flex-direction: row;">
+                <div>
+                    <a id="BNPlay" lock="0" style="text-decoration: none;color: white;cursor: pointer;">Play</a>
+                </div>
+                <div style=" flex-grow: 1;">
+                    <input id="ImageRangeViewer" type="range" min="0" max="0"    step="1" style="width: 98%;" />
+                </div>
+                <div style="color: white;">
+                    <label id="LabPlayIndex">0</label>
+                    <label>/</label>
+                    <label id="LabArrayCount">0</label>
+                </div>
+                <div>
+                    <img src="img/fullscreen.png" id="BNFullScreen"  alt="FullScreen"/>
+                </div>
+            </div>
+
+            <audio id="AudioSrc" ></audio>
+
+
+        </div>
+    </div>
+
+</div>

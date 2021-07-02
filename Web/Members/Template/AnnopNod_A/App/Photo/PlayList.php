@@ -220,7 +220,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 <option value="1">Photo</option>
                                 <option value="2">Audio</option>
                             </select>
-                            <div id="FilePlayList" style="margin-top: 1px;border-style: solid;border-width: thin;">
+                            <div id="FilePlayList" style="margin-top: 1px;border-style: solid;border-width: thin;word-wrap: break-word;word-break: break-all;">
 
                             </div>
                             <div style="display: flex;flex-direction: row;">

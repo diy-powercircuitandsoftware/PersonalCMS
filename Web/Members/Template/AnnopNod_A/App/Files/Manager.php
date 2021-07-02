@@ -172,7 +172,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         var p = dialoginput.Prompt("MKDIR", function (v) {
                             ajax.Post("../../../../Api/Ajax/Files/Manager/MKDIR.php", {"path": fileupload.currentdir + "/" + v}, function (data) {
                                 FL.OpenDir(fileupload.currentdir);
-                                p.Close();
+                                p.close();
                             });
                         });
                     });
@@ -255,7 +255,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             }
                             var d = dialog.ImportOkCancel("#ShareFileDialog", function () {
                                 ajax.Post("../../../../Api/Ajax/Files/ACLS/ChangeACLS.php", {"AccessList": changeaccess}, function (data) {
-                                    d.Close();
+                                    d.close();
                                 });
                             }).Title("Share");
 

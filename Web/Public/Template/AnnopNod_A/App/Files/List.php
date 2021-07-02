@@ -32,7 +32,8 @@ if ($config->IsOnline()) {
             <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
             <script src="../../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/SuperDialog.js"></script>
+            <script src="../../../../../js/dom/SuperDialog/Template/Basic/Multimedia.js"></script>
             <script src="../../../../../js/dom/SearchBox.js"></script>
             <script src="../../../../../js/dom/FilesList.js"></script>
             <script src="../../../../../js/io/Ajax.js"></script>
@@ -67,14 +68,15 @@ if ($config->IsOnline()) {
             </style>
             <script>
                 var SS = new SSQueryFW();
-
+                window.alert("userid,dirid,path");
                 SS.DocumentReady(function () {
                     var ajax = new Ajax();
-                    var dialog = new SuperDialog();
+                        
+                    var dialogplayer = new SuperDialog_Template_Multimedia();
                     var SB = new SearchBox(document.getElementById("SearchBox"));
                     var FL = new FilesList(document.getElementById("FilesList"));
                     FL.SetPreviewImage("../../../../Api/Action/Files/Download/ImagePreview.php?id=");
-
+                        
                     FL.SetDownload("../../../../Api/Action/Files/Download/Download.php");
                     SB.Input = function (v) {
                         SS.Get("../../../Api/ShareAjax/User/SearchAlias.php", {"Alias": v}, function (data) {
@@ -87,14 +89,14 @@ if ($config->IsOnline()) {
                     SB.Calllback(function (v) {
                         FL.Clear();
                     });
-
+                        
                     FL.OpenDir(function (v) {
-
+                            
                         ajax.Get("../../../../Api/Ajax/Files/Share/GetACLS.php" + v, function (data) {
                             FL.Clear();
                             data = JSON.parse(data);
                             for (var i in data) {
-
+                                    
                                 if (data[i]["type"] == "DIR") {
                                     FL.AddDir(data[i]["name"], "?" + data[i]["fullpath"], data[i]["modified"]);
                                 } else if (data[i]["type"] == "FILE") {
@@ -103,23 +105,23 @@ if ($config->IsOnline()) {
                             }
                             SS.S("#CHDIRList").Html(v);
                         });
-
+                            
                     });
                     FL.OpenFile(function (v) {
                         var qstringpath = SS.URLParam(v);
                         var ext = qstringpath["?path"].split('.').pop().toLowerCase();
                         if (["mp4", "webm", "ogg", "mp3", "wma", "jpg", "gif", "png", "jpeg"].indexOf(ext) >= 0) {
-                            dialog.MediaPlayer("../../../../Api/Action/Files/Download/Download.php" + v, ext);
+                            dialogplayer.MediaPlayer("../../../../Api/Action/Files/Download/Download.php" + v, ext);
                         }
                     })
-
+                        
                     SS.S(".BNUserList").Click(function () {
                         FL.OpenDir(ajax.JsonToQueryString({"userid": this.getAttribute("data-id"), "path": "..."}));
                         SS.S("#DboxErrorBody").Hide();
                     });
-
-
-
+                        
+                        
+                        
                 });
             </script>
         </head>

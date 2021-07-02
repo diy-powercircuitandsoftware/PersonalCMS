@@ -31,8 +31,7 @@ if ($config->IsOnline()) {
             <title><?php echo $config->GetName(); ?></title>
             <link rel="stylesheet" type="text/css" href="../../../../../css/HolyGrail.css">
             <link rel="stylesheet" type="text/css" href="../../../../../css/PersonalCMS.css">
-            <script src="../../../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../../../js/dom/SSQueryFW.js"></script>       
             <script src="../../../../../js/dom/SearchBox.js"></script>
             <script src="../../../../../js/io/Ajax.js"></script>
             <style>

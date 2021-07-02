@@ -120,36 +120,7 @@ class PointPoint_Player {
     }
 }
 
-class PointPoint_Player_RenderEngine {
-    constructor(fps = 60) {
-        this.requestID = 0;
-        this.fps = fps;
-        this.animate = function () {};
-    }
-    SetAnimate(animate) {
-        this.animate = animate;
-    }
 
-    Start() {
-        let then = performance.now();
-        const interval = 1000 / this.fps;
-        const tolerance = 0.1;
-        const animateLoop = (now) => {
-
-            const delta = now - then;
-            if (delta >= interval - tolerance) {
-                then = now - (delta % interval);
-                this.animate(delta);
-            }
-            this.requestID = requestAnimationFrame(animateLoop);
-        };
-        this.requestID = requestAnimationFrame(animateLoop);
-    }
-
-    Stop() {
-        cancelAnimationFrame(this.requestID);
-    }
-}
 
 
 
