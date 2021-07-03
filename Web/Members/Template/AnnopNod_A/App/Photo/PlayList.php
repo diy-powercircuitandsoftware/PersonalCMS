@@ -55,7 +55,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var dialoginput = new SuperDialog_Template_Input();
-                    var dialogmsgbox  = new SuperDialog_Template_MessageBox();
+                    var dialogmsgbox = new SuperDialog_Template_MessageBox();
                     var ajax = new Ajax();
                     var FL = new FilesList(document.getElementById("FilesList"));
                     var FilePlayList = new SelectList(document.getElementById("FilePlayList"));
@@ -73,6 +73,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     FL.AddFile(data[i]["name"], data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
                                 }
                             }
+                            FL.RemoveEditable();
                             ss.S("#CHDIRList").Html((v));
                         });
                     });
@@ -214,13 +215,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 <button id="BNEditPlayList" style="width: 33%;"  href="#">Edit</button>
                                 <button id="BNDeletePlayList" style="width: 33%;" href="#">Delete</button>
                             </div>
+                            <div class="BorderBlock" >
+                                <label class="TitleCenter" style="display: block;">Share</label>
+                                <a class="MenuLink"  id="BNAddShare" href="#">Add</a>
+                                <a class="MenuLink" id="BNShareManager" href="#">Manager</a>
+                            </div>
                             <div class="TitleCenter">Files List</div>
                             <select id="OptShowExt" style="width: 100%;box-sizing: border-box;">
                                 <option value="0">All</option>
                                 <option value="1">Photo</option>
                                 <option value="2">Audio</option>
                             </select>
-                            <div id="FilePlayList" style="margin-top: 1px;border-style: solid;border-width: thin;word-wrap: break-word;word-break: break-all;">
+                            <div id="FilePlayList" class="BorderBlock">
 
                             </div>
                             <div style="display: flex;flex-direction: row;">
@@ -228,6 +234,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 <button id="BNRemoveFile" style="width: 50%;" href="#">Remove</button>
                             </div>
                         </div>
+
                         <?php
                     }
                     ?>
@@ -265,6 +272,22 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ?>
                 </span>  
             </footer>
+            <div id="ShareFileDialog" style="display: none;">
+                <table border="1" id="TBShareFile" style="width: 100%;">
+                    <tr>
+                        <th>Name</th>
+                        <th>Access</th>
+                    </tr>
+                </table>
+            </div>
+            <div style="display: none;">
+                <select id="CloneableOption">
+                    <?php
+                    printf('<option value="%s">Public</option>', FilesACLS_Database::Access_Public);
+                    printf('<option value="%s">Member</option>', FilesACLS_Database::Access_Member);
+                    ?>
+                </select>
+            </div>
 
         </body>
     </html>

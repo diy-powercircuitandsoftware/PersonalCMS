@@ -429,10 +429,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <div id="ShareFileDialog" style="display: none;">
                 <table border="1" id="TBShareFile" style="width: 100%;">
                     <tr>
-
                         <th>Name</th>
                         <th>Access</th>
-
                     </tr>
                 </table>
             </div>

@@ -73,6 +73,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     FL.AddFile(data[i]["name"], data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
                                 }
                             }
+                              FL.RemoveEditable();
                             ss.S("#CHDIRList").Html((v));
                         });
                     });

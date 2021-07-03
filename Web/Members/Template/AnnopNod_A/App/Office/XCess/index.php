@@ -63,6 +63,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                             for (var i in data) {
                                 fd.AddFile(data[i]["name"], data[i]["fullpath"], "", data[i]["size"], data[i]["modified"], data[i]["type"]);
                             }
+                            fd.RemoveEditable();
                         });
                     };
                     fd.OpenFile = function (v) {
@@ -103,7 +104,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                     ?>
                     <a href="../../Config/Config.php">Config</a>
 
-                     <a  href="../../../../Session/Action/Logout.php">Logout</a>
+                    <a  href="../../../../Session/Action/Logout.php">Logout</a>
                 </div>
             </div>
             <div class="Container">
@@ -261,6 +262,6 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
     </html>
     <?php
 } else {
-   header("location: ../../../../../Auth/Login.php");
+    header("location: ../../../../../Auth/Login.php");
     session_destroy();
 }

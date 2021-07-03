@@ -60,6 +60,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     fd.AddFile(data[i]["name"], data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
                                 }
                             }
+                              fd.RemoveEditable();
                         });
                     };
                     fd.OpenDir("/");

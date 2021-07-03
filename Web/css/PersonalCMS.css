@@ -9,6 +9,7 @@ body{
     border-width: thin;
     width: 98%;
     word-wrap: break-word;
+    word-break: break-all;
     margin-top: 1px;
 }
 .MBorderBlock{

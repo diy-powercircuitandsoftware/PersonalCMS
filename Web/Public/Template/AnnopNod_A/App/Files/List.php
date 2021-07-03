@@ -68,14 +68,14 @@ if ($config->IsOnline()) {
             </style>
             <script>
                 var SS = new SSQueryFW();
-                window.alert("userid,dirid,path");
+                
                 SS.DocumentReady(function () {
                     var ajax = new Ajax();
                         
                     var dialogplayer = new SuperDialog_Template_Multimedia();
                     var SB = new SearchBox(document.getElementById("SearchBox"));
                     var FL = new FilesList(document.getElementById("FilesList"));
-                    FL.SetPreviewImage("../../../../Api/Action/Files/Download/ImagePreview.php?id=");
+                    FL.SetPreviewImage("../../../../Api/Action/Files/Download/ImagePreview.php");
                         
                     FL.SetDownload("../../../../Api/Action/Files/Download/Download.php");
                     SB.Input = function (v) {
@@ -103,6 +103,7 @@ if ($config->IsOnline()) {
                                     FL.AddFile(data[i]["name"], "?" + data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
                                 }
                             }
+                             FL.RemoveEditable();
                             SS.S("#CHDIRList").Html(v);
                         });
                             
@@ -116,7 +117,7 @@ if ($config->IsOnline()) {
                     })
                         
                     SS.S(".BNUserList").Click(function () {
-                        FL.OpenDir(ajax.JsonToQueryString({"userid": this.getAttribute("data-id"), "path": "..."}));
+                        FL.OpenDir(ajax.JsonToQueryString({"userid": this.getAttribute("data-id")}));
                         SS.S("#DboxErrorBody").Hide();
                     });
                         

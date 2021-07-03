@@ -345,8 +345,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ?>
                 </span>  
             </footer>
-
-
+           
         </body>
     </html>
     <?php

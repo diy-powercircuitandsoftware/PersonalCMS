@@ -60,6 +60,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     fd.AddFile('<img src="../../../../../Api/Action/Files/Download/ImagePreview.php?id='+data[i]["fullpath"]+'" width="50" height="50"/>'+data[i]["name"], data[i]["fullpath"], data[i]["size"], data[i]["modified"]);
                                 }
                             }
+                              fd.RemoveEditable();
                         });
                     };
                     fd.OpenDir("/");

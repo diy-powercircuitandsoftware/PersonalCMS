@@ -17,6 +17,7 @@ class FilesList {
                 "<th>Modified</th>" +
                 "<th>Manage</th></tr>";
         this.list.addEventListener("click", function (e) {
+            e.preventDefault();
             var selcetdom = e.target.getAttribute("data-domfileslist");
             if (selcetdom == "SelectAll") {
                 var sett = e.target.checked && this.fn.multiple;
@@ -61,7 +62,7 @@ class FilesList {
         var icon = "";
         var lastrow = this.list.insertRow(-1);
 
-        if (["jpg", "gif", "png", "jpeg"].indexOf(name.split('.').pop().toLowerCase()) >= 0&&this.previewpath!==undefined) {
+        if (["jpg", "gif", "png", "jpeg"].indexOf(name.split('.').pop().toLowerCase()) >= 0 && this.previewpath !== undefined) {
             icon = '<img src="' + this.previewpath + path + '"/>';
         }
         lastrow.setAttribute("data-path", path);
@@ -130,6 +131,13 @@ class FilesList {
             this.Rename = v;
         }
     }
+    RemoveEditable() {
+        [].forEach.call(this.list.querySelectorAll('[data-isbnedit]'), function (edit) {
+            edit.parentNode.removeChild(edit.previousSibling);
+            edit.parentNode.removeChild(edit);
+        });
+    }
+
     SetDownload(path) {
         this.downloadpath = path;
     }
