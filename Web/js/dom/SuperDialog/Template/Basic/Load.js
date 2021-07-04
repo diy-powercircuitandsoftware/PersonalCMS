@@ -1,17 +1,13 @@
 class SuperDialog_Template_Load extends SuperDialog {
     Load(...args) {
         var dialog = this.Dialog();
-
-
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
-
                 dialog.AddContent(xhttp.responseText);
             }
         };
         xhttp.sd = this;
-
         if (args.length === 1) {
             xhttp.open("GET", args[0], true);
             xhttp.send();

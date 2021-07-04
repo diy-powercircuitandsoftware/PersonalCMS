@@ -15,7 +15,9 @@ if ($config->HasRootAuth(session_id())) {
             <link rel="stylesheet" type="text/css" href="../../../css/PersonalCMS.css">
             <script src="../../../js/io/Ajax.js"></script>
             <script src="../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../js/dom/SuperDialog/SuperDialog.js"></script>
+            <script src="../../../js/dom/SuperDialog/Template/Basic/MessageBox.js"></script>
+            <script src="../../../js/dom/SuperDialog/Template/Basic/Load.js"></script>
             <script src="../../../js/dom/TableTools.js"></script>
             <style>
                 #ConfigList{
@@ -40,23 +42,23 @@ if ($config->HasRootAuth(session_id())) {
                     tablelist.Import(document.getElementById("TableField"));
                     ss.S(".BNInstall").Click(function (e) {
                         e.preventDefault();
-                        dialog.Load(this.href);
+                        new SuperDialog_Template_Load().Load(this.href).close();
                     });
 
                     ss.S(".BNUnInstall").Click(function (e) {
                         e.preventDefault();
                         var ref = this.href;
-                        var u = dialog.Confirm("UnInstall",function () {
+                        var u = new SuperDialog_Template_MessageBox().Confirm("UnInstall",function () {
                             ajax.Post(ref, {}, function (s) {
                                 if (s == "1") {
-                                    u.Close();
+                                    u.close();
                                 } else {
-                                    dialog.Alert(s);
-                                    u.Close();
+                                    new SuperDialog_Template_MessageBox().Alert(s);
+                                    u.close();
                                 }
                             });
 
-                        }).ZIndex(999);
+                        }) ;
 
                     });
 
@@ -87,7 +89,7 @@ if ($config->HasRootAuth(session_id())) {
                             for (var i in s) {
                                 ss.S("#TableList").Append(dbname + "/" + s[i], s[i]);
                             }
-                            dialog.Import("TableFields", "#TableViewer");
+                            dialog.Import( "#TableViewer").Title("TableFields");
                             ss.S("#TableList").Change();
                         });
 

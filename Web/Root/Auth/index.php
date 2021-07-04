@@ -36,7 +36,7 @@ if ($config->Installed() && isset($_POST["Superuser"]) && isset($_POST["Password
 
                     <table style="border-style: solid;">
                         <thead>
-                            <tr>
+                            <tr style="background-color: burlywood;">
                                 <th colspan="2">Login</th>
                             </tr>
                         </thead>

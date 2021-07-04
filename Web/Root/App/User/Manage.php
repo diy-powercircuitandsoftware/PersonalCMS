@@ -16,7 +16,8 @@ if ($config->HasRootAuth(session_id())) {
 
             <script src="../../../js/io/Ajax.js"></script>
             <script src="../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../js/dom/SuperDialog/SuperDialog.js"></script>
+            <script src="../../../js/dom/SuperDialog/Template/Basic/MessageBox.js"></script>
             <script src="../../../js/dom/TableTools.js"></script>
             <style>
                 #UserList{
@@ -81,17 +82,17 @@ if ($config->HasRootAuth(session_id())) {
                     });
 
                     ss.S("#BNAddUser").Click(function () {
-                        var d = dialog.ImportOkCancel("Add", "#AddTable", function () {
+                        var d = dialog.ImportOkCancel( "#AddTable", function () {
                             ajax.Post("Action/AddUser.php", ss.S(".AddUser").ValByName(), function () {
                                 ajaxsb.LoadAjax();
-                                d.Close();
+                                d.close();
                                 ss.S(".AddUser").Val("");
                             });
-                        });
+                        }).Title("Add");
                     });
 
                     ss.S("#BNDeleteUser").Click(function () {
-                        dialog.Confirm("are you sure want to delete select user", function () {
+                       new SuperDialog_Template_MessageBox().Confirm("are you sure want to delete select user", function () {
                             var v = ss.S(".UserSelect").Val();
                             ajax.Post("Action/DeleteUser.php", {"UserID": v}, function (s) {
                                 lastid = 0;
@@ -99,7 +100,7 @@ if ($config->HasRootAuth(session_id())) {
                                 ajaxsb.Param("id", lastid);
                                 ajaxsb.LoadAjax();
                             });
-                        }).ZIndex(999);
+                        });
                     });
 
                     ss.S("#SearchBox").Input(function (e) {

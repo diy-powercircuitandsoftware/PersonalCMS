@@ -16,7 +16,9 @@ if ($config->HasRootAuth(session_id())) {
 
             <script src="../../../js/io/Ajax.js"></script>
             <script src="../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../js/dom/SuperDialog/SuperDialog.js"></script>
+            <script src="../../../js/dom/SuperDialog/Template/Basic/Personal.js"></script>
+            <script src="../../../js/dom/SuperDialog/Template/Basic/MessageBox.js"></script>
             <script src="../../../js/dom/TableTools.js"></script>
             <style>
                 #ConfigList{
@@ -38,24 +40,24 @@ if ($config->HasRootAuth(session_id())) {
                     var dialog = new SuperDialog();
                     var ajax = new Ajax();
                     ss.S("#BNSave").Click(function () {
-                        var u = dialog.Confirm("Save!", function () {
+                        var u = new SuperDialog_Template_MessageBox().Confirm("Save!", function () {
                             var json = ss.S(".AjaxChangeValue").ValByName();
                             ajax.Post("Action/SaveBasicConfig.php", {"data": json}, function (data) {
                                 if (data === "1") {
-                                    u.Close();
+                                    u.close();
                                 }
                             });
 
-                        }).ZIndex(999);
+                        }) ;
                     });
 
                     ss.S("#BNCHPW").Click(function () {
 
-                        var tl = dialog.ChangePassword(function (v) {
-                            console.log(v);
+                        var tl = new SuperDialog_Template_Personal().ChangePassword(function (v) {
+                            
                             ajax.Post("Action/ChangePassword.php", v, function (data) {
                                 if (data === "1") {
-                                    tl.Close();
+                                    tl.close();
                                 }
                             });
 

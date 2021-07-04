@@ -16,7 +16,7 @@ if ($config->HasRootAuth(session_id())) {
 
             <script src="../../../js/io/Ajax.js"></script>
             <script src="../../../js/dom/SSQueryFW.js"></script>
-            <script src="../../../js/dom/SuperDialog.js"></script>
+            <script src="../../../js/dom/SuperDialog/SuperDialog.js"></script>
             <script src="../../../js/dom/TableTools.js"></script>
 
             <style>
@@ -135,12 +135,12 @@ if ($config->HasRootAuth(session_id())) {
                      */
 
                     ss.S("#BNInstallMod").Click(function (e) {
-                        var d = dialog.ImportOkCancel("Install", "#TableInstaller", function () {
+                        var d = dialog.ImportOkCancel( "#TableInstaller", function () {
                             ajax.Post("Action/InstallModule.php", ss.S(".Installer").ValByName(), function (data) {
-                                d.Close();
+                                d.close();
                                 ss.S(".Installer").Val("");
                             });
-                        });
+                        }).Title("Install");
                     });
 
                     ss.S("#BNViewModFile").Click(function (e) {
@@ -153,7 +153,7 @@ if ($config->HasRootAuth(session_id())) {
                                 tablemodview.InsertCellLastRow('<button class="BNView" data-value="' + data[i] + '">View</button>');
                                 tablemodview.InsertCellLastRow('<button class="BNEdit" data-value="' + data[i] + '">Delete</button>');
                             }
-                            dialog.Import("View Module File", "#TableModView");
+                            dialog.Import( "#TableModView").Title("View Module File");
 
                         });
                     });

@@ -11,17 +11,17 @@
  *
  * @author annopnod
  */
-class Audio_Database extends SQLite3 {
+class Audio_Database  extends SQLite3 {
 
     public const Access_Public = 1;
     public const Access_Member = 0;
     public $path;
     public function __construct(Config $cfg) {
-        $this->path = $cfg->GetLocalConfigPath()["Com"] . "/Audio/";
+        $this->path = $cfg->GetLocalConfigPath()["Com"] . "/Audio/Share/";
         if (!is_dir( $this->path )) {
             mkdir( $this->path );
         }
-        $this->open( $this->path  . "Audio.db");
+        $this->open( $this->path  . "Share.db");
     }
 
     public function Install() {
