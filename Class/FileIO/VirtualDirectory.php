@@ -63,7 +63,7 @@ class VirtualDirectory {
     }
 
     public function FileGetContents($s) {
-        if ($this->FileExists($s)) {
+        if ($this->IsFile($s)) {
             return file_get_contents($this->DiskPath($s));
         }
         return "";

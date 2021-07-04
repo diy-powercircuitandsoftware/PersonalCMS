@@ -1,4 +1,5 @@
 <?php
+
 include_once 'Class/Function/IsMobile.php';
 include_once 'Class/Core/Config/Config.php';
 
@@ -6,10 +7,12 @@ $config = new Config();
 
 if ($config->IsOnline()) {
     if (IsMobile()) {
-          header("location: Mobile/index.php"); 
+        header("location: Mobile/index.php");
     } else {
-        header("location: Web/index.php"); 
+        header("location: Web/index.php");
     }
+} else if (!$config->Installed()) {
+    header("location: Web/Root/index.php"); 
 } else {
-     header("location: DefaultPages/Offline.php"); 
+    header("location: DefaultPages/Offline.php");
 }

@@ -29,6 +29,7 @@ class SuperDialog_Template_Input extends SuperDialog {
                     select.innerHTML = select.innerHTML + dom.innerHTML;
                 }
             });
+              return this;
         };
         return dialog;
     }

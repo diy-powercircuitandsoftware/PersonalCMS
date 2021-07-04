@@ -239,7 +239,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
                     ss.S("#BNShareManager").Click(function () {
-                        ajax.Post("../../../../Api/Ajax/Files/ACLS/GetACLS.php", {"AccessMode": this.value}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Files/ACLS/GetACLS.php", {}, function (data) {
                             data = JSON.parse(data);
                             tablesharefile.DeleteRowAfter(0);
                             var changeaccess = {};

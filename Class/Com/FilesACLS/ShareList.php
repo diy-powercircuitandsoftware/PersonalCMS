@@ -8,17 +8,12 @@ class FilesACLS_ShareList {
         $this->fdb = $fd;
     }
 
-    public function AddShareList($Userid, $Path, $AccessMode) {
-        $data = array();
+    public function AddShareList($Userid, $Path, $AccessMode) {       
         $stmt = $this->fdb->prepare('INSERT INTO  FilesACLS(userid,public,fullpath) VALUES(:userid,:public,:fullpath)  ');
         $stmt->bindValue(':userid', $Userid, SQLITE3_INTEGER);
         $stmt->bindValue(':public', $AccessMode, SQLITE3_INTEGER);
         $stmt->bindValue(':fullpath', $Path, SQLITE3_TEXT);
-        $results = $stmt->execute();
-        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-            $data[] = $row;
-        }
-        return $data;
+        return $stmt->execute();    
     }
 
     public function Close() {

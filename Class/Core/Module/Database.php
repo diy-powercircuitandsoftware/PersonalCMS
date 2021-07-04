@@ -18,6 +18,9 @@ class Module_Database extends SQLite3 {
             mkdir($this->ModulePath);
         }
         $this->open($this->ModulePath . "Module.db");
+        if (filesize($this->ModulePath . "Module.db")==0){
+            $this->Install();
+        }
     }
 
     public function AddModule($dirname, $classname, $public, $priority) {

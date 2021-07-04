@@ -104,15 +104,23 @@ class Config extends SQLite3 {
     }
 
     public function Install($rootname, $password, $datadir) {
-        if (is_writable($datadir)) {
+        if (strlen(trim($rootname)) == 0 || strlen(trim($password)) == 0 || strlen(trim($datadir)) == 0) {
+            return "string not empty";
+        }
+        $realpath = realpath($datadir);
+        if (is_dir($realpath) && is_writable($realpath) && is_readable($realpath)) {
             $hash = sha1(sha1("Transp" . $password . "arency"));
             $sql = ('CREATE TABLE IF NOT EXISTS config (
                 k       VARCHAR (256)   PRIMARY KEY,
                 v VARCHAR (1024));');
-            $this->exec($sql);
-            return $this->InsertValue("root", json_encode(array("name" => $rootname, "pw" => $hash))) && $this->InsertValue("data", $datadir);
+            $sqlinstall = $this->exec($sql);
+            $sqlinsert = $this->InsertValue("root", json_encode(array("name" => $rootname, "pw" => $hash))) && $this->InsertValue("data", $datadir);
+            if ($sqlinstall && $sqlinsert) {
+                return "ok";
+            }
+            return "sqlite3 error";
         }
-        return false;
+        return sprintf("Directory '%s' Can Not Edit", $realpath);
     }
 
     public function Installed() {

@@ -26,21 +26,18 @@ and open the template in the editor.
                             fl.AddDir(data[i]["name"], data[i]["realpath"], "-");
                         }
                         ss.S("#CHDIRList").Html((v));
+                        fl.RemoveEditable();
                     });
                 });
                 fl.OpenDir("/");
                 ss.S("#BNInstall").Click(function () {
                     
                     var tin= ss.S(".TXTInput").ValByName();
-                    tin.path=fl.GetSelectFiles(0);
+                   
+                    tin.path=fl.GetSelectFiles(0)||"";
                     
                     ajax.Post("Action/Install.php", tin, function (data) {
-                        if (data=="1"){
-                            alert("Install Complete");
-                        }
-                        else{
-                             alert(data);
-                        }
+                          alert(data);
                     });
                 });
 //

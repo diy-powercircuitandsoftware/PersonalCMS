@@ -6,6 +6,7 @@ include_once '../../../../../../Class/Core/Module/Database.php';
 include_once '../../../../../../Class/Com/Event/Database.php';
 include_once '../../../../../../Class/Com/Event/Reader.php';
 include_once '../../../../../../Class/Com/Blog/Database.php';
+include_once '../../../../../../Class/Com/FilesACLS/Custom.php';
 include_once '../../../../../../Class/SDK/Module/Basic.php';
 include_once '../../../../Auth/Action/VerifySession.php';
 $config = new Config();
@@ -51,14 +52,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script src="../../../../../js/dom/SuperDialog/Template/Basic/Multimedia.js"></script>
             <script src="../../../../../js/dom/FilesList.js"></script>
             <script src="../../../../../js/io/Ajax.js"></script>
+            <script src="../../../../../js/dom/TableTools.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
+                    var dialog = new SuperDialog();
                     var dialoginput = new SuperDialog_Template_Input();
                     var dialogmsgbox = new SuperDialog_Template_MessageBox();
                     var ajax = new Ajax();
                     var FL = new FilesList(document.getElementById("FilesList"));
                     var FilePlayList = new SelectList(document.getElementById("FilePlayList"));
+                    var tablesharefile = new TableTools();
+                    tablesharefile.Import(document.getElementById("TBShareFile"));
                     FL.SetDownload("../../../../Api/Action/Files/Download/DownloadFiles.php?path=");
                     FL.SetPreviewImage("../../../../Api/Action/Files/Download/ImagePreview.php?id=");
                     FL.Multiple(true);
@@ -99,7 +104,14 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#OptSelectLib").Change();
                         });
                     });
+                    ss.S("#BNAddShare").Click(function () {
+                        dialoginput.DropDown(function (v) {
+                            ajax.Post("../../../../Api/Ajax/Photo/SlideShow/Share/AddShare.php", {"Files": ss.S("#OptSelectLib").Val(), "Access": v}, function (data) {
 
+                            });
+                        }).CopyOption("#CloneableOption").Title("Add Share");
+
+                    });
                     ss.S("#BNNewPlayList").Click(function () {
                         var p = dialoginput.Prompt("Name:", function (v) {
                             ajax.Post("../../../../Api/Ajax/Photo/SlideShow/CreatePlayList.php", {"Name": v}, function (data) {
@@ -133,11 +145,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
                     ss.S("#BNDeletePlayList").Click(function () {
-                        dialoginput.Confirm("Delect It????", function () {
+                        dialogmsgbox.Confirm("Delect It????", function () {
                             ajax.Post("../../../../Api/Ajax/Photo/SlideShow/DeletePlayList.php", {"Name": ss.S("#OptSelectLib").Val()}, function (data) {
                                 location.reload();
                             });
-                        }).ZIndex(999);
+                        });
                     });
 
                     ss.S("#BNEditPlayList").Click(function () {
@@ -153,6 +165,31 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                             ss.S("#OptSelectLib").Change();
                         });
+                    });
+                    ss.S("#BNShareManager").Click(function () {
+
+                        ajax.Post("../../../../Api/Ajax/Photo/SlideShow/Share/GetShare.php", {}, function (data) {
+                            data = JSON.parse(data);
+                            tablesharefile.DeleteRowAfter(0);
+                            var changeaccess = {};
+                            for (var i = 0; i < data.length; i++) {
+                                tablesharefile.InsertRow();
+                                tablesharefile.InsertCellLastRow(data[i]["fullpath"]);
+                                var select = tablesharefile.InsertCellLastRow('<select name=""><option value="1">Public</option><option value="0">Member</option><option value="-1">Remove</option></select>');
+                                select.setAttribute("data-id", data[i]["id"]);
+                                select.addEventListener("change", function () {
+                                    changeaccess[this.getAttribute("data-id")] = this.value;
+                                });
+                                select.value = data[i]["public"];
+                            }
+                            var d = dialog.ImportOkCancel("#ShareFileDialog", function () {
+                                ajax.Post("../../../../Api/Ajax/Files/ACLS/ChangeACLS.php", {"AccessList": changeaccess}, function (data) {
+                                    d.close();
+                                });
+                            }).Title("Share");
+
+                        });
+
                     });
                     GetPlayList();
 
@@ -283,8 +320,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <div style="display: none;">
                 <select id="CloneableOption">
                     <?php
-                    printf('<option value="%s">Public</option>', FilesACLS_Database::Access_Public);
-                    printf('<option value="%s">Member</option>', FilesACLS_Database::Access_Member);
+                    printf('<option value="%s">Public</option>', FilesACLS_Custom::Access_Public);
+                    printf('<option value="%s">Member</option>', FilesACLS_Custom::Access_Member);
                     ?>
                 </select>
             </div>

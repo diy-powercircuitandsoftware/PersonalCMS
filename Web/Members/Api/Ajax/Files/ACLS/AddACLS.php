@@ -17,7 +17,8 @@ if ($config->IsOnline() && isset($_POST["Access"]) && isset($_POST["Files"]) && 
         $userdata->CanWritable($_SESSION["User"]["id"])) {
     
     foreach ($_POST["Files"] as $value) {
-        $acls->AddShareList($_SESSION["User"]["id"], $value, $_POST["Access"]);
+        
+       $acls->AddShareList($_SESSION["User"]["id"], $value, $_POST["Access"]);
     }
     
 } else {

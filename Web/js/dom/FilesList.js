@@ -17,7 +17,7 @@ class FilesList {
                 "<th>Modified</th>" +
                 "<th>Manage</th></tr>";
         this.list.addEventListener("click", function (e) {
-            e.preventDefault();
+
             var selcetdom = e.target.getAttribute("data-domfileslist");
             if (selcetdom == "SelectAll") {
                 var sett = e.target.checked && this.fn.multiple;
@@ -30,9 +30,11 @@ class FilesList {
                 });
                 e.target.checked = true;
             } else if (selcetdom == "Delete") {
+                e.preventDefault();
                 var parrent = e.target.parentNode.parentNode;
                 this.fn.Delete(parrent.getAttribute("data-path"));
             } else if (selcetdom == "Open") {
+                e.preventDefault();
                 var parrent = e.target.parentNode.parentNode;
                 if (parrent.getAttribute("data-type") == "DIR") {
                     this.fn.OpenDir(parrent.getAttribute("data-path"));
@@ -40,9 +42,11 @@ class FilesList {
                     this.fn.OpenFile(parrent.getAttribute("data-path"));
                 }
             } else if (selcetdom == "Properties") {
+                e.preventDefault();
                 var parrent = e.target.parentNode.parentNode;
                 this.fn.Properties(parrent.getAttribute("data-path"));
             } else if (selcetdom == "Rename") {
+                e.preventDefault();
                 var parrent = e.target.parentNode.parentNode;
                 this.fn.Rename(parrent.getAttribute("data-path"));
             }

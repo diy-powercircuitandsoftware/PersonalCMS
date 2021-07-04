@@ -16,6 +16,9 @@ class Event_Database extends SQLite3 {
             mkdir($path);
         }
         $this->open($path . "Event.db");
+        if (filesize($path . "Event.db")==0){
+            $this->Install();
+        }
     }
 
     public function Install() {

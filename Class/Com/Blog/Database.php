@@ -13,6 +13,9 @@ class Blog_Database extends SQLite3 {
             mkdir($this->path);
         }
         $this->open($this->path . "Blog.db");
+        if (filesize($this->path . "Blog.db")==0){
+            $this->Install();
+        }
     }
  
     public function Install() {
