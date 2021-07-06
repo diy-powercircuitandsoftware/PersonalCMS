@@ -19,8 +19,8 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $realpath = $path->DiskPath("/Photo/SlideShow/Share.xml");
     $acls = new FilesACLS_Custom();
     $acls->Load($realpath);
-    $acls->AddShareList($_POST["Files"], $_POST["Access"]);
-    $acls->Save($realpath);
+    echo json_encode( $acls->GetAllShareList());
+    
 }
 $userdb->close();
 $config->close();

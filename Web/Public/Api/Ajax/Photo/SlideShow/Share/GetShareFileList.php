@@ -1,6 +1,5 @@
 <?php
 
-session_start();
 include_once '../../../../../../../Class/Core/Config/Config.php';
 include_once '../../../../../../../Class/FileIO/VirtualDirectory.php';
 include_once '../../../../../../../Class/Core/User/Database.php';
@@ -9,18 +8,16 @@ include_once '../../../../../../../Class/Core/User/Member.php';
 include_once '../../../../../../../Class/Com/FilesACLS/Custom.php';
 $config = new Config();
 $userdb = new User_Database($config);
-$userdata = new User_Member($userdb);
-$session = new User_Session($userdb);
 
-if ($config->IsOnline() && isset($_SESSION["User"]) &&
-        $session->Registered(session_id()) &&
-        $userdata->CanWritable($_SESSION["User"]["id"])) {
-    $path = new VirtualDirectory($userdb->GetRootPath($_SESSION["User"]["id"]));
-    $realpath = $path->DiskPath("/Photo/SlideShow/Share.xml");
+if ($config->IsOnline()) {
+    $path = new VirtualDirectory($userdb->GetRootPath($_GET["user"]));
+    
     $acls = new FilesACLS_Custom();
-    $acls->Load($realpath);
-    $acls->AddShareList($_POST["Files"], $_POST["Access"]);
-    $acls->Save($realpath);
+    $acls->Load($path->DiskPath("/Photo/SlideShow/Share.xml"));
+     if ($acls->Exists($_GET["name"],FilesACLS_Custom::Access_Public)){
+          
+        echo json_encode( preg_split("/\n|\r\n?/", $path->FileGetContents("/Photo/SlideShow/" .$_GET["name"])));
+     }
 }
 $userdb->close();
 $config->close();

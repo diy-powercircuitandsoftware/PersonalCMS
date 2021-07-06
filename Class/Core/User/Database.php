@@ -93,5 +93,9 @@ class User_Database extends SQLite3 {
             return false;
         }
     }
+     public function Installed() {
+        $results = $this->query(" SELECT name FROM sqlite_master WHERE name='user';");
+        return !($results->fetchArray() === false);
+    }
 
 }

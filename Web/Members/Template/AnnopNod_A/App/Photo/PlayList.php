@@ -168,19 +168,19 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
                     ss.S("#BNShareManager").Click(function () {
 
-                        ajax.Post("../../../../Api/Ajax/Photo/SlideShow/Share/GetShare.php", {}, function (data) {
+                        ajax.Post("../../../../Api/Ajax/Photo/SlideShow/Share/GetShareList.php", {}, function (data) {
                             data = JSON.parse(data);
                             tablesharefile.DeleteRowAfter(0);
                             var changeaccess = {};
                             for (var i = 0; i < data.length; i++) {
                                 tablesharefile.InsertRow();
-                                tablesharefile.InsertCellLastRow(data[i]["fullpath"]);
+                                tablesharefile.InsertCellLastRow(data[i]["name"]);
                                 var select = tablesharefile.InsertCellLastRow('<select name=""><option value="1">Public</option><option value="0">Member</option><option value="-1">Remove</option></select>');
-                                select.setAttribute("data-id", data[i]["id"]);
+                                select.setAttribute("data-id", data[i]["name"]);
                                 select.addEventListener("change", function () {
                                     changeaccess[this.getAttribute("data-id")] = this.value;
                                 });
-                                select.value = data[i]["public"];
+                                select.value = data[i]["mode"];
                             }
                             var d = dialog.ImportOkCancel("#ShareFileDialog", function () {
                                 ajax.Post("../../../../Api/Ajax/Files/ACLS/ChangeACLS.php", {"AccessList": changeaccess}, function (data) {

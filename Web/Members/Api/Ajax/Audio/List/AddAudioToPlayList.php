@@ -17,7 +17,7 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $playlist = new VirtualDirectory($userdb->GetRootPath($_SESSION["User"]["id"]));
     $filelist = new VirtualDirectory($userdb->GetFilesPath($_SESSION["User"]["id"]));
     $savepath = "/Audio/" . $_POST["Name"];
-    $out = explode("\r\n", $playlist->FileGetContents($savepath));
+    $out = preg_split("/\n|\r\n?/", $playlist->FileGetContents($savepath));
     foreach ($_POST["Path"] as $value) {
         if ($filelist->IsFile($value)) {
             $out[] = $value;

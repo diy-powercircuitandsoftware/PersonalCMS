@@ -5,22 +5,26 @@
  *
  * @author annopnod
  */
-class User_Manager  {
+class User_Manager {
+
     private $ud;
+
     public function __construct(User_Database $ud) {
-        $this->ud=$ud; 
+        $this->ud = $ud;
     }
 
-    public function Close(){
+    public function Close() {
         $this->ud->close();
     }
 
-    public function AddUser($alias, $password) {
+    public function AddUser($alias, $password, $name, $lastname) {
         try {
             $hash = sha1(sha1("Transp" . $password . "arency"));
-            $stmt = $this->ud->prepare("INSERT INTO user (id,alias,password,enable) VALUES (null, :alias,:password,1)");
+            $stmt = $this->ud->prepare("INSERT INTO user (id,alias,password,enable,name,lastname) VALUES (null, :alias,:password,1,:name,:lastname)");
             $stmt->bindValue(':alias', $alias, SQLITE3_TEXT);
             $stmt->bindValue(':password', $hash, SQLITE3_TEXT);
+            $stmt->bindValue(':name', $name, SQLITE3_TEXT);
+            $stmt->bindValue(':lastname', $lastname, SQLITE3_TEXT);
             $stmt->execute();
             return true;
         } catch (Exception $e) {
@@ -41,8 +45,7 @@ class User_Manager  {
         }
     }
 
-    
- public function FilterNumberSQL($obj) {
+    public function FilterNumberSQL($obj) {
         $Arrprocess = array();
         if (is_array($obj)) {
             $Arrprocess = $obj;

@@ -6,6 +6,6 @@ include_once '../../../../../Class/Core/User/Manager.php';
 $config=new Config();
 $user=new User_Manager(new User_Database($config));
 if ($config->HasRootAuth(session_id())&&isset($_POST["Alias"])&&isset($_POST["Password"])){
-   echo $user->AddUser($_POST["Alias"],$_POST["Password"]);
+   echo $user->AddUser($_POST["Alias"],$_POST["Password"],$_POST["Name"],$_POST["LastName"]);
 }
 $user->Close();

@@ -14,7 +14,7 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
         $userdata->CanWritable($_SESSION["User"]["id"])) {
     $playlist = new VirtualDirectory($userdb->GetRootPath($_SESSION["User"]["id"]));
     $savepath = "/Photo/SlideShow/" . $_POST["Name"];
-    $out = explode("\r\n", $playlist->FileGetContents($savepath));
+    $out = preg_split("/\n|\r\n?/", $playlist->FileGetContents($savepath));
        $out= array_diff($out,  $_POST["Path"]);
     $playlist->FilePutContents($savepath, implode("\r\n", $out) );
 }

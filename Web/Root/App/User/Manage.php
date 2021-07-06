@@ -203,6 +203,14 @@ if ($config->HasRootAuth(session_id())) {
             <div id="AllDialog" style="display: none;">
                 <table id="AddTable" style="width: 100%;">
                     <tr>
+                        <td>Name:</td>
+                        <td><input type="text" class="AddUser" name="Name" style="width: 100%;box-sizing: border-box;" value="" /></td>
+                    </tr>
+                    <tr>
+                        <td>LastName:</td>
+                        <td><input type="text" class="AddUser" name="LastName" style="width: 100%;box-sizing: border-box;" value="" /></td>
+                    </tr>
+                    <tr>
                         <td>Alias:</td>
                         <td><input type="text" class="AddUser" name="Alias" style="width: 100%;box-sizing: border-box;" value="" /></td>
                     </tr>

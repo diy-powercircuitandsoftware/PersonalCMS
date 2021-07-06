@@ -189,7 +189,7 @@ if ($config->IsOnline()) {
                         this.setAttribute("current", this.value);
                     });
 
-                    ajax.Post("../../../../Api/Ajax/Photo/SlideShow/GetPlayList.php", {}, function (data) {
+                    ajax.Get("../../../../Api/Ajax/Photo/SlideShow/Share/GetShareList.php", {"user": ss.S("#OPTUser").Val()}, function (data) {
                         data = JSON.parse(data);
 
                         for (var i in data) {
@@ -205,16 +205,17 @@ if ($config->IsOnline()) {
                         ImageShow.HoldTime(parseInt(this.value) * 1000);
                     });
                     ss.S("#OptLibrary").Change(function (v) {
+                         
                         if (this.value != "") {
 
-                            ajax.Get("../../../../Api/Ajax/Photo/SlideShow/GetFilesList.php", {"Path": "/", "Name": this.value}, function (data) {
+                            ajax.Get("../../../../Api/Ajax/Photo/SlideShow/Share/GetShareFileList.php", {"name":this.value,"user": ss.S("#OPTUser").Val()}, function (data) {
                                 ImageShow.Clear();
                                 data = JSON.parse(data);
                                 for (var i in data) {
-                                    if (["jpg", "png", "gif"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
-                                        ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["path"]));
-                                    } else if (["ogg", "mp3", "wma"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
-                                        AudioSrc.PlayList.push("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + data[i]["path"]);
+                                    if (["jpg", "png", "gif"].indexOf(data[i].split(".").pop().toLowerCase()) >= 0) {
+                                        ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]));
+                                    } else if (["ogg", "mp3", "wma"].indexOf(data[i].split(".").pop().toLowerCase()) >= 0) {
+                                        AudioSrc.PlayList.push("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + data[i]);
                                     }
                                 }
 
@@ -289,7 +290,7 @@ if ($config->IsOnline()) {
                 <aside>
                     <div class="BorderBlock" style="margin-top: 1px;">
                         <div class="TitleCenter">User</div>
-                        <select style="width: 100%;box-sizing: border-box;">
+                        <select id="OPTUser" style="width: 100%;box-sizing: border-box;">
                             <?php
                             foreach ($user->GetUserList() as $value) {
                                 printf('<option value="%s">%s</option>', $value["id"], $value["alias"]);

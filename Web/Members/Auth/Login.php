@@ -1,9 +1,13 @@
 <?php
 session_start();
 include_once '../../../Class/Core/Config/Config.php';
+include_once '../../../Class/Core/User/Database.php';
 include_once '../../../Class/Core/UI/NAV.php';
+
 $config = new Config();
+$usermodule = new User_Database($config);
 $nav = new UINAV();
+
 if (isset($_SESSION["UserID"]) && $config->IsOnline()) {
     header("location: ../Template/index.php");
 } else if ($config->IsOnline()) {
@@ -77,18 +81,29 @@ if (isset($_SESSION["UserID"]) && $config->IsOnline()) {
                                 </td>
                                 <?php
                                 if (isset($_GET["error"])) {
-                                    echo '<tr><td colspan="2">error:'.($_GET["error"]).'</td></tr>';
+                                    echo '<tr><td colspan="2">error:' . ($_GET["error"]) . '</td></tr>';
                                 }
                                 ?>
                             </tr>
+                            <?php
+                            if ($usermodule->Installed()) {
+                                ?>
+                                <tr>
+                                    <td style="width: 50%;"><a style="width: 99%;display: block;text-decoration: none;"  href="../../index.php">
+                                            <input style="width: 100%;display: block;"  type="button" value="Back!"  />
+                                        </a>
+                                    </td>
+                                    <td  style="width: 50%;"> <input  type="submit" value="Login!" style="width: 99%;display: block;" /></td>
+                                </tr>
+                                <?php
+                            }
+                            else{
+                                ?>
+                                <tr><td colspan="2">User Module Error! Please Administrator</td></tr>
+                                <?php
+                            }
+                            ?>
 
-                            <tr>
-                                <td style="width: 50%;"><a style="width: 99%;display: block;text-decoration: none;"  href="../../index.php">
-                                        <input style="width: 100%;display: block;"  type="button" value="Back!"  />
-                                    </a>
-                                </td>
-                                <td  style="width: 50%;"> <input  type="submit" value="Login!" style="width: 99%;display: block;" /></td>
-                            </tr>
                         </table>
 
 
