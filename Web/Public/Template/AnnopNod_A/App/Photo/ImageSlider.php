@@ -213,7 +213,7 @@ if ($config->IsOnline()) {
                                 data = JSON.parse(data);
                                 for (var i in data) {
                                     var param = ss.URLParam(data[i]);
-                                    var path = "../../../../Api/Ajax/Photo/SlideShow/Share/DownloadShareFile.php";
+                                    var path = "../../../../Api/Ajax/Photo/SlideShow/Share/DownloadShareFile.php?"+data[i];
 
                                     if (["jpg", "png", "gif"].indexOf(param["ext"].toLowerCase()) >= 0) {
                                         ImageShow.AddImage(path);

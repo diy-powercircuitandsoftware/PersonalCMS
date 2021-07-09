@@ -12,7 +12,7 @@ $config = new Config();
 $userdb = new User_Database($config);
 
 if ($config->IsOnline()) {
-    $aes = new Cryptography_AES(session_id().$_SERVER['REMOTE_ADDR']);
+    $aes = new Cryptography_AES(session_id() . $_SERVER['REMOTE_ADDR']);
     $path = new VirtualDirectory($userdb->GetRootPath($_GET["user"]));
 
     $acls = new FilesACLS_Custom();
@@ -23,7 +23,7 @@ if ($config->IsOnline()) {
         for ($i = 0; $i < count($files); $i++) {
             $e = $aes->Encrypt($files[$i], $sha1file);
             $files[$i] = http_build_query(array(
-                "name" => $_GET["name"], "path" => $e, "ext" =>   substr( $files[$i], strrpos( $files[$i], '.')+1)
+                "user" => $_GET["user"], "name" => $_GET["name"], "path" => $e, "ext" => substr($files[$i], strrpos($files[$i], '.') + 1)
             ));
         }
         echo json_encode($files);
