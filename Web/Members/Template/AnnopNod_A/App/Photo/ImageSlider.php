@@ -174,8 +174,15 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNPlay").Click(function () {
 
                         if (ImageShow.ToggleFPSPlayer()) {
-                            AudioSrc.play();
-                            this.innerHTML = "Stop";
+                            var pp = AudioSrc.play();
+                            if (pp !== undefined) {
+                                pp.then(function () {
+                                    this.innerHTML = "Stop";
+                                }).catch(function (error) {
+
+                                });
+                            }
+
                         } else {
                             this.innerHTML = "Play";
                             AudioSrc.pause();
@@ -216,7 +223,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     if (["jpg", "png", "gif"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
                                         ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["path"]));
                                     } else if (["ogg", "mp3", "wma"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
-                                     
+
                                         AudioSrc.PlayList.push("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + data[i]["path"]);
                                     }
                                 }
@@ -346,7 +353,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ?>
                 </span>  
             </footer>
-           
+
         </body>
     </html>
     <?php

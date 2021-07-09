@@ -172,8 +172,15 @@ if ($config->IsOnline()) {
                     ss.S("#BNPlay").Click(function () {
 
                         if (ImageShow.ToggleFPSPlayer()) {
-                            AudioSrc.play();
-                            this.innerHTML = "Stop";
+                            var pp = AudioSrc.play();
+                            if (pp !== undefined) {
+                                pp.then(function () {
+                                    this.innerHTML = "Stop";
+                                }).catch(function (error) {
+
+                                });
+                            }
+
                         } else {
                             this.innerHTML = "Play";
                             AudioSrc.pause();
@@ -213,7 +220,7 @@ if ($config->IsOnline()) {
                                 data = JSON.parse(data);
                                 for (var i in data) {
                                     var param = ss.URLParam(data[i]);
-                                    var path = "../../../../Api/Ajax/Photo/SlideShow/Share/DownloadShareFile.php?"+data[i];
+                                    var path = "../../../../Api/Ajax/Photo/SlideShow/Share/DownloadShareFile.php?" + data[i];
 
                                     if (["jpg", "png", "gif"].indexOf(param["ext"].toLowerCase()) >= 0) {
                                         ImageShow.AddImage(path);
