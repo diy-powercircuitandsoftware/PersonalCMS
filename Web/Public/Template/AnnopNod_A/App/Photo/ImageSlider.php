@@ -51,7 +51,7 @@ if ($config->IsOnline()) {
             <script src="../../../../../js/image/SlideShow2D/Transition/Shape/Star.js"></script>
             <script src="../../../../../js/image/SlideShow2D/Transition/Shape/Polygons.js"></script>
 
- 
+
 
             <style>
                 .BNUserList{
@@ -205,17 +205,20 @@ if ($config->IsOnline()) {
                         ImageShow.HoldTime(parseInt(this.value) * 1000);
                     });
                     ss.S("#OptLibrary").Change(function (v) {
-                         
+
                         if (this.value != "") {
 
-                            ajax.Get("../../../../Api/Ajax/Photo/SlideShow/Share/GetShareFileList.php", {"name":this.value,"user": ss.S("#OPTUser").Val()}, function (data) {
+                            ajax.Get("../../../../Api/Ajax/Photo/SlideShow/Share/GetShareFileList.php", {"name": this.value, "user": ss.S("#OPTUser").Val()}, function (data) {
                                 ImageShow.Clear();
                                 data = JSON.parse(data);
                                 for (var i in data) {
-                                    if (["jpg", "png", "gif"].indexOf(data[i].split(".").pop().toLowerCase()) >= 0) {
-                                        ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]));
-                                    } else if (["ogg", "mp3", "wma"].indexOf(data[i].split(".").pop().toLowerCase()) >= 0) {
-                                        AudioSrc.PlayList.push("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + data[i]);
+                                    var param = ss.URLParam(data[i]);
+                                    var path = "../../../../Api/Ajax/Photo/SlideShow/Share/DownloadShareFile.php";
+
+                                    if (["jpg", "png", "gif"].indexOf(param["ext"].toLowerCase()) >= 0) {
+                                        ImageShow.AddImage(path);
+                                    } else if (["ogg", "mp3", "wma"].indexOf(param["ext"].toLowerCase()) >= 0) {
+                                        AudioSrc.PlayList.push(path);
                                     }
                                 }
 

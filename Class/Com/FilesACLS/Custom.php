@@ -30,16 +30,12 @@ class FilesACLS_Custom {
     }
 
     public function Exists($name, $accessmode) {
-
-
-
         $public = $this->xml->getElementsByTagName("public");
         for ($i = 0; $i < $public->count(); $i++) {
             if ($public->item($i)->nodeValue == $name) {
                 return true;
             }
         }
-
         if ($accessmode == self::Access_Member) {
             $member = $this->xml->getElementsByTagName("member");
             if ($member->item($i)->nodeValue == $name) {

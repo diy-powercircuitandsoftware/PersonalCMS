@@ -1,5 +1,5 @@
 <?php
-
+return;
 session_start();
 include_once '../../../../../../../Class/Core/Config/Config.php';
 include_once '../../../../../../../Class/FileIO/VirtualDirectory.php';
@@ -23,7 +23,7 @@ if ($config->IsOnline()) {
         for ($i = 0; $i < count($files); $i++) {
             $e = $aes->Encrypt($files[$i], $sha1file);
             $files[$i] = http_build_query(array(
-                "name" => $_GET["name"], "path" => $e, "ext" =>   substr( $files[$i], strrpos( $files[$i], '.')+1)
+                "name" => $_GET["name"], "path" => $e
             ));
         }
         echo json_encode($files);
