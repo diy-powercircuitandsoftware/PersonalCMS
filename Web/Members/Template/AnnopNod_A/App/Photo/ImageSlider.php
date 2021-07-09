@@ -137,7 +137,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ImageShow.ToggleFPSPlayer();
                             ss.S("#BNPlay").Html("Play");
                         }
-                        if (AudioSrc.PlayList.length === 1) {
+                        if (AudioSrc.PlayList.length > 0) {
                             AudioSrc.src = AudioSrc.PlayList[0];
                         }
 
@@ -216,6 +216,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     if (["jpg", "png", "gif"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
                                         ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["path"]));
                                     } else if (["ogg", "mp3", "wma"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
+                                     
                                         AudioSrc.PlayList.push("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + data[i]["path"]);
                                     }
                                 }

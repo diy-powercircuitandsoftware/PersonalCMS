@@ -135,7 +135,7 @@ if ($config->IsOnline()) {
                             ImageShow.ToggleFPSPlayer();
                             ss.S("#BNPlay").Html("Play");
                         }
-                        if (AudioSrc.PlayList.length === 1) {
+                        if (AudioSrc.PlayList.length > 0) {
                             AudioSrc.src = AudioSrc.PlayList[0];
                         }
 
