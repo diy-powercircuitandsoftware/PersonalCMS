@@ -174,6 +174,7 @@ class SSQueryFW {
         this.ForEach(this.element, function (el) {
             el.innerHTML = "";
         });
+          return this;
     }
     EventListener(...args) {
         var eventName = args[0];

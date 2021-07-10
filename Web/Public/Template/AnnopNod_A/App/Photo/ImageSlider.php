@@ -135,7 +135,7 @@ if ($config->IsOnline()) {
                             ImageShow.ToggleFPSPlayer();
                             ss.S("#BNPlay").Html("Play");
                         }
-                        if (AudioSrc.PlayList.length > 0) {
+                        if (AudioSrc.PlayList.length > 0 && AudioSrc.src == "") {
                             AudioSrc.src = AudioSrc.PlayList[0];
                         }
 
@@ -172,37 +172,22 @@ if ($config->IsOnline()) {
                     ss.S("#BNPlay").Click(function () {
 
                         if (ImageShow.ToggleFPSPlayer()) {
-                            var pp = AudioSrc.play();
-                            if (pp !== undefined) {
-                                pp.then(function () {
-                                    this.innerHTML = "Stop";
-                                }).catch(function (error) {
-
-                                });
-                            }
+                            AudioSrc.play();
+                            this.innerHTML = "Stop";
 
                         } else {
-                            this.innerHTML = "Play";
                             AudioSrc.pause();
+                            this.innerHTML = "Play";
+
                         }
                     });
                     ss.S("#ImageShow").Click(function () {
                         ss.S("#BNPlay").Click();
                     });
 
-
                     ss.S("#ImageRangeViewer").Change(function () {
                         this.setAttribute("seek", "true");
                         this.setAttribute("current", this.value);
-                    });
-
-                    ajax.Get("../../../../Api/Ajax/Photo/SlideShow/Share/GetShareList.php", {"user": ss.S("#OPTUser").Val()}, function (data) {
-                        data = JSON.parse(data);
-
-                        for (var i in data) {
-                            ss.S("#OptLibrary").Append(data[i], data[i]);
-                        }
-                        ss.S("#OptLibrary").Change();
                     });
 
                     ss.S("#OPTChangeTime").Change(function () {
@@ -211,6 +196,15 @@ if ($config->IsOnline()) {
                     ss.S("#OPTHoldTime").Change(function (v) {
                         ImageShow.HoldTime(parseInt(this.value) * 1000);
                     });
+                    ss.S("#OPTUser").Change(function () {
+                        ajax.Get("../../../../Api/Ajax/Photo/SlideShow/Share/GetShareList.php", {"user": ss.S("#OPTUser").Val()}, function (data) {
+                            data = JSON.parse(data);
+                            ss.S("#OptLibrary").Empty().Append("", "Select");
+                            for (var i in data) {
+                                ss.S("#OptLibrary").Append(data[i], data[i]);
+                            }
+                        });
+                    }).Change();
                     ss.S("#OptLibrary").Change(function (v) {
 
                         if (this.value != "") {
@@ -313,7 +307,7 @@ if ($config->IsOnline()) {
                         <div class="TitleCenter">Library</div>
                         <select id="OptLibrary" style="width: 99%;">                        
                         </select>
-                        <audio id="AudioSrc"></audio>
+                        <audio id="AudioSrc" controls="controls"></audio>
 
                     </div>
                     <div class="BorderBlock" style="margin-top: 3px;">
@@ -372,36 +366,4 @@ if ($config->IsOnline()) {
 } else {
     header("location: ../../../../../../DefaultPages/Offline.php");
 }
-return;
-?>
-<div class="Container">
-
-    <div class="Section">
-        <div style="display:block; ">
-            <div id="ImageShow" style="width: 100%;" >
-
-            </div>
-            <div style="background-color: black;display: flex;flex-direction: row;">
-                <div>
-                    <a id="BNPlay" lock="0" style="text-decoration: none;color: white;cursor: pointer;">Play</a>
-                </div>
-                <div style=" flex-grow: 1;">
-                    <input id="ImageRangeViewer" type="range" min="0" max="0"    step="1" style="width: 98%;" />
-                </div>
-                <div style="color: white;">
-                    <label id="LabPlayIndex">0</label>
-                    <label>/</label>
-                    <label id="LabArrayCount">0</label>
-                </div>
-                <div>
-                    <img src="img/fullscreen.png" id="BNFullScreen"  alt="FullScreen"/>
-                </div>
-            </div>
-
-            <audio id="AudioSrc" ></audio>
-
-
-        </div>
-    </div>
-
-</div>
+ 

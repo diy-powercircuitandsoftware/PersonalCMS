@@ -137,7 +137,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ImageShow.ToggleFPSPlayer();
                             ss.S("#BNPlay").Html("Play");
                         }
-                        if (AudioSrc.PlayList.length > 0) {
+                        if (AudioSrc.PlayList.length > 0&& AudioSrc.src =="") {
                             AudioSrc.src = AudioSrc.PlayList[0];
                         }
 
@@ -174,18 +174,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ss.S("#BNPlay").Click(function () {
 
                         if (ImageShow.ToggleFPSPlayer()) {
-                            var pp = AudioSrc.play();
-                            if (pp !== undefined) {
-                                pp.then(function () {
-                                    this.innerHTML = "Stop";
-                                }).catch(function (error) {
-
-                                });
-                            }
+                            AudioSrc.play();
+                            this.innerHTML = "Stop";
 
                         } else {
-                            this.innerHTML = "Play";
                             AudioSrc.pause();
+                            this.innerHTML = "Play";
+
                         }
                     });
                     ss.S("#ImageShow").Click(function () {
@@ -204,7 +199,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         for (var i in data) {
                             ss.S("#OptLibrary").Append(data[i], data[i]);
                         }
-                        ss.S("#OptLibrary").Change();
+                        
                     });
 
                     ss.S("#OPTChangeTime").Change(function () {
@@ -297,9 +292,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <aside>
                     <div class="BorderBlock">
                         <div class="TitleCenter">Library</div>
-                        <select id="OptLibrary" style="width: 99%;">                        
+                        <select id="OptLibrary" style="width: 99%;">     
+                            <option value="">==Select==</option>
                         </select>
-                        <audio id="AudioSrc"></audio>
+                        <audio id="AudioSrc" controls="controls"></audio>
 
                     </div>
                     <div class="BorderBlock" style="margin-top: 3px;">

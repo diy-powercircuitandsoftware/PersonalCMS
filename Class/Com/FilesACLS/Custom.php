@@ -59,7 +59,7 @@ class FilesACLS_Custom {
                 $output[] = $member->item($i)->nodeValue;
             }
         }
-
+ 
         return $output;
     }
 
