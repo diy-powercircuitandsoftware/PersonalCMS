@@ -174,7 +174,7 @@ class SSQueryFW {
         this.ForEach(this.element, function (el) {
             el.innerHTML = "";
         });
-          return this;
+        return this;
     }
     EventListener(...args) {
         var eventName = args[0];
@@ -255,6 +255,10 @@ class SSQueryFW {
     }
     KeyUp(...args) {
         this.EventListener("keyup", ...args);
+        return  this;
+    }
+    MouseOver(...args) {
+        this.EventListener("mouseover", ...args);
         return  this;
     }
     Prop(...args) {

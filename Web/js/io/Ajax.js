@@ -1,5 +1,5 @@
 class Ajax {
-    
+
     Get(...args) {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
@@ -23,7 +23,7 @@ class Ajax {
     Post(...args) {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200&&args.length===3) {
+            if (this.readyState === 4 && this.status === 200 && args.length === 3) {
                 args[2](this.responseText);
             }
         };
@@ -68,7 +68,7 @@ class Ajax {
 
 }
 
-class AjaxScrollBar {
+class Ajax_ScrollBar {
 
     constructor(url, param) {
         this.mutex = false;//lock
@@ -140,6 +140,54 @@ class AjaxScrollBar {
         } else if (args.length === 2) {
             this.param[args[0]] = args[1];
         }
+    }
+}
+
+class Ajax_Preloader {
+    constructor() {
+        this.queue = [];
+    }
+    Add(path) {
+        if (Array.isArray(path)) {
+            for (var i in path) {
+                this.Add(path[i]);
+            }
+        } else {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', path, true);
+            xhr.responseType = 'blob';
+            xhr.ref = this;
+            xhr.onreadystatechange = function (e) {
+                if (this.readyState === XMLHttpRequest.DONE) {
+
+                    this.ref.Change(this.response);
+                    this.ref.queue.shift();
+                    this.ref.Start();
+                }
+            };
+            this.queue.push(xhr);
+        }
+
+
+    }
+
+    Change() {
+
+    }
+    QueueCount() {
+        return  this.queue.length;
+    }
+
+    Start() {
+        if (this.queue.length > 0) {
+            this.queue[0].send();
+        }
+    }
+    Stop() {
+        for (var i = 0; i < this.queue.length; i++) {
+            this.queue[i].abort();
+        }
+        this.queue = [];
     }
 
 }

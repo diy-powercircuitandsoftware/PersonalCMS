@@ -45,7 +45,7 @@ if ($config->IsOnline()) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
-                    var AjaxSB = new AjaxScrollBar("../../../../Api/Ajax/Blog/Share/SearchBlogUsingKeywordID.php");
+                    var AjaxSB = new Ajax_ScrollBar("../../../../Api/Ajax/Blog/Share/SearchBlogUsingKeywordID.php");
                     var BlogSB = new SearchBox(document.getElementById("SearchBox"));
                     var lastid = 0;
                     BlogSB.ValueChange(function (v) {

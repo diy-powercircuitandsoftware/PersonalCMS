@@ -56,7 +56,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var tabletool = new TableTools();
                     var EKeyword = new SpanList("#EKeyword");
                     var FL = new FilesList("#FilesList");
-                    var ajaxsb = new AjaxScrollBar("../../../../Api/Ajax/Blog/List/GetBlogListForEdit.php", {"id": 0});
+                    var ajaxsb = new Ajax_ScrollBar("../../../../Api/Ajax/Blog/List/GetBlogListForEdit.php", {"id": 0});
                     FL.Multiple(false);
                     var lastid = 0;
                     tabletool.Import(document.getElementById("TableOutput"));

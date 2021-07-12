@@ -8,7 +8,7 @@ class PointPoint_Animation {
 }
 
 
-class PointPoint_Player {
+class PointPoint__Player {
     constructor(...args) {
        
         this.domlist = this.div.appendChild(document.createElement("div"));

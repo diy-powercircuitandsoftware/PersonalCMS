@@ -75,10 +75,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
-
                     var AudioSrc = document.getElementById("AudioSrc");
                     var ImageShow = new SlideShow2D(document.getElementById("ImageShow"));
                     var ajax = new Ajax();
+                    var preloader = new Ajax_Preloader();
                     ImageShow.Size(800, 600);
                     AudioSrc.PlayList = [];
                     AudioSrc.PlayListIndex = 0;
@@ -137,9 +137,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ImageShow.ToggleFPSPlayer();
                             ss.S("#BNPlay").Html("Play");
                         }
-                        if (AudioSrc.PlayList.length > 0&& AudioSrc.src =="") {
-                            AudioSrc.src = AudioSrc.PlayList[0];
-                        }
+
 
                     });
 
@@ -183,6 +181,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         }
                     });
+                    ss.S("#BNPlay").MouseOver(function () {
+                        if (AudioSrc.PlayList.length > 0 && AudioSrc.src == "") {
+                            AudioSrc.src = AudioSrc.PlayList[0];
+                        }
+                    });
                     ss.S("#ImageShow").Click(function () {
                         ss.S("#BNPlay").Click();
                     });
@@ -199,7 +202,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         for (var i in data) {
                             ss.S("#OptLibrary").Append(data[i], data[i]);
                         }
-                        
+
                     });
 
                     ss.S("#OPTChangeTime").Change(function () {
@@ -212,20 +215,39 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         if (this.value != "") {
 
                             ajax.Get("../../../../Api/Ajax/Photo/SlideShow/GetFilesList.php", {"Path": "/", "Name": this.value}, function (data) {
+                                ss.S("#BNPlay").Disable(false);
+                                preloader.Stop();
+                                AudioSrc.PlayList = [];
                                 ImageShow.Clear();
-                                data = JSON.parse(data);
-                                for (var i in data) {
-                                    if (["jpg", "png", "gif"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
-                                        ImageShow.AddImage("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["path"]));
-                                    } else if (["ogg", "mp3", "wma"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
 
-                                        AudioSrc.PlayList.push("../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + data[i]["path"]);
+                                data = JSON.parse(data);
+                                var temp = [];
+                                 
+                                for (var i in data) {
+                                    var path = "../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["path"]);
+                                    if (["jpg", "png", "gif"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
+                                        temp.push(path);
+                                    } else if (["ogg", "mp3", "wma"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
+                                        temp.unshift(path);
                                     }
                                 }
-
+                                preloader.Add(temp);
+preloader.Start();
                             });
                         }
                     });
+                    preloader.Change = function (e) {
+                        switch (e.type.split("/")[0]) {
+                            case "audio":
+                                AudioSrc.PlayList.push(URL.createObjectURL(e));
+                                break;
+                            case "image":
+                                ImageShow.AddImage(URL.createObjectURL(e));
+                                break;
+                        }
+
+                    };
+
 
                 });
             </script>
@@ -273,7 +295,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         </div>
                         <div style="background-color: black;display: flex;flex-direction: row;">
                             <div>
-                                <a id="BNPlay"  style="text-decoration: none;color: white;cursor: pointer;">Play</a>
+                                <button  disabled="disabled"  id="BNPlay">Play</button>
                             </div>
                             <div style=" flex-grow: 1;">
                                 <input id="ImageRangeViewer" type="range" min="0" max="0"    step="1" style="width: 98%;" />
@@ -295,7 +317,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         <select id="OptLibrary" style="width: 99%;">     
                             <option value="">==Select==</option>
                         </select>
-                        <audio id="AudioSrc" controls="controls"></audio>
+                        <audio id="AudioSrc" ></audio>
 
                     </div>
                     <div class="BorderBlock" style="margin-top: 3px;">

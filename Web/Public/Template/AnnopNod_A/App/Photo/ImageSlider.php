@@ -76,6 +76,7 @@ if ($config->IsOnline()) {
                     var AudioSrc = document.getElementById("AudioSrc");
                     var ImageShow = new SlideShow2D(document.getElementById("ImageShow"));
                     var ajax = new Ajax();
+                    var preloader = new Ajax_Preloader();
                     ImageShow.Size(800, 600);
                     AudioSrc.PlayList = [];
                     AudioSrc.PlayListIndex = 0;
@@ -135,9 +136,7 @@ if ($config->IsOnline()) {
                             ImageShow.ToggleFPSPlayer();
                             ss.S("#BNPlay").Html("Play");
                         }
-                        if (AudioSrc.PlayList.length > 0 && AudioSrc.src == "") {
-                            AudioSrc.src = AudioSrc.PlayList[0];
-                        }
+
 
                     });
 
@@ -181,6 +180,14 @@ if ($config->IsOnline()) {
 
                         }
                     });
+                    ss.S("#BNPlay").MouseOver(function () {
+                        if (AudioSrc.PlayList.length > 0 && AudioSrc.src == "") {
+                            AudioSrc.src = AudioSrc.PlayList[0];
+                        }
+                    });
+
+
+
                     ss.S("#ImageShow").Click(function () {
                         ss.S("#BNPlay").Click();
                     });
@@ -208,24 +215,37 @@ if ($config->IsOnline()) {
                     ss.S("#OptLibrary").Change(function (v) {
 
                         if (this.value != "") {
-
                             ajax.Get("../../../../Api/Ajax/Photo/SlideShow/Share/GetShareFileList.php", {"name": this.value, "user": ss.S("#OPTUser").Val()}, function (data) {
+                                ss.S("#BNPlay").Disable(false);
+                                preloader.Stop();
                                 ImageShow.Clear();
+                                AudioSrc.PlayList = [];
                                 data = JSON.parse(data);
-                                for (var i in data) {
-                                    var param = ss.URLParam(data[i]);
-                                    var path = "../../../../Api/Ajax/Photo/SlideShow/Share/DownloadShareFile.php?" + data[i];
-
-                                    if (["jpg", "png", "gif"].indexOf(param["ext"].toLowerCase()) >= 0) {
-                                        ImageShow.AddImage(path);
-                                    } else if (["ogg", "mp3", "wma"].indexOf(param["ext"].toLowerCase()) >= 0) {
-                                        AudioSrc.PlayList.push(path);
-                                    }
+                                var audio = data["audio"];
+                                var image = data["image"];
+                                for (var i in audio) {
+                                    var path = "../../../../Api/Ajax/Photo/SlideShow/Share/DownloadShareFile.php?" + audio[i];
+                                    preloader.Add(path);
                                 }
-
+                                for (var i in image) {
+                                    var path = "../../../../Api/Ajax/Photo/SlideShow/Share/DownloadShareFile.php?" + image[i];
+                                    preloader.Add(path);
+                                }
+                                preloader.Start();
                             });
                         }
                     });
+                    preloader.Change = function (e) {
+                        switch (e.type.split("/")[0]) {
+                            case "audio":
+                                AudioSrc.PlayList.push(URL.createObjectURL(e));
+                                break;
+                            case "image":
+                                ImageShow.AddImage(URL.createObjectURL(e));
+                                break;
+                        }
+
+                    };
 
                 });
             </script>
@@ -275,7 +295,8 @@ if ($config->IsOnline()) {
                         </div>
                         <div style="background-color: black;display: flex;flex-direction: row;">
                             <div>
-                                <a id="BNPlay"  style="text-decoration: none;color: white;cursor: pointer;">Play</a>
+                                <button  disabled="disabled"  id="BNPlay">Play</button>
+
                             </div>
                             <div style=" flex-grow: 1;">
                                 <input id="ImageRangeViewer" type="range" min="0" max="0"    step="1" style="width: 98%;" />
@@ -307,7 +328,7 @@ if ($config->IsOnline()) {
                         <div class="TitleCenter">Library</div>
                         <select id="OptLibrary" style="width: 99%;">                        
                         </select>
-                        <audio id="AudioSrc" controls="controls"></audio>
+                        <audio id="AudioSrc" controls="controls" style="display: none;"></audio>
 
                     </div>
                     <div class="BorderBlock" style="margin-top: 3px;">

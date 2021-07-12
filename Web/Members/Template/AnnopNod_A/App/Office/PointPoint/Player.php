@@ -41,7 +41,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var player = new PointPoint_Player(document.getElementById("Render"));
                     var pointpointanimation = new PointPoint_Player_Animation_Render();
                     var sideindex = 0;
-                    var itemindex = 0;
+                    
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
 
@@ -63,8 +63,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 }
                             }
                             if (pointpoint.Count() > 0) {
-                                var x = pointpoint.Get(0).GetSlide();
+                                var x = pointpoint.Get(sideindex).GetSlide();
                                 player.SetDom(x.cloneNode(true));
+                                sideindex++;
                             }
 
 
@@ -76,7 +77,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     }
 
                     player.AddPlayerEvent("click", function () {
-
+                        var x = pointpoint.Get(sideindex).GetSlide();
+                        player.SetDom(x.cloneNode(true));
+                         sideindex++;
                         //  ss.S("#LabPage").Html(player.slidesindex + 1);
                         // ss.S("#BNGoto").Val(player.slidesindex);
                     });

@@ -61,7 +61,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var tabletool = new TableTools();
                     var ajax = new Ajax();
                     var lastid = 0;
-                    var ajaxsb = new AjaxScrollBar("../../../../Api/Ajax/Event/List/GetEvent.php", {"ID": 0});
+                    var ajaxsb = new Ajax_ScrollBar("../../../../Api/Ajax/Event/List/GetEvent.php", {"ID": 0});
                     tabletool.Import(document.getElementById("TableOutput"));
                     ajaxsb.AddScrollEvent(function (data) {
                         try {

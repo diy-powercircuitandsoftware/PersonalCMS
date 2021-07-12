@@ -42,7 +42,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 ss.DocumentReady(function () {
 
                     var ajax = new Ajax();
-                    var AjaxSB = new AjaxScrollBar("../../../../../../Web/Members/Api/Ajax/Blog/Share/SearchBlogUsingKeywordID.php");
+                    var AjaxSB = new Ajax_ScrollBar("../../../../../../Web/Members/Api/Ajax/Blog/Share/SearchBlogUsingKeywordID.php");
                     var BlogSB = new SearchBox(document.getElementById("SearchBox"));
                     var lastid = 0;
                     BlogSB.ValueChange(function (v) {

@@ -20,13 +20,25 @@ if ($config->IsOnline()) {
     if ($acls->Exists($_GET["name"], FilesACLS_Custom::Access_Public)) {
         $sha1file = sha1_file($path->DiskPath("/Photo/SlideShow/Share.xml"));
         $files = preg_split("/\n|\r\n?/", $path->FileGetContents("/Photo/SlideShow/" . $_GET["name"]));
+        $image = array();
+        $audio = array();
         for ($i = 0; $i < count($files); $i++) {
             $e = $aes->Encrypt($files[$i], $sha1file);
-            $files[$i] = http_build_query(array(
-                "user" => $_GET["user"], "name" => $_GET["name"], "path" => $e, "ext" => substr($files[$i], strrpos($files[$i], '.') + 1)
-            ));
+            $ext = strtolower(substr($files[$i], strrpos($files[$i], '.') + 1));
+            if (in_array($ext, array("jpg","jpeg","png","gif"))) {
+                $image[] = http_build_query(array(
+                    "user" => $_GET["user"], "name" => $_GET["name"], "path" => $e
+                ));
+            } else if (in_array($ext, array("mp3","ogg","wma"))) {
+                $audio[] = http_build_query(array(
+                    "user" => $_GET["user"], "name" => $_GET["name"], "path" => $e
+                ));
+            }
         }
-        echo json_encode($files);
+        echo json_encode(array(
+            "audio"=> $audio,
+            "image"=>$image
+        ));
     }
 }
 $userdb->close();

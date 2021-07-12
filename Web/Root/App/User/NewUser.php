@@ -37,7 +37,7 @@ if ($config->HasRootAuth(session_id())) {
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
-                    var ajaxsb = new AjaxScrollBar("Action/GetRegister.php", {"phone": 0});
+                    var ajaxsb = new Ajax_ScrollBar("Action/GetRegister.php", {"phone": 0});
                     var dialog = new SuperDialog();
                     var userlist = new TableTools();
                     var lastid = 0;
