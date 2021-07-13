@@ -5,11 +5,19 @@ error_reporting(E_ALL);
 
 class Config extends SQLite3 {
 
-    public $configdata = array();
-
     public function __construct() {
-        $path = dirname(__FILE__) . "/Config.DB";
-        $this->open($path);
+        $cfgpath = dirname(__FILE__) . '/Path.php';
+        if (file_exists($cfgpath)) {
+            require_once $cfgpath;
+            if (!defined("Config_Data_Path")) {
+                echo 'configuration mistakes';
+                exit();
+            }
+        } else {
+            define("Config_Data_Path", realpath($this->GetAppPath() . "/DefaultFiles/"));
+        }
+
+        $this->open($this->GetDataPath() . "/Config.DB");
     }
 
     public function Auth($name, $password) {
@@ -48,16 +56,11 @@ class Config extends SQLite3 {
     }
 
     public function GetDataPath() {
-        $results = $this->query(" SELECT v FROM config WHERE k='data';");
-        $data = $results->fetchArray();
-        if ($data) {
-            return $data["v"];
-        }
-        return false;
+        return Config_Data_Path;
     }
 
-    public function GetConfigDIRPath() {
-        return realpath(dirname(__FILE__));
+    public function GetAppPath() {
+        return realpath(dirname(__FILE__) . "/../../../");
     }
 
     public function GetLocalConfigPath() {
@@ -108,24 +111,28 @@ class Config extends SQLite3 {
             return "string not empty";
         }
         $realpath = realpath($datadir);
-        if (is_dir($realpath) && is_writable($realpath) && is_readable($realpath)) {
+        if (is_dir($realpath) && is_writable($realpath) && is_readable($realpath) && is_writable(dirname(__FILE__))) {
+            file_put_contents(dirname(__FILE__) . '/Path.php', 
+                '<?php define( "Config_Data_Path", "' . $realpath . '"); ?>');
             $hash = sha1(sha1("Transp" . $password . "arency"));
             $sql = ('CREATE TABLE IF NOT EXISTS config (
-                k       VARCHAR (256)   PRIMARY KEY,
-                v VARCHAR (1024));');
+            k VARCHAR (256) PRIMARY KEY,
+            v VARCHAR (1024));
+            ');
             $sqlinstall = $this->exec($sql);
-            $sqlinsert = $this->InsertValue("root", json_encode(array("name" => $rootname, "pw" => $hash))) && $this->InsertValue("data", $datadir);
+            $sqlinsert = $this->InsertValue("root", json_encode(array("name" => $rootname, "pw" => $hash)));
             if ($sqlinstall && $sqlinsert) {
                 return "ok";
             }
             return "sqlite3 error";
         }
+
         return sprintf("Directory '%s' Can Not Edit", $realpath);
     }
 
     public function Installed() {
         $results = $this->query(" SELECT name FROM sqlite_master WHERE name='config';");
-        return !($results->fetchArray() === false);
+        return (!($results->fetchArray() === false)) && is_writable($this->GetDataPath()) && is_readable($this->GetDataPath());
     }
 
     public function Logout() {

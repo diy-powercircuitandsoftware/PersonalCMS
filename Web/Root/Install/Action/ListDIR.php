@@ -6,7 +6,7 @@ if (isset($_POST["Path"])) {
     $out = array();
     $path = "";
     if ($_POST["Path"] == "/") {
-        $path = realpath($config->GetConfigDIRPath()."/../../../DefaultFiles/");
+        $path = realpath($config->GetAppPath()."/DefaultFiles/");
     } else {
         $path = $_POST["Path"];
     }
