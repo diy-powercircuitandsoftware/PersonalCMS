@@ -117,6 +117,7 @@ class SlideShow2D {
     ToggleFPSPlayer() {
         if (this.Render === null) {
             this.Start();
+            return !this.FPSTimer.pause;
         }
         this.FPSTimer.pause = !this.FPSTimer.pause;
         return  !this.FPSTimer.pause;
