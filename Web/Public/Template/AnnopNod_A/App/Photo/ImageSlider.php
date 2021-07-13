@@ -159,16 +159,19 @@ if ($config->IsOnline()) {
                     });
 
                     ss.S("#BNPlay").Click(function () {
-                        if (AudioSrc.PlayList.length > 0 && AudioSrc.src == "") {
-                            AudioSrc.src = AudioSrc.PlayList[0];
-                        }
-                        if (ImageShow.ToggleFPSPlayer()) {
-                            AudioSrc.play();
-                            this.innerHTML = "Stop";
+                        if (ImageShow.GetImageCount() > 2)
+                        {
+                            if (AudioSrc.PlayList.length > 0 && AudioSrc.src == "") {
+                                AudioSrc.src = AudioSrc.PlayList[0];
+                            }
+                            if (ImageShow.ToggleFPSPlayer()) {
+                                AudioSrc.play();
+                                this.innerHTML = "Stop";
 
-                        } else {
-                            AudioSrc.pause();
-                            this.innerHTML = "Play";
+                            } else {
+                                AudioSrc.pause();
+                                this.innerHTML = "Play";
+                            }
                         }
 
                     });
