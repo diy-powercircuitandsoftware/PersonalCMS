@@ -14,29 +14,14 @@ class SlideShow2D {
         };
         this.ImageList = new SlideShow2D_ImageList();
         this.FPSTimer = new SlideShow2D_FPSTimer();
-        this.Render = new SlideShow2D_RenderEngine(this.canvas);
+        this.Render = null;
         this.TransitionList = [];
         this.FPSTimer.Reference = this;
         this.FPSTimer.Tick = function (t) {
             this.Reference.Render.Rendering(t);
         };
-        this.Render.Reference = this;
-        this.Render.TransitionEnd = function () {
-            var rndnum = Math.floor(Math.random() * Math.floor(this.Reference.TransitionList.length));
-            var prev = this.Reference.Config.Index;
-            this.Reference.Config.Index = (this.Reference.Config.Index + 1) % this.Reference.ImageList.Count();
-            var next = this.Reference.Config.Index;
-            this.Reference.Render.SetImageB(this.Reference.ImageList.GetImage(this.Reference.Config.Index));
-            var rendersize = this.Size();
-            var imageasize = this.Reference.ImageList.GetImageSize(prev);
-            var imagebsize = this.Reference.ImageList.GetImageSize(next);
-            var transition = new this.Reference.TransitionList[rndnum]( );
-            transition.CanvasSize(rendersize.width, rendersize.height);
-            transition.ImageASize(imageasize.width, imageasize.height);
-            transition.ImageBSize(imagebsize.width, imagebsize.height);
-            this.SetTransition(transition);
-            this.Reference.ImageIndexChange(this.Reference.Config.Index);
-        };
+
+
     }
     AddImage(path) {
         this.ImageList.AddImage(path);
@@ -80,9 +65,28 @@ class SlideShow2D {
         }
     }
     Size(w, h) {
-        this.Render.Size(w, h);
+        this.canvas.width = w;
+        this.canvas.height = h;
     }
     Start() {
+        this.Render = new SlideShow2D_RenderEngine(this.canvas);
+        this.Render.Reference = this;
+        this.Render.TransitionEnd = function () {
+            var rndnum = Math.floor(Math.random() * Math.floor(this.Reference.TransitionList.length));
+            var prev = this.Reference.Config.Index;
+            this.Reference.Config.Index = (this.Reference.Config.Index + 1) % this.Reference.ImageList.Count();
+            var next = this.Reference.Config.Index;
+            this.Reference.Render.SetImageB(this.Reference.ImageList.GetImage(this.Reference.Config.Index));
+            var rendersize = this.Size();
+            var imageasize = this.Reference.ImageList.GetImageSize(prev);
+            var imagebsize = this.Reference.ImageList.GetImageSize(next);
+            var transition = new this.Reference.TransitionList[rndnum]( );
+            transition.CanvasSize(rendersize.width, rendersize.height);
+            transition.ImageASize(imageasize.width, imageasize.height);
+            transition.ImageBSize(imagebsize.width, imagebsize.height);
+            this.SetTransition(transition);
+            this.Reference.ImageIndexChange(this.Reference.Config.Index);
+        };
         if (this.ImageList.Count() == 0) {
             return false;
         } else if (this.ImageList.Count() % 2 != 0) {
@@ -106,9 +110,14 @@ class SlideShow2D {
     }
     Stop() {
         this.FPSTimer.Stop();
-        this.Render.Clear();
+        if (this.Render !== null) {
+            this.Render.Clear();
+        }
     }
     ToggleFPSPlayer() {
+        if (this.Render === null) {
+            this.Start();
+        }
         this.FPSTimer.pause = !this.FPSTimer.pause;
         return  !this.FPSTimer.pause;
     }

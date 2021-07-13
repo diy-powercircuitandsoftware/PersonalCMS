@@ -131,22 +131,12 @@ if ($config->IsOnline()) {
                     ImageShow.Load(function (v) {
                         ss.S("#ImageRangeViewer").Attr("max", v);
                         ss.S("#LabArrayCount").Html(v);
-                        if (v == 2) {
-                            ImageShow.Start();
-                            ImageShow.ToggleFPSPlayer();
-                            ss.S("#BNPlay").Html("Play");
-                        }
-
-
                     });
 
                     ImageShow.ImageIndexChange = function (v) {
                         ss.S("#ImageRangeViewer").Val(v);
                         ss.S("#LabPlayIndex").Html(v + 1);
                     };
-
-
-
                     document.onkeyup = function (event) {
                         event.preventDefault();
 
@@ -169,7 +159,9 @@ if ($config->IsOnline()) {
                     });
 
                     ss.S("#BNPlay").Click(function () {
-
+                        if (AudioSrc.PlayList.length > 0 && AudioSrc.src == "") {
+                            AudioSrc.src = AudioSrc.PlayList[0];
+                        }
                         if (ImageShow.ToggleFPSPlayer()) {
                             AudioSrc.play();
                             this.innerHTML = "Stop";
@@ -177,16 +169,9 @@ if ($config->IsOnline()) {
                         } else {
                             AudioSrc.pause();
                             this.innerHTML = "Play";
-
                         }
-                    });
-                    ss.S("#BNPlay").MouseOver(function () {
-                        if (AudioSrc.PlayList.length > 0 && AudioSrc.src == "") {
-                            AudioSrc.src = AudioSrc.PlayList[0];
-                        }
-                    });
 
-
+                    });
 
                     ss.S("#ImageShow").Click(function () {
                         ss.S("#BNPlay").Click();

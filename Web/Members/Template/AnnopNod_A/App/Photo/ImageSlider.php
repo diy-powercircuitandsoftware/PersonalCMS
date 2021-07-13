@@ -132,21 +132,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     ImageShow.Load(function (v) {
                         ss.S("#ImageRangeViewer").Attr("max", v);
                         ss.S("#LabArrayCount").Html(v);
-                        if (v == 2) {
-                            ImageShow.Start();
-                            ImageShow.ToggleFPSPlayer();
-                            ss.S("#BNPlay").Html("Play");
-                        }
-
-
                     });
 
                     ImageShow.ImageIndexChange = function (v) {
                         ss.S("#ImageRangeViewer").Val(v);
                         ss.S("#LabPlayIndex").Html(v + 1);
                     };
-
-
 
                     document.onkeyup = function (event) {
                         event.preventDefault();
@@ -170,7 +161,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#BNPlay").Click(function () {
-
+                        if (AudioSrc.PlayList.length > 0 && AudioSrc.src == "") {
+                            AudioSrc.src = AudioSrc.PlayList[0];
+                        }
                         if (ImageShow.ToggleFPSPlayer()) {
                             AudioSrc.play();
                             this.innerHTML = "Stop";
@@ -180,12 +173,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             this.innerHTML = "Play";
 
                         }
+
                     });
-                    ss.S("#BNPlay").MouseOver(function () {
-                        if (AudioSrc.PlayList.length > 0 && AudioSrc.src == "") {
-                            AudioSrc.src = AudioSrc.PlayList[0];
-                        }
-                    });
+
                     ss.S("#ImageShow").Click(function () {
                         ss.S("#BNPlay").Click();
                     });
@@ -222,7 +212,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                                 data = JSON.parse(data);
                                 var temp = [];
-                                 
+
                                 for (var i in data) {
                                     var path = "../../../../Api/Action/Files/Download/DownloadFiles.php?path=" + (data[i]["path"]);
                                     if (["jpg", "png", "gif"].indexOf(data[i]["name"].split(".").pop().toLowerCase()) >= 0) {
@@ -232,7 +222,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     }
                                 }
                                 preloader.Add(temp);
-preloader.Start();
+                                preloader.Start();
                             });
                         }
                     });
