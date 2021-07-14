@@ -16,4 +16,4 @@ if ($config->IsOnline() && isset($_GET["id"])) {
     header("HTTP/1.0 404 Not Found");
 }
 $udb->close();
-$config->close();
+$config->CloseDB();

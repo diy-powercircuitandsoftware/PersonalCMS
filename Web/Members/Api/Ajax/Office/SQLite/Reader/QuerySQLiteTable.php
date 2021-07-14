@@ -29,4 +29,4 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     echo null;
 }
 $userdb->close();
-$config->close();
+$config->CloseDB();

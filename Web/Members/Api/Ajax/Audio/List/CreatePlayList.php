@@ -17,5 +17,5 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $vd->FilePutContents("/Audio/".$_POST["Name"].".txt", "");
 }
 $userdb->close();
-$config->close();
+$config->CloseDB();
 

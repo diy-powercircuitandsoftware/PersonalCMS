@@ -17,4 +17,4 @@ if ($config->IsOnline() && isset($_GET["path"]) && isset($_SESSION["User"]) &&
     echo json_encode(null);
 }
 $userdb->close();
-$config->close();
+$config->CloseDB();

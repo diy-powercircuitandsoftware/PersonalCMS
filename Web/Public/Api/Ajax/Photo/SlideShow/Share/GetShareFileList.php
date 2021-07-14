@@ -42,4 +42,4 @@ if ($config->IsOnline()) {
     }
 }
 $userdb->close();
-$config->close();
+$config->CloseDB();

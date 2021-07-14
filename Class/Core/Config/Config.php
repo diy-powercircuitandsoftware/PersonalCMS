@@ -26,7 +26,9 @@ class Config {
     public function CanAuth() {
         return $this->configdb->CanAuth();
     }
-
+    public function CloseDB( ) {
+        return $this->configdb->close();
+    }
     public function GetDataPath() {
         if (defined("Config_Data_Path")) {
             return Config_Data_Path;
@@ -55,6 +57,10 @@ class Config {
 
     public function HasRootAuth($sessionid) {
         return $this->configdb->HasRootAuth($sessionid);
+    }
+
+    public function InsertValue($key, $val) {
+        return $this->configdb->InsertValue($key, $val);
     }
 
     public function IsOnline() {

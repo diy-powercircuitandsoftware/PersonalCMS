@@ -37,4 +37,4 @@ if ($config->IsOnline() && isset($_POST["AccessList"]) && isset($_SESSION["User"
     echo '0';
 }
 $userdb->close();
-$config->close();
+$config->CloseDB();

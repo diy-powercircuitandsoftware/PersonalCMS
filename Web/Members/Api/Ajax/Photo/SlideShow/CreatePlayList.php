@@ -19,5 +19,5 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $vd->FilePutContents("/Photo/SlideShow/" . $_POST["Name"] . ".txt", "");
 }
 $userdb->close();
-$config->close();
+$config->CloseDB();
 

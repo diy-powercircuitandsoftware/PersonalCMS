@@ -20,5 +20,5 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $playlist->FilePutContents($savepath, implode("\r\n", $out) );
 }
 $userdb->close();
-$config->close();
+$config->CloseDB();
 

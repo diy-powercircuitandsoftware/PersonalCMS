@@ -19,4 +19,4 @@ if ($config->IsOnline() && isset($_POST["path"]) &&isset($_POST["newname"]) && i
     echo '0';
 }
 $userdb->close();
-$config->close();
+$config->CloseDB();

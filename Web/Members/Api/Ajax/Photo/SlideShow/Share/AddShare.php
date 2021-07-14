@@ -23,4 +23,4 @@ if ($config->IsOnline() && isset($_SESSION["User"]) &&
     $acls->Save($realpath);
 }
 $userdb->close();
-$config->close();
+$config->CloseDB();

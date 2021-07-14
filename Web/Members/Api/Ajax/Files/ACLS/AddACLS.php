@@ -25,4 +25,4 @@ if ($config->IsOnline() && isset($_POST["Access"]) && isset($_POST["Files"]) && 
     echo '0';
 }
 $userdb->close();
-$config->close();
+$config->CloseDB();

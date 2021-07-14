@@ -13,5 +13,5 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
     }
 }
 $udb->close();
-$config->close();
+$config->CloseDB();
 

@@ -23,4 +23,4 @@ if ($config->IsOnline() && isset($_POST["Path"]) && isset($_POST["Files"]) && is
     echo '0';
 }
 $userdb->close();
-$config->close();
+$config->CloseDB();
