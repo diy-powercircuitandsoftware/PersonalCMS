@@ -177,8 +177,8 @@ class VirtualDirectory {
 
     public function Normalize($Path) {
         $ArrayOut = array();
-        $ReFormat = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, ($Path));
-        $Split = array_filter(explode(DIRECTORY_SEPARATOR, $ReFormat), 'strlen');
+        $ReFormat = str_replace(array('/', '\\'), "/", ($Path));
+        $Split = array_filter(explode("/", $ReFormat), 'strlen');
         foreach ($Split as $value) {
             if ($value == "..") {
                 array_pop($ArrayOut);
@@ -186,7 +186,7 @@ class VirtualDirectory {
                 $ArrayOut[] = ($value);
             }
         }
-        return DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $ArrayOut);
+        return "/" . implode("/", $ArrayOut);
     }
 
     public function MkDIR($s) {

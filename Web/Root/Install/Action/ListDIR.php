@@ -1,12 +1,12 @@
 <?php
 
-include_once '../../../../Class/Core/Config/Config.php';
-$config = new Config();
+include_once '../../../../Class/Core/Config/Installer.php';
+$installer = new Installer();
 if (isset($_POST["Path"])) {
     $out = array();
     $path = "";
     if ($_POST["Path"] == "/") {
-        $path = realpath($config->GetAppPath()."/DefaultFiles/");
+        $path = realpath($installer->GetAppPath());
     } else {
         $path = $_POST["Path"];
     }
