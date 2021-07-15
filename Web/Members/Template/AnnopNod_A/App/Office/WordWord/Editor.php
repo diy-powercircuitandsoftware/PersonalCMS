@@ -204,7 +204,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 "width": s.width, "height": s.height, "html": editor.Html( )
                             };
                         }
-                        var dpw = sd.PleaseWait().ZIndex(999);
+                        var dpw = sd.PleaseWait();
                         var dat = {};
                         dat.FullPath = ss.URLParam()["path"];
                         dat.Pages = editor.Pages;

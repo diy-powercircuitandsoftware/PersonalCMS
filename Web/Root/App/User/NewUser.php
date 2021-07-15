@@ -80,7 +80,7 @@ if ($config->HasRootAuth(session_id())) {
                                 ajaxsb.Param("id", lastid);
                                 ajaxsb.LoadAjax();
                             });
-                        }).ZIndex(999);
+                        });
                     });
 
 

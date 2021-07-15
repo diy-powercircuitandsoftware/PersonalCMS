@@ -55,7 +55,7 @@ class VirtualDirectory {
     }
 
     public function DiskPath($s) {
-        return ($this->DiskDirPath . $this->Normalize($s));
+        return str_replace("\\", "/", $this->DiskDirPath . $this->Normalize($s));
     }
 
     public function FileExists($s) {

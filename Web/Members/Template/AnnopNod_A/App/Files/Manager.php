@@ -72,9 +72,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#BNUpload").Disable(false);
                             ss.S("#BNCancelUpload").Hide();
                             FL.OpenDir(fileupload.currentdir);
-                            dialogmsgbox.Alert("Upload Complete").ZIndex(999);
+                            dialogmsgbox.Alert("Upload Complete");
                         } else if (v.Error) {
-                            dialogmsgbox.Alert("Upload Error").ZIndex(999);
+                            dialogmsgbox.Alert("Upload Error");
                             ss.S("#BNUpload").Disable(false);
                             ss.S("#BNCancelUpload").Hide();
                         }
@@ -89,7 +89,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     dialogmsgbox.Alert(data);
                                 }
                             });
-                        }).ZIndex(999);
+                        });
                     };
 
                     FL.Multiple(true);
@@ -140,7 +140,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 FL.OpenDir(fileupload.currentdir);
                             });
                             return  true;
-                        }).ZIndex(999);
+                        });
                     });
 
 
@@ -273,7 +273,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      var cust = dialog.Custom();
                      cust.AddDOM(takephoto);
                      cust.OpenDialog();
-                     cust.ZIndex(999);
+                     cust;
                      cust.Title("Take Pictures");
                      takephoto.Open();
                      cust.AddButton("1", "Take Pictures");

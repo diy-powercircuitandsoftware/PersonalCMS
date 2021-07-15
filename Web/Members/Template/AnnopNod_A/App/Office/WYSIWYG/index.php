@@ -68,7 +68,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 data = JSON.parse(data);
                                 fd.ChDir(fd.currentdir);
                             });
-                        }).ZIndex(999);
+                        });
                     });
 
 

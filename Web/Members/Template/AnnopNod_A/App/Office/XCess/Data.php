@@ -228,7 +228,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                                 ss.Post("../../../../Api/Ajax/SQLite/DeleteData.php", json, function (data) {
                                     ss.S("#SelectDataField").Change();
                                 });
-                            }).ZIndex(999);
+                            });
                         }
                     });
 

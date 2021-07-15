@@ -8,23 +8,45 @@ class PointPoint_Player {
             this.player = document.body.appendChild(document.createElement("div"));
         }
     }
+    Click() {
+        this.player.click();
+    }
     SetDom(dom) {
-        console.log(dom);
-         this.player.innerHTML="";
+
+        this.player.innerHTML = "";
         this.player.appendChild(dom);
     }
     AddPlayerEvent(...args) {
         this.player.addEventListener(...args);
     }
-    
+
 }
-class   PointPoint_Player_Animation_Render{
-     constructor(...args) {
-         
-     }
-     HasAnimation(){
-         
-     }
+class   PointPoint_Player_Animation_Render {
+    constructor(...args) {
+        this.Animation = [];
+        this.DomsAnimation = [];
+    }
+    AddAnimation() {
+
+    }
+
+    HasAnimation() {
+        return this.DomsAnimation.length > 0;
+    }
+    Play() {
+        this.DomsAnimation.shift();
+
+    }
+    SetDom(dom) {
+        var ref = this;
+        ref.DomsAnimation = [];
+        [].forEach.call(dom.querySelectorAll("[pointpoint-animate]"), function (d) {
+            if (d.getAttribute("pointpoint-animate") != "") {
+                ref.DomsAnimation.push(d);
+            }
+        });
+        return dom;
+    }
 }
 class PointPoint_Player_Timer {
     constructor(fps = 60) {

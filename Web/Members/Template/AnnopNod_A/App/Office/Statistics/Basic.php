@@ -96,7 +96,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     //http://ie.eng.cmu.ac.th/IE2014/elearnings/2015_01/183/Minitab.pdf
                     //http://www.stvc.ac.th/elearning/stat/csu5.html
                     /*   if (ss.URLParam()["path"] !== undefined) {
-                     var dpw = sd.PleaseWait().ZIndex(999);
+                     var dpw = sd.PleaseWait();
                      ss.Post("../../../../Api/Ajax/CSV/GetCSVData.php", {"path": ss.URLParam()["path"]}, function (data) {
                      data = JSON.parse(data);
                      ssh.ImportFromCSV(data["csvdata"]);
@@ -110,7 +110,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         if (ss.URLParam()["path"] !== undefined) {
                             sd.Confirm("Do You Clear Data", function () {
                                 ssh.ClearAll();
-                            }).ZIndex(999);
+                            });
                         } else {
                             ssh.Reset();
                         }
@@ -189,7 +189,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     });
 
                     ss.S("#BNSave").Click(function () {
-                        var dpw = sd.PleaseWait().ZIndex(999);
+                        var dpw = sd.PleaseWait();
                         ss.Post("../../../../Api/Ajax/CSV/SaveCSVFile.php", {"path": ss.URLParam()["path"], "csvdata": ssh.ExportToCSVArray()}, function (data) {
                             if (data == "1") {
                                 dpw.Close();

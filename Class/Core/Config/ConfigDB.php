@@ -1,10 +1,9 @@
- 
 <?php
 
 class ConfigDB extends SQLite3 {
 
     public function __construct($path) {
-        $this->open($path);
+         $this->open($path);
     }
 
     public function Auth($name, $password) {

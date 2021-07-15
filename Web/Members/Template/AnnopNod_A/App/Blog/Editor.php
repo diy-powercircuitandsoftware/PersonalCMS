@@ -106,9 +106,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             ss.S("#BNUpload").Disable(false);
                             ss.S("#BNCancelUpload").Hide();
                             FV.OpenDir(FV.CurrentDIR);
-                            dialogmsgbox.Alert("Upload Complete").ZIndex(999);
+                            dialogmsgbox.Alert("Upload Complete");
                         } else if (v.Error) {
-                            dialogmsgbox.Alert("Upload Error").ZIndex(999);
+                            dialogmsgbox.Alert("Upload Error");
                             ss.S("#BNUpload").Disable(false);
                             ss.S("#BNCancelUpload").Hide();
                         }
@@ -166,7 +166,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     FV.Properties(function (v) {
                         ajax.Post("../../../../Api/Ajax/Blog/Zip/GetBlogZipStat.php", {"Path": FV.FilePath, "Name": v}, function (data) {
                             data = JSON.parse(data);
-                            var tl = dialog.TableLayout().Title("Properties").ZIndex(999);
+                            var tl = dialog.TableLayout().Title("Properties");
                             tl.AddNewRowElement();
                             tl.AddNewCellElement("Name", data["name"]);
                             tl.AddNewRowElement();
@@ -301,7 +301,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      dialogmsgbox.Alert(data);
                      }
                      });
-                     }).ZIndex(999);
+                     });
                      };
                      */
 
@@ -315,7 +315,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      FL.OpenDir(FL.CurrentDIR);
                      });
                      return  true;
-                     }).ZIndex(999);
+                     });
                      });
                      
                      */
@@ -334,7 +334,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                      }
                      });
                      return true;
-                     }).ZIndex(999);
+                     });
                      }
                      });
                      */

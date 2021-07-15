@@ -75,7 +75,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 fd.OpenDir(fd.CurrentDir);
                                 p.Close();
                             });
-                        }).ZIndex(999);
+                        });
                     });
 
 

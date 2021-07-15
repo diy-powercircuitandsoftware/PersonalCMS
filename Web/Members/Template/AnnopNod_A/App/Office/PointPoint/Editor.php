@@ -106,6 +106,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
 
                         var type = current.getAttribute("pointpoint-type");
+
                         if (ss.S("#OPTSelectMode").Val() == "edit" && type == "text") {
                             current.contentEditable = "true";
 
@@ -129,6 +130,11 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
                         if (ss.S("#OPTSelectMode").Val() == "delete" && (pointpointeditor.selectitem != null) && (pointpointeditor.selectitem.getAttribute("pointpoint-type") != "slide")) {
                             pointpointeditor.selectitem.parentNode.removeChild(pointpointeditor.selectitem);
+                        }
+
+                        if (type !== "slide") {
+                            var animatename = current.getAttribute("pointpoint-animate");
+                            ss.S("#AnimationList").Val(animatename);
                         }
 
 
@@ -390,6 +396,13 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     });
 
+
+                    ss.S("#AnimationList").Change(function () {
+
+                        pointpointeditor.selectitem.setAttribute("pointpoint-animate", this.value);
+                        // pointpointeditor.SetAnimation(ss.S("#AnimationList").Val(), ss.S("#AnimationTime").Val());
+                    });
+
                     return 0;
 
 
@@ -439,9 +452,12 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
 
 
-                    ss.S("#AnimationList,#AnimationTime").Change(function () {
-                        pointpointeditor.SetAnimation(ss.S("#AnimationList").Val(), ss.S("#AnimationTime").Val());
+
+                    ss.S("#AnimationTime").Change(function () {
+                        pointpointeditor.selectitem;
+                        // pointpointeditor.SetAnimation(ss.S("#AnimationList").Val(), ss.S("#AnimationTime").Val());
                     });
+
 
 
 
@@ -468,7 +484,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                         ;
                                     }
                                     return true;
-                                }, parseFloat(pointpointeditor.selectdom.style.left), parseFloat(pointpointeditor.selectdom.style.top), parseFloat(pointpointeditor.selectdom.style.width), parseFloat(pointpointeditor.selectdom.style.height)).ZIndex(999);
+                                }, parseFloat(pointpointeditor.selectdom.style.left), parseFloat(pointpointeditor.selectdom.style.top), parseFloat(pointpointeditor.selectdom.style.width), parseFloat(pointpointeditor.selectdom.style.height));
 
 
                             }
@@ -481,7 +497,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         fd.append("FullPath", pointpointeditor.path);
                         fd.append("UploadFile", this.files[0], this.files[0].name);
                         ajax.Success = function (data) {
-                            sd.Alert("Upload Complete").ZIndex(999);
+                            sd.Alert("Upload Complete");
                         };
 
                         ajax.Post("../../../../Api/Ajax/PointPoint/UploadEmbedFile.php", fd);

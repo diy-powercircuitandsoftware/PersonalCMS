@@ -158,7 +158,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                         });
 
                         ss.S("#BNSave").Click(function () {
-                            var dpw = sd.PleaseWait().ZIndex(999);
+                            var dpw = sd.PleaseWait();
                             ss.Post("../../../../Api/Ajax/Editor/SaveHtmlFile.php", {"FullPath": ss.URLParam()["path"], "HTML": editor.Html()}, function (data) {
                                 if (data == "1") {
                                     autosavetime = 60 * 5;

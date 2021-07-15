@@ -11,7 +11,8 @@ if ($config->IsOnline() && isset($_GET["id"])) {
     if (is_file($path) && explode("/", mime_content_type($path))[0] == "image") {
          CreateImageThumbnail($path, 30, 30);
     } else {
-        header("Content-Type: image/png");
+        
+       header("Content-Type: image/png");
         $im = imagecreate(30, 30);
         $background_color = imagecolorallocate($im, rand(0, 255), rand(0, 255), rand(0, 255));
         imagepng($im);

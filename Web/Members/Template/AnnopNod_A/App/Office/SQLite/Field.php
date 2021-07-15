@@ -142,7 +142,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                             if (data == "1") {
                                 location.reload();
                             } else {
-                                sd.Alert(data).Title("Error").ZIndex(999);
+                                sd.Alert(data).Title("Error");
                             }
 
                         });
@@ -161,7 +161,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                             if (data == "1") {
                                 ss.S("#SelectTableField").Change();
                             } else {
-                                sd.Alert(data).Title("Error").ZIndex(999);
+                                sd.Alert(data).Title("Error");
                             }
 
                         });

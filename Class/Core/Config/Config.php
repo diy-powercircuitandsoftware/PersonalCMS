@@ -10,12 +10,14 @@ class Config {
     public function __construct() {
 
         $cfgpath = dirname(__FILE__) . '/Path.php';
-        if (file_exists($cfgpath)) {
-            require $cfgpath;
-            include_once dirname(__FILE__) . '/ConfigDB.php';
-            if (defined("Config_Data_Path")) {
-                $this->configdb = new ConfigDB(Config_Data_Path . "/Config.DB");
-            }
+        $configdb = dirname(__FILE__) . '/ConfigDB.php';
+        if (file_exists($cfgpath) && !defined("Config_Data_Path")) {
+            require_once $cfgpath;
+        }
+
+        if (defined("Config_Data_Path")) {
+            include_once $configdb;
+            $this->configdb = new ConfigDB(Config_Data_Path . "/Config.DB");
         }
     }
 
@@ -26,9 +28,11 @@ class Config {
     public function CanAuth() {
         return $this->configdb->CanAuth();
     }
-    public function CloseDB( ) {
+
+    public function CloseDB() {
         return $this->configdb->close();
     }
+
     public function GetDataPath() {
         if (defined("Config_Data_Path")) {
             return Config_Data_Path;

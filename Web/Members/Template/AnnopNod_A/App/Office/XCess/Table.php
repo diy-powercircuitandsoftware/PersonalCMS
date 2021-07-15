@@ -59,7 +59,7 @@ if ($SC->Online() && isset($_SESSION["UserID"]) && $Sess->Registered(session_id(
                                 ss.Post("../../../../Api/Ajax/SQLite/RenameTable.php", {"Path": ss.URLParam()["path"], "OldTableName": e.target.value, "NewTableName": newname}, function (data) {
                                     LoadTable();
                                 });
-                            }).Title("Rename").ZIndex(999);
+                            }).Title("Rename");
                         }
                     });
                     function LoadTable() {
