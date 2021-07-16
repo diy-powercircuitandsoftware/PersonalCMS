@@ -78,3 +78,9 @@ class PointPoint_Player_Timer {
         cancelAnimationFrame(this.requestID);
     }
 }
+
+class PointPoint_Player_Animation {
+    GetName(){
+        
+    }
+}

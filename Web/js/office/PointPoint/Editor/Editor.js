@@ -8,10 +8,24 @@ class PointPoint_Editor {
             this.editor = document.body.appendChild(document.createElement("DIV"));
         }
         this.editor.style.position = "relative";
-        this.slides = [];
-        this.mode = null;
+        this.editor.ref = this;
         this.selectitem = null;
+        this.AddEditorEvent("mousedown", function (e) {
+            this.ref.selectitem = null;
+            var current = e.target;
+            while (current && (current !== this)) {
+                if (current.getAttribute("pointpoint-type") !== null && current.getAttribute("pointpoint-type") !== "slide") {
+                    this.ref.selectitem = current;
+                    break;
+                }
+                current = current.parentNode;
 
+            }
+
+            e.selectitem = this.ref.selectitem;
+            e.selectitemtype = current.getAttribute("pointpoint-type");
+            this.ref.MouseDown(e);
+        });
     }
     CanvasSize(...args) {
         if (args.length === 0) {
@@ -37,6 +51,9 @@ class PointPoint_Editor {
     GetHtmlCode() {
         return  this.editor.innerHTML;
     }
+    MouseDown() {
+
+    }
     QueryCommandState(cmd) {
         return document.queryCommandState(cmd);
     }
@@ -47,11 +64,7 @@ class PointPoint_Editor {
     }
 
 }
-class PointPoint_Event_Editor {
-    Movable() {
 
-    }
-}
 
 
 /*

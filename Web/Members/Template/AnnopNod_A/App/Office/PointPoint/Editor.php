@@ -91,24 +91,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var pointpoint = new PointPoint();
 
                     pointpointeditor.AfterSave = function () {};
-                    pointpointeditor.selectitem = null;
-                    pointpointeditor.AddEditorEvent("mousedown", function (e) {
-                        var current = e.target;
+                    pointpointeditor.CanvasSize("800px", "600px");
 
-                        while (current && (current !== this)) {
+                    pointpointeditor.MouseDown = function (e) {
 
-                            if (current.getAttribute("pointpoint-type") !== null) {
-                                pointpointeditor.selectitem = current;
-                                break;
-                            }
-                            current = current.parentNode;
-
+                        if (e.selectitem == null) {
+                            return;
                         }
+                        ss.S("#AnimationList").Val("");
 
-                        var type = current.getAttribute("pointpoint-type");
-
-                        if (ss.S("#OPTSelectMode").Val() == "edit" && type == "text") {
-                            current.contentEditable = "true";
+                        if (ss.S("#OPTSelectMode").Val() == "edit" && e.selectitemtype == "text") {
+                            e.selectitem.contentEditable = "true";
 
                             ss.S(".BNCMD").Each(function (dom) {
                                 var cmd = dom.getAttribute("data-cmd");
@@ -125,17 +118,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 //   dom.value = pointpointeditor.CommandValue(cmd);
                             });
 
-                        } else if (type == "text") {
-                            current.contentEditable = "false";
+                        } else if (e.selectitemtype == "text") {
+                            e.selectitem.contentEditable = "false";
                         }
-                        if (ss.S("#OPTSelectMode").Val() == "delete" && (pointpointeditor.selectitem != null) && (pointpointeditor.selectitem.getAttribute("pointpoint-type") != "slide")) {
-                            pointpointeditor.selectitem.parentNode.removeChild(pointpointeditor.selectitem);
+                        if (ss.S("#OPTSelectMode").Val() == "delete") {
+                            e.selectitem.parentNode.removeChild(e.selectitem);
                         }
 
-                        if (type !== "slide") {
-                            var animatename = current.getAttribute("pointpoint-animate");
-                            ss.S("#AnimationList").Val(animatename);
-                        }
+
+                        var animatename = e.selectitem.getAttribute("pointpoint-animate");
+                        ss.S("#AnimationList").Val(animatename);
+
 
 
                         /* if (pointpointeditor.selectitem.getAttribute("pointpoint-animate-audio")) {
@@ -145,9 +138,10 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                          console.log("animation");
                          }*/
 
-                    });
+                    };
+
                     pointpointeditor.AddEditorEvent("mousemove", function (e) {
-                        if ((ss.S("#OPTSelectMode").Val() == "move") && (pointpointeditor.selectitem != null) && (pointpointeditor.selectitem.getAttribute("pointpoint-type") != "slide")) {
+                        if ((ss.S("#OPTSelectMode").Val() == "move") && (pointpointeditor.selectitem != null)) {
                             var EditorRect = this.getBoundingClientRect();
                             var DomRect = pointpointeditor.selectitem.getBoundingClientRect();
                             var X = (e.clientX - EditorRect.left) - (DomRect.width * 0.5);
@@ -159,7 +153,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     });
                     pointpointeditor.AddEditorEvent("mouseup", function (e) {
-                        if ((ss.S("#OPTSelectMode").Val() == "move") && (pointpointeditor.selectitem != null) && (pointpointeditor.selectitem.getAttribute("pointpoint-type") != "slide")) {
+                        if ((ss.S("#OPTSelectMode").Val() == "move") && (pointpointeditor.selectitem != null)) {
                             pointpointeditor.selectitem.style.cursor = "";
                             pointpointeditor.selectitem = null;
                         }
@@ -313,7 +307,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                 window.location.replace("index.php");
                             } else if (v == 1) {
                                 pointpointeditor.AfterSave = function () {
-
                                     window.onbeforeunload = null;
                                     window.location.replace("index.php");
                                 };
@@ -387,11 +380,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S("#SlidesIndexList").Change(function () {
                         var x = pointpoint.Get(parseInt(this.value) - 1).GetSlide();
-
-
-                        if (pointpointeditor.selectitem !== null && pointpointeditor.selectitem.getAttribute("pointpoint-type") === "text" && pointpointeditor.selectitem.textContent.trim()) {
-
-                        }
+                        
                         pointpointeditor.Render(x);
 
                     });
