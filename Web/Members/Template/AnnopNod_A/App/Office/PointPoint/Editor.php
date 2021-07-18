@@ -75,6 +75,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script src="../../../../../../js/dom/SuperDialog/SuperDialog.js"></script>
             <script src="../../../../../../js/dom/SuperDialog/Template/Basic/Load.js"></script>
             <script src="../../../../../../js/dom/SuperDialog/Template/Basic/MessageBox.js"></script>
+            <script src="../../../../../../js/dom/SuperDialog/Template/Basic/Input.js"></script>
             <script src="../../../../../../js/dom/SSQueryFW.js"></script>
             <script src="../../../../../../js/io/Ajax.js"></script>
             <script src="../../../../../../js/office/PointPoint/PointPoint.js"></script>
@@ -85,111 +86,18 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var sd = new SuperDialog();
                     var superdialogload = new SuperDialog_Template_Load();
                     var superdialogmsgbox = new SuperDialog_Template_MessageBox();
+                    var superdialoginput = new SuperDialog_Template_Input();
                     var ajax = new Ajax();
-
                     var pointpointeditor = new PointPoint_Editor(document.getElementById("Editor"));
                     var pointpoint = new PointPoint();
-
-                    pointpointeditor.AfterSave = function () {};
-                    pointpointeditor.CanvasSize("800px", "600px");
-
-                    pointpointeditor.MouseDown = function (e) {
-
-                        if (e.selectitem == null) {
-                            return;
-                        }
-                        ss.S("#AnimationList").Val("");
-
-                        if (ss.S("#OPTSelectMode").Val() == "edit" && e.selectitemtype == "text") {
-                            e.selectitem.contentEditable = "true";
-
-                            ss.S(".BNCMD").Each(function (dom) {
-                                var cmd = dom.getAttribute("data-cmd");
-                                if (pointpointeditor.QueryCommandState(cmd)) {
-                                    dom.style.borderStyle = "inset";
-                                } else {
-                                    dom.style.borderStyle = "outset";
-                                }
-                                ;
-                            });
-
-                            ss.S(".OptColor,.OptFont").Each(function (dom) {
-                                var cmd = dom.getAttribute("data-cmd");
-                                //   dom.value = pointpointeditor.CommandValue(cmd);
-                            });
-
-                        } else if (e.selectitemtype == "text") {
-                            e.selectitem.contentEditable = "false";
-                        }
-                        if (ss.S("#OPTSelectMode").Val() == "delete") {
-                            e.selectitem.parentNode.removeChild(e.selectitem);
-                        }
-
-
-                        var animatename = e.selectitem.getAttribute("pointpoint-animate");
-                        ss.S("#AnimationList").Val(animatename);
-
-
-
-                        /* if (pointpointeditor.selectitem.getAttribute("pointpoint-animate-audio")) {
-                         console.log("audio");
-                         }
-                         if (pointpointeditor.selectitem.getAttribute("animation")) {
-                         console.log("animation");
-                         }*/
-
-                    };
-
-                    pointpointeditor.AddEditorEvent("mousemove", function (e) {
-                        if ((ss.S("#OPTSelectMode").Val() == "move") && (pointpointeditor.selectitem != null)) {
-                            var EditorRect = this.getBoundingClientRect();
-                            var DomRect = pointpointeditor.selectitem.getBoundingClientRect();
-                            var X = (e.clientX - EditorRect.left) - (DomRect.width * 0.5);
-                            var Y = (e.clientY - EditorRect.top) - (DomRect.height * 0.5);
-                            pointpointeditor.selectitem.style.left = X + "px";
-                            pointpointeditor.selectitem.style.top = Y + "px";
-                            pointpointeditor.selectitem.style.cursor = "move";
-                        }
-
-                    });
-                    pointpointeditor.AddEditorEvent("mouseup", function (e) {
-                        if ((ss.S("#OPTSelectMode").Val() == "move") && (pointpointeditor.selectitem != null)) {
-                            pointpointeditor.selectitem.style.cursor = "";
-                            pointpointeditor.selectitem = null;
-                        }
-
-                    });
-
-                    pointpointeditor.AddEditorEvent("keyup", function (e) {
-                        ss.S(".BNCMD").Each(function (dom) {
-                            var cmd = dom.getAttribute("data-cmd");
-                            if (pointpointeditor.QueryCommandState(cmd)) {
-                                dom.style.borderStyle = "inset";
-                            } else {
-                                dom.style.borderStyle = "outset";
-                            }
-                        });
-
-                        ss.S(".OptColor,.OptFont").Each(function (dom) {
-                            var cmd = dom.getAttribute("data-cmd");
-                            // dom.value = pointpointeditor.CommandValue(cmd);
-                        });
-
-                    });
-
-
-
-
-
+                    var audiotypeeventchange = function () {};
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
                         var dpw = superdialogload.PleaseWait();
-
                         if (url.charAt(url.length - 1) === "#") {
                             url = url.slice(0, -1);
                         }
                         pointpointeditor.path = url;
-
                         ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/LoadAllData.php", {"path": pointpointeditor.path}, function (data) {
                             data = JSON.parse(data);
                             if (data !== null) {
@@ -200,7 +108,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                             var parser = new DOMParser();
                                             var dom = parser.parseFromString(Slides[i], "text/html").body.querySelector('[pointpoint-type="slide"]');
                                             var index = parseInt(dom.getAttribute("pointpoint-index"));
-
                                             pointpoint.ReplaceHtml(index, dom.innerHTML);
                                         }
                                     }
@@ -219,6 +126,135 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         window.location.replace("index.php");
                     }
 
+                    pointpointeditor.AfterSave = function () {};
+                    pointpointeditor.MouseDown = function (e) {
+                        ss.S("#AnimationList").Val("");
+                        ss.S("#AnimationTime").Val(0);
+                        if (e.selectitem == null) {
+                            return;
+                        }
+
+                        if (ss.S("#OPTSelectMode").Val() == "edit" && e.selectitemtype == "text") {
+                            e.selectitem.contentEditable = "true";
+                            UpdateCommandState();
+                        } else if (e.selectitemtype == "text") {
+                            e.selectitem.contentEditable = "false";
+                        }
+                        if (ss.S("#OPTSelectMode").Val() == "delete") {
+                            e.selectitem.parentNode.removeChild(e.selectitem);
+                        }
+
+                        ss.S("#AnimationList").Val(e.selectitem.getAttribute("pointpoint-animate"));
+                        ss.S("#AnimationTime").Val(parseInt(e.selectitem.getAttribute("pointpoint-animate-time")) || 0);
+                        ss.S("#AudioType").Val(e.selectitem.getAttribute("pointpoint-animate-audio-type")).Change();
+                        ss.S("#AudioFile").Val(e.selectitem.getAttribute("pointpoint-animate-audio"));
+
+
+                    };
+
+                    pointpointeditor.MouseMove = function (e) {
+                        if ((ss.S("#OPTSelectMode").Val() == "move") && (e.selectitem != null)) {
+                            var DomRect = e.selectitem.getBoundingClientRect();
+                            var X = e.point_x - (DomRect.width * 0.5);
+                            var Y = e.point_y - (DomRect.height * 0.5);
+                            pointpointeditor.selectitem.style.left = X + "px";
+                            pointpointeditor.selectitem.style.top = Y + "px";
+                            pointpointeditor.selectitem.style.cursor = "move";
+                        }
+                    };
+                    pointpointeditor.AddEditorEvent("mouseup", function (e) {
+                        if ((ss.S("#OPTSelectMode").Val() == "move") && (pointpointeditor.selectitem != null)) {
+                            pointpointeditor.selectitem.style.cursor = "";
+                            pointpointeditor.selectitem = null;
+                        }
+
+                    });
+
+                    pointpointeditor.AddEditorEvent("keyup", function (e) {
+                        UpdateCommandState();
+
+                    });
+
+
+
+                    function UpdateCommandState() {
+                        ss.S(".BNCMD").Each(function (dom) {
+                            var cmd = dom.getAttribute("data-cmd");
+                            if (pointpointeditor.QueryCommandState(cmd)) {
+                                dom.style.borderStyle = "inset";
+                            } else {
+                                dom.style.borderStyle = "outset";
+                            }
+                            ;
+                        });
+
+                        ss.S(".OptColor,.OptFont").Each(function (dom) {
+                            var cmd = dom.getAttribute("data-cmd");
+                            //   dom.value = pointpointeditor.CommandValue(cmd);
+                        });
+                    }
+
+                    ss.S("#AnimationList").Change(function () {
+                        if (pointpointeditor.selectitem !== null) {
+                            pointpointeditor.selectitem.setAttribute("pointpoint-animate", this.value);
+                        }
+                    });
+                    ss.S("#AnimationTime").Change(function () {
+                        if (pointpointeditor.selectitem !== null) {
+                            pointpointeditor.selectitem.setAttribute("pointpoint-animate-time", this.value);
+                        }
+                    });
+                    ss.S("#AudioFile").Change(function () {
+                        var at = ss.S("#AudioType");
+
+                        if (at.Val() == "1") {//e
+                            //  ss.S("#AudioPlay").Url("../../../../Api/Action/PointPoint/LoadAudio.php" + ss.JsonToQueryString({"path": pointpointeditor.path, "name": this.value}));
+                        } else if (at.Val() == "2") {
+
+                            ss.S("#AudioPlay").Val("../../../../../../sound/pointpoint/" + this.value);
+                        }
+
+
+
+                    });
+                    ss.S("#AudioType").Change(function (e) {
+                        var af = ss.S("#AudioFile");
+                      
+                        var ref = this;
+                        if (this.value == "1") {
+                            ajax.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": pointpointeditor.path, "type": "Audio"}, function (json) {
+                                json = JSON.parse(json);
+                                af.Empty();
+                                for (var i in json) {
+                                    af.Append(json[i], json[i]);
+                                }
+                                if (pointpointeditor.selectitem !== null) {
+                                    pointpointeditor.selectitem.setAttribute("pointpoint-animate-audio", af.Val());
+                                    pointpointeditor.selectitem.setAttribute("pointpoint-animate-audio-type", ref.value);
+                                }
+                            });
+                        } else if (this.value == "2") {
+
+                            ajax.Post("../../../../../../sound/pointpoint/GetAllFiles.php", {}, function (json) {
+ 
+                                json = JSON.parse(json);
+                                af.Empty();
+                                for (var i = 0; i < json.length; i++) {
+
+                                    af.Append(json[i], json[i]);
+                                }
+
+                                if (pointpointeditor.selectitem !== null) {
+                                    pointpointeditor.selectitem.setAttribute("pointpoint-animate-audio", af.Val());
+                                    pointpointeditor.selectitem.setAttribute("pointpoint-animate-audio-type", ref.value);
+                                }
+                            });
+                        } else {
+
+                            af.Empty();
+                        }
+                    });
+
                     ss.S("#BNAddNew").Click(function () {
                         sd.ImportOkCancel("#AddTPList", function () {
                             var t = ss.S("INPUT[name='TPType']").Val();
@@ -232,22 +268,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                         }).Title("Add New Slide");
                     });
+
                     ss.S(".BNCMD").Click(function () {
                         var cmd = this.getAttribute("data-cmd");
                         pointpointeditor.EXECommand(cmd, false, false);
                         this.style.borderStyle = "inset";
-
-                        ss.S(".BNCMD").Each(function (dom) {
-                            var cmd = dom.getAttribute("data-cmd");
-                            if (!pointpointeditor.QueryCommandState(cmd)) {
-                                dom.style.borderStyle = "outset";
-                            }
-                        });
+                        UpdateCommandState();
                     });
                     ss.S(".BNCMDInsert").Click(function () {
                         var cmd = this.getAttribute("data-cmd");
                         var v = parseInt(ss.S("#SlidesIndexList").Val()) - 1;
-                        var diman = pointpointeditor.CanvasSize();
+
                         if (cmd == "TxtBox" && v >= 0) {
                             pointpoint.Get(v).AddText("Click For Edit", "50%", "50%");
                         } else if (cmd == "Image") {
@@ -290,14 +321,8 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S("#BNObjectManager").Click(function (e) {
                         ss.S("#EmbedType").Change();
-                        var dia = sd.Import("#ObjManagerDialog").Title("Object Manager");
+                        sd.Import("#ObjManagerDialog").Title("Object Manager");
 
-                        /*  dia.CallbackResult = function (v) {
-                         if (v == "Delete") {
-                         ss.Post("../../../../Api/Ajax/PointPoint/DeleteEmbedList.php", {"path": pointpointeditor.path, "filepath": ss.S("#EmbedList").Val()}, function (data) {
-                         });
-                         }
-                         };*/
                     });
 
                     ss.S("#BNOpen").Click(function () {
@@ -331,7 +356,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             data = JSON.parse(data);
                             ss.S("#EmbedList").Empty();
                             for (var i in data) {
-
                                 ss.S("#EmbedList").Append(data[i], data[i]);
                             }
                         });
@@ -350,102 +374,59 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     ss.S(".OptColor,.OptFont").Change(function () {
                         var cmd = this.getAttribute("data-cmd");
-
                         pointpointeditor.EXECommand(cmd, false, this.value);
                     });
 
                     ss.S("#BNSize").Click(function () {
-                        sd.Size(function (v) {
-                            console.log(v);
-                        });
+                        var s = pointpoint.Get(parseInt(ss.S("#SlidesIndexList").Val()) - 1).GetSlide();
+                        superdialoginput.Size(function (v) {
+                            s.style.width = v.width + "px";
+                            s.style.height = v.height + "px";
+                        }, parseInt(s.style.width), parseInt(s.style.height));
 
                     });
 
 
                     ss.S(".SlideExecCommand").Click(function () {
+                        var s = pointpoint.Get(parseInt(ss.S("#SlidesIndexList").Val()) - 1).GetSlide();
                         var cmd = this.getAttribute("data-cmd");
                         if (cmd == "Background") {
-                            sd.ImportOkCancel("Background", "#BGDialog", function () {
+                            sd.ImportOkCancel("#BGDialog", function () {
                                 var opt = ss.S("#SelBGType").Val();
                                 if (opt == "none") {
-                                    // pointpointeditor.Background("");
+                                    s.style.background = "";
                                 } else if (opt == "color") {
-                                    // pointpointeditor.Background(ss.S("#SelBGColor").Val());
+                                    s.style.backgroundColor = ss.S("#SelBGColor").Val();
+
                                 }
 
-                            }).ZIndex(999).Title("Background");
+                            }).Title("Background");
                         }
                     });
 
 
                     ss.S("#SlidesIndexList").Change(function () {
-                        var x = pointpoint.Get(parseInt(this.value) - 1).GetSlide();
-                        
-                        pointpointeditor.Render(x);
+                        var s = pointpoint.Get(parseInt(this.value) - 1).GetSlide();
+                        pointpointeditor.Render(s);
 
                     });
 
 
-                    ss.S("#AnimationList").Change(function () {
 
-                        pointpointeditor.selectitem.setAttribute("pointpoint-animate", this.value);
-                        // pointpointeditor.SetAnimation(ss.S("#AnimationList").Val(), ss.S("#AnimationTime").Val());
-                    });
 
                     return 0;
 
 
 
 
-                    ss.S("#AudioFile").Change(function () {
-                        var at = ss.S("#AudioType");
-
-                        if (at.Val() == "1") {//e
-                            ss.S("#AudioPlay").Url("../../../../Api/Action/PointPoint/LoadAudio.php" + ss.JsonToQueryString({"path": pointpointeditor.path, "name": this.value}));
-                        } else if (at.Val() == "3") {
-                            ss.S("#AudioPlay").Url("../sound/pointpoint/" + this.value);
-                        }
-
-                        pointpointeditor.SetAudio(at.Val(), this.value);
-
-                    });
-
-                    ss.S("#AudioType").Change(function (e) {
-                        var af = ss.S("#AudioFile");
-                        if (this.value == "1") {
-                            ss.Post("../../../../Api/Ajax/PointPoint/GetEmbedList.php", {"path": pointpointeditor.path, "type": "Audio"}, function (json) {
-                                json = JSON.parse(json);
-                                af.Empty();
-                                for (var k in json) {
-                                    af.Append('<option></option>').Val(json[k]).Html(k);
-                                }
-                                if (pointpointeditor.ChangeAudioType) {
-                                    pointpointeditor.ChangeAudioType();
-                                }
-                            });
-                        } else if (this.value == "3") {
-                            ss.Post("../sound/pointpoint/GetAllFiles.php", {}, function (json) {
-                                json = JSON.parse(json);
-                                af.Empty();
-                                for (var i in json) {
-                                    af.Append('<option></option>').Val(json[i]).Html(json[i]);
-                                }
-                                if (pointpointeditor.ChangeAudioType) {
-                                    pointpointeditor.ChangeAudioType();
-                                }
-                            });
-                        } else {
-                            af.Empty();
-                        }
-                    });
 
 
 
 
-                    ss.S("#AnimationTime").Change(function () {
-                        pointpointeditor.selectitem;
-                        // pointpointeditor.SetAnimation(ss.S("#AnimationList").Val(), ss.S("#AnimationTime").Val());
-                    });
+
+
+
+
 
 
 
@@ -661,9 +642,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             <div class="ToolBoxTab" data-id="Audio" style="display: none;">
                                 <label>Type:</label>
                                 <select id="AudioType">
-                                    <option value="0">None</option>
+                                    <option value="">None</option>
                                     <option value="1">Embed</option>
-                                    <option value="3">Resource</option>
+                                    <option value="2">Resource</option>
 
                                 </select>
                                 <label>Name:</label>

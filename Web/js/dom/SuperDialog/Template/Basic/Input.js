@@ -106,13 +106,15 @@ class SuperDialog_Template_Input extends SuperDialog {
         return dialog;
 
     }
-    Size(callback) {
+    Size(callback,w,h) {
+        w=w||1;
+        h=h||1;
         var dialog = this.TwoRow(function (v) {
             return callback(v);
         });
         dialog.Title("Size");
-        dialog.AddRow("width:", "<input type='number'  style='width:100%;box-sizing: border-box;' name='width' />");
-        dialog.AddRow("height:", "<input type='number'  style='width:100%;box-sizing: border-box;' name='height' />");
+        dialog.AddRow("width:", "<input type='number'  style='width:100%;box-sizing: border-box;' min='1' value='"+w+"' name='width' />");
+        dialog.AddRow("height:", "<input type='number'  style='width:100%;box-sizing: border-box;' min='1' value='"+h+"' name='height' />");
         return dialog;
     }
     UnLock(callback) {

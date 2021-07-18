@@ -22,9 +22,23 @@ class PointPoint_Editor {
 
             }
 
-            e.selectitem = this.ref.selectitem;
-            e.selectitemtype = current.getAttribute("pointpoint-type");
+            if (this.ref.selectitem !== null) {
+                e.selectitem = this.ref.selectitem;
+                e.selectitemtype = e.selectitem.getAttribute("pointpoint-type");
+            }
             this.ref.MouseDown(e);
+        });
+
+        this.AddEditorEvent("mousemove", function (e) {
+            if (this.ref.selectitem !== null) {
+                var rect = this.getBoundingClientRect();
+                e.selectitem = this.ref.selectitem;
+                e.selectitemtype = e.selectitem.getAttribute("pointpoint-type");
+                e.point_x = (e.clientX - rect.left);
+                e.point_y = (e.clientY - rect.top);
+            }
+
+            this.ref.MouseMove(e);
         });
     }
     CanvasSize(...args) {
@@ -52,6 +66,9 @@ class PointPoint_Editor {
         return  this.editor.innerHTML;
     }
     MouseDown() {
+
+    }
+    MouseMove() {
 
     }
     QueryCommandState(cmd) {

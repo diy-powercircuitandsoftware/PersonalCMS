@@ -51,12 +51,16 @@ class PointPoint_Slide {
         }
 
     }
+    AddImage(path) {
+
+    }
     AddText(input, x, y) {
         var txt = document.createElement("DIV");
         txt.setAttribute("pointpoint-type", "text");
         txt.setAttribute("pointpoint-animate", "");
         txt.setAttribute("pointpoint-animate-time", "");
         txt.setAttribute("pointpoint-animate-audio", "");
+        txt.setAttribute("pointpoint-animate-audio-type", "");
         txt.style.position = "absolute";
         txt.style.left = x;
         txt.style.top = y;
@@ -64,7 +68,7 @@ class PointPoint_Slide {
         this.slideframe.appendChild(txt);
         return txt;
     }
-    
+
     CSS(...args) {
         if (args.length === 0) {
             return this.slideframe.style.cssText;

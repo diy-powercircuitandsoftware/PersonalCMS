@@ -1,11 +1,93 @@
 class SSQueryFW {
     S(qstring) {
-        if (typeof qstring === 'string' || qstring instanceof String) {
-            this.element = document.querySelectorAll(qstring);
+        return new SSQueryFW_Manipulation(qstring);
+    }
+
+    DocumentReady(callback) {
+        document.addEventListener('DOMContentLoaded', callback);
+    }
+
+    GeoLocation(callback) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                callback({
+                    "latitude": position.coords.latitude,
+                    "longitude": position.coords.longitude
+                });
+            });
+        }
+    }
+
+    InArray(string, array) {
+        return    array.indexOf(string) >= 0;
+    }
+
+    IsFloat(n) {
+        return Number(n) === n && n % 1 !== 0;
+    }
+    IsInt(n) {
+        return Number(n) === n && n % 1 === 0;
+    }
+
+    Sprintf(...args) {
+        if (args.length === 1) {
+            return args[0];
+        } else {
+            var str = args[0];
+            for (var i = 1; i < args.length; i++) {
+                if (this.IsInt(args[i])) {
+                    str = str.replace("%d", args[i]);
+                } else if (this.IsFloat(args[i])) {
+                    str = str.replace("%f", args[i]);
+                } else {
+                    str = str.replace("%s", args[i]);
+                }
+            }
+            return str;
+        }
+    }
+    StrLeft(str, length) {
+        return str.substring(0, length);
+    }
+    StrMid(...args) {
+        var str = args[0];
+        var index = args[1];
+        if (args.length === 2) {
+            return str.substring(index - 1);
+        } else if (args.length === 3) {
+            return str.substring(index - 1, index + args[2] - 1);
+        }
+    }
+    StrRight(str, length) {
+        return str.substring(str.length() - length);
+    }
+
+    URLParam(...args) {
+        var vars = [], hash;
+        var hashes = [];
+        if (args.length == 0) {
+            hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        } else if (args.length == 1) {
+            hashes = args[0].split('&');
+        }
+        for (var i = 0; i < hashes.length; i++)
+        {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    }
+
+}
+
+class SSQueryFW_Manipulation {
+    constructor(query) {
+        if (typeof query === 'string' || query instanceof String) {
+            this.element = document.querySelectorAll(query);
         }
         return this;
     }
-
     Append(...args) {
         if (args.length === 1) {
             if (typeof args[0] === 'string') {
@@ -22,8 +104,10 @@ class SSQueryFW {
             }
 
         } else if (args.length === 2) {
+
             this.ForEach(this.element, function (el) {
-                if (el.tagName === "SELECT") {
+
+                if (el.tagName.toUpperCase() === "SELECT") {
                     var opt = el.appendChild(document.createElement("OPTION"));
                     opt.value = args[0];
                     opt.innerHTML = args[1];
@@ -161,9 +245,6 @@ class SSQueryFW {
             }
         });
     }
-    DocumentReady(callback) {
-        document.addEventListener('DOMContentLoaded', callback);
-    }
     Each(cb) {
         this.ForEach(this.element, function (el) {
             cb(el);
@@ -204,22 +285,12 @@ class SSQueryFW {
             for (var i = 0; i < array.length; i++) {
                 callback(array[i]);
             }
-        } else if (array instanceof Object) {
-            for (var k in array) {
-                allback(array[k]);
-            }
-        }
+        }/* else if (array instanceof Object) {
+         for (var k in array) {
+         allback(array[k]);
+         }
+         }*/
 
-    }
-    GeoLocation(callback) {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                callback({
-                    "latitude": position.coords.latitude,
-                    "longitude": position.coords.longitude
-                });
-            });
-        }
     }
     Hide() {
         this.ForEach(this.element, function (el) {
@@ -240,18 +311,9 @@ class SSQueryFW {
             return this;
         }
     }
-    InArray(string, array) {
-        return    array.indexOf(string) >= 0;
-    }
     Input(...args) {
         this.EventListener("input", ...args);
         return  this;
-    }
-    IsFloat(n) {
-        return Number(n) === n && n % 1 !== 0;
-    }
-    IsInt(n) {
-        return Number(n) === n && n % 1 === 0;
     }
     KeyUp(...args) {
         this.EventListener("keyup", ...args);
@@ -312,38 +374,6 @@ class SSQueryFW {
         });
         return this;
     }
-    Sprintf(...args) {
-        if (args.length === 1) {
-            return args[0];
-        } else {
-            var str = args[0];
-            for (var i = 1; i < args.length; i++) {
-                if (this.IsInt(args[i])) {
-                    str = str.replace("%d", args[i]);
-                } else if (this.IsFloat(args[i])) {
-                    str = str.replace("%f", args[i]);
-                } else {
-                    str = str.replace("%s", args[i]);
-                }
-            }
-            return str;
-        }
-    }
-    StrLeft(str, length) {
-        return str.substring(0, length);
-    }
-    StrMid(...args) {
-        var str = args[0];
-        var index = args[1];
-        if (args.length === 2) {
-            return str.substring(index - 1);
-        } else if (args.length === 3) {
-            return str.substring(index - 1, index + args[2] - 1);
-        }
-    }
-    StrRight(str, length) {
-        return str.substring(str.length() - length);
-    }
     Tabs(tabs, attr) {
 
         this.ForEach(this.element, function (el) {
@@ -367,22 +397,6 @@ class SSQueryFW {
 
 
         });
-    }
-    URLParam(...args) {
-        var vars = [], hash;
-        var hashes = [];
-        if (args.length == 0) {
-            hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-        } else if (args.length == 1) {
-            hashes = args[0].split('&');
-        }
-        for (var i = 0; i < hashes.length; i++)
-        {
-            hash = hashes[i].split('=');
-            vars.push(hash[0]);
-            vars[hash[0]] = hash[1];
-        }
-        return vars;
     }
     Val(...args) {
         var arrchk = ["checkbox", "radio"];
@@ -418,13 +432,15 @@ class SSQueryFW {
         } else {
 
             this.ForEach(this.element, function (el) {
+
                 if (el.tagName === "INPUT" && arrchk.indexOf(el.type) >= 0 && typeof (args[0]) === "boolean") {
                     el.checked = args[0];
                 } else if (el.tagName === "INPUT" && el.type == "date") {
                     if (args[0] instanceof Date) {
                         el.valueAsDate = args[0];
                     }
-                } else if (hassrc.indexOf(el.tagName) >= 0) {
+                } else if (hassrc.indexOf(el.tagName.toLowerCase()) >= 0) {
+
                     el.src = args[0];
                 } else {
                     el.value = args[0];
@@ -484,5 +500,6 @@ class SSQueryFW {
         }
     }
 }
+
 
  

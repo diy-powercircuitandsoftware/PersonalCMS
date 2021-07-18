@@ -135,38 +135,38 @@ Released under the MIT license: http://jsbin.mit-license.org
                 ctx.drawImage(grassImg, 0, 255);
 
                 //Draw the sky gradient
-                var skyGradient = ctx.createLinearGradient(0, 0, 0, 255);
-                skyGradient.addColorStop(0.7, "lightblue");
-                skyGradient.addColorStop(1, "lightyellow");
+              //  var skyGradient = ctx.createLinearGradient(0, 0, 0, 255);
+                //skyGradient.addColorStop(0.7, "lightblue");
+               // skyGradient.addColorStop(1, "lightyellow");
 
-                ctx.fillStyle = skyGradient; //Uncomment for sunset
+               // ctx.fillStyle = skyGradient; //Uncomment for sunset
 
                 ctx.fillRect(0, 0, 600, 255);
 
 
                 //Clouds
-                drawCloud(-60, 30, 1);
-                drawCloud(130, 10, 1);
-                drawCloud(300, 60, 0.8);
-                drawCloud(450, 20, 0.9);
-                drawCloud(380, 100, 0.9);
-                drawCloud(80, 100, 0.9);
+           //     drawCloud(-60, 30, 1);
+             //   drawCloud(130, 10, 1);
+               // drawCloud(300, 60, 0.8);
+               // drawCloud(450, 20, 0.9);
+               // drawCloud(380, 100, 0.9);
+               // drawCloud(80, 100, 0.9);
 
                 //Back row
-                drawThreeBladeTower(90, 215, 0.2, bladeSpeed * 0.3);
-                drawThreeBladeTower(210, 215, 0.2, bladeSpeed * 0.39);
-                drawThreeBladeTower(350, 215, 0.2, -bladeSpeed * 0.3);
-                drawThreeBladeTower(500, 215, 0.2, bladeSpeed * 0.35);
+               // drawThreeBladeTower(90, 215, 0.2, bladeSpeed * 0.3);
+               // drawThreeBladeTower(210, 215, 0.2, bladeSpeed * 0.39);
+                //drawThreeBladeTower(350, 215, 0.2, -bladeSpeed * 0.3);
+              //  drawThreeBladeTower(500, 215, 0.2, bladeSpeed * 0.35);
 
                 //Middle row
-                drawThreeBladeTower(150, 180, 0.4, -bladeSpeed * 0.75);
-                drawThreeBladeTower(290, 180, 0.4, bladeSpeed * 0.3);
-                drawThreeBladeTower(425, 180, 0.4, bladeSpeed * 0.4);
+        //        drawThreeBladeTower(150, 180, 0.4, -bladeSpeed * 0.75);
+          //      drawThreeBladeTower(290, 180, 0.4, bladeSpeed * 0.3);
+            //    drawThreeBladeTower(425, 180, 0.4, bladeSpeed * 0.4);
 
                 //Front row
-                drawThreeBladeTower(80, 230, 1, bladeSpeed * 0.65);
+                //drawThreeBladeTower(80, 230, 1, bladeSpeed * 0.65);
                 drawThreeBladeTower(310, 230, 1, bladeSpeed * 0.37);
-                drawThreeBladeTower(520, 230, 1, bladeSpeed * 0.49);
+               // drawThreeBladeTower(520, 230, 1, bladeSpeed * 0.49);
 
 
                 // **** Set speed ****
