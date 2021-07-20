@@ -7,47 +7,78 @@ class PointPoint_Player {
         } else {
             this.player = document.body.appendChild(document.createElement("div"));
         }
+        this.player.style.overflow = "hidden";
+        this.Animation = {};
+        this.DomsAnimation = [];
+        this.Timer = new PointPoint_Player_Timer();
+    }
+
+    AddAnimation(name, classname) {
+        this.Animation[name] = classname;
     }
     Click() {
         this.player.click();
     }
-    SetDom(dom) {
+    End() {
+        var size = this.player.getBoundingClientRect();
+        this.player.innerHTML = "";
+        var div = this.player.appendChild(document.createElement("DIV"));
+        div.style.width = size.width + "px";
+        div.style.height = size.height + "px";
+        div.innerHTML = '<div style="text-align: center;">end of presentation</div>';
+    }
+    HasAnimation() {
+        return this.DomsAnimation.length > 0;
+    }
+    PlayAnimation() {
+        if (this.HasAnimation()) {
+            var frist = this.DomsAnimation[0];
 
+            if (frist.animationclass !== undefined) {
+                frist.animationclass.End();
+                this.DomsAnimation.shift();
+                
+            } else {
+
+                this.DomsAnimation.shift();
+            }
+
+        }
+
+
+    }
+    SetDom(dom) {
         this.player.innerHTML = "";
         this.player.appendChild(dom);
+        var ref = this;
+        ref.DomsAnimation = [];
+        [].forEach.call(dom.querySelectorAll("[pointpoint-animate]"), function (d) {
+            if (d.getAttribute("pointpoint-animate") != "") {
+
+                ref.DomsAnimation.push(d);
+
+                var animatename = (d.getAttribute("pointpoint-animate"));
+                var animationclass = ref.Animation;
+                if (animationclass.hasOwnProperty(animatename)) {
+
+                    d.animationclass = new animationclass[animatename](d);
+                } else {
+
+                    d.setAttribute("pointpoint-animate", "");
+                }
+
+
+
+
+            }
+        });
     }
     AddPlayerEvent(...args) {
         this.player.addEventListener(...args);
     }
 
 }
-class   PointPoint_Player_Animation_Render {
-    constructor(...args) {
-        this.Animation = [];
-        this.DomsAnimation = [];
-    }
-    AddAnimation() {
 
-    }
-
-    HasAnimation() {
-        return this.DomsAnimation.length > 0;
-    }
-    Play() {
-        this.DomsAnimation.shift();
-
-    }
-    SetDom(dom) {
-        var ref = this;
-        ref.DomsAnimation = [];
-        [].forEach.call(dom.querySelectorAll("[pointpoint-animate]"), function (d) {
-            if (d.getAttribute("pointpoint-animate") != "") {
-                ref.DomsAnimation.push(d);
-            }
-        });
-        return dom;
-    }
-}
 class PointPoint_Player_Timer {
     constructor(fps = 60) {
         this.requestID = 0;
@@ -59,6 +90,7 @@ class PointPoint_Player_Timer {
     }
 
     Start() {
+        cancelAnimationFrame(this.requestID);
         let then = performance.now();
         const interval = 1000 / this.fps;
         const tolerance = 0.1;
@@ -80,7 +112,19 @@ class PointPoint_Player_Timer {
 }
 
 class PointPoint_Player_Animation {
-    GetName(){
-        
+    constructor(dom) {
+        this.playing = false;
+    }
+    GetName() {
+        return this.constructor.name;
+    }
+    GetClassName() {
+        return this.constructor.name;
+    }
+    Render(fps) {
+
+    }
+    End( ) {
+
     }
 }

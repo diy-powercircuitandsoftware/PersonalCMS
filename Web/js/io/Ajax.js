@@ -41,7 +41,7 @@ class Ajax {
                     var tf = typeof obj[property];
                     if (tf === "object" && Object.keys(obj[property]).length > 0) {
                         callback(obj[property], formdata, collectionstring + '.' + property);
-                    } else if (tf === "object" && obj[property]  instanceof File) {
+                    } else if (tf === "object" && obj[property]  instanceof File) {                       
                         var strmix = (collectionstring + '.' + property).slice(1).split('.').join('][') + "]";
                         strmix = strmix.replace("]", "");
                         fd.append(strmix, obj[property], obj[property].name);

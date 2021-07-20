@@ -33,41 +33,34 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
             <script src="../../../../../../js/io/Ajax.js"></script>
             <script src="../../../../../../js/office/PointPoint/PointPoint.js"></script>
             <script src="../../../../../../js/office/PointPoint/Player/Player.js"></script>
+            <script src="../../../../../../js/office/PointPoint/Player/Animation/Hide.js"></script>
             <script>
                 var ss = new SSQueryFW();
                 ss.DocumentReady(function () {
                     var ajax = new Ajax();
                     var pointpoint = new PointPoint();
                     var player = new PointPoint_Player(document.getElementById("Render"));
-                    var pointpointanimation = new PointPoint_Player_Animation_Render();
                     var sideindex = 0;
-
+                    player.AddAnimation("PointPoint_Animation_Hide", PointPoint_Animation_Hide);
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
-
-
                         if (url.charAt(url.length - 1) === "#") {
                             url = url.slice(0, -1);
                         }
                         player.path = url;
-
                         ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/LoadAllData.php", {"path": player.path}, function (data) {
                             data = JSON.parse(data);
                             var Slides = data.Slides;
-                            for (var i = 0; i < Slides.length; i++) {
-                                if (Slides[i]) {
+                            for (var i = 0; i < Slides.length; i++) {                             
                                     var parser = new DOMParser();
                                     var dom = parser.parseFromString(Slides[i], "text/html").body.querySelector('[pointpoint-type="slide"]');
                                     var index = parseInt(dom.getAttribute("pointpoint-index"));
-                                    pointpoint.ReplaceSlide(index, dom);
-                                }
+                                    pointpoint.ReplaceHtml(index, dom.innerHTML);                              
                             }
                             if (pointpoint.Count() > 0) {
                                 player.Click();
                             }
-
-
-
+ 
                         });
 
                     } else {
@@ -75,20 +68,26 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     }
 
                     player.AddPlayerEvent("click", function () {
-                        if (pointpointanimation.HasAnimation()) {
-                            pointpointanimation.Play();
+                        if (player.HasAnimation()) {
+                            player.PlayAnimation();
                         } else {
-                            var x = pointpoint.Get(sideindex).GetSlide();
-                            player.SetDom(pointpointanimation.SetDom(x.cloneNode(true)));
-                            sideindex++;
+                            if (sideindex < pointpoint.Count()) {
+                                var x = pointpoint.Get(sideindex).GetSlide();
+                                player.SetDom(x.cloneNode(true));
+                                sideindex++;
+                                ss.S("#LabPage").Html(sideindex);
+                            } else {
+                                player.End();
+                                ss.S("#LabPage").Html("End");
+                            }
                         }
 
-                        //  ss.S("#LabPage").Html(player.slidesindex + 1);
+
                         // ss.S("#BNGoto").Val(player.slidesindex);
                     });
 
                     ss.S("#BNGoto").Change(function () {
-                        player.SetSlide(parseInt(this.value));
+                        //player.SetSlide(parseInt(this.value));
                     });
 
 
@@ -102,7 +101,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                 <label id="LabPage" style="color: burlywood;font-size: xx-large;">Start</label>
             </div>
 
-            <div id="Render" style="border-style: solid;max-width: 100vw;max-height: 100vh;margin-left: auto;margin-right: auto;">
+            <div id="Render" style="border-style: solid;margin-left: auto;margin-right: auto;">
 
             </div>
 

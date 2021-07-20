@@ -92,7 +92,15 @@ class SSQueryFW_Manipulation {
         if (args.length === 1) {
             if (typeof args[0] === 'string') {
                 this.ForEach(this.element, function (el) {
-                    el.innerHTML = el.innerHTML + args[0];
+                    if (el.tagName.toUpperCase() === "SELECT") {
+                        var opt = el.appendChild(document.createElement("OPTION"));
+                        opt.value = args[0];
+                        opt.innerHTML = args[0];
+                    }
+                    else{
+                          el.innerHTML = el.innerHTML + args[0];
+                    }
+                  
                 });
                 /* if (this.element.length == 1) {
                  this.ForEach(args[0], function (el) {
