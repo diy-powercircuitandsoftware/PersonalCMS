@@ -78,6 +78,7 @@ class PointPoint_Slide {
             return this.slideframe.style[args[0]] = args[1];
         }
     }
+
     GetSlide() {
         return this.slideframe;
     }
@@ -104,6 +105,17 @@ class PointPoint_Slide {
     ToHtml() {
         [].forEach.call(this.slideframe.querySelectorAll("[pointpoint-type]"), function (dom) {
             dom.removeAttribute("contenteditable");
+            var l = dom.style.left;
+            var t = dom.style.top;
+            if (l.indexOf("px") > -1) {
+                var pw = parseInt(dom.parentNode.style.width);
+                dom.style.left = ((parseInt(l) / pw)*100) + "%";
+
+            }
+            if (t.indexOf("px") > -1) {
+                var ph = parseInt(dom.parentNode.style.height);
+                dom.style.top = ((parseInt(t) / ph)*100) + "%";
+            }
         });
         return this.slideframe.outerHTML;
     }

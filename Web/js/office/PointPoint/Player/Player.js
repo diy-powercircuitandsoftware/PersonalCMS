@@ -7,14 +7,20 @@ class PointPoint_Player {
         } else {
             this.player = document.body.appendChild(document.createElement("div"));
         }
+        this.audioplayer = document.body.appendChild(document.createElement("audio"));
         this.player.style.overflow = "hidden";
         this.Animation = {};
+        this.AudioResource = {};
         this.DomsAnimation = [];
         this.Timer = new PointPoint_Player_Timer();
+        this.Timer.Start();
     }
 
     AddAnimation(name, classname) {
         this.Animation[name] = classname;
+    }
+    AddAudioFromResource(name, path) {
+        this.AudioResource[name] = path;
     }
     Click() {
         this.player.click();
@@ -27,26 +33,60 @@ class PointPoint_Player {
         div.style.height = size.height + "px";
         div.innerHTML = '<div style="text-align: center;">end of presentation</div>';
     }
+    FullScreen() {
+        var playerrect = this.player.getBoundingClientRect();
+        var sw = window.innerWidth / playerrect.width;
+        var sh = window.innerHeight / playerrect.height;
+        var minswsh = Math.min(sw, sh);
+        this.player.style.width = window.innerWidth + "px";
+        this.player.style.height = window.innerHeight + "px";
+
+        [].forEach.call(this.player.querySelectorAll("[pointpoint-type]"), function (d) {
+            if (d.getAttribute("pointpoint-type") == "slide") {
+                d.style.width = window.innerWidth + "px";
+                d.style.height = window.innerHeight + "px";
+            } else {
+                var fontsize = parseInt(window.getComputedStyle(d, null).getPropertyValue('font-size'));
+                d.style.fontSize = (fontsize * minswsh) + "px";
+
+            }
+        });
+    }
     HasAnimation() {
         return this.DomsAnimation.length > 0;
     }
     PlayAnimation() {
+
         if (this.HasAnimation()) {
             var frist = this.DomsAnimation[0];
-
+            var ref = this;
             if (frist.animationclass !== undefined) {
-                frist.animationclass.End();
-                this.DomsAnimation.shift();
-                
-            } else {
+                if (frist.animationclass.playing) {
+                    frist.animationclass.End();
+                    this.DomsAnimation.shift();
+                } else if (!frist.animationclass.ended) {
+                    this.Timer.SetAnimate(function (fps) {
+                        frist.animationclass.Render(fps);
+                    });
 
+                    var audioname = (frist.getAttribute("pointpoint-animate-audio"));
+                    if (ref.AudioResource.hasOwnProperty(audioname)) {                      
+                        ref.audioplayer.pause();
+                        ref.audioplayer.src = ref.AudioResource[audioname];
+                        ref.audioplayer.play();
+                    }
+                    frist.animationclass.Start();
+
+                } else {
+                    this.DomsAnimation.shift();
+                    this.PlayAnimation();
+                }
+            } else {
                 this.DomsAnimation.shift();
             }
-
         }
-
-
     }
+
     SetDom(dom) {
         this.player.innerHTML = "";
         this.player.appendChild(dom);
@@ -54,22 +94,15 @@ class PointPoint_Player {
         ref.DomsAnimation = [];
         [].forEach.call(dom.querySelectorAll("[pointpoint-animate]"), function (d) {
             if (d.getAttribute("pointpoint-animate") != "") {
-
                 ref.DomsAnimation.push(d);
-
                 var animatename = (d.getAttribute("pointpoint-animate"));
                 var animationclass = ref.Animation;
                 if (animationclass.hasOwnProperty(animatename)) {
-
                     d.animationclass = new animationclass[animatename](d);
                 } else {
 
                     d.setAttribute("pointpoint-animate", "");
                 }
-
-
-
-
             }
         });
     }
@@ -90,16 +123,16 @@ class PointPoint_Player_Timer {
     }
 
     Start() {
+        var ref = this;
         cancelAnimationFrame(this.requestID);
         let then = performance.now();
         const interval = 1000 / this.fps;
         const tolerance = 0.1;
         const animateLoop = (now) => {
-
             const delta = now - then;
             if (delta >= interval - tolerance) {
                 then = now - (delta % interval);
-                this.animate(delta);
+                ref.animate(delta);
             }
             this.requestID = requestAnimationFrame(animateLoop);
         };
@@ -114,6 +147,10 @@ class PointPoint_Player_Timer {
 class PointPoint_Player_Animation {
     constructor(dom) {
         this.playing = false;
+        this.ended = false;
+    }
+    Start() {
+        this.playing = true;
     }
     GetName() {
         return this.constructor.name;
@@ -124,7 +161,9 @@ class PointPoint_Player_Animation {
     Render(fps) {
 
     }
-    End( ) {
-
+    Stop( ) {
+        this.playing = false;
+        this.ended = true;
     }
+
 }

@@ -43,6 +43,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var sideindex = 0;
                     player.AddAnimation("PointPoint_Animation_Hide", PointPoint_Animation_Hide);
                     if (ss.URLParam()["path"] !== undefined) {
+                        ajax.Post("../../../../../../sound/pointpoint/GetAllFiles.php", {}, function (json) {
+                            json = JSON.parse(json);
+                          
+                            for (var i = 0; i < json.length; i++) {
+                                player.AddAudioFromResource(json[i],"../../../../../../sound/pointpoint/"+ json[i]);
+                            }
+                             
+                        });
+
+
+
                         var url = ss.URLParam()["path"];
                         if (url.charAt(url.length - 1) === "#") {
                             url = url.slice(0, -1);
@@ -51,16 +62,17 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         ajax.Post("../../../../../Api/Ajax/Office/PointPoint/Manager/LoadAllData.php", {"path": player.path}, function (data) {
                             data = JSON.parse(data);
                             var Slides = data.Slides;
-                            for (var i = 0; i < Slides.length; i++) {                             
-                                    var parser = new DOMParser();
-                                    var dom = parser.parseFromString(Slides[i], "text/html").body.querySelector('[pointpoint-type="slide"]');
-                                    var index = parseInt(dom.getAttribute("pointpoint-index"));
-                                    pointpoint.ReplaceHtml(index, dom.innerHTML);                              
+                            for (var i = 0; i < Slides.length; i++) {
+                                var parser = new DOMParser();
+                                var dom = parser.parseFromString(Slides[i], "text/html").body.querySelector('[pointpoint-type="slide"]');
+                                var index = parseInt(dom.getAttribute("pointpoint-index"));
+                                pointpoint.ReplaceHtml(index, dom.innerHTML);
+
                             }
                             if (pointpoint.Count() > 0) {
                                 player.Click();
                             }
- 
+
                         });
 
                     } else {
@@ -74,47 +86,35 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                             if (sideindex < pointpoint.Count()) {
                                 var x = pointpoint.Get(sideindex).GetSlide();
                                 player.SetDom(x.cloneNode(true));
+                                player.FullScreen();
                                 sideindex++;
                                 ss.S("#LabPage").Html(sideindex);
                             } else {
                                 player.End();
                                 ss.S("#LabPage").Html("End");
                             }
+
                         }
 
-
-                        // ss.S("#BNGoto").Val(player.slidesindex);
                     });
-
-                    ss.S("#BNGoto").Change(function () {
-                        //player.SetSlide(parseInt(this.value));
-                    });
-
 
 
                 });
             </script>
         </head>
-        <body  class="HolyGrail">
+        <body  class="HolyGrail"  ">
+            <label id="LabPage" style="font-size: xx-large;position: absolute;right: 7px;">Start</label>
 
-            <div style="text-align: right;">
-                <label id="LabPage" style="color: burlywood;font-size: xx-large;">Start</label>
-            </div>
 
-            <div id="Render" style="border-style: solid;margin-left: auto;margin-right: auto;">
+            <div id="Render" style="border-style: solid;">
 
             </div>
-
             <div>
-                <label>Goto:</label>
-                <select id="BNGoto">
+                <ul>
+                    <li>Goto</li>
 
-
-                </select>
+                </ul>
             </div>
-
-
-
         </body>
     </html>
     <?php

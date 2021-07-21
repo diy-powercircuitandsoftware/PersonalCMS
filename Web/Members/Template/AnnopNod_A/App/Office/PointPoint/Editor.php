@@ -92,7 +92,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                     var ajax = new Ajax();
                     var pointpointeditor = new PointPoint_Editor(document.getElementById("Editor"));
                     var pointpoint = new PointPoint();
-                    ss.S("#AnimationList").Append(new PointPoint_Animation_Hide().GetClassName(),new PointPoint_Animation_Hide().GetName());
+                    ss.S("#AnimationList").Append(new PointPoint_Animation_Hide(null).GetClassName(), new PointPoint_Animation_Hide(null).GetName());
                     if (ss.URLParam()["path"] !== undefined) {
                         var url = ss.URLParam()["path"];
                         var dpw = superdialogload.PleaseWait();
@@ -535,7 +535,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                             <a class="BNToolBoxTab" data-id="Insert" href="#">Insert</a>
                             <a class="BNToolBoxTab" data-id="Slide" href="#">Slide</a>
-
+                            <a class="BNToolBoxTab" data-id="Export" href="#">Export</a>
                             <a class="BNToolBoxTab" data-id="Animation" href="#">Animation</a>
                             <a class="BNToolBoxTab" data-id="Audio" href="#">Audio</a>
                         </div>
@@ -619,6 +619,9 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                                     <label>Background:</label>
                                     <input type="button" class="SlideExecCommand" data-cmd="Background" value="Select" />
                                 </div>
+                            </div>
+                            <div class="ToolBoxTab" data-id="Export" style="display: none;">
+                                <img  class="x" data-cmd="removeFormat" title="RemoveFormat"   style="border-style: outset;"  src="../../../../../../img/print/pdf.png" width="22" height="22"  />
                             </div>
                             <div class="ToolBoxTab" data-id="Animation" style="display: none;">
                                 <label>Animation:</label>

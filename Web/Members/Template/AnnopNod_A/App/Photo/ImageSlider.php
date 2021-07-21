@@ -141,7 +141,6 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
 
                     document.onkeyup = function (event) {
                         event.preventDefault();
-
                         if (event.keyCode == 27) {
                             var domis = document.getElementById("FrameImageShow");
                             domis.removeAttribute("style");
@@ -149,8 +148,7 @@ if ($config->IsOnline() && isset($_SESSION["User"])) {
                         }
 
                     }
-
-
+                                       
                     ss.S("#BNFullScreen").Click(function () {
 
                         var w = window.innerWidth;
